@@ -294,7 +294,7 @@ The seed creates an owner, a manager, three drivers and vehicles, and six weeks 
 
 The seed is safe to re-run: it does nothing if the demo org exists. Alternatively run it from your laptop against Neon and B2: put the Neon and B2 values in `.env` (keeping `REDIS_URL` pointed at your local Redis) and run `bun run db:seed`.
 
-Seeded phone numbers: owner `9000000001`, manager `9000000002`, drivers `9000000011`–`9000000013`, all with the password `demo1234`.
+Seeded phone numbers: owner `9000000001`, manager `9000000002`, drivers `9000000011`–`9000000013`, all with the password `12345678`.
 
 ### Step 7: Build the APK for this API
 

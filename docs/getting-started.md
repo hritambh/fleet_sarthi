@@ -112,7 +112,7 @@ bun run db:migrate
 bun run db:seed
 ```
 
-The seed prints the logins it created. Every demo person has the password `demo1234`:
+The seed prints the logins it created. Every demo person has the password `12345678`:
 
 ```
 Seeded org "Sharma Travels"
@@ -121,7 +121,7 @@ Seeded org "Sharma Travels"
   driver   Ramesh Kumar    +919000000011   (Innova Crysta, diesel)
   driver   Suresh Patil    +919000000012   (Dzire, cng)
   driver   Imran Shaikh    +919000000013   (Etios, petrol)
-Sign in with any of these numbers and the password demo1234.
+Sign in with any of these numbers and the password 12345678.
 ```
 
 Re-running the seed is safe. `bun run db:reset` wipes the database and seeds it again. [Demo data](usage/demo-data.md) lists what the seed contains and walks through trying each feature with it.
@@ -132,7 +132,7 @@ Re-running the seed is safe. `bun run db:reset` wipes the database and seeds it 
 bun run dev:driver-web   # opens Chrome at http://localhost:5174, talking to the API on :3000
 ```
 
-The first build takes a minute. Enter the owner's number (`9000000001`) and the password `demo1234`, and sign in. The owner gets **owner mode**: Dashboard, Trips, Alerts and More (a side rail when the window is wide, a bottom bar when it's narrow).
+The first build takes a minute. Enter the owner's number (`9000000001`) and the password `12345678`, and sign in. The owner gets **owner mode**: Dashboard, Trips, Alerts and More (a side rail when the window is wide, a bottom bar when it's narrow).
 
 In the `flutter run` terminal, press `r` to hot-reload after editing anything under `apps/driver-app/lib`. If sign-in fails with a network error, check that `CORS_ORIGINS` in `.env` includes `http://localhost:5174` and restart `bun run dev`.
 
@@ -177,7 +177,7 @@ On a physical phone, photo uploads also need `S3_PUBLIC_ENDPOINT=http://<your-LA
 
 ## Step 11: Drive a trip
 
-1. Log in as **Ramesh** (`9000000011`, password `demo1234`), and allow camera and location access.
+1. Log in as **Ramesh** (`9000000011`, password `12345678`), and allow camera and location access.
 2. Open the Pune → Mumbai trip and tap **Start trip**. Photograph the odometer (an emulator camera shows a test scene and Chrome uses your webcam; either is fine because OCR is stubbed), type `48210`, and tap **Start**.
 3. **Simulate driving.** On the Android emulator, open **Extended controls → Location → Routes**, pick or import any route, and press play. On the iOS simulator, use **Features → Location → Freeway Drive**. In Chrome, open DevTools → **More tools → Sensors** and change **Location** a few times while the trip runs (points closer than 50 m apart are skipped).
 4. Add a ₹250 toll, marked **I paid this**.

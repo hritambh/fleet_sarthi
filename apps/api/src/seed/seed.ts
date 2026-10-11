@@ -25,7 +25,7 @@ import { textPng } from './png.js';
 const OWNER = { name: 'Anil Sharma', phone: '+919000000001' };
 const MANAGER = { name: 'Priya Nair', phone: '+919000000002' };
 /** Every demo person signs in with this password (demo data only). */
-export const DEMO_PASSWORD = 'demo1234';
+export const DEMO_PASSWORD = '12345678';
 const HISTORY_DAYS = 42;
 const SETTLED_UNTIL_DAYS_AGO = 3;
 const GPS_DAYS = 4;

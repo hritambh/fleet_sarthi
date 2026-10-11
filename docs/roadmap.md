@@ -25,7 +25,7 @@ Each milestone ends with lint, typecheck and tests passing, a summary of what ch
 
 ## Changes
 
-- **2026-10-12: phone + password only.** Google sign-in and SMS-code login were removed, along with `GET /auth/config` and the `users.email` / `google_sub` columns (migration `20261012000000_drop_google_sign_in`). Everyone signs in with mobile number + password; sign-up needs no code; a forgotten password is reset with a code sent through the `SmsProvider` (printed in the API log with `SMS_PROVIDER=console`). Demo people have the password `demo1234`. See [D14](decisions.md).
+- **2026-10-12: phone + password only.** Google sign-in and SMS-code login were removed, along with `GET /auth/config` and the `users.email` / `google_sub` columns (migration `20261012000000_drop_google_sign_in`). Everyone signs in with mobile number + password; sign-up needs no code; a forgotten password is reset with a code sent through the `SmsProvider` (printed in the API log with `SMS_PROVIDER=console`). Demo people have the password `demo1234` (changed to `12345678` the same day). See [D14](decisions.md).
 
 ## Known gaps (found while building M1.7–M1.8)
 

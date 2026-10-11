@@ -46,7 +46,7 @@ After a reset, the app in Chrome still holds the old trips and any unsent action
 
 ### Signing in
 
-Every demo person has the password **`demo1234`**: enter the number (e.g. `9000000001`) and `demo1234` on the sign-in screen. The seed prints this at the end.
+Every demo person has the password **`12345678`**: enter the number (e.g. `9000000001`) and `12345678` on the sign-in screen. The seed prints this at the end.
 
 If you change a password and forget it, choose **Forgot password?**, enter the number and tap **Send code**. Nothing is sent locally: the code is printed in the API log. Enter it with a new password.
 
@@ -139,4 +139,4 @@ Switch the language (the sign-in screen, **More → Language** in owner mode, or
 
 ## On a hosted demo
 
-The free Render deployment can load the same data: set `SEED_DEMO_DATA=true` once, then set it back to `false`. Sign in with the same numbers and `demo1234`; password-reset codes are in the Render logs. See [deployment.md](../deployment.md#step-6-optional-load-the-demo-fleet).
+The free Render deployment can load the same data: set `SEED_DEMO_DATA=true` once, then set it back to `false`. Sign in with the same numbers and `12345678`; password-reset codes are in the Render logs. See [deployment.md](../deployment.md#step-6-optional-load-the-demo-fleet).
