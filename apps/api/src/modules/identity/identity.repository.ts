@@ -9,11 +9,9 @@ export interface UserRow {
   name: string | null;
 }
 
-/** A user with their sign-in methods. */
+/** A user with their password hash. */
 export interface AccountRow extends UserRow {
   passwordHash: string | null;
-  email: string | null;
-  googleSub: string | null;
 }
 
 const accountSelect = {
@@ -21,8 +19,6 @@ const accountSelect = {
   phoneE164: true,
   name: true,
   passwordHash: true,
-  email: true,
-  googleSub: true,
 } as const;
 
 /**
@@ -49,30 +45,13 @@ export class IdentityRepository {
 
   async findAccount(
     tx: SystemTx,
-    where: { id: string } | { phoneE164: string } | { googleSub: string },
+    where: { id: string } | { phoneE164: string },
   ): Promise<AccountRow | null> {
     return tx.user.findUnique({ where, select: accountSelect });
   }
 
   async setPassword(tx: SystemTx, userId: string, passwordHash: string): Promise<void> {
     await tx.user.update({ where: { id: userId }, data: { passwordHash } });
-  }
-
-  async linkGoogle(
-    tx: SystemTx,
-    userId: string,
-    google: { sub: string; email: string | null; name: string | null },
-    currentName: string | null,
-  ): Promise<UserRow> {
-    return tx.user.update({
-      where: { id: userId },
-      data: {
-        googleSub: google.sub,
-        ...(google.email ? { email: google.email } : {}),
-        ...(!currentName && google.name ? { name: google.name } : {}),
-      },
-      select: { id: true, phoneE164: true, name: true },
-    });
   }
 
   /** Signs the user out everywhere (after a password reset). */

@@ -43,7 +43,7 @@ services:
       # workers and schedules itself. Keep the service at one instance.
       - key: JOBS_MODE
         value: in-process
-      # No SMS provider yet: login codes are written to the API log (Logs tab), and
+      # No SMS provider yet: password-reset codes are written to the API log (Logs tab), and
       # production refuses that unless DEMO_MODE is on. Demo deployments only.
       - key: SMS_PROVIDER
         value: console
@@ -54,10 +54,12 @@ services:
       # Load the demo fleet on start (skips once it exists). Set to true for a demo.
       - key: SEED_DEMO_DATA
         value: 'false'
-      # Every client reaches the API through Render's proxy, so the per-IP OTP limit
-      # is shared by everyone; per-phone limits still apply.
+      # Every client reaches the API through Render's proxy, so per-IP limits are
+      # shared by everyone; per-phone limits still apply.
       - key: OTP_IP_LIMIT_PER_HOUR
         value: '120'
+      - key: SIGNUP_IP_LIMIT_PER_HOUR
+        value: '100'
 
       # Neon (or another Postgres with PostGIS). Owner URL for roles + migrations,
       # app-role URL (user taxcy_api, a password you choose) for the API.
@@ -88,11 +90,6 @@ services:
         generateValue: true
       # The admin web's URL, e.g. https://taxcy-admin.onrender.com (comma-separated).
       - key: CORS_ORIGINS
-        sync: false
-      # Optional: real Google sign-in. Empty switches Google off in production.
-      - key: GOOGLE_WEB_CLIENT_ID
-        sync: false
-      - key: GOOGLE_EXTRA_CLIENT_IDS
         sync: false
       - key: SENTRY_DSN
         sync: false
@@ -136,7 +133,7 @@ services:
       - key: VITE_API_URL
         sync: false
 
-  # ── Redis for OTPs, rate limits and BullMQ ──────────────────────────────────
+  # ── Redis for reset codes, rate limits and BullMQ ──────────────────────────────────
   - type: keyvalue
     name: taxcy-redis
     plan: free

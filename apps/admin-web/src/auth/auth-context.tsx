@@ -62,11 +62,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       activeMembership,
       isStaff: roles.includes('owner') || roles.includes('manager'),
       isOwner: roles.includes('owner'),
-      loadAuthConfig: () => call(api.GET('/auth/config')),
-      requestOtp: (phone) => call(api.POST('/auth/otp/request', { body: { phone } })),
-      async verifyOtp(phone, code) {
-        adopt(await call(api.POST('/auth/otp/verify', { body: { phone, code, ...device() } })));
-      },
       async passwordLogin(phone, password) {
         adopt(
           await call(api.POST('/auth/password/login', { body: { phone, password, ...device() } })),
@@ -75,17 +70,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async signup(input) {
         adopt(await call(api.POST('/auth/signup', { body: { ...input, ...device() } })));
       },
+      requestOtp: (phone) => call(api.POST('/auth/otp/request', { body: { phone } })),
       async resetPassword(input) {
         adopt(await call(api.POST('/auth/password/reset', { body: { ...input, ...device() } })));
-      },
-      async googleSignIn(idToken) {
-        const result = await call(api.POST('/auth/google', { body: { idToken, ...device() } }));
-        if (result.status === 'phone_required') return result;
-        adopt(result.session);
-        return { status: 'signed_in' };
-      },
-      async googleLink(input) {
-        adopt(await call(api.POST('/auth/google/link', { body: { ...input, ...device() } })));
       },
       async createOrg(name, kind) {
         adopt(

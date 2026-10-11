@@ -7,12 +7,12 @@ Every route is declared once, as a Zod contract in `libs/contracts`. The API bin
 ## Authentication
 
 ```http
-POST /v1/auth/otp/request
-{ "phone": "+919812345678" }
-→ 202 { "expiresInSeconds": 300, "resendAfterSeconds": 30 }
+POST /v1/auth/signup
+{ "phone": "+919812345678", "password": "at-least-8-chars", "name": "Anil", "deviceId": "<uuid>", "platform": "android" }
+→ 201 (a session, as below)
 
-POST /v1/auth/otp/verify
-{ "phone": "+919812345678", "code": "123456", "deviceId": "<uuid>", "platform": "android" }
+POST /v1/auth/password/login
+{ "phone": "+919812345678", "password": "at-least-8-chars", "deviceId": "<uuid>", "platform": "android" }
 → 200 {
   "accessToken": "…", "accessTokenExpiresAt": "…",
   "refreshToken": "…", "refreshTokenExpiresAt": "…",
@@ -22,10 +22,10 @@ POST /v1/auth/otp/verify
 }
 ```
 
-- **Codes.** In development the OTP is printed in the API log (`otp.issued phone=… code=…`). Each code works once and allows 5 attempts; requests are rate-limited per phone (one per 30 s, 3 per 10 min, 10 per day) and per IP (`OTP_IP_LIMIT_PER_HOUR`). A limited request returns `429` with `details.retryAfterSeconds`.
+- **Reset codes.** `POST /auth/otp/request` sends a 6-digit password-reset code; `POST /auth/password/reset` with `{phone, code, password, deviceId, platform}` sets the new password and returns a session. There's no SMS provider yet: with `SMS_PROVIDER=console` (development and `DEMO_MODE`) the code is printed in the API log (`otp.issued phone=… code=…`). Each code lasts 5 minutes, works once and allows 5 attempts; requests are rate-limited per phone (one per 30 s, 3 per 10 min, 10 per day) and per IP (`OTP_IP_LIMIT_PER_HOUR`). A limited request returns `429` with `details.retryAfterSeconds`.
 - **Tokens.** Send `Authorization: Bearer <accessToken>`. Access tokens last 15 minutes and carry the active org and your roles in it. Refresh tokens are rotated on every `POST /auth/refresh`. Presenting an already-rotated refresh token revokes every token in its family.
-- **Sign-in methods.** An SMS code, a phone + password (sign up after an SMS code; reset with one), or Google. The phone number is the identity: a first Google sign-in returns `phone_required`, and `/auth/google/link` attaches the Google account to a phone verified by SMS code, after which Google signs straight in. A phone holds one Google account and vice versa (`GOOGLE_ACCOUNT_CONFLICT`).
-- **First login creates the user.** Users with no org call `POST /orgs` (`fleet`, or `dco` for an owner-driver) and get a session scoped to the new org. Invited drivers' memberships activate on their first sign-in. `POST /auth/switch-org` moves a session to another org you belong to.
+- **Sign-in methods.** Phone + password only; the phone number is the identity. Sign-up needs no code: a number that already has a password gets `ACCOUNT_EXISTS`, and an invited number with no password takes the new password and joins its fleet(s). Sign-ups are limited to 20 per IP per hour. The phone isn't verified, so whoever signs up first with an invited number claims it: fine for demos and pilots, but add SMS verification before real use. Wrong phone and wrong password both give `INVALID_CREDENTIALS`.
+- **Sign-up creates the user.** Users with no org call `POST /orgs` (`fleet`, or `dco` for an owner-driver) and get a session scoped to the new org. Invited drivers' memberships activate on their first sign-in. `POST /auth/switch-org` moves a session to another org you belong to.
 
 ## Conventions
 
@@ -56,15 +56,15 @@ POST /v1/auth/otp/verify
 }
 ```
 
-| HTTP | Codes                                                                                                                                                                                       |
-| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 400  | `VALIDATION_FAILED` (`details.issues` lists each problem), `IDEMPOTENCY_KEY_REQUIRED`                                                                                                       |
-| 401  | `UNAUTHENTICATED`, `TOKEN_EXPIRED`, `OTP_INVALID` (`details.attemptsLeft`), `OTP_EXPIRED`                                                                                                   |
-| 403  | `FORBIDDEN_ROLE`, `NO_ACTIVE_ORG`                                                                                                                                                           |
-| 404  | `NOT_FOUND`, also returned for other orgs' records, so existence is never leaked                                                                                                            |
-| 409  | `ILLEGAL_TRANSITION`, `TRIP_CANCELLED`, `TRIP_REASSIGNED`, `VEHICLE_BUSY`, `DRIVER_BUSY`, `CANCELLATION_PENDING`, `ALREADY_SETTLED`, `IDEMPOTENCY_CONFLICT`, `VERSION_CONFLICT`, `CONFLICT` |
-| 422  | `FUEL_TYPE_MISMATCH`, `ODOMETER_BEFORE_START`, `UPLOAD_NOT_FOUND`, `UPLOAD_MISMATCH`                                                                                                        |
-| 429  | `RATE_LIMITED`                                                                                                                                                                              |
+| HTTP | Codes                                                                                                                                                                                                                                                                                  |
+| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 400  | `VALIDATION_FAILED` (`details.issues` lists each problem), `IDEMPOTENCY_KEY_REQUIRED`                                                                                                                                                                                                  |
+| 401  | `UNAUTHENTICATED`, `TOKEN_EXPIRED`, `INVALID_CREDENTIALS`, `OTP_INVALID` (`details.attemptsLeft`), `OTP_EXPIRED`                                                                                                                                                                       |
+| 403  | `FORBIDDEN_ROLE`, `NO_ACTIVE_ORG`                                                                                                                                                                                                                                                      |
+| 404  | `NOT_FOUND`, also returned for other orgs' records, so existence is never leaked                                                                                                                                                                                                       |
+| 409  | `ACCOUNT_EXISTS`, `ILLEGAL_TRANSITION`, `TRIP_CANCELLED`, `TRIP_REASSIGNED`, `VEHICLE_BUSY`, `DRIVER_BUSY`, `DRIVER_ON_TRIP`, `VEHICLE_ON_TRIP`, `DRIVER_NOT_LINKED`, `LINK_IN_USE`, `CANCELLATION_PENDING`, `ALREADY_SETTLED`, `IDEMPOTENCY_CONFLICT`, `VERSION_CONFLICT`, `CONFLICT` |
+| 422  | `FUEL_TYPE_MISMATCH`, `ODOMETER_BEFORE_START`, `UPLOAD_NOT_FOUND`, `UPLOAD_MISMATCH`                                                                                                                                                                                                   |
+| 429  | `RATE_LIMITED`                                                                                                                                                                                                                                                                         |
 
 Every response carries `X-Request-Id`; send your own to correlate logs.
 
@@ -88,23 +88,19 @@ Photos are OCR'd in the background. A disagreement between typed and OCR values 
 
 ### Auth and orgs
 
-| Endpoint                    | Who       | Idempotency-Key | What it does                                                                   |
-| --------------------------- | --------- | --------------- | ------------------------------------------------------------------------------ |
-| `POST /auth/otp/request`    | public    |                 | Send a one-time login code by SMS                                              |
-| `POST /auth/otp/verify`     | public    |                 | Exchange a login code for a session (creates the user on first login)          |
-| `POST /auth/refresh`        | public    |                 | Rotate the refresh token and get a new access token                            |
-| `POST /auth/logout`         | public    |                 | Revoke the refresh token (and every token rotated from it)                     |
-| `POST /auth/switch-org`     | signed in |                 | Get a session scoped to another org you belong to                              |
-| `GET /me`                   | signed in |                 | The signed-in user and their memberships                                       |
-| `PATCH /me`                 | signed in |                 | Update your profile                                                            |
-| `POST /orgs`                | signed in |                 | Create an organization; you become its owner (and driver, for a DCO)           |
-| `GET /auth/config`          | public    |                 | Sign-in methods available: password, and Google (`google` / `dev` / `off`)     |
-| `POST /auth/signup`         | public    |                 | Sign up with phone + password, after an SMS code (`/auth/otp/request`)         |
-| `POST /auth/password/login` | public    |                 | Sign in with phone + password (`INVALID_CREDENTIALS` either way; rate limited) |
-| `POST /auth/password/reset` | public    |                 | New password with an SMS code; signs out every other session                   |
-| `POST /me/password`         | signed in |                 | Set a password, or change it (needs the current one)                           |
-| `POST /auth/google`         | public    |                 | Sign in with a Google ID token; first time: `phone_required` + `linkToken`     |
-| `POST /auth/google/link`    | public    |                 | Finish a first Google sign-in by verifying a phone with an SMS code            |
+| Endpoint                    | Who       | Idempotency-Key | What it does                                                                                                              |
+| --------------------------- | --------- | --------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `POST /auth/otp/request`    | public    |                 | Send a password-reset code by SMS (in development and demo mode it is printed in the API log)                             |
+| `POST /auth/refresh`        | public    |                 | Rotate the refresh token and get a new access token                                                                       |
+| `POST /auth/logout`         | public    |                 | Revoke the refresh token (and every token rotated from it)                                                                |
+| `POST /auth/switch-org`     | signed in |                 | Get a session scoped to another org you belong to                                                                         |
+| `GET /me`                   | signed in |                 | The signed-in user (with `hasPassword`) and their memberships                                                             |
+| `PATCH /me`                 | signed in |                 | Update your profile                                                                                                       |
+| `POST /orgs`                | signed in |                 | Create an organization; you become its owner (and driver, for a DCO)                                                      |
+| `POST /auth/signup`         | public    |                 | Sign up with phone + password (no code); `ACCOUNT_EXISTS` if the number has a password; an invited number joins its fleet |
+| `POST /auth/password/login` | public    |                 | Sign in with phone + password (`INVALID_CREDENTIALS` either way; rate limited)                                            |
+| `POST /auth/password/reset` | public    |                 | New password with a reset code (`/auth/otp/request`); signs out every other session                                       |
+| `POST /me/password`         | signed in |                 | Set a password, or change it (needs the current one)                                                                      |
 
 ### Members
 
@@ -135,7 +131,7 @@ Drivers are added with `POST /drivers`, which also creates their driver profile.
 | `PUT /vehicles/{id}/drivers` | owner, manager         |                 | Set the drivers who may drive the vehicle                                      |
 | `GET /vehicle-models`        | owner, manager, driver |                 | Known vehicle models (used to seed fuel baselines)                             |
 | `GET /drivers`               | owner, manager         |                 | Drivers in the org                                                             |
-| `POST /drivers`              | owner, manager         |                 | Invite a driver by phone; they sign in to the app with that number             |
+| `POST /drivers`              | owner, manager         |                 | Invite a driver by phone; they sign up in the app with that number             |
 | `GET /drivers/{id}`          | owner, manager         |                 | A driver                                                                       |
 | `PATCH /drivers/{id}`        | owner, manager         |                 | Update a driver                                                                |
 | `PUT /drivers/{id}/vehicles` | owner, manager         |                 | Set the vehicles the driver may drive                                          |

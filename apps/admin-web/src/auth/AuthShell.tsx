@@ -61,14 +61,3 @@ export function LinkButton({
     </button>
   );
 }
-
-/** A horizontal rule with a word in the middle ("or"). */
-export function Divider({ label }: { label: string }) {
-  return (
-    <div className="my-4 flex items-center gap-3 text-xs text-slate-500" role="separator">
-      <span className="h-px flex-1 bg-slate-200" />
-      {label}
-      <span className="h-px flex-1 bg-slate-200" />
-    </div>
-  );
-}

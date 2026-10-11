@@ -3,15 +3,7 @@ import { useState, type SubmitEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { passwordProblem, type PasswordProblem } from '../auth/password-rules.js';
 import { NewPasswordFields, PasswordInput } from '../components/PasswordInput.js';
-import {
-  Badge,
-  Button,
-  Card,
-  Field,
-  InlineError,
-  PageHeader,
-  QueryState,
-} from '../components/ui.js';
+import { Button, Card, Field, InlineError, PageHeader, QueryState } from '../components/ui.js';
 import { api, callVoid } from '../lib/api.js';
 import type { Me } from '../lib/api-types.js';
 import { ApiError } from '../lib/errors.js';
@@ -121,24 +113,11 @@ function Profile({ me }: { me: Me }) {
       <dd className="text-slate-900">{me.user.name ?? notSet}</dd>
       <dt className="font-medium text-slate-500">{t('account.mobile')}</dt>
       <dd className="text-slate-900">{fmtPhone(me.user.phone)}</dd>
-      <dt className="font-medium text-slate-500">{t('account.google')}</dt>
-      <dd className="space-y-1">
-        {me.user.googleLinked ? (
-          <Badge tone="success">{t('account.googleLinked')}</Badge>
-        ) : (
-          <>
-            <Badge tone="neutral">{t('account.googleNotLinked')}</Badge>
-            <p className="text-xs text-slate-500">{t('account.googleNotLinkedHelp')}</p>
-          </>
-        )}
-      </dd>
-      <dt className="font-medium text-slate-500">{t('account.email')}</dt>
-      <dd className="text-slate-900">{me.user.email ?? notSet}</dd>
     </dl>
   );
 }
 
-/** The signed-in person's own account: profile, Google link and password. */
+/** The signed-in person's own account: profile and password. */
 export function AccountPage() {
   const { t } = useTranslation();
   const me = useMe();

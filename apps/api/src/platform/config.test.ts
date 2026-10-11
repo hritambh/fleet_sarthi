@@ -26,7 +26,9 @@ describe('loadConfig', () => {
 
   it('refuses console SMS in production unless demo mode is switched on explicitly', () => {
     const production = { ...base, NODE_ENV: 'production', SMS_PROVIDER: 'console' };
-    expect(() => loadConfig(production)).toThrow(/SMS_PROVIDER: console only logs login codes/);
+    expect(() => loadConfig(production)).toThrow(
+      /SMS_PROVIDER: console only logs password-reset codes/,
+    );
     expect(() => loadConfig({ ...production, DEMO_MODE: 'false' })).toThrow(/SMS_PROVIDER/);
     expect(loadConfig({ ...production, DEMO_MODE: 'true' }).DEMO_MODE).toBe(true);
   });

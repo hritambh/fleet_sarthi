@@ -25,7 +25,6 @@
     "@taxcy/db": "workspace:*",
     "@taxcy/domain": "workspace:*",
     "bullmq": "^6.3.12",
-    "google-auth-library": "^11.2.0",
     "ioredis": "^6.0.0",
     "jose": "^6.2.12",
     "nestjs-pino": "^5.3.1",

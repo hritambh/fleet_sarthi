@@ -1,76 +1,45 @@
-import { useState, type InputHTMLAttributes, type ReactNode, type SubmitEvent } from 'react';
+import { useState, type SubmitEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import { NewPasswordFields } from '../components/PasswordInput.js';
 import { Button, Field, InlineError, Input } from '../components/ui.js';
 import { fmtPhone } from '../lib/format.js';
 import { parseIndianMobile } from '../lib/labels.js';
 import { AuthShell, LinkButton } from './AuthShell.js';
 import { useAuth } from './context.js';
+import { passwordProblem, type PasswordProblem } from './password-rules.js';
+import { PhoneField } from './PhoneInput.js';
 import { useSecondsLeft } from './use-seconds-left.js';
 
-/** A 10-digit Indian mobile, with the +91 shown in front. */
-export function PhoneInput(props: InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <div className="flex">
-      <span className="inline-flex items-center rounded-l-md border border-r-0 border-slate-300 bg-brand-50 px-3 text-sm font-medium text-brand-700">
-        +91
-      </span>
-      <Input
-        {...props}
-        type="tel"
-        className="rounded-l-none"
-        inputMode="tel"
-        autoComplete="tel-national"
-        placeholder="98123 45678"
-      />
-    </div>
-  );
-}
-
 /** A code was sent to `phone`; another can be asked for at `resendAt` (a Date.now() time). */
-export interface CodeSent {
+interface CodeSent {
   phone: string;
   resendAt: number;
 }
 
 /**
- * Phone number → SMS code. `onCode` gets the 6 digits; whatever it throws is shown
- * on the code step, so a mistyped code can simply be typed again. Start at the code
- * step by passing `start` (e.g. when a later step reports the code was wrong).
+ * Forgot password: mobile number → "Send code", then the code and a new password
+ * (typed twice). Saving signs the user in.
  */
-export function PhoneCodeSteps({
-  title,
-  subtitle,
+export function ResetPasswordPage({
   phoneInput,
   onPhoneInput,
-  start,
-  submitLabel,
-  onCode,
-  intro,
-  footer,
+  onSignIn,
 }: {
-  title: string;
-  subtitle: ReactNode;
   phoneInput: string;
   onPhoneInput: (value: string) => void;
-  start?: CodeSent & { error?: unknown };
-  /** The code step's button. */
-  submitLabel: string;
-  onCode: (phone: string, code: string, sent: CodeSent) => Promise<void>;
-  /** Shown above the form on both steps. */
-  intro?: ReactNode;
-  /** Shown below the form on the phone step (links to other ways in). */
-  footer?: ReactNode;
+  onSignIn: () => void;
 }) {
   const { t } = useTranslation();
   const auth = useAuth();
-  const [sent, setSent] = useState<CodeSent | null>(
-    start ? { phone: start.phone, resendAt: start.resendAt } : null,
-  );
+  const [sent, setSent] = useState<CodeSent | null>(null);
+  const [phoneInvalid, setPhoneInvalid] = useState(false);
   const [code, setCode] = useState('');
-  const [error, setError] = useState<unknown>(start?.error ?? null);
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [problem, setProblem] = useState<PasswordProblem | null>(null);
+  const [error, setError] = useState<unknown>(null);
   const [resent, setResent] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [phoneInvalid, setPhoneInvalid] = useState(false);
 
   async function request(phone: string): Promise<boolean> {
     setBusy(true);
@@ -94,14 +63,17 @@ export function PhoneCodeSteps({
     if (phone) await request(phone);
   }
 
-  async function verify(event: SubmitEvent<HTMLFormElement>) {
+  async function save(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!sent) return;
+    const found = passwordProblem(password, confirm);
+    setProblem(found);
+    setResent(false);
+    if (found) return;
     setBusy(true);
     setError(null);
-    setResent(false);
     try {
-      await onCode(sent.phone, code, sent);
+      await auth.resetPassword({ phone: sent.phone, code, password });
     } catch (e) {
       setError(e);
     } finally {
@@ -111,45 +83,37 @@ export function PhoneCodeSteps({
 
   if (!sent) {
     return (
-      <AuthShell title={title} subtitle={subtitle}>
-        {intro}
+      <AuthShell title={t('auth.resetTitle')} subtitle={t('auth.resetSubtitle')}>
         <form onSubmit={(e) => void sendCode(e)} className="space-y-4" noValidate>
-          <Field
-            label={t('auth.mobileNumber')}
-            error={phoneInvalid ? t('auth.invalidMobile') : null}
-          >
-            {(props) => (
-              <PhoneInput
-                {...props}
-                value={phoneInput}
-                onChange={(e) => {
-                  onPhoneInput(e.target.value);
-                }}
-                autoFocus
-              />
-            )}
-          </Field>
+          <PhoneField value={phoneInput} onChange={onPhoneInput} invalid={phoneInvalid} autoFocus />
           <InlineError error={error} />
           <Button type="submit" busy={busy} className="w-full">
             {t('auth.sendCode')}
           </Button>
         </form>
-        {footer}
+        <div className="mt-5 text-center text-sm">
+          <LinkButton onClick={onSignIn}>{t('auth.backToSignIn')}</LinkButton>
+        </div>
       </AuthShell>
     );
   }
 
   return (
     <AuthShell
-      title={t('auth.enterCode')}
+      title={t('auth.newPasswordTitle')}
       subtitle={t('auth.codeSent', { phone: fmtPhone(sent.phone) })}
     >
-      {intro}
-      <form onSubmit={(e) => void verify(e)} className="space-y-4" noValidate>
-        <Field
-          label={t('auth.oneTimeCode')}
-          hint={import.meta.env.DEV ? t('auth.devCodeHint') : undefined}
-        >
+      <form onSubmit={(e) => void save(e)} className="space-y-4" noValidate>
+        {/* Lets password managers save the new password against the number. */}
+        <input
+          type="text"
+          name="username"
+          autoComplete="username"
+          value={sent.phone}
+          readOnly
+          hidden
+        />
+        <Field label={t('auth.oneTimeCode')} hint={t('auth.devCodeHint')}>
           {(props) => (
             <Input
               {...props}
@@ -165,6 +129,13 @@ export function PhoneCodeSteps({
             />
           )}
         </Field>
+        <NewPasswordFields
+          password={password}
+          confirm={confirm}
+          onPassword={setPassword}
+          onConfirm={setConfirm}
+          problem={problem}
+        />
         <InlineError error={error} />
         {resent && (
           <p className="text-sm text-emerald-700" role="status">
@@ -172,7 +143,7 @@ export function PhoneCodeSteps({
           </p>
         )}
         <Button type="submit" busy={busy} disabled={code.length !== 6} className="w-full">
-          {submitLabel}
+          {t('auth.saveAndSignIn')}
         </Button>
         <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
           <ResendButton

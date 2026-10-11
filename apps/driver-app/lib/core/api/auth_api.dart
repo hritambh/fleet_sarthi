@@ -7,27 +7,19 @@ import 'models.dart';
 /// session.
 typedef DeviceInfo = ({String deviceId, String platform});
 
-/// Signing in, signing up and the account's sign-in methods. The login screens
-/// and the account screen depend on this interface, so tests run against a fake.
+/// Signing in (mobile number + password), signing up, resetting a forgotten
+/// password and changing it. The login screens and the account screen depend on
+/// this interface, so tests run against a fake.
 abstract class AuthApi {
-  /// Which sign-in methods the server offers.
-  Future<AuthConfig> config();
-
-  /// Sends an SMS code to [phone] (for SMS login, sign-up, reset and Google).
+  /// Sends a password-reset code to [phone]. Locally and in demo mode the API
+  /// prints the code in its log instead of sending an SMS.
   Future<OtpTicket> requestOtp(String phone);
 
-  /// SMS-code login; creates the user on first login.
-  Future<Session> verifyOtp({
-    required String phone,
-    required String code,
-    required DeviceInfo device,
-  });
-
-  /// Phone + password sign-up after an SMS code. ACCOUNT_EXISTS when the
-  /// number already has a password.
+  /// Phone + password sign-up. An invited number without a password gets this
+  /// password and joins its fleet; ACCOUNT_EXISTS when the number already has
+  /// a password.
   Future<Session> signUp({
     required String phone,
-    required String code,
     required String password,
     required DeviceInfo device,
     String? name,
@@ -40,7 +32,7 @@ abstract class AuthApi {
     required DeviceInfo device,
   });
 
-  /// A new password with an SMS code; signs out every other session.
+  /// A new password with a reset code; signs out every other session.
   Future<Session> resetPassword({
     required String phone,
     required String code,
@@ -54,20 +46,7 @@ abstract class AuthApi {
     String? currentPassword,
   });
 
-  Future<GoogleSignInResult> googleSignIn({
-    required String idToken,
-    required DeviceInfo device,
-  });
-
-  /// Finishes a first Google sign-in with a phone verified by SMS code.
-  Future<Session> googleLink({
-    required String linkToken,
-    required String phone,
-    required String code,
-    required DeviceInfo device,
-  });
-
-  /// The signed-in user's account and sign-in methods.
+  /// The signed-in user's account (and whether a password is set).
   Future<Account> account();
 
   Future<void> logout(String refreshToken);
@@ -90,35 +69,18 @@ class HttpAuthApi implements AuthApi {
       Session.fromJson(await _public('POST', path, body));
 
   @override
-  Future<AuthConfig> config() async =>
-      AuthConfig.fromJson(await _public('GET', '/auth/config'));
-
-  @override
   Future<OtpTicket> requestOtp(String phone) async => OtpTicket.fromJson(
     await _public('POST', '/auth/otp/request', {'phone': phone}),
   );
 
   @override
-  Future<Session> verifyOtp({
-    required String phone,
-    required String code,
-    required DeviceInfo device,
-  }) => _session('/auth/otp/verify', {
-    'phone': phone,
-    'code': code,
-    ..._device(device),
-  });
-
-  @override
   Future<Session> signUp({
     required String phone,
-    required String code,
     required String password,
     required DeviceInfo device,
     String? name,
   }) => _session('/auth/signup', {
     'phone': phone,
-    'code': code,
     'password': password,
     'name': ?name,
     ..._device(device),
@@ -157,30 +119,6 @@ class HttpAuthApi implements AuthApi {
     '/me/password',
     body: {'currentPassword': ?currentPassword, 'newPassword': newPassword},
   );
-
-  @override
-  Future<GoogleSignInResult> googleSignIn({
-    required String idToken,
-    required DeviceInfo device,
-  }) async => GoogleSignInResult.fromJson(
-    await _public('POST', '/auth/google', {
-      'idToken': idToken,
-      ..._device(device),
-    }),
-  );
-
-  @override
-  Future<Session> googleLink({
-    required String linkToken,
-    required String phone,
-    required String code,
-    required DeviceInfo device,
-  }) => _session('/auth/google/link', {
-    'linkToken': linkToken,
-    'phone': phone,
-    'code': code,
-    ..._device(device),
-  });
 
   @override
   Future<Account> account() async =>

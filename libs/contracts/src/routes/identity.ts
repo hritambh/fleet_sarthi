@@ -35,33 +35,19 @@ export const Password = z
   .min(8, 'Use at least 8 characters')
   .max(128, 'Use at most 128 characters');
 
-/** The device a session is for (same fields as OTP login). */
+/** The device a session is for. */
 const DeviceFields = {
   deviceId: Id,
   platform: DevicePlatform,
   appVersion: z.string().max(40).optional(),
 };
 
-export const GoogleSignInResult = z.discriminatedUnion('status', [
-  z.object({ status: z.literal('signed_in'), session: Session }),
-  /**
-   * First Google sign-in: the Google account isn't linked to a phone yet. Verify a
-   * phone with an SMS code and send linkToken to /auth/google/link (valid 10 minutes).
-   */
-  z.object({
-    status: z.literal('phone_required'),
-    linkToken: z.string(),
-    email: z.string().nullable(),
-    name: z.string().nullable(),
-  }),
-]);
-export type GoogleSignInResult = z.infer<typeof GoogleSignInResult>;
-
 export const identityRoutes = {
   requestOtp: defineRoute({
     method: 'POST',
     path: '/auth/otp/request',
-    summary: 'Send a one-time login code by SMS',
+    summary:
+      'Send a password-reset code by SMS (in development and demo mode it is printed in the API log)',
     tag: 'auth',
     access: access.public,
     status: 202,
@@ -71,45 +57,16 @@ export const identityRoutes = {
       resendAfterSeconds: z.number().int(),
     }),
   }),
-  verifyOtp: defineRoute({
-    method: 'POST',
-    path: '/auth/otp/verify',
-    summary: 'Exchange a login code for a session (creates the user on first login)',
-    tag: 'auth',
-    access: access.public,
-    body: z.object({
-      phone: PhoneE164,
-      code: OtpCode,
-      ...DeviceFields,
-    }),
-    response: Session,
-  }),
-  authConfig: defineRoute({
-    method: 'GET',
-    path: '/auth/config',
-    summary: 'Which sign-in methods are available (for login screens)',
-    tag: 'auth',
-    access: access.public,
-    response: z.object({
-      password: z.boolean(),
-      google: z.object({
-        /** google: real Google sign-in; dev: a local stand-in (no Google account needed); off. */
-        mode: z.enum(['google', 'dev', 'off']),
-        webClientId: z.string().nullable(),
-      }),
-    }),
-  }),
   signup: defineRoute({
     method: 'POST',
     path: '/auth/signup',
     summary:
-      'Sign up with phone and password: request a code first (/auth/otp/request), then send it with the password',
+      'Sign up with phone and password. An invited number without a password gets this password and joins its fleet',
     tag: 'auth',
     access: access.public,
     status: 201,
     body: z.object({
       phone: PhoneE164,
-      code: OtpCode,
       password: Password,
       name: z.string().trim().min(1).max(100).optional(),
       ...DeviceFields,
@@ -129,7 +86,7 @@ export const identityRoutes = {
     method: 'POST',
     path: '/auth/password/reset',
     summary:
-      'Set a new password with an SMS code (request one first); signs out every other session',
+      'Set a new password with a reset code (request one with /auth/otp/request); signs out every other session',
     tag: 'auth',
     access: access.public,
     body: z.object({ phone: PhoneE164, code: OtpCode, password: Password, ...DeviceFields }),
@@ -144,31 +101,6 @@ export const identityRoutes = {
     status: 204,
     body: z.object({ currentPassword: z.string().max(128).optional(), newPassword: Password }),
     response: z.void(),
-  }),
-  googleSignIn: defineRoute({
-    method: 'POST',
-    path: '/auth/google',
-    summary:
-      'Sign in or sign up with a Google ID token. A new Google account must then verify a phone (/auth/google/link)',
-    tag: 'auth',
-    access: access.public,
-    body: z.object({ idToken: z.string().min(10).max(4096), ...DeviceFields }),
-    response: GoogleSignInResult,
-  }),
-  googleLink: defineRoute({
-    method: 'POST',
-    path: '/auth/google/link',
-    summary:
-      'Finish a first Google sign-in: verify a phone with an SMS code; the Google account is linked to it',
-    tag: 'auth',
-    access: access.public,
-    body: z.object({
-      linkToken: z.string().min(20).max(200),
-      phone: PhoneE164,
-      code: OtpCode,
-      ...DeviceFields,
-    }),
-    response: Session,
   }),
   refresh: defineRoute({
     method: 'POST',
@@ -209,9 +141,7 @@ export const identityRoutes = {
         id: Id,
         phone: PhoneE164,
         name: z.string().nullable(),
-        email: z.string().nullable(),
         hasPassword: z.boolean(),
-        googleLinked: z.boolean(),
       }),
       activeOrgId: Id.nullable(),
       roles: z.array(MembershipRole),

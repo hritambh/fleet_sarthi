@@ -223,14 +223,14 @@ class FormError extends StatelessWidget {
   );
 }
 
-/// Busy state and translated errors for a sign-in form, plus sending SMS codes
-/// with the server's resend countdown.
+/// Busy state and translated errors for a sign-in form, plus sending password
+/// reset codes with the server's resend countdown.
 mixin AuthFormState<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   bool busy = false;
   String? error;
 
   /// The API error code behind [error], for forms that offer a way out
-  /// (ACCOUNT_EXISTS, an expired Google link).
+  /// (ACCOUNT_EXISTS).
   String? errorCode;
 
   bool codeSent = false;

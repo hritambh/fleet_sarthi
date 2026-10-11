@@ -1,5 +1,7 @@
+import { randomUUID } from 'node:crypto';
+import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { runSeed } from '../src/seed/seed.js';
+import { DEMO_PASSWORD, runSeed } from '../src/seed/seed.js';
 import { startHarness, type Harness } from './harness.js';
 
 let h: Harness;
@@ -28,6 +30,16 @@ describe('demo seed', () => {
     expect(await h.owner.vehicle.count({ where: { orgId: org.id } })).toBe(3);
     expect(await h.owner.driver.count({ where: { orgId: org.id } })).toBe(3);
     expect(await h.owner.membership.count({ where: { orgId: org.id } })).toBe(5);
+  });
+
+  it('lets every demo person sign in with the demo password', async () => {
+    for (const phone of ['+919000000001', '+919000000002', '+919000000012']) {
+      const res = await request(h.http)
+        .post('/v1/auth/password/login')
+        .send({ phone, password: DEMO_PASSWORD, deviceId: randomUUID(), platform: 'web' })
+        .expect(200);
+      expect(res.body).toMatchObject({ memberships: [{ orgName: 'Sharma Travels' }] });
+    }
   });
 
   it('produces the alerts the getting-started guide promises', async () => {

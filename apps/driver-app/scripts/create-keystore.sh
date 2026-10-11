@@ -59,6 +59,6 @@ echo
 echo "create-keystore: wrote $KEYSTORE and $KEY_PROPERTIES"
 echo "Back up the keystore and its password somewhere safe (a password manager)."
 echo
-echo "SHA-1 fingerprint (for the Android OAuth client in Google Cloud, for Google sign-in):"
+echo "Key fingerprints (keep for your records, e.g. for Play Console):"
 keytool -list -v -keystore "$KEYSTORE" -alias "$ALIAS" -storepass:env TAXCY_KEYSTORE_PASSWORD |
   grep -E 'SHA1:|SHA256:' | sed 's/^[[:space:]]*/  /'

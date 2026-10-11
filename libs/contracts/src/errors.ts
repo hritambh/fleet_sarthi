@@ -34,10 +34,6 @@ export const ErrorCode = z.enum([
   'INVALID_CREDENTIALS',
   /** Signing up a phone that already has a password: log in or reset it instead. */
   'ACCOUNT_EXISTS',
-  /** The Google ID token didn't verify (expired, wrong audience, or Google sign-in is off). */
-  'GOOGLE_TOKEN_INVALID',
-  /** The phone is already linked to a different Google account. */
-  'GOOGLE_ACCOUNT_CONFLICT',
   'RATE_LIMITED',
   'UPLOAD_NOT_FOUND',
   'UPLOAD_MISMATCH',

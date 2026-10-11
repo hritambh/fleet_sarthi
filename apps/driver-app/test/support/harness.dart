@@ -39,7 +39,6 @@ class Harness {
   final db = memoryDb();
   final api = FakeApi();
   final auth = FakeAuthApi();
-  final google = FakeGoogleAuth();
   final owner = FakeOwnerApi();
   final InMemorySessionStore sessions;
   final SharedPreferences prefs;
@@ -58,7 +57,6 @@ class Harness {
       databaseProvider.overrideWithValue(db),
       apiProvider.overrideWithValue(api),
       authApiProvider.overrideWithValue(auth),
-      googleAuthProvider.overrideWithValue(google),
       ownerApiProvider.overrideWithValue(owner),
       mapTilesProvider.overrideWithValue(false),
       sessionStoreProvider.overrideWithValue(sessions),

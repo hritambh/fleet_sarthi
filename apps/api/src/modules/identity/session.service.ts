@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { Membership, Session } from '@taxcy/contracts';
 import type { SystemTx } from '@taxcy/db';
 import { createHash, randomBytes } from 'node:crypto';
-import { z } from 'zod';
 import type { AuthContext } from '../../platform/auth/auth-context.js';
 import { AccessTokens } from '../../platform/auth/tokens.js';
 import { APP_CONFIG, type AppConfig } from '../../platform/config.js';
@@ -10,8 +9,6 @@ import { AppError } from '../../platform/errors.js';
 import { newId } from '../../platform/ids.js';
 import { Db } from '../../platform/prisma.service.js';
 import { RateLimiter } from '../../platform/rate-limit.js';
-import { RedisService } from '../../platform/redis.service.js';
-import { GOOGLE_VERIFIER, type GoogleIdentity, type GoogleVerifier } from './google.verifier.js';
 import { IdentityRepository, type AccountRow, type UserRow } from './identity.repository.js';
 import { OtpService } from './otp.service.js';
 import { hashPassword, verifyPassword } from './passwords.js';
@@ -30,14 +27,6 @@ interface DeviceInput {
   platform: string;
   appVersion: string | undefined;
 }
-
-const PendingGoogleLink = z.object({
-  sub: z.string(),
-  email: z.string().nullable(),
-  name: z.string().nullable(),
-});
-const GOOGLE_LINK_TTL_SECONDS = 600;
-const linkKey = (token: string) => `google:link:${hashToken(token)}`;
 
 interface IssueOptions {
   userId: string;
@@ -60,39 +49,32 @@ export class SessionService {
     private readonly repo: IdentityRepository,
     private readonly otp: OtpService,
     private readonly accessTokens: AccessTokens,
-    private readonly redis: RedisService,
     private readonly limiter: RateLimiter,
-    @Inject(GOOGLE_VERIFIER) private readonly google: GoogleVerifier,
   ) {}
 
-  get googleMode(): GoogleVerifier['mode'] {
-    return this.google.mode;
-  }
-
-  /** SMS-code sign-in; creates the user on first sign-in. */
-  async login(input: { phone: string; code: string } & DeviceInput): Promise<Session> {
-    await this.otp.verify(input.phone, input.code);
-    return this.db.system(async (tx) => {
-      const user = await this.repo.upsertUserByPhone(tx, input.phone);
-      return this.startSession(tx, user, input);
-    });
-  }
-
   /**
-   * Phone + password sign-up. The SMS code proves the phone is theirs, which matters
-   * because invites are matched by phone. A phone that already has a password must
-   * log in or reset it; one that only used SMS codes (e.g. an invited driver) gets
-   * the password added.
+   * Phone + password sign-up. A phone that already has a password must log in or
+   * reset it. One without a password (an invited driver or manager) gets this
+   * password and joins the fleets that invited it.
+   *
+   * The phone isn't verified, so whoever signs up first with an invited number
+   * claims it. Fine for demos and pilots; add SMS verification before real use.
    */
   async signup(
     input: {
       phone: string;
-      code: string;
       password: string;
       name: string | undefined;
+      ip: string;
     } & DeviceInput,
   ): Promise<Session> {
-    await this.otp.verify(input.phone, input.code);
+    await this.limiter.consume([
+      {
+        key: `signup:ip:${input.ip}:1h`,
+        max: this.config.SIGNUP_IP_LIMIT_PER_HOUR,
+        windowSeconds: 3_600,
+      },
+    ]);
     const passwordHash = await hashPassword(input.password);
     return this.db.system(async (tx) => {
       const existing = await this.repo.findAccount(tx, { phoneE164: input.phone });
@@ -125,14 +107,17 @@ export class SessionService {
     return this.db.system((tx) => this.startSession(tx, account, input));
   }
 
-  /** Sets a new password after an SMS code, and signs out every other session. */
+  /** Sets a new password with a reset code, and signs out every other session. */
   async resetPassword(
     input: { phone: string; code: string; password: string } & DeviceInput,
   ): Promise<Session> {
     await this.otp.verify(input.phone, input.code);
     const passwordHash = await hashPassword(input.password);
     return this.db.system(async (tx) => {
-      const user = await this.repo.upsertUserByPhone(tx, input.phone);
+      // Resetting doesn't create accounts: an unknown number has to sign up. (Invited
+      // people without a password can reset, which sets their first password.)
+      const user = await this.repo.findAccount(tx, { phoneE164: input.phone });
+      if (!user) throw new AppError('NOT_FOUND', 'No account with this number; sign up instead');
       await this.repo.setPassword(tx, user.id, passwordHash);
       await this.repo.revokeAllForUser(tx, user.id);
       return this.startSession(tx, user, input);
@@ -154,73 +139,6 @@ export class SessionService {
     }
     const passwordHash = await hashPassword(input.newPassword);
     await this.db.system((tx) => this.repo.setPassword(tx, auth.userId, passwordHash));
-  }
-
-  /**
-   * Google sign-in. A Google account already linked to a phone signs straight in.
-   * Otherwise the caller must verify a phone (googleLink) with the returned token:
-   * the phone is the identity that invites and fleets use.
-   */
-  async googleSignIn(
-    input: { idToken: string } & DeviceInput,
-  ): Promise<
-    | { status: 'signed_in'; session: Session }
-    | { status: 'phone_required'; linkToken: string; email: string | null; name: string | null }
-  > {
-    const google = await this.google.verify(input.idToken);
-    const linked = await this.db.system((tx) =>
-      this.repo.findAccount(tx, { googleSub: google.sub }),
-    );
-    if (linked) {
-      return {
-        status: 'signed_in',
-        session: await this.db.system((tx) => this.startSession(tx, linked, input)),
-      };
-    }
-    const linkToken = randomBytes(32).toString('base64url');
-    await this.redis.client.set(
-      linkKey(linkToken),
-      JSON.stringify(google satisfies GoogleIdentity),
-      'EX',
-      GOOGLE_LINK_TTL_SECONDS,
-    );
-    return { status: 'phone_required', linkToken, email: google.email, name: google.name };
-  }
-
-  /** Finishes a first Google sign-in: links the Google account to a verified phone. */
-  async googleLink(
-    input: { linkToken: string; phone: string; code: string } & DeviceInput,
-  ): Promise<Session> {
-    const key = linkKey(input.linkToken);
-    const raw = await this.redis.client.get(key);
-    if (!raw) {
-      throw new AppError('GOOGLE_TOKEN_INVALID', 'That took too long; sign in with Google again');
-    }
-    const google = PendingGoogleLink.parse(JSON.parse(raw));
-    await this.otp.verify(input.phone, input.code);
-    // The link token is used up only once the link succeeds, so a mistyped code or a
-    // number that's already linked elsewhere can be retried (with a new code).
-    const session = await this.db.system(async (tx) => {
-      const user = await this.repo.upsertUserByPhone(tx, input.phone);
-      const account = await this.repo.findAccount(tx, { id: user.id });
-      if (account?.googleSub && account.googleSub !== google.sub) {
-        throw new AppError(
-          'GOOGLE_ACCOUNT_CONFLICT',
-          'This number is already linked to a different Google account',
-        );
-      }
-      const owner = await this.repo.findAccount(tx, { googleSub: google.sub });
-      if (owner && owner.id !== user.id) {
-        throw new AppError(
-          'GOOGLE_ACCOUNT_CONFLICT',
-          'This Google account is already linked to another number',
-        );
-      }
-      const linked = await this.repo.linkGoogle(tx, user.id, google, user.name);
-      return this.startSession(tx, linked, input);
-    });
-    await this.redis.client.del(key);
-    return session;
   }
 
   /** Records the device, activates pending invites, and issues a session. */

@@ -21,7 +21,7 @@ export const keys = {
   me: ['me'] as const,
 };
 
-/** The signed-in user (with hasPassword / googleLinked) and their memberships. */
+/** The signed-in user (with hasPassword) and their memberships. */
 export function useMe() {
   return useQuery({ queryKey: keys.me, queryFn: () => call(api.GET('/me')) });
 }

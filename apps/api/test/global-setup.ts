@@ -74,6 +74,7 @@ export async function setup(): Promise<void> {
     JWT_ACCESS_SECRET: 'integration-test-secret-0123456789abcdef',
     // Every test signs in from 127.0.0.1; per-phone limits are still exercised.
     OTP_IP_LIMIT_PER_HOUR: '100000',
+    SIGNUP_IP_LIMIT_PER_HOUR: '100000',
   });
 }
 

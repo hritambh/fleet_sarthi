@@ -110,25 +110,28 @@ void main() {
   });
 
   group('sign up', () {
-    testWidgets('code → name and password → an owner lands in owner mode', (
+    /// Opens sign-up and fills every field (no SMS code any more).
+    Future<void> fill(
+      WidgetTester tester, {
+      String password = 'long enough',
+      String again = 'long enough',
+      String? name,
+    }) async {
+      await tapKey(tester, const Key('go-sign-up'));
+      expect(find.byKey(_code), findsNothing);
+      await type(tester, _phone, '9000000011');
+      if (name != null) await type(tester, const Key('name-field'), name);
+      await type(tester, _newPassword, password);
+      await type(tester, _confirm, again);
+    }
+
+    testWidgets('number, name and password → an owner lands in owner mode', (
       tester,
     ) async {
       final h = await signedOut(tester);
       h.auth.roles = const ['owner'];
-      await tapKey(tester, const Key('go-sign-up'));
+      await fill(tester, name: 'Asha Patil', password: 'short', again: 'short');
       expect(find.text('Create your account'), findsOneWidget);
-
-      await type(tester, _phone, '9000000011');
-      await tapKey(tester, _submit);
-      expect(h.auth.calls.last.args['phone'], '+919000000011');
-      expect(find.text('Resend code in 30 s'), findsOneWidget);
-      await tester.pump(const Duration(seconds: 31));
-      expect(find.text('Resend code'), findsOneWidget);
-
-      await type(tester, _code, '482913');
-      await type(tester, const Key('name-field'), 'Asha Patil');
-      await type(tester, _newPassword, 'short');
-      await type(tester, _confirm, 'short');
       await tapKey(tester, _submit);
       expect(find.text('Use at least 8 characters.'), findsOneWidget);
 
@@ -140,9 +143,9 @@ void main() {
 
       await type(tester, _confirm, 'long enough 1');
       await tapKey(tester, _submit);
+      expect(h.auth.names, isNot(contains('requestOtp')));
       expect(h.auth.calls.last.args, {
         'phone': '+919000000011',
-        'code': '482913',
         'password': 'long enough 1',
         'name': 'Asha Patil',
         'platform': 'android',
@@ -150,16 +153,22 @@ void main() {
       expect(find.byKey(const Key('owner-nav')), findsOneWidget);
     });
 
+    testWidgets('a wrong number is caught before calling the server', (
+      tester,
+    ) async {
+      final h = await signedOut(tester);
+      await fill(tester);
+      await type(tester, _phone, '12345');
+      await tapKey(tester, _submit);
+      expect(find.text('Enter your 10-digit mobile number'), findsOneWidget);
+      expect(h.auth.names, isNot(contains('signUp')));
+    });
+
     testWidgets('a driver is routed to their trips; no name is fine', (
       tester,
     ) async {
       final h = await signedOut(tester);
-      await tapKey(tester, const Key('go-sign-up'));
-      await type(tester, _phone, '9000000011');
-      await tapKey(tester, _submit);
-      await type(tester, _code, '482913');
-      await type(tester, _newPassword, 'long enough');
-      await type(tester, _confirm, 'long enough');
+      await fill(tester);
       await tapKey(tester, _submit);
       expect(h.auth.calls.last.args['name'], isNull);
       expect(trips, findsOneWidget);
@@ -170,12 +179,7 @@ void main() {
     ) async {
       final h = await signedOut(tester);
       h.auth.roles = const [];
-      await tapKey(tester, const Key('go-sign-up'));
-      await type(tester, _phone, '9000000011');
-      await tapKey(tester, _submit);
-      await type(tester, _code, '482913');
-      await type(tester, _newPassword, 'long enough');
-      await type(tester, _confirm, 'long enough');
+      await fill(tester);
       await tapKey(tester, _submit);
       expect(find.text('Not part of a fleet yet'), findsOneWidget);
     });
@@ -188,12 +192,7 @@ void main() {
         'signUp',
         FakeAuthApi.error('ACCOUNT_EXISTS', status: 409),
       );
-      await tapKey(tester, const Key('go-sign-up'));
-      await type(tester, _phone, '9000000011');
-      await tapKey(tester, _submit);
-      await type(tester, _code, '482913');
-      await type(tester, _newPassword, 'long enough');
-      await type(tester, _confirm, 'long enough');
+      await fill(tester);
       await tapKey(tester, _submit);
       expect(
         find.text(
@@ -219,9 +218,16 @@ void main() {
     await type(tester, _phone, '9000000011');
     await tapKey(tester, const Key('go-forgot'));
     expect(find.text('Reset your password'), findsOneWidget);
+    // Locally and in the demo, the code is in the API log.
+    expect(find.byKey(const Key('reset-code-hint')), findsOneWidget);
+    expect(find.textContaining("API server's log"), findsOneWidget);
 
     await tapKey(tester, _submit);
     expect(h.auth.calls.last.name, 'requestOtp');
+    expect(h.auth.calls.last.args['phone'], '+919000000011');
+    expect(find.text('Resend code in 30 s'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 31));
+    expect(find.text('Resend code'), findsOneWidget);
     h.auth.failNext('resetPassword', FakeAuthApi.error('OTP_INVALID'));
     await type(tester, _code, '111111');
     await type(tester, _newPassword, 'brand new pass');
@@ -238,188 +244,6 @@ void main() {
       'password': 'brand new pass',
     });
     expect(trips, findsOneWidget);
-  });
-
-  group('Google', () {
-    Future<void> devSignIn(WidgetTester tester) async {
-      await tapKey(tester, const Key('google-dev'));
-      expect(find.text('Google (local test)'), findsNWidgets(2));
-      await tester.enterText(find.byKey(const Key('dialog-text')), 'asha');
-      await tapKey(tester, const Key('dialog-confirm'));
-      expect(find.text('Enter an email address'), findsOneWidget);
-      await tester.enterText(
-        find.byKey(const Key('dialog-text')),
-        'asha@example.com',
-      );
-      await tapKey(tester, const Key('dialog-confirm'));
-    }
-
-    testWidgets('local test: email → verify phone → linked and signed in', (
-      tester,
-    ) async {
-      final h = await signedOut(tester);
-      await devSignIn(tester);
-      expect(h.auth.calls.last.args['idToken'], 'dev-google:asha@example.com');
-      expect(find.text('Verify your phone'), findsOneWidget);
-      expect(find.textContaining('ramesh@example.com'), findsOneWidget);
-
-      await type(tester, _phone, '9000000011');
-      await tapKey(tester, _submit);
-      expect(h.auth.calls.last.name, 'requestOtp');
-
-      // A mistyped code can be retried with the same link token.
-      h.auth.failNext('googleLink', FakeAuthApi.error('OTP_INVALID'));
-      await type(tester, _code, '000000');
-      await tapKey(tester, _submit);
-      expect(find.byKey(const Key('login-error')), findsOneWidget);
-      expect(find.byKey(const Key('google-start-again')), findsNothing);
-
-      await type(tester, _code, '482913');
-      await tapKey(tester, _submit);
-      expect(h.auth.calls.last.args, {
-        'linkToken': 'link-token-0123456789abcdef',
-        'phone': '+919000000011',
-        'code': '482913',
-      });
-      expect(trips, findsOneWidget);
-    });
-
-    testWidgets('an expired link means starting again', (tester) async {
-      final h = await signedOut(tester);
-      await devSignIn(tester);
-      await type(tester, _phone, '9000000011');
-      await tapKey(tester, _submit);
-      h.auth.failNext(
-        'googleLink',
-        FakeAuthApi.error('GOOGLE_TOKEN_INVALID', status: 401),
-      );
-      await type(tester, _code, '482913');
-      await tapKey(tester, _submit);
-      expect(
-        find.text("Google sign-in didn't work. Try again."),
-        findsOneWidget,
-      );
-
-      await tapKey(tester, const Key('google-start-again'));
-      expect(find.byKey(_password), findsOneWidget);
-      expect(find.byKey(const Key('google-dev')), findsOneWidget);
-    });
-
-    testWidgets('a number linked to another Google account is refused', (
-      tester,
-    ) async {
-      final h = await signedOut(tester);
-      await devSignIn(tester);
-      await type(tester, _phone, '9000000011');
-      await tapKey(tester, _submit);
-      h.auth.failNext(
-        'googleLink',
-        FakeAuthApi.error('GOOGLE_ACCOUNT_CONFLICT', status: 409),
-      );
-      await type(tester, _code, '482913');
-      await tapKey(tester, _submit);
-      expect(
-        find.text(
-          'This number is already linked to a different Google account.',
-        ),
-        findsOneWidget,
-      );
-      expect(find.byKey(const Key('google-start-again')), findsOneWidget);
-    });
-
-    testWidgets('real Google: initialised with the web client id', (
-      tester,
-    ) async {
-      final h = await signedOut(
-        tester,
-        setUp: (h) {
-          h.auth.configJson = {
-            'password': true,
-            'google': {'mode': 'google', 'webClientId': 'web.apps.example'},
-          };
-          h.auth.google = (_) => {'status': 'signed_in'};
-        },
-      );
-      expect(h.google.initializedWith, 'web.apps.example');
-      expect(find.byKey(const Key('google-dev')), findsNothing);
-      await tapKey(tester, const Key('google-sign-in'));
-      expect(h.auth.calls.last.args['idToken'], 'google-id-token-0123456789');
-      expect(trips, findsOneWidget);
-    });
-
-    testWidgets('backing out of Google changes nothing', (tester) async {
-      final h = await signedOut(
-        tester,
-        setUp: (h) {
-          h.auth.configJson = {
-            'password': true,
-            'google': {'mode': 'google', 'webClientId': 'web.apps.example'},
-          };
-          h.google.nextToken = null;
-        },
-      );
-      await tapKey(tester, const Key('google-sign-in'));
-      expect(h.auth.names, isNot(contains('googleSignIn')));
-      expect(find.byKey(const Key('google-error')), findsNothing);
-    });
-
-    testWidgets("on the web, Google's own button signs in", (tester) async {
-      final h = await signedOut(
-        tester,
-        setUp: (h) {
-          h.auth.configJson = {
-            'password': true,
-            'google': {'mode': 'google', 'webClientId': 'web.apps.example'},
-          };
-          h.google.supports = false;
-        },
-      );
-      expect(find.byKey(const Key('google-sign-in')), findsNothing);
-      expect(find.byKey(const Key('google-web-button')), findsOneWidget);
-      h.google.emit('web-id-token-0123456789');
-      await settle(tester);
-      expect(h.auth.calls.last.args['idToken'], 'web-id-token-0123456789');
-      expect(find.text('Verify your phone'), findsOneWidget);
-    });
-
-    testWidgets('hidden when the server switches it off', (tester) async {
-      await signedOut(
-        tester,
-        setUp: (h) => h.auth.configJson = {
-          'password': true,
-          'google': {'mode': 'off', 'webClientId': null},
-        },
-      );
-      expect(find.byKey(const Key('google-dev')), findsNothing);
-      expect(find.byKey(const Key('google-sign-in')), findsNothing);
-      expect(find.text('or'), findsNothing);
-    });
-
-    testWidgets('hidden when the server says google but has no client id', (
-      tester,
-    ) async {
-      final h = await signedOut(
-        tester,
-        setUp: (h) => h.auth.configJson = {
-          'password': true,
-          'google': {'mode': 'google', 'webClientId': null},
-        },
-      );
-      expect(find.byKey(const Key('google-sign-in')), findsNothing);
-      expect(h.google.initializedWith, isNull);
-    });
-
-    testWidgets('hidden offline; password and SMS code still work', (
-      tester,
-    ) async {
-      final h = await signedOut(tester, setUp: (h) => h.auth.configJson = null);
-      expect(h.auth.names, contains('config'));
-      expect(find.text('or'), findsNothing);
-      expect(find.byKey(const Key('google-dev')), findsNothing);
-      expect(find.byKey(_password), findsOneWidget);
-      await tapKey(tester, const Key('use-sms'));
-      expect(find.text('Send code'), findsOneWidget);
-    });
   });
 
   group('account security', () {
@@ -448,7 +272,6 @@ void main() {
       await tapKey(tester, const Key('driver-account-security'));
       expect(find.byType(AccountSecurityScreen), findsOneWidget);
       expect(find.text('Not set yet'), findsOneWidget);
-      expect(find.textContaining('Not linked'), findsOneWidget);
       expect(find.byKey(const Key('current-password-field')), findsNothing);
 
       await type(tester, _newPassword, 'my new password');
@@ -471,16 +294,12 @@ void main() {
       final h = await signedIn(
         tester,
         roles: const ['owner'],
-        account: accountJson(
-          hasPassword: true,
-          googleLinked: true,
-          email: 'ramesh@example.com',
-        ),
+        account: accountJson(hasPassword: true),
       );
       await tester.tap(find.text('More'));
       await settle(tester);
       await tapKey(tester, const Key('more-account-security'));
-      expect(find.text('Linked: ramesh@example.com'), findsOneWidget);
+      expect(find.text('+91 90000 00011'), findsOneWidget);
       expect(find.text('Change password'), findsOneWidget);
 
       await type(tester, _newPassword, 'my new password');
@@ -506,7 +325,7 @@ void main() {
     });
   });
 
-  testWidgets('signing out also forgets the Google account on this device', (
+  testWidgets('signing out ends the session and shows the login screen', (
     tester,
   ) async {
     final h = await Harness.create(session: Session.fromJson(sessionJson()));
@@ -516,37 +335,58 @@ void main() {
     await tapKey(tester, const Key('driver-menu'));
     await tester.tap(find.text('Sign out'));
     await settle(tester);
-    expect(h.google.signOuts, 1);
     expect(h.auth.names, contains('logout'));
     expect(await h.sessions.load(), isNull);
     expect(find.byKey(_password), findsOneWidget);
   });
 
-  group('in Hindi on a 360 px phone', () {
-    testWidgets('the login screen', (tester) async {
+  group('on a 360 px phone', () {
+    // Any overflow fails these tests.
+    testWidgets('the login screen in English', (tester) async {
+      await signedOut(tester, width: 360);
+      expect(find.text('Log in'), findsOneWidget);
+      expect(find.text('Forgot password?'), findsOneWidget);
+      expect(find.text('New to Fleet Sarthi? Sign up'), findsOneWidget);
+    });
+
+    testWidgets('the login screen in Hindi', (tester) async {
       await signedOut(tester, language: 'hi', width: 360);
       expect(find.text('पासवर्ड'), findsOneWidget);
       expect(find.text('लॉग इन करें'), findsOneWidget);
       expect(find.text('पासवर्ड भूल गए?'), findsOneWidget);
-      expect(find.text('इसके बजाय SMS कोड से लॉग इन करें'), findsOneWidget);
       expect(find.text('फ़्लीट सारथी पर नए हैं? साइन अप करें'), findsOneWidget);
-      expect(find.text('Google (लोकल टेस्ट)'), findsOneWidget);
-      // Any overflow fails the test.
     });
 
-    testWidgets('sign up with every field showing', (tester) async {
-      await signedOut(tester, language: 'hi', width: 360);
+    testWidgets('sign up in English with an error showing', (tester) async {
+      await signedOut(tester, width: 360);
       await tapKey(tester, const Key('go-sign-up'));
       await type(tester, _phone, '9000000011');
+      await type(tester, _newPassword, 'long enough');
+      await type(tester, _confirm, 'different one');
       await tapKey(tester, _submit);
+      expect(find.text("The two passwords don't match."), findsOneWidget);
+    });
+
+    testWidgets('sign up in Hindi with every field showing', (tester) async {
+      await signedOut(tester, language: 'hi', width: 360);
+      await tapKey(tester, const Key('go-sign-up'));
       expect(find.text('अपना अकाउंट बनाएँ'), findsOneWidget);
-      expect(find.text('30 सेकंड बाद कोड फिर से भेजें'), findsOneWidget);
       expect(find.text('आपका नाम (ज़रूरी नहीं)'), findsOneWidget);
-      await type(tester, _code, '482913');
+      await type(tester, _phone, '9000000011');
       await type(tester, _newPassword, 'long enough');
       await type(tester, _confirm, 'different one');
       await tapKey(tester, _submit);
       expect(find.text('दोनों पासवर्ड एक जैसे नहीं हैं।'), findsOneWidget);
+    });
+
+    testWidgets('forgot password in Hindi with the code step', (tester) async {
+      await signedOut(tester, language: 'hi', width: 360);
+      await type(tester, _phone, '9000000011');
+      await tapKey(tester, const Key('go-forgot'));
+      await tapKey(tester, _submit);
+      expect(find.byKey(_code), findsOneWidget);
+      expect(find.text('30 सेकंड बाद कोड फिर से भेजें'), findsOneWidget);
+      expect(find.byKey(const Key('reset-code-hint')), findsOneWidget);
     });
   });
 }

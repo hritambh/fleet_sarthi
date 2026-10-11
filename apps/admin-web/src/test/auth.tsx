@@ -3,15 +3,6 @@ import { render } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import { vi, type Mock } from 'vitest';
 import { AuthContext, type AuthState } from '../auth/context.js';
-import type { AuthConfig } from '../lib/api-types.js';
-
-export const authConfig = (google: AuthConfig['google']['mode'] = 'off'): AuthConfig => ({
-  password: true,
-  google: {
-    mode: google,
-    webClientId: google === 'google' ? 'web-client-id.apps.googleusercontent.com' : null,
-  },
-});
 
 /** AuthState with every call a mock, so tests can assert on them. */
 export type FakeAuth = {
@@ -29,14 +20,10 @@ export function fakeAuth(overrides: Partial<AuthState> = {}): FakeAuth {
     activeMembership: null,
     isStaff: false,
     isOwner: false,
-    loadAuthConfig: vi.fn().mockResolvedValue(authConfig()),
-    requestOtp: vi.fn().mockResolvedValue({ expiresInSeconds: 300, resendAfterSeconds: 30 }),
-    verifyOtp: vi.fn().mockResolvedValue(undefined),
     passwordLogin: vi.fn().mockResolvedValue(undefined),
     signup: vi.fn().mockResolvedValue(undefined),
+    requestOtp: vi.fn().mockResolvedValue({ expiresInSeconds: 300, resendAfterSeconds: 30 }),
     resetPassword: vi.fn().mockResolvedValue(undefined),
-    googleSignIn: vi.fn().mockResolvedValue({ status: 'signed_in' }),
-    googleLink: vi.fn().mockResolvedValue(undefined),
     createOrg: vi.fn(),
     switchOrg: vi.fn(),
     logout: vi.fn(),

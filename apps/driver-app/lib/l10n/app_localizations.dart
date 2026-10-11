@@ -254,12 +254,6 @@ abstract class AppLocalizations {
   /// **'Send code'**
   String get sendCode;
 
-  /// No description provided for @verifyAndSignIn.
-  ///
-  /// In en, this message translates to:
-  /// **'Verify and sign in'**
-  String get verifyAndSignIn;
-
   /// No description provided for @useDifferentNumber.
   ///
   /// In en, this message translates to:
@@ -431,7 +425,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorOtpInvalid.
   ///
   /// In en, this message translates to:
-  /// **'That code is not right. Check the SMS and try again.'**
+  /// **'That code is not right. Check it and try again.'**
   String get errorOtpInvalid;
 
   /// No description provided for @errorOtpExpired.
@@ -451,18 +445,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This number already has an account. Log in, or reset your password.'**
   String get errorAccountExists;
-
-  /// No description provided for @errorGoogleTokenInvalid.
-  ///
-  /// In en, this message translates to:
-  /// **'Google sign-in didn\'t work. Try again.'**
-  String get errorGoogleTokenInvalid;
-
-  /// No description provided for @errorGoogleAccountConflict.
-  ///
-  /// In en, this message translates to:
-  /// **'This number is already linked to a different Google account.'**
-  String get errorGoogleAccountConflict;
 
   /// No description provided for @errorRateLimited.
   ///
@@ -2617,7 +2599,7 @@ abstract class AppLocalizations {
   /// No description provided for @noDriversYet.
   ///
   /// In en, this message translates to:
-  /// **'No drivers yet. Invite drivers by phone; they sign in with an OTP.'**
+  /// **'No drivers yet. Invite drivers by phone; they sign up with that number and a password.'**
   String get noDriversYet;
 
   /// No description provided for @payDefault.
@@ -4079,18 +4061,6 @@ abstract class AppLocalizations {
   /// **'Forgot password?'**
   String get forgotPassword;
 
-  /// No description provided for @useSmsCodeInstead.
-  ///
-  /// In en, this message translates to:
-  /// **'Use an SMS code instead'**
-  String get useSmsCodeInstead;
-
-  /// No description provided for @usePasswordInstead.
-  ///
-  /// In en, this message translates to:
-  /// **'Log in with your password'**
-  String get usePasswordInstead;
-
   /// No description provided for @newHereSignUp.
   ///
   /// In en, this message translates to:
@@ -4118,7 +4088,7 @@ abstract class AppLocalizations {
   /// No description provided for @signUpIntro.
   ///
   /// In en, this message translates to:
-  /// **'We\'ll send a code to your mobile number to check it\'s yours. Drivers use the number their fleet owner registered.'**
+  /// **'Choose a password for your mobile number. Drivers use the number their fleet owner registered.'**
   String get signUpIntro;
 
   /// No description provided for @createAccount.
@@ -4202,7 +4172,7 @@ abstract class AppLocalizations {
   /// No description provided for @resetPasswordIntro.
   ///
   /// In en, this message translates to:
-  /// **'We\'ll send a code to your mobile number. Then choose a new password.'**
+  /// **'We\'ll send a reset code for your mobile number. Then choose a new password.'**
   String get resetPasswordIntro;
 
   /// No description provided for @resetPassword.
@@ -4235,71 +4205,11 @@ abstract class AppLocalizations {
   /// **'We sent a new code.'**
   String get codeResent;
 
-  /// No description provided for @orDivider.
+  /// No description provided for @resetCodeInApiLog.
   ///
   /// In en, this message translates to:
-  /// **'or'**
-  String get orDivider;
-
-  /// No description provided for @continueWithGoogle.
-  ///
-  /// In en, this message translates to:
-  /// **'Continue with Google'**
-  String get continueWithGoogle;
-
-  /// No description provided for @googleLocalTest.
-  ///
-  /// In en, this message translates to:
-  /// **'Google (local test)'**
-  String get googleLocalTest;
-
-  /// No description provided for @googleLocalTestIntro.
-  ///
-  /// In en, this message translates to:
-  /// **'This server has no Google account set up, so it accepts any email as a stand-in for testing.'**
-  String get googleLocalTestIntro;
-
-  /// No description provided for @email.
-  ///
-  /// In en, this message translates to:
-  /// **'Email'**
-  String get email;
-
-  /// No description provided for @enterEmail.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter an email address'**
-  String get enterEmail;
-
-  /// No description provided for @continueAction.
-  ///
-  /// In en, this message translates to:
-  /// **'Continue'**
-  String get continueAction;
-
-  /// No description provided for @googleUnavailable.
-  ///
-  /// In en, this message translates to:
-  /// **'Google sign-in isn\'t working on this device. Log in with your password or an SMS code.'**
-  String get googleUnavailable;
-
-  /// No description provided for @verifyPhoneTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Verify your phone'**
-  String get verifyPhoneTitle;
-
-  /// No description provided for @verifyPhoneIntro.
-  ///
-  /// In en, this message translates to:
-  /// **'You\'re signing in with Google as {account}. Add your mobile number too: your fleet knows you by it.'**
-  String verifyPhoneIntro({required String account});
-
-  /// No description provided for @startAgain.
-  ///
-  /// In en, this message translates to:
-  /// **'Start again'**
-  String get startAgain;
+  /// **'Testing locally or on the demo? The code isn\'t sent by SMS: it\'s printed in the API server\'s log.'**
+  String get resetCodeInApiLog;
 
   /// No description provided for @accountSecurity.
   ///
@@ -4313,12 +4223,6 @@ abstract class AppLocalizations {
   /// **'How you sign in'**
   String get signInMethods;
 
-  /// No description provided for @smsCodeAlways.
-  ///
-  /// In en, this message translates to:
-  /// **'You can always log in with an SMS code sent to this number.'**
-  String get smsCodeAlways;
-
   /// No description provided for @passwordIsSet.
   ///
   /// In en, this message translates to:
@@ -4330,24 +4234,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not set yet'**
   String get passwordNotSet;
-
-  /// No description provided for @googleLinkedTo.
-  ///
-  /// In en, this message translates to:
-  /// **'Linked: {email}'**
-  String googleLinkedTo({required String email});
-
-  /// No description provided for @googleLinked.
-  ///
-  /// In en, this message translates to:
-  /// **'Linked'**
-  String get googleLinked;
-
-  /// No description provided for @googleNotLinked.
-  ///
-  /// In en, this message translates to:
-  /// **'Not linked. To link it, sign out and choose Continue with Google.'**
-  String get googleNotLinked;
 
   /// No description provided for @setPassword.
   ///

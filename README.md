@@ -12,19 +12,19 @@ Fleet Sarthi gives a fleet owner a trustworthy picture of what their cars and dr
 
 ## What it does
 
-| For the fleet owner (admin web)                                                                                  | For the driver (mobile app)                                |
-| ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| Sign in with mobile number + password, an SMS code, or Google; sign up and reset a password by SMS               | Log in with phone + OTP                                    |
-| Manage vehicles, drivers and their documents (RC, insurance, permit, PUC, DL)                                    |                                                            |
-| Get alerts 30 / 7 / 1 days before a document expires                                                             | See assigned trips                                         |
-| Create, assign and track trips; see photos and the GPS route                                                     | Start/end a trip with an odometer photo + typed reading    |
-| See fuel efficiency (or cost per km for petrol + CNG cars) per vehicle, cycle by cycle, against its own baseline | Log fuel fills with a receipt photo and a full-tank toggle |
-| Get plain-language alerts for suspicious fuel use or inflated odometer readings                                  | Log cash / UPI / card collections                          |
-| Review OCR mismatches in a review queue                                                                          | Request cancellation of a running trip                     |
-| Approve or reject trip cancellations                                                                             | Add tolls, parking and other charges                       |
-| Configure driver pay rules                                                                                       | Keep working offline; sync when back online                |
-| Settle each driver's day: fare, cash, online, expenses, net payable                                              |                                                            |
-| Use the console in English or Hindi (हिन्दी), with amounts and dates in Indian format                            |                                                            |
+| For the fleet owner (admin web)                                                                                  | For the driver (mobile app)                                     |
+| ---------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Sign in with mobile number + password; sign up, and reset a forgotten password with a code                       | Log in with mobile number + password; sign up, reset a password |
+| Manage vehicles, drivers and their documents (RC, insurance, permit, PUC, DL)                                    |                                                                 |
+| Get alerts 30 / 7 / 1 days before a document expires                                                             | See assigned trips                                              |
+| Create, assign and track trips; see photos and the GPS route                                                     | Start/end a trip with an odometer photo + typed reading         |
+| See fuel efficiency (or cost per km for petrol + CNG cars) per vehicle, cycle by cycle, against its own baseline | Log fuel fills with a receipt photo and a full-tank toggle      |
+| Get plain-language alerts for suspicious fuel use or inflated odometer readings                                  | Log cash / UPI / card collections                               |
+| Review OCR mismatches in a review queue                                                                          | Request cancellation of a running trip                          |
+| Approve or reject trip cancellations                                                                             | Add tolls, parking and other charges                            |
+| Configure driver pay rules                                                                                       | Keep working offline; sync when back online                     |
+| Settle each driver's day: fare, cash, online, expenses, net payable                                              |                                                                 |
+| Use the console in English or Hindi (हिन्दी), with amounts and dates in Indian format                            |                                                                 |
 
 Out of scope for now: the passenger app, return-leg matching and the OTA partner API. The schema leaves room for them (see [`docs/database.md`](docs/database.md#future-proofing)).
 
@@ -72,7 +72,7 @@ bun run infra:up              # Postgres+PostGIS :5433, Redis :6380, RustFS :900
 bun run dev                   # api :3000, workers, admin web :5173
 ```
 
-Before the first `dev`, run `bun run db:migrate && bun run db:seed` to create the schema and the demo fleet. Then sign in at <http://localhost:5173> with a seeded phone number (e.g. `9000000001`, the owner): choose **Use an SMS code instead** (seeded users have no password yet); the OTP is printed in the `bun run dev` log. You can then set a password under **My account**, or try **Sign up** and **Continue with Google (local test)**, which takes any email until Google client ids are configured ([Google sign-in](docs/development.md#google-sign-in)). To try the driver app without an emulator, run `bun run dev:driver-web` in a second terminal and sign in at <http://localhost:5174> as a driver (e.g. `9000000011`), or as the owner (`9000000001`) for owner mode.
+Before the first `dev`, run `bun run db:migrate && bun run db:seed` to create the schema and the demo fleet. Then sign in at <http://localhost:5173> with a seeded phone number (e.g. `9000000001`, the owner) and the password `demo1234` (every demo person has it). **Forgot password?** sends a reset code, which is printed in the `bun run dev` log (no SMS is sent). To try the driver app without an emulator, run `bun run dev:driver-web` in a second terminal and sign in at <http://localhost:5174> as a driver (e.g. `9000000011`), or as the owner (`9000000001`) for owner mode, with the same password.
 
 To build the Android APK or host a free demo (Render + Neon + Backblaze B2), see [`docs/deployment.md`](docs/deployment.md): `API_URL=https://<your-api> bun run build:apk`.
 

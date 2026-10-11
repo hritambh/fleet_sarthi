@@ -55,12 +55,22 @@ export function lastOtp(h: Harness, phone: string): string {
   return code;
 }
 
-/** Signs in through the real OTP flow. */
+/** The password every test user gets. */
+export const TEST_PASSWORD = 'test-password-1';
+
+/**
+ * Signs in with phone + password: signs the number up the first time (which also
+ * activates any pending invite), and logs in after that.
+ */
 export async function login(h: Harness, phone = randomPhone()): Promise<Session> {
-  await request(h.http).post('/v1/auth/otp/request').send({ phone }).expect(202);
+  const device = { deviceId: randomUUID(), platform: 'web' };
+  const signup = await request(h.http)
+    .post('/v1/auth/signup')
+    .send({ phone, password: TEST_PASSWORD, ...device });
+  if (signup.status === 201) return signup.body as Session;
   const res = await request(h.http)
-    .post('/v1/auth/otp/verify')
-    .send({ phone, code: lastOtp(h, phone), deviceId: randomUUID(), platform: 'web' })
+    .post('/v1/auth/password/login')
+    .send({ phone, password: TEST_PASSWORD, ...device })
     .expect(200);
   return res.body as Session;
 }

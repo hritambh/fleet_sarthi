@@ -23,6 +23,10 @@ Each milestone ends with lint, typecheck and tests passing, a summary of what ch
 - [ ] **M1.9 End-to-end tests:** integration tests for trip lifecycle, idempotent and conflicting sync, tenant isolation; Maestro start → end flow; docs pass
 - [x] **M1.10 App: English + Hindi, owner mode:** gen-l10n (English, Hindi) across every screen, language picker, codes-to-text for alerts, settlement lines, review reasons and errors; owner/manager mode in the same app with admin-web parity (online-first); app renamed "Fleet Sarthi"
 
+## Changes
+
+- **2026-10-12: phone + password only.** Google sign-in and SMS-code login were removed, along with `GET /auth/config` and the `users.email` / `google_sub` columns (migration `20261012000000_drop_google_sign_in`). Everyone signs in with mobile number + password; sign-up needs no code; a forgotten password is reset with a code sent through the `SmsProvider` (printed in the API log with `SMS_PROVIDER=console`). Demo people have the password `demo1234`. See [D14](decisions.md).
+
 ## Known gaps (found while building M1.7–M1.8)
 
 - **Not exercised on hardware:** the driver app hasn't run on a real phone or emulator yet (camera, background GPS, the foreground service, connectivity changes). There's no iOS build either; this machine has no Xcode or CocoaPods. The web build compiles (and CI builds it) but hasn't been clicked through in a browser yet.
@@ -55,7 +59,7 @@ Each milestone ends with lint, typecheck and tests passing, a summary of what ch
 - Passenger app
 - Return-leg matching
 - OTA partner API
-- Real SMS/OCR/maps/payment providers
+- Real SMS/OCR/maps/payment providers (with SMS verification at sign-up)
 - Device attestation
 - Push/WhatsApp notifications for alerts
 - Rate-card fare engine

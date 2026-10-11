@@ -11,8 +11,8 @@ import '../login/auth_widgets.dart';
 import '../owner/owner_text.dart' show formatPhone;
 import '../owner/owner_widgets.dart';
 
-/// How the signed-in user signs in: their number (SMS code), a password (set or
-/// change it here) and a linked Google account. Needs a connection.
+/// How the signed-in user signs in: their mobile number and a password (set or
+/// change it here). Needs a connection.
 class AccountSecurityScreen extends ConsumerWidget {
   const AccountSecurityScreen({super.key});
 
@@ -55,15 +55,13 @@ class _Methods extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final email = account.email;
     return Column(
       children: [
         ListTile(
           contentPadding: EdgeInsets.zero,
           leading: const Icon(Icons.phone_android),
           title: Text(l.mobileNumber),
-          subtitle: Text('${formatPhone(account.phone)}\n${l.smsCodeAlways}'),
-          isThreeLine: true,
+          subtitle: Text(formatPhone(account.phone)),
         ),
         ListTile(
           key: const Key('security-password'),
@@ -72,19 +70,6 @@ class _Methods extends StatelessWidget {
           title: Text(l.password),
           subtitle: Text(
             account.hasPassword ? l.passwordIsSet : l.passwordNotSet,
-          ),
-        ),
-        ListTile(
-          key: const Key('security-google'),
-          contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.account_circle_outlined),
-          title: const Text('Google'),
-          subtitle: Text(
-            !account.googleLinked
-                ? l.googleNotLinked
-                : email == null
-                ? l.googleLinked
-                : l.googleLinkedTo(email: email),
           ),
         ),
       ],

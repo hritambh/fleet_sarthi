@@ -2,15 +2,7 @@ import type { Session } from '@taxcy/contracts';
 import request from 'supertest';
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import {
-  bearer,
-  lastOtp,
-  login,
-  ownerSession,
-  randomPhone,
-  startHarness,
-  type Harness,
-} from './harness.js';
+import { bearer, login, ownerSession, randomPhone, startHarness, type Harness } from './harness.js';
 
 let h: Harness;
 
@@ -22,35 +14,13 @@ afterAll(async () => {
   await h.close();
 });
 
-describe('OTP login', () => {
-  it('creates the user on first login, with no org yet', async () => {
+describe('sign-up and reset codes', () => {
+  it('creates the user on sign-up, with no org yet', async () => {
     const phone = randomPhone();
     const session = await login(h, phone);
     expect(session.user.phone).toBe(phone);
     expect(session.activeOrgId).toBeNull();
     expect(session.memberships).toEqual([]);
-  });
-
-  it('rejects a wrong code and counts the attempt', async () => {
-    const phone = randomPhone();
-    await request(h.http).post('/v1/auth/otp/request').send({ phone }).expect(202);
-    const wrong = lastOtp(h, phone) === '000000' ? '111111' : '000000';
-    const res = await request(h.http)
-      .post('/v1/auth/otp/verify')
-      .send({ phone, code: wrong, deviceId: randomUUID(), platform: 'android' })
-      .expect(401);
-    expect(res.body).toMatchObject({
-      error: { code: 'OTP_INVALID', details: { attemptsLeft: 4 } },
-    });
-  });
-
-  it('a code works only once', async () => {
-    const phone = randomPhone();
-    await request(h.http).post('/v1/auth/otp/request').send({ phone }).expect(202);
-    const body = { phone, code: lastOtp(h, phone), deviceId: randomUUID(), platform: 'android' };
-    await request(h.http).post('/v1/auth/otp/verify').send(body).expect(200);
-    const again = await request(h.http).post('/v1/auth/otp/verify').send(body).expect(401);
-    expect(again.body).toMatchObject({ error: { code: 'OTP_EXPIRED' } });
   });
 
   it('rate-limits repeated requests for the same phone', async () => {

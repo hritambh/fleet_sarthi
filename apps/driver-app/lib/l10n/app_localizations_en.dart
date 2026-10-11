@@ -96,9 +96,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendCode => 'Send code';
 
   @override
-  String get verifyAndSignIn => 'Verify and sign in';
-
-  @override
   String get useDifferentNumber => 'Use a different number';
 
   @override
@@ -197,7 +194,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorOtpInvalid =>
-      'That code is not right. Check the SMS and try again.';
+      'That code is not right. Check it and try again.';
 
   @override
   String get errorOtpExpired => 'The code expired. Request a new one.';
@@ -208,14 +205,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorAccountExists =>
       'This number already has an account. Log in, or reset your password.';
-
-  @override
-  String get errorGoogleTokenInvalid =>
-      'Google sign-in didn\'t work. Try again.';
-
-  @override
-  String get errorGoogleAccountConflict =>
-      'This number is already linked to a different Google account.';
 
   @override
   String get errorRateLimited =>
@@ -1431,7 +1420,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noDriversYet =>
-      'No drivers yet. Invite drivers by phone; they sign in with an OTP.';
+      'No drivers yet. Invite drivers by phone; they sign up with that number and a password.';
 
   @override
   String payDefault({required String rule}) {
@@ -2340,12 +2329,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get forgotPassword => 'Forgot password?';
 
   @override
-  String get useSmsCodeInstead => 'Use an SMS code instead';
-
-  @override
-  String get usePasswordInstead => 'Log in with your password';
-
-  @override
   String get newHereSignUp => 'New to Fleet Sarthi? Sign up';
 
   @override
@@ -2359,7 +2342,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signUpIntro =>
-      'We\'ll send a code to your mobile number to check it\'s yours. Drivers use the number their fleet owner registered.';
+      'Choose a password for your mobile number. Drivers use the number their fleet owner registered.';
 
   @override
   String get createAccount => 'Create account';
@@ -2402,7 +2385,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resetPasswordIntro =>
-      'We\'ll send a code to your mobile number. Then choose a new password.';
+      'We\'ll send a reset code for your mobile number. Then choose a new password.';
 
   @override
   String get resetPassword => 'Reset password';
@@ -2422,41 +2405,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get codeResent => 'We sent a new code.';
 
   @override
-  String get orDivider => 'or';
-
-  @override
-  String get continueWithGoogle => 'Continue with Google';
-
-  @override
-  String get googleLocalTest => 'Google (local test)';
-
-  @override
-  String get googleLocalTestIntro =>
-      'This server has no Google account set up, so it accepts any email as a stand-in for testing.';
-
-  @override
-  String get email => 'Email';
-
-  @override
-  String get enterEmail => 'Enter an email address';
-
-  @override
-  String get continueAction => 'Continue';
-
-  @override
-  String get googleUnavailable =>
-      'Google sign-in isn\'t working on this device. Log in with your password or an SMS code.';
-
-  @override
-  String get verifyPhoneTitle => 'Verify your phone';
-
-  @override
-  String verifyPhoneIntro({required String account}) {
-    return 'You\'re signing in with Google as $account. Add your mobile number too: your fleet knows you by it.';
-  }
-
-  @override
-  String get startAgain => 'Start again';
+  String get resetCodeInApiLog =>
+      'Testing locally or on the demo? The code isn\'t sent by SMS: it\'s printed in the API server\'s log.';
 
   @override
   String get accountSecurity => 'Account security';
@@ -2465,26 +2415,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInMethods => 'How you sign in';
 
   @override
-  String get smsCodeAlways =>
-      'You can always log in with an SMS code sent to this number.';
-
-  @override
   String get passwordIsSet => 'Set';
 
   @override
   String get passwordNotSet => 'Not set yet';
-
-  @override
-  String googleLinkedTo({required String email}) {
-    return 'Linked: $email';
-  }
-
-  @override
-  String get googleLinked => 'Linked';
-
-  @override
-  String get googleNotLinked =>
-      'Not linked. To link it, sign out and choose Continue with Google.';
 
   @override
   String get setPassword => 'Set a password';

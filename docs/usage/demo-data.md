@@ -44,13 +44,13 @@ After a reset, the app in Chrome still holds the old trips and any unsent action
 
 ### Signing in
 
-The demo people have **no passwords**. On the sign-in screen choose **Use an SMS code instead**, enter the number and tap **Send code**. Nothing is sent locally: the code is printed in the API log:
+Every demo person has the password **`demo1234`**: enter the number (e.g. `9000000001`) and `demo1234` on the sign-in screen. The seed prints this at the end.
+
+If you change a password and forget it, choose **Forgot password?**, enter the number and tap **Send code**. Nothing is sent locally: the code is printed in the API log. Enter it with a new password.
 
 ```
 otp.issued phone=+919000000001 code=482913 (dev only, not sent)
 ```
-
-To skip codes from then on, set a password under **Account security** (app: driver menu or More; web: account menu). **Continue with Google** works too while no Google client id is set: the stand-in asks for an email, then you verify one of the numbers above with a code.
 
 ## What's in it
 
@@ -131,4 +131,4 @@ Switch the language (sign-in screen, the web sidebar footer, or the app menu) to
 
 ## On a hosted demo
 
-The free Render deployment can load the same data: set `SEED_DEMO_DATA=true` once, then set it back to `false`. Login codes are in the Render logs. See [deployment.md](../deployment.md#step-6-optional-load-the-demo-fleet).
+The free Render deployment can load the same data: set `SEED_DEMO_DATA=true` once, then set it back to `false`. Sign in with the same numbers and `demo1234`; password-reset codes are in the Render logs. See [deployment.md](../deployment.md#step-6-optional-load-the-demo-fleet).

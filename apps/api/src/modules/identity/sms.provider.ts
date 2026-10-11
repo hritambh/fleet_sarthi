@@ -22,7 +22,7 @@ export class ConsoleSmsProvider implements SmsProvider, OnModuleInit {
   onModuleInit(): void {
     if (this.config.NODE_ENV === 'production') {
       this.logger.warn(
-        'DEMO_MODE: SMS is not sent. Login codes are written to this log, so anyone who can read it can sign in as any user. Do not use with real users.',
+        'DEMO_MODE: SMS is not sent. Password-reset codes are written to this log, so anyone who can read it can take over any account. Do not use with real users.',
       );
     }
   }

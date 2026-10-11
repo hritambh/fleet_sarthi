@@ -88,7 +88,7 @@ erDiagram
 | `devices`        | Installation IDs from the driver app; referenced by media evidence.                                                                                 |
 | `refresh_tokens` | Hashed, rotated, grouped by `family_id` for reuse detection.                                                                                        |
 
-OTP challenges and rate-limit counters live in Redis, not Postgres.
+Password-reset codes (hashed, 5-minute TTL) and rate-limit counters live in Redis, not Postgres.
 
 ### Fleet
 

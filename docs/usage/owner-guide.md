@@ -6,33 +6,27 @@ The admin web is for **owners** and **managers**. Drivers use the [mobile app](d
 
 ## 1. Sign in
 
-Your **mobile number** is your identity in Fleet Sarthi: invites and fleets go by it. The sign-in page offers three ways in.
-
-- **Mobile number + password** (the default). Enter your 10-digit number and your password. A wrong number and a wrong password give the same message, on purpose. After several wrong tries you have to wait a few minutes.
-- **SMS code.** Choose **Use an SMS code instead**, enter your number, then the 6-digit code we text you. **Resend code** becomes available after a short wait. In local development the code is printed in the API log.
-- **Continue with Google.** The first time, Google asks which account to use and then Fleet Sarthi asks you to **verify your phone**: enter your mobile number and the SMS code. From then on, Google signs you straight in. Finish within 10 minutes; if it takes longer, you're sent back to start again. A number can be linked to only one Google account, and a Google account to only one number. In local development (no Google client id configured) the button reads **Continue with Google (local test)** and asks for any email instead of opening Google; it never appears in production.
-
-The page shows only the ways that are switched on: without Google configured in production, the Google button is hidden.
+Your **mobile number** is your identity in Fleet Sarthi: invites and fleets go by it. Sign in with your **mobile number + password**: enter your 10-digit number and your password. A wrong number and a wrong password give the same message, on purpose. After several wrong tries you have to wait a few minutes.
 
 If you belong to more than one organization, you start in the first one; switch from the organization menu at the top of the sidebar.
 
 ### Sign up
 
-New to Fleet Sarthi? Choose **Sign up**, enter your mobile number and the SMS code, then your name (optional) and a password (at least 8 characters, typed twice). You're signed in straight away. If you're not part of a fleet yet, you're asked to set up your business (a fleet, or an owner-driver). If you were invited as a manager, the invite is picked up automatically.
+New to Fleet Sarthi? Choose **Sign up**, enter your mobile number, your name (optional) and a password (at least 8 characters, typed twice). No code is needed, and you're signed in straight away. If you're not part of a fleet yet, you're asked to set up your business (a fleet, or an owner-driver). If you were invited as a manager or driver, use the invited number: the invite is picked up automatically.
 
-If the number already has a password, sign-up says so: sign in, or reset the password instead. Someone who has only ever used SMS codes (for example an invited driver) can sign up to add a password to the same account.
+If the number already has a password, sign-up says so: sign in, or reset the password instead.
+
+> The phone number isn't verified at sign-up, so whoever signs up first with an invited number gets that account. That's fine for demos and pilots; SMS verification is needed before real use.
 
 ### Forgot your password
 
-On the sign-in page choose **Forgot password?**, enter your mobile number and the SMS code, and choose a new password. You're signed in, and **signed out on every other device**.
+On the sign-in page choose **Forgot password?**, enter your mobile number and tap **Send code**, then enter the 6-digit reset code we text you and a new password. You're signed in, and **signed out on every other device**. The code lasts 5 minutes; **Resend code** becomes available after a short wait. In local development and on the demo server no SMS is sent: the code is printed in the API log (`otp.issued phone=… code=…`).
 
 ### Account security (My account)
 
-**My account** (bottom of the sidebar) shows your name, mobile number, whether a **Google** account is linked and its **email**.
+**My account** (bottom of the sidebar) shows your name and mobile number.
 
-- **Set password**: if you've only used SMS codes or Google so far, set a password to sign in without waiting for a code.
 - **Change password**: enter your current password and the new one twice. If you've forgotten the current one, sign out and use **Forgot password?**.
-- To link Google, sign out, choose **Continue with Google** and enter this mobile number when asked.
 
 Passwords are never stored in the browser; use your browser's or phone's password manager if you like (the forms are set up for it).
 
@@ -56,7 +50,7 @@ Everything is shown in the chosen language, including alerts, settlement lines a
 
 **Fleet → Drivers → Invite driver**
 
-- Name and mobile number. The driver signs in to the app with that number; no password is needed.
+- Name and mobile number. The driver signs up in the app with that number and chooses a password; they join your fleet straight away.
 - **Vehicles** (optional): the vehicles they may drive. A driver can be linked to several vehicles, and a vehicle to several drivers. Change it later with **Edit vehicles** in the driver list. A driver can't be unlinked from a vehicle while they have an assigned or running trip in it: reassign or finish that trip first.
 
 ### Documents
@@ -180,7 +174,7 @@ Turn **Driver allowance goes to driver** on if the bata customers pay belongs to
 
 ## Owner mode in the app
 
-The Fleet Sarthi app (the same one drivers use) has the admin console's features for owners and managers. Sign in with your number and password, an SMS code, or Google (the same options as the [driver guide](driver-guide.md#sign-in), including **Sign up** and **Forgot password?**): owners and managers get the fleet screens straight away. An owner-driver (DCO) starts on their driver screens and switches with **⋮ → Owner mode**, and back with **More → Driver mode**; the app remembers the last choice.
+The Fleet Sarthi app (the same one drivers use) has the admin console's features for owners and managers. Sign in with your number and password (the same screens as the [driver guide](driver-guide.md#sign-in), including **Sign up** and **Forgot password?**): owners and managers get the fleet screens straight away. An owner-driver (DCO) starts on their driver screens and switches with **⋮ → Owner mode**, and back with **More → Driver mode**; the app remembers the last choice.
 
 | Tab           | What's there                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -192,6 +186,6 @@ The Fleet Sarthi app (the same one drivers use) has the admin console's features
 - **Charges:** night charge, extra km and driver allowance are extra fare the customer pays, so they have no "driver paid" option. Tolls, parking, state tax and other charges can be marked as paid by the driver (reimbursed in settlement).
 - **Managers** can do everything above except change settings and pay: the audit thresholds, the default pay rule and a driver's own pay rule are shown read-only, and only the owner can invite or remove managers.
 - **Language:** English or Hindi, from **More → Language** or **Settings**. Alert texts, settlement lines and review reasons are shown in the chosen language. Alerts raised before this feature existed show their original English text.
-- **Account security:** **More → Account security** (also in **Settings**) shows your number, whether a password is set and the linked Google account's email; set or change your password there. To link Google, sign out and choose **Continue with Google**; a forgotten password is reset from the login screen with an SMS code.
+- **Account security:** **More → Account security** (also in **Settings**) shows your number and whether a password is set; change your password there. A forgotten password is reset from the login screen with **Forgot password?** and a reset code.
 - **Needs a connection.** Unlike the driver screens, owner mode works online only: each screen loads fresh from the server, shows **Retry** if it can't, and refreshes when you pull down.
 - On a tablet or the browser at desktop width the tabs move to a side rail.

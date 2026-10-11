@@ -19,10 +19,13 @@ import { MediaService } from '../modules/media/media.service.js';
 import { SettlementsService } from '../modules/money/settlements.service.js';
 import { TelemetryService } from '../modules/telemetry/telemetry.service.js';
 import { TripsService } from '../modules/trips/trips.service.js';
+import { hashPassword } from '../modules/identity/passwords.js';
 import { textPng } from './png.js';
 
 const OWNER = { name: 'Anil Sharma', phone: '+919000000001' };
 const MANAGER = { name: 'Priya Nair', phone: '+919000000002' };
+/** Every demo person signs in with this password (demo data only). */
+export const DEMO_PASSWORD = 'demo1234';
 const HISTORY_DAYS = 42;
 const SETTLED_UNTIL_DAYS_AGO = 3;
 const GPS_DAYS = 4;
@@ -207,6 +210,7 @@ class Seeder {
       `settled every day up to ${SETTLED_UNTIL_DAYS_AGO} days ago (the last two days are left as drafts)`,
     );
     log(`${this.photos} photos uploaded`);
+    await this.setDemoPasswords();
     this.printLogins();
   }
 
@@ -219,7 +223,15 @@ class Seeder {
       log(
         `  driver   ${p.driver.name.padEnd(15)} ${p.driver.phone}   (${p.vehicle.model}, ${p.vehicle.fuel})`,
       );
-    log('Sign in with any of these numbers; the OTP is printed in the API log.');
+    log(`Sign in with any of these numbers and the password ${DEMO_PASSWORD}.`);
+  }
+
+  private async setDemoPasswords(): Promise<void> {
+    const passwordHash = await hashPassword(DEMO_PASSWORD);
+    const phones = [OWNER.phone, MANAGER.phone, ...PAIRS.map((p) => p.driver.phone)];
+    await this.db.system((tx) =>
+      tx.user.updateMany({ where: { phoneE164: { in: phones } }, data: { passwordHash } }),
+    );
   }
 
   private async referenceData(): Promise<void> {

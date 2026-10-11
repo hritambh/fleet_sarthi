@@ -36,26 +36,12 @@ const Env = z
     JWT_ACCESS_TTL_SECONDS: z.coerce.number().int().positive().default(900),
     JWT_REFRESH_TTL_DAYS: z.coerce.number().int().positive().default(30),
 
-    /**
-     * Google sign-in. With a web client id, ID tokens are verified against Google for
-     * that audience plus any extra (Android/iOS) client ids. Without one, development
-     * and tests use a stand-in that accepts "dev-google:<email>" tokens; production
-     * then has Google sign-in switched off.
-     */
-    GOOGLE_WEB_CLIENT_ID: z.string().default(''),
-    GOOGLE_EXTRA_CLIENT_IDS: z
-      .string()
-      .default('')
-      .transform((v) =>
-        v
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean),
-      ),
     OTP_TTL_SECONDS: z.coerce.number().int().positive().default(300),
     OTP_MAX_ATTEMPTS: z.coerce.number().int().positive().default(5),
     /** OTP requests allowed per client IP per hour (shared networks, e.g. a depot's Wi-Fi, need headroom). */
     OTP_IP_LIMIT_PER_HOUR: z.coerce.number().int().positive().default(30),
+    /** Sign-ups per client IP per hour (phones aren't verified at sign-up). */
+    SIGNUP_IP_LIMIT_PER_HOUR: z.coerce.number().int().positive().default(20),
     SMS_PROVIDER: z.enum(['console']).default('console'),
     OCR_PROVIDER: z.enum(['stub']).default('stub'),
 
@@ -67,8 +53,8 @@ const Env = z
     JOBS_MODE: z.enum(['external', 'in-process']).default('external'),
     /**
      * Demo deployments only. Allows SMS_PROVIDER=console with NODE_ENV=production, so
-     * login codes are written to the server log instead of being sent: anyone who can
-     * read the logs can sign in as anyone. Logged loudly at startup.
+     * password-reset codes are written to the server log instead of being sent: anyone
+     * who can read the logs can reset anyone's password. Logged loudly at startup.
      */
     DEMO_MODE: z.preprocess((v) => (v === '' ? undefined : v), z.stringbool().default(false)),
 
@@ -82,7 +68,7 @@ const Env = z
         code: 'custom',
         path: ['SMS_PROVIDER'],
         message:
-          'console only logs login codes; production needs a real SMS provider (or DEMO_MODE=true for a demo that reads codes from the logs)',
+          'console only logs password-reset codes; production needs a real SMS provider (or DEMO_MODE=true for a demo that reads codes from the logs)',
       });
     }
   });

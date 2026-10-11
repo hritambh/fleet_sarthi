@@ -31,17 +31,17 @@ flowchart LR
 
 ## API modules
 
-| Module      | Owns                                                                                  |
-| ----------- | ------------------------------------------------------------------------------------- |
-| `identity`  | Users, OTP login, JWT access/refresh, organizations, memberships, roles, devices      |
-| `media`     | Signed upload URLs, media metadata, upload confirmation, OCR results                  |
-| `fleet`     | Vehicles, vehicle models, drivers, documents, expiry alerts                           |
-| `trips`     | Trips, state machine transitions, `trip_events`, odometer readings, trip charges      |
-| `fuel`      | Fuel fills, fuel cycles, per-vehicle baselines                                        |
-| `telemetry` | GPS ingest, partition maintenance, trip distance checks                               |
-| `money`     | Collections, daily settlements                                                        |
-| `alerts`    | Alerts inbox and review queue                                                         |
-| `platform`  | Config, logging, health, Sentry, Prisma (via `libs/db`), tenancy, idempotency, outbox |
+| Module      | Owns                                                                                                                              |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `identity`  | Users, phone + password sign-in and sign-up, password-reset codes, JWT access/refresh, organizations, memberships, roles, devices |
+| `media`     | Signed upload URLs, media metadata, upload confirmation, OCR results                                                              |
+| `fleet`     | Vehicles, vehicle models, drivers, documents, expiry alerts                                                                       |
+| `trips`     | Trips, state machine transitions, `trip_events`, odometer readings, trip charges                                                  |
+| `fuel`      | Fuel fills, fuel cycles, per-vehicle baselines                                                                                    |
+| `telemetry` | GPS ingest, partition maintenance, trip distance checks                                                                           |
+| `money`     | Collections, daily settlements                                                                                                    |
+| `alerts`    | Alerts inbox and review queue                                                                                                     |
+| `platform`  | Config, logging, health, Sentry, Prisma (via `libs/db`), tenancy, idempotency, outbox                                             |
 
 Modules talk to each other through exported services, never through each other's repositories. Cross-module side effects (for example "a fill was recorded, so recompute cycles") go through the outbox, so they're asynchronous and retryable.
 
@@ -80,19 +80,27 @@ sequenceDiagram
   participant A as API
   participant R as Redis
   participant S as SmsProvider
+  C->>A: POST /auth/password/login {phone, password, deviceId}
+  A->>R: rate-limit check (phone + IP)
+  A->>A: verify argon2id hash
+  A-->>C: {accessToken (15m), refreshToken (30d), memberships}
+  Note over C,S: Forgot password
   C->>A: POST /auth/otp/request {phone}
   A->>R: rate-limit check (phone + IP)
-  A->>R: store hashed OTP (TTL 5 min, 5 attempts)
-  A->>S: send(phone, code)   (dev: logs code)
-  C->>A: POST /auth/otp/verify {phone, code, deviceId}
+  A->>R: store hashed reset code (TTL 5 min, 5 attempts)
+  A->>S: send(phone, code)   (console: logs otp.issued)
+  C->>A: POST /auth/password/reset {phone, code, password, deviceId}
   A->>R: verify + consume
-  A-->>C: {accessToken (15m), refreshToken (30d), memberships}
+  A->>A: set new password, revoke other sessions
+  A-->>C: new session
   C->>A: POST /auth/refresh {refreshToken}
   A-->>C: new pair (old token revoked)
 ```
 
 - Refresh tokens are stored **hashed** and rotated on every use. Presenting an already-rotated token revokes the whole token family, which detects stolen tokens.
-- OTP limits: 3 requests per 10 minutes and 10 per day per phone, plus a per-IP limit.
+- `POST /auth/signup` takes `{phone, password, name?, deviceId}` with no code. A number that already has a password gets `ACCOUNT_EXISTS`; an invited number without one takes the password and joins its fleet(s). Limited to 20 per IP per hour. The phone isn't verified ([D14](decisions.md)).
+- Password login: 10 tries per phone per 15 minutes and 100 per IP per hour; wrong phone and wrong password both give `INVALID_CREDENTIALS`.
+- Reset-code limits: one request per 30 s, 3 per 10 minutes and 10 per day per phone, plus a per-IP limit (`OTP_IP_LIMIT_PER_HOUR`).
 
 ## Background jobs
 
@@ -127,7 +135,7 @@ The Flutter driver app writes everything to local SQLite (drift) and an outbox t
 
 ## Observability
 
-- **pino** JSON logs, one line per request, with `requestId` (from `X-Request-Id` or generated), `orgId`, `userId`, route, status and latency. PII (phone numbers, OTPs) is redacted outside dev.
+- **pino** JSON logs, one line per request, with `requestId` (from `X-Request-Id` or generated), `orgId`, `userId`, route, status and latency. PII (phone numbers, reset codes) is redacted outside dev.
 - `GET /health/live` (process up) and `GET /health/ready` (Postgres, Redis, S3 reachable).
 - **Sentry** for API and workers, enabled when `SENTRY_DSN` is set. The request ID and org ID are attached as tags.
 
@@ -135,7 +143,7 @@ The Flutter driver app writes everything to local SQLite (drift) and an outbox t
 
 | Interface          | Stub                                                        | Real (later)                                   |
 | ------------------ | ----------------------------------------------------------- | ---------------------------------------------- |
-| `SmsProvider`      | `ConsoleSmsProvider` logs the OTP                           | MSG91 / Gupshup etc. (DLT-registered template) |
+| `SmsProvider`      | `ConsoleSmsProvider` logs the reset code                    | MSG91 / Gupshup etc. (DLT-registered template) |
 | `OcrProvider`      | `StubOcrProvider` returns configured values or "unreadable" | Cloud OCR or an on-device model                |
 | `MapsProvider`     | not built yet (pins are entered manually)                   | Google / Mapbox / Ola Maps                     |
 | `PaymentsProvider` | not needed in Phase 1                                       | UPI collect / payment links                    |

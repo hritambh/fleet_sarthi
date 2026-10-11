@@ -115,24 +115,22 @@ describe('language switcher', () => {
     expect(screen.getByRole('button', { name: 'पासवर्ड दिखाएँ' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'साइन इन करें' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'पासवर्ड भूल गए?' })).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'इसके बजाय SMS कोड से साइन इन करें' }),
-    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'साइन अप करें' })).toBeInTheDocument();
     expect(document.documentElement.lang).toBe('hi');
     expect(window.localStorage.getItem('taxcy.language')).toBe('hi');
     expect(document.title).toBe('साइन इन · फ़्लीट सारथी एडमिन');
   });
 
-  it('words the SMS code step and its errors in Hindi', async () => {
+  it('words the password-reset code step and its errors in Hindi', async () => {
     await i18n.changeLanguage('hi');
     renderWithAuth(<LoginPage />);
-    await userEvent.click(
-      screen.getByRole('button', { name: 'इसके बजाय SMS कोड से साइन इन करें' }),
-    );
+    await userEvent.click(screen.getByRole('button', { name: 'पासवर्ड भूल गए?' }));
     await userEvent.type(screen.getByLabelText('मोबाइल नंबर'), '9812345678');
     await userEvent.click(screen.getByRole('button', { name: 'कोड भेजें' }));
     expect(await screen.findByText('30 सेकंड बाद कोड दोबारा भेज सकते हैं')).toBeInTheDocument();
+    expect(
+      screen.getByText('लोकल और डेमो मोड में कोड API लॉग में छपता है (otp.issued … code=…)।'),
+    ).toBeInTheDocument();
     expect(errorMessage(new ApiError(401, 'INVALID_CREDENTIALS', 'x'))).toBe(
       'मोबाइल नंबर या पासवर्ड ग़लत है।',
     );

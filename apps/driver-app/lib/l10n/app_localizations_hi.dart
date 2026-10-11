@@ -96,9 +96,6 @@ class AppLocalizationsHi extends AppLocalizations {
   String get sendCode => 'कोड भेजें';
 
   @override
-  String get verifyAndSignIn => 'जाँचें और साइन इन करें';
-
-  @override
   String get useDifferentNumber => 'दूसरा नंबर डालें';
 
   @override
@@ -193,7 +190,7 @@ class AppLocalizationsHi extends AppLocalizations {
       'ओडोमीटर रीडिंग ट्रिप शुरू होने की रीडिंग से कम है।';
 
   @override
-  String get errorOtpInvalid => 'कोड सही नहीं है। SMS देखकर फिर कोशिश करें।';
+  String get errorOtpInvalid => 'कोड सही नहीं है। जाँचकर फिर कोशिश करें।';
 
   @override
   String get errorOtpExpired => 'कोड की समय-सीमा खत्म हो गई। नया कोड मँगाएँ।';
@@ -204,14 +201,6 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get errorAccountExists =>
       'इस नंबर का अकाउंट पहले से है। लॉग इन करें, या पासवर्ड रीसेट करें।';
-
-  @override
-  String get errorGoogleTokenInvalid =>
-      'Google से साइन इन नहीं हो पाया। फिर से कोशिश करें।';
-
-  @override
-  String get errorGoogleAccountConflict =>
-      'यह नंबर पहले से किसी दूसरे Google अकाउंट से जुड़ा है।';
 
   @override
   String get errorRateLimited =>
@@ -1427,7 +1416,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get noDriversYet =>
-      'अभी कोई ड्राइवर नहीं। फ़ोन नंबर से ड्राइवर जोड़ें; वे OTP से साइन इन करेंगे।';
+      'अभी कोई ड्राइवर नहीं। फ़ोन नंबर से ड्राइवर जोड़ें; वे उसी नंबर और एक पासवर्ड से साइन अप करेंगे।';
 
   @override
   String payDefault({required String rule}) {
@@ -2334,12 +2323,6 @@ class AppLocalizationsHi extends AppLocalizations {
   String get forgotPassword => 'पासवर्ड भूल गए?';
 
   @override
-  String get useSmsCodeInstead => 'इसके बजाय SMS कोड से लॉग इन करें';
-
-  @override
-  String get usePasswordInstead => 'पासवर्ड से लॉग इन करें';
-
-  @override
   String get newHereSignUp => 'फ़्लीट सारथी पर नए हैं? साइन अप करें';
 
   @override
@@ -2353,7 +2336,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get signUpIntro =>
-      'नंबर आपका ही है, यह जाँचने के लिए हम उस पर एक कोड भेजेंगे। ड्राइवर वही नंबर डालें जो फ़्लीट मालिक ने दर्ज किया है।';
+      'अपने मोबाइल नंबर के लिए एक पासवर्ड चुनें। ड्राइवर वही नंबर डालें जो फ़्लीट मालिक ने दर्ज किया है।';
 
   @override
   String get createAccount => 'अकाउंट बनाएँ';
@@ -2396,7 +2379,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get resetPasswordIntro =>
-      'हम आपके मोबाइल नंबर पर एक कोड भेजेंगे। फिर नया पासवर्ड चुनें।';
+      'हम आपके मोबाइल नंबर के लिए एक रीसेट कोड भेजेंगे। फिर नया पासवर्ड चुनें।';
 
   @override
   String get resetPassword => 'पासवर्ड रीसेट करें';
@@ -2416,41 +2399,8 @@ class AppLocalizationsHi extends AppLocalizations {
   String get codeResent => 'नया कोड भेज दिया है।';
 
   @override
-  String get orDivider => 'या';
-
-  @override
-  String get continueWithGoogle => 'Google से आगे बढ़ें';
-
-  @override
-  String get googleLocalTest => 'Google (लोकल टेस्ट)';
-
-  @override
-  String get googleLocalTestIntro =>
-      'इस सर्वर पर Google सेट नहीं है, इसलिए टेस्ट के लिए कोई भी ईमेल चल जाएगा।';
-
-  @override
-  String get email => 'ईमेल';
-
-  @override
-  String get enterEmail => 'ईमेल पता डालें';
-
-  @override
-  String get continueAction => 'आगे बढ़ें';
-
-  @override
-  String get googleUnavailable =>
-      'इस डिवाइस पर Google साइन इन नहीं चल रहा। पासवर्ड या SMS कोड से लॉग इन करें।';
-
-  @override
-  String get verifyPhoneTitle => 'अपना फ़ोन नंबर जाँचें';
-
-  @override
-  String verifyPhoneIntro({required String account}) {
-    return 'आप Google से $account के नाम से साइन इन कर रहे हैं। अपना मोबाइल नंबर भी जोड़ें: आपका फ़्लीट आपको इसी नंबर से पहचानता है।';
-  }
-
-  @override
-  String get startAgain => 'फिर से शुरू करें';
+  String get resetCodeInApiLog =>
+      'लोकल या डेमो सर्वर पर कोड SMS से नहीं आता: वह API सर्वर के लॉग में छपता है।';
 
   @override
   String get accountSecurity => 'अकाउंट सुरक्षा';
@@ -2459,26 +2409,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get signInMethods => 'आप कैसे साइन इन करते हैं';
 
   @override
-  String get smsCodeAlways =>
-      'इस नंबर पर आए SMS कोड से भी हमेशा लॉग इन कर सकते हैं।';
-
-  @override
   String get passwordIsSet => 'सेट है';
 
   @override
   String get passwordNotSet => 'अभी सेट नहीं है';
-
-  @override
-  String googleLinkedTo({required String email}) {
-    return 'जुड़ा है: $email';
-  }
-
-  @override
-  String get googleLinked => 'जुड़ा है';
-
-  @override
-  String get googleNotLinked =>
-      'जुड़ा नहीं है। जोड़ने के लिए साइन आउट करें और \"Google से आगे बढ़ें\" चुनें।';
 
   @override
   String get setPassword => 'पासवर्ड बनाएँ';

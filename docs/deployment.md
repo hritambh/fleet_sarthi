@@ -5,12 +5,12 @@ This page covers two things:
 1. **Building the Android app** (`fleet-sarthi-<version>.apk`) pointed at any API, and installing it on a phone.
 2. **Hosting the backend and admin web for free** on [Render](https://render.com), with Neon (Postgres + PostGIS), Render Key Value (Redis) and Backblaze B2 (photos).
 
-The free stack is meant for demos, pilots and testing, not for real fleets: it sleeps when idle, has small quotas, and logs login codes instead of sending SMS. [Moving beyond free](#moving-beyond-the-free-tier) lists what to change for real users.
+The free stack is meant for demos, pilots and testing, not for real fleets: it sleeps when idle, has small quotas, and logs password-reset codes instead of sending SMS. [Moving beyond free](#moving-beyond-the-free-tier) lists what to change for real users.
 
 - [Part 1: Build the APK](#part-1-build-the-apk)
 - [Part 2: Recommended free infrastructure](#part-2-recommended-free-infrastructure)
 - [Part 3: Deploy to Render step by step](#part-3-deploy-to-render-step-by-step)
-- [Part 4: Sign-in on a free deployment (OTP codes, Google)](#part-4-sign-in-on-a-free-deployment)
+- [Part 4: Sign-in on a free deployment (passwords, reset codes)](#part-4-sign-in-on-a-free-deployment)
 - [Troubleshooting](#troubleshooting)
 
 ---
@@ -70,7 +70,7 @@ Android only installs signed APKs, and only lets an update replace an installed 
   bun run driver:keystore            # = apps/driver-app/scripts/create-keystore.sh
   ```
 
-  It asks for a password, then creates `~/.taxcy/taxcy-upload-keystore.jks` (outside the repo) and `apps/driver-app/android/key.properties`, and prints the key's SHA-1 (needed for [Google sign-in](#google-sign-in-optional)). From then on `build:apk` signs with it automatically; `android/app/build.gradle.kts` reads `key.properties` the standard Flutter way.
+  It asks for a password, then creates `~/.taxcy/taxcy-upload-keystore.jks` (outside the repo) and `apps/driver-app/android/key.properties`, and prints the key's SHA-1. From then on `build:apk` signs with it automatically; `android/app/build.gradle.kts` reads `key.properties` the standard Flutter way.
 
   The equivalent by hand:
 
@@ -111,7 +111,7 @@ On first launch the app asks for camera, location ("Allow all the time" for rout
 
 ### Plugins and release builds
 
-The release build was verified on this repo (Flutter 3.38.5, AGP 8.11, `minSdk 24`, `compileSdk 36`) with every plugin in `pubspec.yaml`: drift + `sqlite3_flutter_libs`, `camera`, `geolocator` (foreground service), `flutter_secure_storage`, `google_sign_in` 7, `connectivity_plus`, `shared_preferences`, `path_provider`. Flutter's release build shrinks Java code with R8; each plugin ships its own keep rules, so no extra ProGuard configuration is needed. Test a release build on a real phone before handing it out, especially Google sign-in, which depends on the signing key's SHA-1.
+The release build was verified on this repo (Flutter 3.38.5, AGP 8.11, `minSdk 24`, `compileSdk 36`) with every plugin in `pubspec.yaml`: drift + `sqlite3_flutter_libs`, `camera`, `geolocator` (foreground service), `flutter_secure_storage`, `connectivity_plus`, `shared_preferences`, `path_provider`. Flutter's release build shrinks Java code with R8; each plugin ships its own keep rules, so no extra ProGuard configuration is needed. Test a release build on a real phone before handing it out.
 
 ---
 
@@ -119,16 +119,16 @@ The release build was verified on this repo (Flutter 3.38.5, AGP 8.11, `minSdk 2
 
 Researched in October 2026. Free tiers change often, so check each provider's pricing page before relying on a number.
 
-| Piece                            | Recommended                                           | Free limits that matter                                                                                                                                                                                          |
-| -------------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| API (NestJS)                     | **Render free web service** (`taxcy-api`)             | 512 MB RAM, 0.1 CPU. **Sleeps after 15 min without requests; waking takes about a minute.** 750 instance-hours per workspace per month. No pre-deploy command, no shell, no background workers, single instance. |
-| Background jobs                  | **Inside the API** (`JOBS_MODE=in-process`)           | Render has no free background worker. Jobs only run while the API is awake (see [gotchas](#gotchas-of-the-free-stack)).                                                                                          |
-| Admin web                        | **Render free static site** (`taxcy-admin`)           | Global CDN, custom domains. Counts against the workspace's outbound bandwidth (reported cut to **5 GB/month** on the Hobby plan from 1 Aug 2026).                                                                |
-| Postgres + PostGIS               | **Neon free**                                         | 0.5 GB storage per project, **100 CU-hours/month** (0.25 CU minimum, so about 400 awake hours), scales to zero after 5 min idle. PostGIS and `btree_gist` supported. Region: Singapore (`aws-ap-southeast-1`).   |
-| Redis (OTP, rate limits, BullMQ) | **Render Key Value free** (`taxcy-redis`)             | 25 MB RAM, 50 connections (the API uses about 17), **in memory only: data is lost when it restarts**. Same region as the API, private network only.                                                              |
-| Photos (S3 API)                  | **Backblaze B2 free**                                 | First **10 GB stored free**, downloads free up to 3× the average data stored, Class A/B/C API calls free on pay-as-you-go. **No Asia region**: the region (US or EU) is chosen once per account at sign-up.      |
-| SMS                              | **None (demo mode)**: codes are read from the API log | See [Part 4](#part-4-sign-in-on-a-free-deployment). India requires DLT registration for SMS, and no SMS gateway is free.                                                                                         |
-| Errors (optional)                | Sentry free (Developer plan)                          | Set `SENTRY_DSN`; empty disables it.                                                                                                                                                                             |
+| Piece                                    | Recommended                                                 | Free limits that matter                                                                                                                                                                                          |
+| ---------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| API (NestJS)                             | **Render free web service** (`taxcy-api`)                   | 512 MB RAM, 0.1 CPU. **Sleeps after 15 min without requests; waking takes about a minute.** 750 instance-hours per workspace per month. No pre-deploy command, no shell, no background workers, single instance. |
+| Background jobs                          | **Inside the API** (`JOBS_MODE=in-process`)                 | Render has no free background worker. Jobs only run while the API is awake (see [gotchas](#gotchas-of-the-free-stack)).                                                                                          |
+| Admin web                                | **Render free static site** (`taxcy-admin`)                 | Global CDN, custom domains. Counts against the workspace's outbound bandwidth (reported cut to **5 GB/month** on the Hobby plan from 1 Aug 2026).                                                                |
+| Postgres + PostGIS                       | **Neon free**                                               | 0.5 GB storage per project, **100 CU-hours/month** (0.25 CU minimum, so about 400 awake hours), scales to zero after 5 min idle. PostGIS and `btree_gist` supported. Region: Singapore (`aws-ap-southeast-1`).   |
+| Redis (reset codes, rate limits, BullMQ) | **Render Key Value free** (`taxcy-redis`)                   | 25 MB RAM, 50 connections (the API uses about 17), **in memory only: data is lost when it restarts**. Same region as the API, private network only.                                                              |
+| Photos (S3 API)                          | **Backblaze B2 free**                                       | First **10 GB stored free**, downloads free up to 3× the average data stored, Class A/B/C API calls free on pay-as-you-go. **No Asia region**: the region (US or EU) is chosen once per account at sign-up.      |
+| SMS                                      | **None (demo mode)**: reset codes are read from the API log | See [Part 4](#part-4-sign-in-on-a-free-deployment). India requires DLT registration for SMS, and no SMS gateway is free.                                                                                         |
+| Errors (optional)                        | Sentry free (Developer plan)                                | Set `SENTRY_DSN`; empty disables it.                                                                                                                                                                             |
 
 Why these choices:
 
@@ -143,8 +143,8 @@ Why these choices:
 - **Neon compute hours vs keeping the API awake.** While awake, the API's outbox relay queries Postgres every second, so Neon never scales to zero. With the API sleeping when idle that's fine; but an uptime pinger that keeps the API awake 24/7 would burn Neon's 100 CU-hours in about 16 days. Don't use one on the free plan.
 - **Render bandwidth.** Photos go straight between phones and B2 (signed URLs), not through Render. API JSON and the admin web's assets count against Render's monthly bandwidth; if it runs out with no card on file, Render suspends free services until the month ends.
 - **One API instance only.** In-process jobs assume a single instance (Render free never scales out). Before moving to several instances, switch to `JOBS_MODE=external` and run `apps/workers` as a worker service.
-- **Client IPs.** Render's proxy is in front of the API and the API doesn't trust `X-Forwarded-For`, so every client looks like the same few proxy IPs. The per-IP OTP limit (`OTP_IP_LIMIT_PER_HOUR`) is therefore shared by everyone; the Blueprint raises it to 120. Per-phone limits (1 per 30 s, 3 per 10 min, 10 per day) still apply.
-- **Logs are short-lived** on the free plan, and in demo mode they contain login codes. Treat log access as admin access.
+- **Client IPs.** Render's proxy is in front of the API and the API doesn't trust `X-Forwarded-For`, so every client looks like the same few proxy IPs. The per-IP limits (reset codes `OTP_IP_LIMIT_PER_HOUR`, 20 sign-ups per hour, 100 logins per hour) are therefore shared by everyone; the Blueprint raises it to 120. Per-phone limits (1 per 30 s, 3 per 10 min, 10 per day) still apply.
+- **Logs are short-lived** on the free plan, and in demo mode they contain password-reset codes. Treat log access as admin access.
 
 ---
 
@@ -252,17 +252,16 @@ The service URLs are `https://<name>.onrender.com`. If a name is taken, Render a
 
 **`taxcy-api`**
 
-| Variable                                           | Where the value comes from                                                                                                                                                                                                                                                                 |
-| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `DATABASE_MIGRATION_URL`                           | Neon owner URL (Step 1.2)                                                                                                                                                                                                                                                                  |
-| `DATABASE_URL`                                     | Neon app URL with `taxcy_api` and your generated password (Step 1.3)                                                                                                                                                                                                                       |
-| `S3_ENDPOINT`                                      | The bucket's **Endpoint** with `https://`, e.g. `https://s3.eu-central-003.backblazeb2.com` (Step 2.1)                                                                                                                                                                                     |
-| `S3_REGION`                                        | The middle part of that endpoint, e.g. `eu-central-003` (Step 2.1). It must match: B2 rejects signatures made for another region.                                                                                                                                                          |
-| `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY`        | B2 application key: `keyID` / `applicationKey` (Step 2.2)                                                                                                                                                                                                                                  |
-| `CORS_ORIGINS`                                     | Admin web URL, e.g. `https://taxcy-admin.onrender.com`; comma-separate more (a hosted driver web app, a custom domain). No trailing slash.                                                                                                                                                 |
-| `GOOGLE_WEB_CLIENT_ID` / `GOOGLE_EXTRA_CLIENT_IDS` | Optional, see [Google sign-in](#google-sign-in-optional). Empty: Google sign-in is off.                                                                                                                                                                                                    |
-| `SENTRY_DSN`                                       | Optional; Sentry project DSN. Empty: Sentry off.                                                                                                                                                                                                                                           |
-| Set by the Blueprint                               | `REDIS_URL` (from `taxcy-redis`), `JWT_ACCESS_SECRET` (generated by Render), `NODE_ENV=production`, `JOBS_MODE=in-process`, `SMS_PROVIDER=console`, `DEMO_MODE=true`, `S3_BUCKET=taxcy-media`, `OTP_IP_LIMIT_PER_HOUR=120`, `SEED_DEMO_DATA=false`, `NODE_VERSION=24`, `BUN_VERSION=1.4.2` |
+| Variable                                    | Where the value comes from                                                                                                                                                                                                                                                                 |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `DATABASE_MIGRATION_URL`                    | Neon owner URL (Step 1.2)                                                                                                                                                                                                                                                                  |
+| `DATABASE_URL`                              | Neon app URL with `taxcy_api` and your generated password (Step 1.3)                                                                                                                                                                                                                       |
+| `S3_ENDPOINT`                               | The bucket's **Endpoint** with `https://`, e.g. `https://s3.eu-central-003.backblazeb2.com` (Step 2.1)                                                                                                                                                                                     |
+| `S3_REGION`                                 | The middle part of that endpoint, e.g. `eu-central-003` (Step 2.1). It must match: B2 rejects signatures made for another region.                                                                                                                                                          |
+| `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` | B2 application key: `keyID` / `applicationKey` (Step 2.2)                                                                                                                                                                                                                                  |
+| `CORS_ORIGINS`                              | Admin web URL, e.g. `https://taxcy-admin.onrender.com`; comma-separate more (a hosted driver web app, a custom domain). No trailing slash.                                                                                                                                                 |
+| `SENTRY_DSN`                                | Optional; Sentry project DSN. Empty: Sentry off.                                                                                                                                                                                                                                           |
+| Set by the Blueprint                        | `REDIS_URL` (from `taxcy-redis`), `JWT_ACCESS_SECRET` (generated by Render), `NODE_ENV=production`, `JOBS_MODE=in-process`, `SMS_PROVIDER=console`, `DEMO_MODE=true`, `S3_BUCKET=taxcy-media`, `OTP_IP_LIMIT_PER_HOUR=120`, `SEED_DEMO_DATA=false`, `NODE_VERSION=24`, `BUN_VERSION=1.4.2` |
 
 `PORT` is set by Render and read by the API. `S3_PUBLIC_ENDPOINT` isn't needed (B2's endpoint is public).
 
@@ -294,7 +293,7 @@ The seed creates an owner, a manager, three drivers and vehicles, and six weeks 
 
 The seed is safe to re-run: it does nothing if the demo org exists. Alternatively run it from your laptop against Neon and B2: put the Neon and B2 values in `.env` (keeping `REDIS_URL` pointed at your local Redis) and run `bun run db:seed`.
 
-Seeded phone numbers: owner `9000000001`, manager `9000000002`, drivers `9000000011`–`9000000013`.
+Seeded phone numbers: owner `9000000001`, manager `9000000002`, drivers `9000000011`–`9000000013`, all with the password `demo1234`.
 
 ### Step 7: Build the APK for this API
 
@@ -306,7 +305,7 @@ Then install it as in [Part 1](#install-on-a-phone).
 
 ### Custom domains (optional)
 
-Both services can use your own domain on the free plan (**Settings → Custom Domains**, then a CNAME at your DNS provider; Render issues the certificate). Afterwards update: `CORS_ORIGINS` (API), `VITE_API_URL` (admin, then redeploy), the B2 CORS rules, Google OAuth origins, and rebuild the APK if the API's domain changed.
+Both services can use your own domain on the free plan (**Settings → Custom Domains**, then a CNAME at your DNS provider; Render issues the certificate). Afterwards update: `CORS_ORIGINS` (API), `VITE_API_URL` (admin, then redeploy), the B2 CORS rules, and rebuild the APK if the API's domain changed.
 
 ### Updating
 
@@ -322,70 +321,60 @@ flutter build web --release --dart-define=API_URL=https://taxcy-api.onrender.com
 # output: apps/driver-app/build/web (includes sqlite3.wasm and drift_worker.js)
 ```
 
-Add its origin to the API's `CORS_ORIGINS`, the B2 CORS rules (Step 2.3) and, for Google sign-in, the web client's JavaScript origins.
+Add its origin to the API's `CORS_ORIGINS`, and the B2 CORS rules (Step 2.3).
 
 ---
 
 ## Part 4: Sign-in on a free deployment
 
-### OTP codes (demo mode)
+Everyone signs in with **mobile number + password**. New users tap **Sign up** (number, password, optional name; no code). An invited driver or manager who has no password yet signs up with the invited number, which sets their password and joins them to the fleet.
 
-Every sign-in path (SMS code, sign-up, password reset, first Google sign-in) needs a code sent to the phone. There's no SMS provider in the code yet (`SMS_PROVIDER` only has `console`), and Indian SMS gateways (MSG91, Twilio, Gupshup, Fast2SMS, …) all need paid credit and DLT registration of the sender and templates.
+### Password-reset codes (demo mode)
+
+Only **Forgot password?** needs a code sent to the phone. There's no SMS provider in the code yet (`SMS_PROVIDER` only has `console`), and Indian SMS gateways (MSG91, Twilio, Gupshup, Fast2SMS, …) all need paid credit and DLT registration of the sender and templates.
 
 So the free deployment runs in **demo mode**:
 
-- `SMS_PROVIDER=console` writes each code to the API log instead of sending it. In production (`NODE_ENV=production`) the API **refuses to start** with `console` unless `DEMO_MODE=true` is set explicitly, and then logs a warning at every start: `DEMO_MODE: SMS is not sent. Login codes are written to this log…`.
-- To sign in: request a code in the admin web or app, then open Render → `taxcy-api` → **Logs**, search for `otp.issued`, and read the line `otp.issued phone=+91… code=123456`.
-- After the first code login, set a password (admin web: **My account**; app: the account screen) and use phone + password from then on; that needs no code.
+- `SMS_PROVIDER=console` writes each reset code to the API log instead of sending it. In production (`NODE_ENV=production`) the API **refuses to start** with `console` unless `DEMO_MODE=true` is set explicitly, and then logs a `DEMO_MODE: SMS is not sent…` warning at every start.
+- To reset a password: tap **Forgot password?** in the admin web or app and request a code, then open Render → `taxcy-api` → **Logs**, search for `otp.issued`, and read the line `otp.issued phone=+91… code=123456`. Enter it with the new password; other sessions are signed out.
+- Signed in, change the password under **My account** (admin web) or the account screen (app).
 
-Anyone who can read the API's logs can sign in as anyone, so demo mode is only for demos with test data. For real users, implement an `SmsProvider` (`apps/api/src/modules/identity/sms.provider.ts`) for your gateway, add it to the `SMS_PROVIDER` enum in `config.ts`, and remove `DEMO_MODE`.
-
-### Google sign-in (optional)
-
-With `NODE_ENV=production` the `dev-google:` stand-in is always off, so without Google credentials there's simply no Google button. To enable real Google sign-in (details in [development.md → Google sign-in](development.md#google-sign-in)):
-
-1. Google Cloud console → **APIs & Services → Credentials**: create an OAuth client of type **Web application**. Authorised JavaScript origins: `https://taxcy-admin.onrender.com` (and the driver web app's origin if hosted, and any custom domain). No redirect URIs are needed.
-2. Create an **Android** OAuth client: package `in.taxcy.taxcy_driver`, SHA-1 of the key that signs your APK: printed by `create-keystore.sh`, or `keytool -list -v -keystore ~/.taxcy/taxcy-upload-keystore.jks -alias upload`. For debug-signed builds, use the debug key's SHA-1 (`cd apps/driver-app/android && ./gradlew signingReport`). For Play, also add the Play App Signing key's SHA-1 from the Play Console.
-3. Set `GOOGLE_WEB_CLIENT_ID` (web client id) and `GOOGLE_EXTRA_CLIENT_IDS` (the Android client id) on `taxcy-api`. `GET /v1/auth/config` then reports `google.mode: "google"`.
-4. While the consent screen is in **Testing**, only listed test users can sign in. Publish it for everyone (basic scopes need no verification).
-
-A new Google account still has to verify a phone number with a code (demo mode: from the logs).
+Anyone who can read the API's logs can reset anyone's password, so demo mode is only for demos with test data. Sign-up doesn't verify the phone either: whoever signs up first with an invited number claims it. For real users, implement an `SmsProvider` (`apps/api/src/modules/identity/sms.provider.ts`) for your gateway, add it to the `SMS_PROVIDER` enum in `config.ts`, remove `DEMO_MODE`, and add SMS verification to sign-up.
 
 ---
 
 ## Troubleshooting
 
-| Symptom                                                                                                | Cause and fix                                                                                                                                                                                                                                                                                 |
-| ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `build-apk: release builds need an https:// API_URL`                                                   | Release builds block plain HTTP. Use the HTTPS API URL, or a debug `flutter run` for a LAN laptop.                                                                                                                                                                                            |
-| Gradle: `SDK location not found` / licences not accepted                                               | Run `flutter doctor` and `flutter doctor --android-licenses`; set `ANDROID_HOME` if the SDK isn't in the default place.                                                                                                                                                                       |
-| Gradle: `Keystore file … not found` or `wrong password`                                                | `storeFile` in `android/key.properties` must be an absolute path (or relative to `android/app/`), and both passwords must match the keystore's.                                                                                                                                               |
-| `adb: INSTALL_FAILED_UPDATE_INCOMPATIBLE`                                                              | The installed app has a different signing key. `adb uninstall in.taxcy.taxcy_driver`, then install again.                                                                                                                                                                                     |
-| `INSTALL_FAILED_VERSION_DOWNGRADE`                                                                     | The installed build has a higher `versionCode`. Pass a larger `--build-number`, or uninstall first.                                                                                                                                                                                           |
-| App: network error on the first try                                                                    | The free API was asleep; wait a minute and retry. Check `https://<api>/v1/health/live` in a browser.                                                                                                                                                                                          |
-| App: photos stay "waiting to upload"                                                                   | `/v1/health/ready` shows `s3: error` → check `S3_ENDPOINT`, `S3_REGION` (must match the endpoint), the keys (not the master key), the bucket name and that the key covers the bucket.                                                                                                         |
-| Render deploy fails: `Invalid environment configuration: SMS_PROVIDER: console only logs login codes…` | `DEMO_MODE` isn't `true`. Set it (demo) or configure a real SMS provider.                                                                                                                                                                                                                     |
-| Render deploy fails at `db:roles: …`                                                                   | `DATABASE_MIGRATION_URL` isn't the Neon owner URL, or `DATABASE_URL` uses the owner's user. `permission denied to create role` means the owner lacks `CREATEROLE`: create `taxcy_app` (NOLOGIN) and `taxcy_api` (LOGIN, member of `taxcy_app`) by hand as in `infra/postgres/init-roles.sql`. |
-| Neon: `password authentication failed for user "taxcy_api"`                                            | The password in `DATABASE_URL` has characters that need URL-escaping; use `openssl rand -hex 24`. The start script resets the role's password to whatever `DATABASE_URL` holds on every start.                                                                                                |
-| Neon: SSL / `channel_binding` errors                                                                   | Keep `sslmode=require`; if a client complains about `channel_binding=require`, drop that parameter from the URL.                                                                                                                                                                              |
-| Prisma: `P3009 migrate found failed migrations`                                                        | A migration failed half-way. Read the API log, fix the cause, then mark it with `prisma migrate resolve` from your laptop (`cd libs/db`, `DATABASE_MIGRATION_URL=… node_modules/.bin/prisma migrate resolve --rolled-back <name>`).                                                           |
-| Admin web: `Failed to fetch` / CORS error in the browser console                                       | `CORS_ORIGINS` on the API must contain the admin URL exactly (scheme, host, no trailing slash); `VITE_API_URL` must be the API URL, and the site must be redeployed after changing it.                                                                                                        |
-| Admin web: 404 on refresh of a deep link                                                               | The `/* → /index.html` rewrite is missing; it's in `render.yaml` (`routes`). Re-sync the Blueprint.                                                                                                                                                                                           |
-| Browser upload fails with a CORS error on `*.backblazeb2.com`                                          | Add the page's origin to the bucket's CORS rules (Step 2.3), applied to the **S3 Compatible API**.                                                                                                                                                                                            |
-| B2: `SignatureDoesNotMatch` / `InvalidAccessKeyId` / `AuthorizationHeaderMalformed`                    | `S3_REGION` doesn't match the endpoint's region, or the key is the account's master key (B2's S3 API doesn't accept it). Create a bucket-scoped application key.                                                                                                                              |
-| B2: `Unsupported header 'x-amz-checksum-…'` / uploads fail with 400                                    | An S3 client is using the AWS SDK's default checksums. `apps/api/src/platform/s3.service.ts` sets `requestChecksumCalculation` and `responseChecksumValidation` to `WHEN_REQUIRED`; keep that if you add another S3 client.                                                                   |
-| `/v1/health/ready` shows `redis: error`                                                                | The Key Value instance must be in the same region as the API (both `singapore` in `render.yaml`).                                                                                                                                                                                             |
-| Jobs (OCR, fuel audit) never finish                                                                    | Check the log for `jobs: started (in-process)`. If missing, `JOBS_MODE` isn't `in-process`. The workers app refuses to start when `JOBS_MODE=in-process`, so the two can't both run jobs.                                                                                                     |
-| Google: "isn't working on this device" / cancelled                                                     | The APK's signing-key SHA-1 isn't on the Android OAuth client (debug and upload keys differ).                                                                                                                                                                                                 |
+| Symptom                                                                                                         | Cause and fix                                                                                                                                                                                                                                                                                 |
+| --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `build-apk: release builds need an https:// API_URL`                                                            | Release builds block plain HTTP. Use the HTTPS API URL, or a debug `flutter run` for a LAN laptop.                                                                                                                                                                                            |
+| Gradle: `SDK location not found` / licences not accepted                                                        | Run `flutter doctor` and `flutter doctor --android-licenses`; set `ANDROID_HOME` if the SDK isn't in the default place.                                                                                                                                                                       |
+| Gradle: `Keystore file … not found` or `wrong password`                                                         | `storeFile` in `android/key.properties` must be an absolute path (or relative to `android/app/`), and both passwords must match the keystore's.                                                                                                                                               |
+| `adb: INSTALL_FAILED_UPDATE_INCOMPATIBLE`                                                                       | The installed app has a different signing key. `adb uninstall in.taxcy.taxcy_driver`, then install again.                                                                                                                                                                                     |
+| `INSTALL_FAILED_VERSION_DOWNGRADE`                                                                              | The installed build has a higher `versionCode`. Pass a larger `--build-number`, or uninstall first.                                                                                                                                                                                           |
+| App: network error on the first try                                                                             | The free API was asleep; wait a minute and retry. Check `https://<api>/v1/health/live` in a browser.                                                                                                                                                                                          |
+| App: photos stay "waiting to upload"                                                                            | `/v1/health/ready` shows `s3: error` → check `S3_ENDPOINT`, `S3_REGION` (must match the endpoint), the keys (not the master key), the bucket name and that the key covers the bucket.                                                                                                         |
+| Render deploy fails: `Invalid environment configuration: SMS_PROVIDER: console only logs password-reset codes…` | `DEMO_MODE` isn't `true`. Set it (demo) or configure a real SMS provider.                                                                                                                                                                                                                     |
+| Render deploy fails at `db:roles: …`                                                                            | `DATABASE_MIGRATION_URL` isn't the Neon owner URL, or `DATABASE_URL` uses the owner's user. `permission denied to create role` means the owner lacks `CREATEROLE`: create `taxcy_app` (NOLOGIN) and `taxcy_api` (LOGIN, member of `taxcy_app`) by hand as in `infra/postgres/init-roles.sql`. |
+| Neon: `password authentication failed for user "taxcy_api"`                                                     | The password in `DATABASE_URL` has characters that need URL-escaping; use `openssl rand -hex 24`. The start script resets the role's password to whatever `DATABASE_URL` holds on every start.                                                                                                |
+| Neon: SSL / `channel_binding` errors                                                                            | Keep `sslmode=require`; if a client complains about `channel_binding=require`, drop that parameter from the URL.                                                                                                                                                                              |
+| Prisma: `P3009 migrate found failed migrations`                                                                 | A migration failed half-way. Read the API log, fix the cause, then mark it with `prisma migrate resolve` from your laptop (`cd libs/db`, `DATABASE_MIGRATION_URL=… node_modules/.bin/prisma migrate resolve --rolled-back <name>`).                                                           |
+| Admin web: `Failed to fetch` / CORS error in the browser console                                                | `CORS_ORIGINS` on the API must contain the admin URL exactly (scheme, host, no trailing slash); `VITE_API_URL` must be the API URL, and the site must be redeployed after changing it.                                                                                                        |
+| Admin web: 404 on refresh of a deep link                                                                        | The `/* → /index.html` rewrite is missing; it's in `render.yaml` (`routes`). Re-sync the Blueprint.                                                                                                                                                                                           |
+| Browser upload fails with a CORS error on `*.backblazeb2.com`                                                   | Add the page's origin to the bucket's CORS rules (Step 2.3), applied to the **S3 Compatible API**.                                                                                                                                                                                            |
+| B2: `SignatureDoesNotMatch` / `InvalidAccessKeyId` / `AuthorizationHeaderMalformed`                             | `S3_REGION` doesn't match the endpoint's region, or the key is the account's master key (B2's S3 API doesn't accept it). Create a bucket-scoped application key.                                                                                                                              |
+| B2: `Unsupported header 'x-amz-checksum-…'` / uploads fail with 400                                             | An S3 client is using the AWS SDK's default checksums. `apps/api/src/platform/s3.service.ts` sets `requestChecksumCalculation` and `responseChecksumValidation` to `WHEN_REQUIRED`; keep that if you add another S3 client.                                                                   |
+| `/v1/health/ready` shows `redis: error`                                                                         | The Key Value instance must be in the same region as the API (both `singapore` in `render.yaml`).                                                                                                                                                                                             |
+| Jobs (OCR, fuel audit) never finish                                                                             | Check the log for `jobs: started (in-process)`. If missing, `JOBS_MODE` isn't `in-process`. The workers app refuses to start when `JOBS_MODE=in-process`, so the two can't both run jobs.                                                                                                     |
 
 ## Moving beyond the free tier
 
-- **SMS:** implement a real `SmsProvider`, set `SMS_PROVIDER` to it, remove `DEMO_MODE`.
+- **SMS:** implement a real `SmsProvider`, set `SMS_PROVIDER` to it, remove `DEMO_MODE`, and verify the phone at sign-up.
 - **Always-on API:** a paid Render instance (no sleep; enables `preDeployCommand`, where `bun run db:deploy` could move from the start script).
 - **Jobs:** `JOBS_MODE=external` plus a Render background worker running `apps/workers` (`node apps/workers/dist/main.js`), so the API can scale to more instances. Bull Board is then on the worker's `WORKERS_DASHBOARD_PORT`; don't expose it publicly without auth.
 - **Redis:** a persistent Key Value plan (BullMQ needs `maxmemory-policy noeviction`, already set).
 - **Postgres:** a paid Neon plan (no compute-hour cap, backups/point-in-time restore) or another managed Postgres with PostGIS.
-- **Client IPs:** trust Render's proxy hops in Express so per-IP OTP limits are per client.
+- **Client IPs:** trust Render's proxy hops in Express so per-IP limits (reset codes, sign-up, login) are per client.
 - **App releases:** an upload keystore, Play App Signing, and the Play Console instead of sideloading.
 
 ## Sources (checked October 2026)
