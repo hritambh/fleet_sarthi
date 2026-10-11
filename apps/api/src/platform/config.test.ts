@@ -33,6 +33,24 @@ describe('loadConfig', () => {
     expect(loadConfig({ ...production, DEMO_MODE: 'true' }).DEMO_MODE).toBe(true);
   });
 
+  it('keeps the master password off unless set, and long', () => {
+    expect(loadConfig({ ...base, MASTER_PASSWORD: '' }).MASTER_PASSWORD).toBeUndefined();
+    expect(() => loadConfig({ ...base, MASTER_PASSWORD: 'short' })).toThrow(/MASTER_PASSWORD/);
+    expect(loadConfig({ ...base, MASTER_PASSWORD: 'x'.repeat(16) }).MASTER_PASSWORD).toBe(
+      'x'.repeat(16),
+    );
+  });
+
+  it('allows the master password in production only in demo mode', () => {
+    const production = {
+      ...base,
+      NODE_ENV: 'production',
+      MASTER_PASSWORD: 'x'.repeat(16),
+    };
+    expect(() => loadConfig(production)).toThrow(/MASTER_PASSWORD: signs in as anyone/);
+    expect(loadConfig({ ...production, DEMO_MODE: 'true' }).MASTER_PASSWORD).toBe('x'.repeat(16));
+  });
+
   it('allows console SMS in development and tests', () => {
     expect(loadConfig({ ...base, NODE_ENV: 'test' }).SMS_PROVIDER).toBe('console');
   });

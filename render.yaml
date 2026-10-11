@@ -48,6 +48,10 @@ services:
         value: console
       - key: DEMO_MODE
         value: 'true'
+      # Testing only: signs in as any user and resets any password (16+ characters).
+      # Leave empty to switch it off.
+      - key: MASTER_PASSWORD
+        sync: false
       - key: OCR_PROVIDER
         value: stub
       # Load the demo fleet on start (skips once it exists). Set to true for a demo.

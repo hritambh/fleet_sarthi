@@ -57,6 +57,16 @@ const Env = z
      * who can read the logs can reset anyone's password. Logged loudly at startup.
      */
     DEMO_MODE: z.preprocess((v) => (v === '' ? undefined : v), z.stringbool().default(false)),
+    /**
+     * Testing only. A password that signs in as any existing user and is accepted as
+     * the current password when changing anyone's password. Every use is logged.
+     * Empty (the default) switches it off; production allows it only with DEMO_MODE.
+     */
+    MASTER_PASSWORD: optional(
+      z
+        .string()
+        .min(16, 'MASTER_PASSWORD must be at least 16 characters (or empty to turn it off)'),
+    ),
 
     SENTRY_DSN: optional(z.url()),
   })
@@ -69,6 +79,13 @@ const Env = z
         path: ['SMS_PROVIDER'],
         message:
           'console only logs password-reset codes; production needs a real SMS provider (or DEMO_MODE=true for a demo that reads codes from the logs)',
+      });
+    }
+    if (env.NODE_ENV === 'production' && env.MASTER_PASSWORD && !env.DEMO_MODE) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['MASTER_PASSWORD'],
+        message: 'signs in as anyone; production allows it only with DEMO_MODE=true (testing)',
       });
     }
   });
