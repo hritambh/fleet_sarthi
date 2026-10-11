@@ -13,6 +13,11 @@ export class S3Service {
     const base = {
       region: config.S3_REGION,
       forcePathStyle: true,
+      // The SDK's default (WHEN_SUPPORTED) adds CRC32 checksum params to signed upload
+      // URLs and x-amz-checksum-mode to GETs. S3-compatible stores such as Backblaze B2
+      // reject those, so only send checksums when an operation requires one.
+      requestChecksumCalculation: 'WHEN_REQUIRED' as const,
+      responseChecksumValidation: 'WHEN_REQUIRED' as const,
       credentials: {
         accessKeyId: config.S3_ACCESS_KEY_ID,
         secretAccessKey: config.S3_SECRET_ACCESS_KEY,

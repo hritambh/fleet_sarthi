@@ -1,5 +1,5 @@
 # Render Blueprint: the API, the admin web and a Key Value (Redis) instance, all on
-# Render's free plan. Postgres (Neon) and object storage (Cloudflare R2) live outside
+# Render's free plan. Postgres (Neon) and object storage (Backblaze B2) live outside
 # Render. Step-by-step guide, values for every variable, and the free-tier limits:
 # docs/deployment.md.
 #
@@ -71,11 +71,12 @@ services:
           name: taxcy-redis
           property: connectionString
 
-      # Cloudflare R2 (S3 API).
+      # Backblaze B2 (S3 API). Endpoint e.g. https://s3.eu-central-003.backblazeb2.com;
+      # region is its middle part (eu-central-003) and must match it.
       - key: S3_ENDPOINT
         sync: false
       - key: S3_REGION
-        value: auto
+        sync: false
       - key: S3_BUCKET
         value: taxcy-media
       - key: S3_ACCESS_KEY_ID
