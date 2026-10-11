@@ -2612,4 +2612,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get usePin => 'Use this pin';
+
+  @override
+  String get navGroupOverview => 'Overview';
+
+  @override
+  String get navGroupFleet => 'Fleet';
+
+  @override
+  String get navGroupMoney => 'Money';
+
+  @override
+  String get navGroupSetup => 'Setup';
+
+  @override
+  String get greetingMorning => 'Good morning';
+
+  @override
+  String get greetingAfternoon => 'Good afternoon';
+
+  @override
+  String get greetingEvening => 'Good evening';
+
+  @override
+  String get colRoute => 'Route';
+
+  @override
+  String get colCustomer => 'Customer';
+
+  @override
+  String get colFare => 'Fare';
 }

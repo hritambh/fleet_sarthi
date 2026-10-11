@@ -11,8 +11,18 @@ import '../common/format.dart';
 import 'owner_providers.dart';
 import 'owner_text.dart';
 
-/// Content width on wide screens (the web build at desktop size).
+/// Content width on wide screens (tablets).
 const ownerMaxWidth = 960.0;
+
+/// From this width owner mode uses the desktop layout: a sidebar, wider pages,
+/// tables and multi-column dashboards (the web build on a laptop or monitor).
+const desktopMinWidth = 1100.0;
+
+/// Content width in the desktop layout.
+const desktopMaxWidth = 1320.0;
+
+bool isDesktop(BuildContext context) =>
+    MediaQuery.sizeOf(context).width >= desktopMinWidth;
 
 /// Centres [child] and caps its width, so lists don't stretch across a desktop.
 class PageWidth extends StatelessWidget {
@@ -23,10 +33,52 @@ class PageWidth extends StatelessWidget {
   Widget build(BuildContext context) => Align(
     alignment: Alignment.topCenter,
     child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: ownerMaxWidth),
-      child: child,
+      constraints: BoxConstraints(
+        maxWidth: isDesktop(context) ? desktopMaxWidth : ownerMaxWidth,
+      ),
+      // Full width up to the cap, so narrower content lines up on the left.
+      child: SizedBox(width: double.infinity, child: child),
     ),
   );
+}
+
+/// A page's main action ("Add vehicle"): a button in the header on the
+/// desktop, a floating button on phones.
+class PageAction {
+  const PageAction({
+    required this.key,
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final Key key;
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+
+  List<Widget> headerActions(BuildContext context) => isDesktop(context)
+      ? [
+          Padding(
+            padding: const EdgeInsets.only(right: 24),
+            child: FilledButton.icon(
+              key: key,
+              onPressed: onPressed,
+              icon: Icon(icon),
+              label: Text(label),
+            ),
+          ),
+        ]
+      : const [];
+
+  Widget? fab(BuildContext context) => isDesktop(context)
+      ? null
+      : FloatingActionButton.extended(
+          key: key,
+          onPressed: onPressed,
+          icon: Icon(icon),
+          label: Text(label),
+        );
 }
 
 /// Loading spinner, an error with a retry button, or the data. Owner mode is
@@ -103,7 +155,10 @@ class RefreshPage extends StatelessWidget {
     onRefresh: onRefresh,
     child: ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: padding,
+      // More breathing room around desktop pages.
+      padding: isDesktop(context)
+          ? padding.copyWith(left: 28, right: 28, top: 24)
+          : padding,
       children: [for (final child in children) PageWidth(child: child)],
     ),
   );
@@ -208,6 +263,92 @@ class StatTile extends StatelessWidget {
             style: const TextStyle(color: TaxcyColors.muted, fontSize: 12),
           ),
       ],
+    ),
+  );
+}
+
+/// A headline number on the desktop dashboard: a tinted icon, the value large,
+/// a label and an optional hint; clickable when [onTap] is set.
+class MetricCard extends StatelessWidget {
+  const MetricCard({
+    required this.icon,
+    required this.accent,
+    required this.label,
+    required this.value,
+    this.hint,
+    this.onTap,
+    super.key,
+  });
+
+  final IconData icon;
+  final Color accent;
+  final String label;
+  final String value;
+  final String? hint;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) => Card(
+    margin: EdgeInsets.zero,
+    clipBehavior: Clip.antiAlias,
+    child: InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: accent, width: 3)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: accent),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w700,
+                      color: TaxcyColors.blue950,
+                      height: 1.1,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: TaxcyColors.ink,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  if (hint != null)
+                    Text(
+                      hint!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: TaxcyColors.muted,
+                        fontSize: 12,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     ),
   );
 }

@@ -23,14 +23,18 @@ class DriversScreen extends ConsumerWidget {
     final fmt = context.fmt;
     final drivers = ref.watch(driversProvider);
     final defaultRule = ref.watch(defaultPayRuleProvider).value;
+    final action = PageAction(
+      key: const Key('invite-driver'),
+      icon: Icons.person_add,
+      label: l.inviteDriver,
+      onPressed: () => _invite(context, ref, manager: false),
+    );
     return Scaffold(
-      appBar: AppBar(title: Text(l.drivers)),
-      floatingActionButton: FloatingActionButton.extended(
-        key: const Key('invite-driver'),
-        icon: const Icon(Icons.person_add),
-        label: Text(l.inviteDriver),
-        onPressed: () => _invite(context, ref, manager: false),
+      appBar: AppBar(
+        title: Text(l.drivers),
+        actions: action.headerActions(context),
       ),
+      floatingActionButton: action.fab(context),
       body: RefreshPage(
         onRefresh: () => ref.refresh(driversProvider.future),
         children: [
@@ -476,16 +480,18 @@ class MembersScreen extends ConsumerWidget {
     final isOwner = ref.watch(isOwnerProvider);
     final me = ref.watch(authProvider).value?.userId;
     final members = ref.watch(membersProvider);
+    final action = PageAction(
+      key: const Key('invite-manager'),
+      icon: Icons.person_add,
+      label: l.inviteManager,
+      onPressed: () => _invite(context, ref, manager: true),
+    );
     return Scaffold(
-      appBar: AppBar(title: Text(l.members)),
-      floatingActionButton: isOwner
-          ? FloatingActionButton.extended(
-              key: const Key('invite-manager'),
-              icon: const Icon(Icons.person_add),
-              label: Text(l.inviteManager),
-              onPressed: () => _invite(context, ref, manager: true),
-            )
-          : null,
+      appBar: AppBar(
+        title: Text(l.members),
+        actions: isOwner ? action.headerActions(context) : const [],
+      ),
+      floatingActionButton: isOwner ? action.fab(context) : null,
       body: RefreshPage(
         onRefresh: () => ref.refresh(membersProvider.future),
         children: [

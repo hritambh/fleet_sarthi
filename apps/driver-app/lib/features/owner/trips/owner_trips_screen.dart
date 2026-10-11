@@ -49,14 +49,19 @@ class _OwnerTripsScreenState extends ConsumerState<OwnerTripsScreen> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final trips = ref.watch(ownerTripsProvider(_filter));
+    final desktop = isDesktop(context);
+    final action = PageAction(
+      key: const Key('owner-new-trip'),
+      icon: Icons.add,
+      label: l.newTrip,
+      onPressed: () => openScreen<void>(context, const CreateTripScreen()),
+    );
     return Scaffold(
-      appBar: AppBar(title: Text(l.navTrips)),
-      floatingActionButton: FloatingActionButton.extended(
-        key: const Key('owner-new-trip'),
-        onPressed: () => openScreen<void>(context, const CreateTripScreen()),
-        icon: const Icon(Icons.add),
-        label: Text(l.newTrip),
+      appBar: AppBar(
+        title: Text(l.navTrips),
+        actions: action.headerActions(context),
       ),
+      floatingActionButton: action.fab(context),
       body: RefreshPage(
         onRefresh: () => ref.refresh(ownerTripsProvider(_filter).future),
         children: [
@@ -66,6 +71,8 @@ class _OwnerTripsScreenState extends ConsumerState<OwnerTripsScreen> {
             onRetry: () => ref.invalidate(ownerTripsProvider(_filter)),
             builder: (list) => list.isEmpty
                 ? EmptyState(l.noTripsMatch)
+                : desktop
+                ? TripTable(list)
                 : Column(children: [for (final t in list) OwnerTripTile(t)]),
           ),
         ],
@@ -144,6 +151,157 @@ class _OwnerTripsScreenState extends ConsumerState<OwnerTripsScreen> {
               onChanged: (v) => setState(() => _vehicleId = v),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A trip status as a coloured pill: amber when it needs a vehicle, blue when
+/// planned or under way, green once settled, red when cancelled.
+Tone tripStatusTone(String status) => switch (status) {
+  'created' => Tone.warning,
+  'assigned' => Tone.brand,
+  'started' => Tone.brand,
+  'settled' => Tone.success,
+  'cancelled' => Tone.danger,
+  _ => Tone.neutral,
+};
+
+/// Trips as a table on the desktop: one row per trip with route, start,
+/// vehicle, driver, customer, fare and status; hover highlights, a click opens
+/// the trip.
+class TripTable extends StatelessWidget {
+  const TripTable(this.trips, {super.key});
+  final List<Trip> trips;
+
+  static const _flex = [5, 3, 3, 3, 3, 2, 2];
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final fmt = context.fmt;
+    Widget cells(List<Widget> children) => Row(
+      children: [
+        for (var i = 0; i < children.length; i++)
+          Expanded(
+            flex: _flex[i],
+            child: Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: Align(
+                alignment: i == 5
+                    ? AlignmentDirectional.centerEnd
+                    : AlignmentDirectional.centerStart,
+                child: children[i],
+              ),
+            ),
+          ),
+      ],
+    );
+    const headerStyle = TextStyle(
+      color: TaxcyColors.muted,
+      fontSize: 12,
+      fontWeight: FontWeight.w600,
+      letterSpacing: 0.3,
+    );
+    const muted = TextStyle(color: TaxcyColors.muted);
+    return Card(
+      key: const Key('trip-table'),
+      margin: const EdgeInsets.only(top: 4),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          Container(
+            color: TaxcyColors.blue50,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: cells([
+              Text(l.colRoute.toUpperCase(), style: headerStyle),
+              Text(l.starts.toUpperCase(), style: headerStyle),
+              Text(l.vehicle.toUpperCase(), style: headerStyle),
+              Text(l.driver.toUpperCase(), style: headerStyle),
+              Text(l.colCustomer.toUpperCase(), style: headerStyle),
+              Text(l.colFare.toUpperCase(), style: headerStyle),
+              Text(l.status.toUpperCase(), style: headerStyle),
+            ]),
+          ),
+          for (final t in trips)
+            InkWell(
+              key: ValueKey('owner-trip-${t.id}'),
+              hoverColor: TaxcyColors.blue50,
+              onTap: () => openScreen<void>(
+                context,
+                OwnerTripDetailScreen(tripId: t.id),
+              ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 14,
+                ),
+                decoration: const BoxDecoration(
+                  border: Border(top: BorderSide(color: TaxcyColors.border)),
+                ),
+                child: cells([
+                  Row(
+                    children: [
+                      Icon(
+                        t.status == 'started' ? Icons.local_taxi : Icons.route,
+                        size: 18,
+                        color: TaxcyColors.blue700,
+                      ),
+                      const SizedBox(width: 10),
+                      Flexible(
+                        child: Text(
+                          t.toText == null
+                              ? l.localTrip(from: t.fromText)
+                              : t.routeLabel,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(fmt.dayTime(t.scheduledStartAt)),
+                  Text(
+                    t.vehicle == null
+                        ? l.unassigned
+                        : formatRegistration(t.vehicle!.registrationNo),
+                    style: t.vehicle == null ? muted : null,
+                  ),
+                  Text(t.driverName ?? '–', style: muted),
+                  Text(
+                    t.customerName ?? '–',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: muted,
+                  ),
+                  Text(
+                    fmt.inr(t.quotedFarePaise),
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: ToneChip(
+                          statusLabel(l, t.status),
+                          tone: tripStatusTone(t.status),
+                        ),
+                      ),
+                      if (t.cancellationPending)
+                        const Padding(
+                          padding: EdgeInsets.only(left: 4),
+                          child: Icon(
+                            Icons.hourglass_top,
+                            size: 16,
+                            color: Colors.amber,
+                          ),
+                        ),
+                    ],
+                  ),
+                ]),
+              ),
+            ),
         ],
       ),
     );

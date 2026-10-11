@@ -153,8 +153,8 @@ void main() {
       expect(find.text('My trips'), findsOneWidget);
     });
 
-    testWidgets('on a wide screen owner mode uses a side rail', (tester) async {
-      phone(tester, width: 1280);
+    testWidgets('on a tablet owner mode uses a side rail', (tester) async {
+      phone(tester, width: 960);
       final h = await Harness.create(session: session(['owner']));
       addTearDown(h.dispose);
       await tester.pumpWidget(h.wrap(const TaxcyDriverApp()));

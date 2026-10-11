@@ -9,6 +9,7 @@ import '../common/format.dart';
 import '../common/language_picker.dart';
 import 'alerts_screen.dart';
 import 'dashboard_screen.dart';
+import 'desktop_shell.dart';
 import 'documents_screen.dart';
 import 'fuel_screens.dart';
 import 'owner_providers.dart';
@@ -23,7 +24,8 @@ import 'vehicles_screen.dart';
 import '../workspaces/workspace_switcher.dart';
 
 /// Owner mode: Dashboard / Trips / Alerts / More. A bottom navigation bar on
-/// phones, a side rail on wide screens (tablets, the web build on a desktop).
+/// phones, a side rail on tablets, and on a desktop-sized screen (the web
+/// build on a laptop) the [DesktopOwnerShell] with every section in a sidebar.
 class OwnerShell extends ConsumerStatefulWidget {
   const OwnerShell({super.key});
 
@@ -38,6 +40,7 @@ class _OwnerShellState extends ConsumerState<OwnerShell> {
 
   @override
   Widget build(BuildContext context) {
+    if (isDesktop(context)) return const DesktopOwnerShell();
     final l = context.l10n;
     final summary = ref.watch(alertSummaryProvider).value;
     final alertCount = summary?.openAlerts ?? 0;

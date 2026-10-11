@@ -27,14 +27,18 @@ class VehiclesScreen extends ConsumerWidget {
     final l = context.l10n;
     final fmt = context.fmt;
     final vehicles = ref.watch(fleetVehiclesProvider);
+    final action = PageAction(
+      key: const Key('add-vehicle'),
+      icon: Icons.add,
+      label: l.addVehicle,
+      onPressed: () => openScreen<void>(context, const VehicleFormScreen()),
+    );
     return Scaffold(
-      appBar: AppBar(title: Text(l.vehicles)),
-      floatingActionButton: FloatingActionButton.extended(
-        key: const Key('add-vehicle'),
-        icon: const Icon(Icons.add),
-        label: Text(l.addVehicle),
-        onPressed: () => openScreen<void>(context, const VehicleFormScreen()),
+      appBar: AppBar(
+        title: Text(l.vehicles),
+        actions: action.headerActions(context),
       ),
+      floatingActionButton: action.fab(context),
       body: RefreshPage(
         onRefresh: () => ref.refresh(fleetVehiclesProvider.future),
         children: [
@@ -43,6 +47,8 @@ class VehiclesScreen extends ConsumerWidget {
             onRetry: () => ref.invalidate(fleetVehiclesProvider),
             builder: (list) => list.isEmpty
                 ? EmptyState(l.noVehiclesYet)
+                : isDesktop(context)
+                ? _VehicleGrid(list)
                 : Column(
                     children: [
                       for (final v in list)
@@ -80,6 +86,139 @@ class VehiclesScreen extends ConsumerWidget {
                   ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Vehicles as cards on the desktop, three or four to a row.
+class _VehicleGrid extends StatelessWidget {
+  const _VehicleGrid(this.vehicles);
+  final List<Vehicle> vehicles;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, box) {
+      const gap = 16.0;
+      final columns = box.maxWidth >= 1200 ? 4 : 3;
+      final width = (box.maxWidth - gap * (columns - 1)) / columns;
+      return Wrap(
+        spacing: gap,
+        runSpacing: gap,
+        children: [
+          for (final v in vehicles)
+            SizedBox(width: width, child: _VehicleCard(v)),
+        ],
+      );
+    },
+  );
+}
+
+class _VehicleCard extends StatelessWidget {
+  const _VehicleCard(this.v);
+  final Vehicle v;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final fmt = context.fmt;
+    return Card(
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        key: ValueKey('vehicle-${v.id}'),
+        onTap: () =>
+            openScreen<void>(context, VehicleDetailScreen(vehicleId: v.id)),
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  // Cabs carry yellow commercial plates.
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFD43B),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: const Color(0xFF1F2937)),
+                    ),
+                    child: Text(
+                      formatRegistration(v.registrationNo),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.8,
+                        color: Color(0xFF111827),
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  ToneChip(
+                    v.isActive ? l.active : l.inactive,
+                    tone: v.isActive ? Tone.success : Tone.neutral,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: TaxcyColors.blue50,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.directions_car,
+                      color: TaxcyColors.blue700,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${v.make} ${v.model}'.trim(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        Text(
+                          [
+                            fuelName(l, v.fuelType),
+                            if (v.year != null) '${v.year}',
+                          ].join(' · '),
+                          style: const TextStyle(color: TaxcyColors.muted),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Divider(height: 1),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Icon(Icons.speed, size: 18, color: TaxcyColors.muted),
+                  const SizedBox(width: 6),
+                  Text(
+                    v.lastOdometerKm == null ? '–' : fmt.km(v.lastOdometerKm!),
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  const Spacer(),
+                  const Icon(Icons.chevron_right, color: TaxcyColors.muted),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

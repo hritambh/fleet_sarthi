@@ -32,14 +32,18 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
       driverId: null,
       expiringWithinDays: _within,
     );
+    final action = PageAction(
+      key: const Key('add-document'),
+      icon: Icons.add,
+      label: l.addDocument,
+      onPressed: () => openScreen<void>(context, const DocumentFormScreen()),
+    );
     return Scaffold(
-      appBar: AppBar(title: Text(l.documents)),
-      floatingActionButton: FloatingActionButton.extended(
-        key: const Key('add-document'),
-        icon: const Icon(Icons.add),
-        label: Text(l.addDocument),
-        onPressed: () => openScreen<void>(context, const DocumentFormScreen()),
+      appBar: AppBar(
+        title: Text(l.documents),
+        actions: action.headerActions(context),
       ),
+      floatingActionButton: action.fab(context),
       body: RefreshPage(
         onRefresh: () => ref.refresh(documentsProvider(query).future),
         children: [

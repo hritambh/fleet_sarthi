@@ -4543,6 +4543,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use this pin'**
   String get usePin;
+
+  /// No description provided for @navGroupOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get navGroupOverview;
+
+  /// No description provided for @navGroupFleet.
+  ///
+  /// In en, this message translates to:
+  /// **'Fleet'**
+  String get navGroupFleet;
+
+  /// No description provided for @navGroupMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Money'**
+  String get navGroupMoney;
+
+  /// No description provided for @navGroupSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup'**
+  String get navGroupSetup;
+
+  /// No description provided for @greetingMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning'**
+  String get greetingMorning;
+
+  /// No description provided for @greetingAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good afternoon'**
+  String get greetingAfternoon;
+
+  /// No description provided for @greetingEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening'**
+  String get greetingEvening;
+
+  /// No description provided for @colRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Route'**
+  String get colRoute;
+
+  /// No description provided for @colCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get colCustomer;
+
+  /// No description provided for @colFare.
+  ///
+  /// In en, this message translates to:
+  /// **'Fare'**
+  String get colFare;
 }
 
 class _AppLocalizationsDelegate

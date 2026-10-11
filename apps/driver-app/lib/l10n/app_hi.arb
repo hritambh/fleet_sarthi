@@ -728,5 +728,15 @@
   "pickupOnMap": "मैप पर पिकअप",
   "dropOnMap": "मैप पर ड्रॉप",
   "pinPickerHint": "पिन लगाने के लिए मैप पर टैप करें। बदलने के लिए फिर से टैप करें।",
-  "usePin": "यह पिन लगाएँ"
+  "usePin": "यह पिन लगाएँ",
+  "navGroupOverview": "सारांश",
+  "navGroupFleet": "फ़्लीट",
+  "navGroupMoney": "हिसाब",
+  "navGroupSetup": "सेटअप",
+  "greetingMorning": "सुप्रभात",
+  "greetingAfternoon": "नमस्ते",
+  "greetingEvening": "शुभ संध्या",
+  "colRoute": "रूट",
+  "colCustomer": "ग्राहक",
+  "colFare": "किराया"
 }

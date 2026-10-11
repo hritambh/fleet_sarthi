@@ -2606,4 +2606,34 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get usePin => 'यह पिन लगाएँ';
+
+  @override
+  String get navGroupOverview => 'सारांश';
+
+  @override
+  String get navGroupFleet => 'फ़्लीट';
+
+  @override
+  String get navGroupMoney => 'हिसाब';
+
+  @override
+  String get navGroupSetup => 'सेटअप';
+
+  @override
+  String get greetingMorning => 'सुप्रभात';
+
+  @override
+  String get greetingAfternoon => 'नमस्ते';
+
+  @override
+  String get greetingEvening => 'शुभ संध्या';
+
+  @override
+  String get colRoute => 'रूट';
+
+  @override
+  String get colCustomer => 'ग्राहक';
+
+  @override
+  String get colFare => 'किराया';
 }
