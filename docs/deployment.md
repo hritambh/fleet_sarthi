@@ -2,7 +2,7 @@
 
 This page covers two things:
 
-1. **Building the Android app** (`taxcy-<version>.apk`) pointed at any API, and installing it on a phone.
+1. **Building the Android app** (`fleet-sarthi-<version>.apk`) pointed at any API, and installing it on a phone.
 2. **Hosting the backend and admin web for free** on [Render](https://render.com), with Neon (Postgres + PostGIS), Render Key Value (Redis) and Cloudflare R2 (photos).
 
 The free stack is meant for demos, pilots and testing, not for real fleets: it sleeps when idle, has small quotas, and logs login codes instead of sending SMS. [Moving beyond free](#moving-beyond-the-free-tier) lists what to change for real users.
@@ -50,9 +50,9 @@ apps/driver-app/scripts/build-apk.sh --api-url https://taxcy-api.onrender.com --
 The version name comes from `version:` in `apps/driver-app/pubspec.yaml`. The script runs `flutter pub get` and `flutter build apk --release`, then copies the results to **`dist/driver-app/`** (gitignored) and prints their paths:
 
 ```
-dist/driver-app/taxcy-0.1.0+76.apk              universal, ~66 MB
-dist/driver-app/taxcy-0.1.0+76-arm64-v8a.apk    with --split, ~24 MB
-dist/driver-app/taxcy-0.1.0+76.aab              with --aab
+dist/driver-app/fleet-sarthi-0.1.0+76.apk              universal, ~66 MB
+dist/driver-app/fleet-sarthi-0.1.0+76-arm64-v8a.apk    with --split, ~24 MB
+dist/driver-app/fleet-sarthi-0.1.0+76.aab              with --aab
 ```
 
 A first build takes about 5 minutes (Gradle downloads); later builds about 1 minute.
@@ -100,7 +100,7 @@ Android only installs signed APKs, and only lets an update replace an installed 
 3. Install (`-r` replaces an existing install and keeps its data):
 
    ```bash
-   adb install -r dist/driver-app/taxcy-0.1.0+76.apk
+   adb install -r dist/driver-app/fleet-sarthi-0.1.0+76.apk
    ```
 
    `INSTALL_FAILED_UPDATE_INCOMPATIBLE` means the installed app was signed with another key: `adb uninstall in.taxcy.taxcy_driver` first (this deletes un-synced offline data on the phone).

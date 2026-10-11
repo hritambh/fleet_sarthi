@@ -43,7 +43,7 @@ mkdir -p "$(dirname "$KEYSTORE")"
 keytool -genkeypair -v \
   -keystore "$KEYSTORE" -storetype PKCS12 \
   -alias "$ALIAS" -keyalg RSA -keysize 2048 -validity 10000 \
-  -dname "CN=Taxcy, O=Taxcy, C=IN" \
+  -dname "CN=Fleet Sarthi, O=Fleet Sarthi, C=IN" \
   -storepass:env TAXCY_KEYSTORE_PASSWORD -keypass:env TAXCY_KEYSTORE_PASSWORD
 chmod 600 "$KEYSTORE"
 

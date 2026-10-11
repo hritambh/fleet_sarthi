@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds a release APK of the Taxcy app pointed at a given API server.
+# Builds a release APK of the Fleet Sarthi app pointed at a given API server.
 #
 #   API_URL=https://taxcy-api.onrender.com bun run build:apk
 #   apps/driver-app/scripts/build-apk.sh --api-url https://taxcy-api.onrender.com --split --aab
@@ -85,7 +85,7 @@ else
 WARN
 fi
 
-echo "build-apk: Taxcy $VERSION (build $BUILD_NUMBER), API $API_URL, signed with the $signing"
+echo "build-apk: Fleet Sarthi $VERSION (build $BUILD_NUMBER), API $API_URL, signed with the $signing"
 
 # ── build ───────────────────────────────────────────────────────────────────
 cd "$APP_DIR"
@@ -104,7 +104,7 @@ fi
 OUT_DIR="$REPO_ROOT/dist/driver-app"
 mkdir -p "$OUT_DIR"
 APK_DIR="$APP_DIR/build/app/outputs/flutter-apk"
-name="taxcy-$VERSION+$BUILD_NUMBER"
+name="fleet-sarthi-$VERSION+$BUILD_NUMBER"
 outputs=()
 
 cp "$APK_DIR/app-release.apk" "$OUT_DIR/$name.apk"
