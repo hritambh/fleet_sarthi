@@ -147,6 +147,19 @@ class PayRule {
   );
 }
 
+/// A vehicle a driver may drive.
+class LinkedVehicle {
+  const LinkedVehicle({required this.id, required this.registrationNo});
+
+  factory LinkedVehicle.fromJson(JsonMap json) => LinkedVehicle(
+    id: json.str('id'),
+    registrationNo: json.str('registrationNo'),
+  );
+
+  final String id;
+  final String registrationNo;
+}
+
 class Driver {
   const Driver({
     required this.id,
@@ -157,6 +170,7 @@ class Driver {
     required this.membershipStatus,
     required this.createdAt,
     this.payRule,
+    this.vehicles = const [],
   });
 
   factory Driver.fromJson(JsonMap json) {
@@ -169,6 +183,10 @@ class Driver {
       status: json.str('status'),
       membershipStatus: json.str('membershipStatus'),
       payRule: rule == null ? null : PayRule.fromJson(rule),
+      vehicles: json
+          .objectsOrEmpty('vehicles')
+          .map(LinkedVehicle.fromJson)
+          .toList(),
       createdAt: json.date('createdAt'),
     );
   }
@@ -186,6 +204,9 @@ class Driver {
 
   /// Overrides the org's default; null uses the default.
   final PayRule? payRule;
+
+  /// The vehicles they may drive.
+  final List<LinkedVehicle> vehicles;
   final DateTime createdAt;
 
   bool get isActive => status == 'active';

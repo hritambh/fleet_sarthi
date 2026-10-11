@@ -36,6 +36,10 @@ extension JsonRead on JsonMap {
       this[key] == null ? null : asJsonMap(this[key], key);
   List<JsonMap> objects(String key) =>
       _get<List<Object?>>(key).map((item) => asJsonMap(item, key)).toList();
+
+  /// A list of objects that older payloads (or the offline cache) may lack.
+  List<JsonMap> objectsOrEmpty(String key) =>
+      this[key] == null ? const [] : objects(key);
   List<String> strings(String key) =>
       _get<List<Object?>>(key).map((item) => item as String).toList();
   List<int> integers(String key) =>

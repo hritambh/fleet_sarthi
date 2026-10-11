@@ -68,6 +68,7 @@ void main() {
     'more': const MoreScreen(),
     'vehicles': const VehiclesScreen(),
     'vehicle form': VehicleFormScreen(vehicle: Vehicle.fromJson(vehicleJson())),
+    'add vehicle': const VehicleFormScreen(),
     'vehicle detail': const VehicleDetailScreen(vehicleId: vehicleId),
     'fuel': const FuelIndexScreen(),
     'vehicle fuel': const VehicleFuelScreen(vehicleId: vehicleId),

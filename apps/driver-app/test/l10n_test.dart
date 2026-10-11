@@ -131,12 +131,51 @@ void main() {
         'OTP_EXPIRED', 'RATE_LIMITED', 'UPLOAD_NOT_FOUND', 'UPLOAD_MISMATCH',
         'INTERNAL', 'INVALID_CREDENTIALS', 'ACCOUNT_EXISTS', //
         'GOOGLE_TOKEN_INVALID', 'GOOGLE_ACCOUNT_CONFLICT', //
-        'DRIVER_ON_TRIP', 'VEHICLE_ON_TRIP',
+        'DRIVER_ON_TRIP', 'VEHICLE_ON_TRIP', 'DRIVER_NOT_LINKED', //
+        'LINK_IN_USE',
       ];
       for (final code in codes) {
         expect(errorCodeText(en, code), isNotNull, reason: code);
         expect(errorCodeText(hi, code), isNot(errorCodeText(en, code)));
       }
+    });
+
+    test('link errors name the driver, vehicle and trips when they can', () {
+      final notLinked = ApiException(
+        status: 409,
+        code: 'DRIVER_NOT_LINKED',
+        message: 'Driver is not linked',
+        details: {
+          'vehicleId': 'v1',
+          'driverId': 'd1',
+          'driverName': 'Suresh Patil',
+          'registrationNo': 'MH12CD5678',
+        },
+      );
+      expect(
+        errorText(en, notLinked),
+        "Suresh Patil isn't linked to MH 12 CD 5678. "
+        "Link them on the vehicle's page first.",
+      );
+      expect(errorText(hi, notLinked), contains('Suresh Patil'));
+      expect(errorText(hi, notLinked), contains('MH 12 CD 5678'));
+
+      final inUse = ApiException(
+        status: 409,
+        code: 'LINK_IN_USE',
+        message: 'In use',
+        details: {
+          'tripIds': ['t1', 't2'],
+        },
+      );
+      expect(errorText(en, inUse), startsWith('The driver has 2 assigned'));
+      expect(errorText(hi, inUse), contains('2'));
+      // Without usable details, the plain translation.
+      expect(errorText(en, error('LINK_IN_USE')), en.errorLinkInUse);
+      expect(
+        outboxErrorText(hi, 'DRIVER_NOT_LINKED: not linked'),
+        hi.errorDriverNotLinked,
+      );
     });
 
     test('unknown codes fall back to the server message', () {

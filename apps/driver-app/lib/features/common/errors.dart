@@ -1,6 +1,7 @@
 import '../../core/api/api.dart';
 import '../../core/repositories/trips_repository.dart';
 import '../../l10n/app_localizations.dart';
+import '../owner/owner_text.dart' show formatRegistration;
 import 'format.dart';
 
 /// The user's-language text for an API error code; null for codes the app
@@ -30,6 +31,8 @@ String? errorCodeText(AppLocalizations l, String code) => switch (code) {
   'OTP_EXPIRED' => l.errorOtpExpired,
   'DRIVER_ON_TRIP' => l.errorDriverOnTrip,
   'VEHICLE_ON_TRIP' => l.errorVehicleOnTrip,
+  'DRIVER_NOT_LINKED' => l.errorDriverNotLinked,
+  'LINK_IN_USE' => l.errorLinkInUse,
   'INVALID_CREDENTIALS' => l.errorInvalidCredentials,
   'ACCOUNT_EXISTS' => l.errorAccountExists,
   'GOOGLE_TOKEN_INVALID' => l.errorGoogleTokenInvalid,
@@ -45,11 +48,33 @@ String? errorCodeText(AppLocalizations l, String code) => switch (code) {
 /// Any error as text for the user: API errors by code (falling back to the
 /// server's message), local checks by reason, anything else as-is.
 String errorText(AppLocalizations l, Object error) => switch (error) {
-  ApiException(:final code, :final message) =>
-    errorCodeText(l, code) ?? message,
+  ApiException(:final code, :final message, :final details) =>
+    _detailedText(l, code, details) ?? errorCodeText(l, code) ?? message,
   LocalRejection() => rejectionText(l, error),
   _ => l.somethingWentWrong(error: '$error'),
 };
+
+/// A more specific text for codes whose details name what went wrong.
+String? _detailedText(AppLocalizations l, String code, Object? details) {
+  if (details is! Map) return null;
+  switch (code) {
+    case 'DRIVER_NOT_LINKED':
+      final driver = details['driverName'];
+      final reg = details['registrationNo'];
+      if (driver is String && reg is String) {
+        return l.errorDriverNotLinkedNamed(
+          driver: driver,
+          vehicle: formatRegistration(reg),
+        );
+      }
+    case 'LINK_IN_USE':
+      final trips = details['tripIds'];
+      if (trips is List && trips.isNotEmpty) {
+        return l.errorLinkInUseCount(count: trips.length);
+      }
+  }
+  return null;
+}
 
 /// An outbox item's stored error ("CODE: message") in the user's language.
 String outboxErrorText(AppLocalizations l, String? stored) {

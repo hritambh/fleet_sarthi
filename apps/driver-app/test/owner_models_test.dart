@@ -99,6 +99,39 @@ void main() {
     expect(m.fuelType, 'petrol_cng');
   });
 
+  group('driver and vehicle links', () {
+    test('a vehicle lists its drivers, a driver their vehicles', () {
+      final vehicle = Vehicle.fromJson(
+        vehicleJson(
+          drivers: [
+            {'id': driverId, 'name': 'Ramesh Kumar'},
+          ],
+        ),
+      );
+      expect(vehicle.drivers.single.name, 'Ramesh Kumar');
+      expect(vehicle.isLinkedTo(driverId), isTrue);
+      expect(vehicle.isLinkedTo(driver2Id), isFalse);
+      // The links survive the driver's offline cache format.
+      expect(Vehicle.fromJson(vehicle.toJson()).drivers.single.id, driverId);
+
+      final driver = Driver.fromJson(
+        driverJson(
+          vehicles: [
+            {'id': vehicleId, 'registrationNo': 'MH12AB1234'},
+          ],
+        ),
+      );
+      expect(driver.vehicles.single.registrationNo, 'MH12AB1234');
+    });
+
+    test('older payloads and cached rows without links parse as none', () {
+      final vehicle = Vehicle.fromJson(vehicleJson()..remove('drivers'));
+      expect(vehicle.drivers, isEmpty);
+      final driver = Driver.fromJson(driverJson()..remove('vehicles'));
+      expect(driver.vehicles, isEmpty);
+    });
+  });
+
   group('PayRule', () {
     test('parses each kind and writes only the fields that kind uses', () {
       final percent = PayRule.fromJson(payRuleJson());

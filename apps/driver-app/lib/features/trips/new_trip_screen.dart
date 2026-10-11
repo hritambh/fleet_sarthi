@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
+import '../../app/theme.dart';
 import '../../core/api/models.dart';
 import '../../core/repositories/trips_repository.dart';
 import '../common/errors.dart';
@@ -120,11 +121,41 @@ class _NewTripScreenState extends ConsumerState<NewTripScreen> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(child: Text(errorText(l, error))),
         data: (list) {
+          // The server only sends the vehicles this driver is linked to.
           if (list.isEmpty) {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
-                child: Text(l.noVehiclesOffline, textAlign: TextAlign.center),
+                child: Column(
+                  key: const Key('no-linked-vehicles'),
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.no_crash_outlined,
+                      size: 48,
+                      color: TaxcyColors.muted,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      l.noVehiclesLinkedToYou,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      l.noVehiclesLinkedHint,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: TaxcyColors.muted),
+                    ),
+                    const SizedBox(height: 16),
+                    OutlinedButton.icon(
+                      key: const Key('reload-vehicles'),
+                      onPressed: () => ref.invalidate(vehiclesProvider),
+                      icon: const Icon(Icons.refresh),
+                      label: Text(l.retry),
+                    ),
+                  ],
+                ),
               ),
             );
           }

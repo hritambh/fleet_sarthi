@@ -501,6 +501,7 @@ class MediaPhoto extends ConsumerWidget {
 }
 
 /// Picks one of the fleet's active vehicles ('' for none, when [noneLabel] is set).
+/// With [driverId], only the vehicles that driver is linked to.
 class VehiclePicker extends ConsumerWidget {
   const VehiclePicker({
     required this.value,
@@ -508,6 +509,7 @@ class VehiclePicker extends ConsumerWidget {
     required this.label,
     this.noneLabel,
     this.activeOnly = true,
+    this.driverId,
     super.key,
   });
 
@@ -516,18 +518,30 @@ class VehiclePicker extends ConsumerWidget {
   final String label;
   final String? noneLabel;
   final bool activeOnly;
+  final String? driverId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final vehicles = ref.watch(fleetVehiclesProvider).value ?? const [];
-    final list = activeOnly
-        ? vehicles.where((v) => v.isActive || v.id == value).toList()
-        : vehicles;
+    final loaded = ref.watch(fleetVehiclesProvider).value;
+    final vehicles = loaded ?? const <Vehicle>[];
+    final forDriver = driverId;
+    final list = vehicles
+        .where(
+          (v) =>
+              (!activeOnly || v.isActive || v.id == value) &&
+              (forDriver == null || v.isLinkedTo(forDriver)),
+        )
+        .toList();
+    final unlinked = forDriver != null && loaded != null && list.isEmpty;
     return DropdownButtonFormField<String?>(
-      key: ValueKey('vehicle-picker-$label-${list.length}'),
+      key: ValueKey('vehicle-picker-$label-$forDriver-${list.length}'),
       initialValue: list.any((v) => v.id == value) ? value : null,
       isExpanded: true,
-      decoration: InputDecoration(labelText: label),
+      decoration: InputDecoration(
+        labelText: label,
+        helperText: unlinked ? context.l10n.driverHasNoVehicles : null,
+        helperMaxLines: 3,
+      ),
       items: [
         if (noneLabel != null)
           DropdownMenuItem<String?>(child: Text(noneLabel!)),
@@ -546,12 +560,15 @@ class VehiclePicker extends ConsumerWidget {
 }
 
 /// Picks one of the fleet's active drivers ('' for none, when [noneLabel] is set).
+/// With [vehicleId], only the drivers linked to that vehicle, and a hint when
+/// there are none.
 class DriverPicker extends ConsumerWidget {
   const DriverPicker({
     required this.value,
     required this.onChanged,
     required this.label,
     this.noneLabel,
+    this.vehicleId,
     super.key,
   });
 
@@ -559,17 +576,32 @@ class DriverPicker extends ConsumerWidget {
   final ValueChanged<String?> onChanged;
   final String label;
   final String? noneLabel;
+  final String? vehicleId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final vehicle = vehicleId == null
+        ? null
+        : (ref.watch(fleetVehiclesProvider).value ?? const <Vehicle>[])
+              .where((v) => v.id == vehicleId)
+              .firstOrNull;
     final drivers = (ref.watch(driversProvider).value ?? const [])
-        .where((d) => d.isActive || d.id == value)
+        .where(
+          (d) =>
+              (d.isActive || d.id == value) &&
+              (vehicle == null || vehicle.isLinkedTo(d.id)),
+        )
         .toList();
+    final unlinked = vehicle != null && vehicle.drivers.isEmpty;
     return DropdownButtonFormField<String?>(
-      key: ValueKey('driver-picker-$label-${drivers.length}'),
+      key: ValueKey('driver-picker-$label-${vehicle?.id}-${drivers.length}'),
       initialValue: drivers.any((d) => d.id == value) ? value : null,
       isExpanded: true,
-      decoration: InputDecoration(labelText: label),
+      decoration: InputDecoration(
+        labelText: label,
+        helperText: unlinked ? context.l10n.vehicleHasNoDrivers : null,
+        helperMaxLines: 3,
+      ),
       items: [
         if (noneLabel != null)
           DropdownMenuItem<String?>(child: Text(noneLabel!)),

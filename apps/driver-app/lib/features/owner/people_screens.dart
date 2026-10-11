@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
 import '../../app/theme.dart';
+import '../../core/api/models.dart';
 import '../../core/api/owner_models.dart';
 import '../common/format.dart';
 import 'documents_screen.dart';
+import 'links.dart';
 import 'owner_providers.dart';
 import 'owner_text.dart';
 import 'owner_widgets.dart';
@@ -110,6 +112,7 @@ class _InviteDialogState extends ConsumerState<InviteDialog> {
   final _phone = TextEditingController();
   String? _nameError;
   String? _phoneError;
+  Set<String> _vehicleIds = {};
   bool _busy = false;
 
   @override
@@ -135,7 +138,11 @@ class _InviteDialogState extends ConsumerState<InviteDialog> {
       if (widget.manager) {
         await api.inviteManager(name: name, phone: phone);
       } else {
-        await api.inviteDriver(name: name, phone: phone);
+        await api.inviteDriver(
+          name: name,
+          phone: phone,
+          vehicleIds: _vehicleIds.toList(),
+        );
       }
       refreshAfter(ref, {OwnerArea.fleet});
     });
@@ -149,8 +156,12 @@ class _InviteDialogState extends ConsumerState<InviteDialog> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final vehicles = widget.manager
+        ? const <Vehicle>[]
+        : ref.watch(fleetVehiclesProvider).value ?? const <Vehicle>[];
     return AlertDialog(
       title: Text(widget.manager ? l.inviteManager : l.inviteDriver),
+      scrollable: true,
       content: SizedBox(
         width: 420,
         child: Column(
@@ -178,6 +189,19 @@ class _InviteDialogState extends ConsumerState<InviteDialog> {
                 errorText: _phoneError,
               ),
             ),
+            if (!widget.manager) ...[
+              const SizedBox(height: 12),
+              LinkSelectField(
+                key: const Key('invite-vehicles'),
+                label: l.vehiclesOptional,
+                helper: l.vehiclesOptionalHint,
+                sheetTitle: l.vehicles,
+                options: vehicleOptions(l, vehicles),
+                value: _vehicleIds,
+                emptyText: l.noVehiclesToLink,
+                onChanged: (ids) => setState(() => _vehicleIds = ids),
+              ),
+            ],
           ],
         ),
       ),
@@ -253,6 +277,22 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
     }
   }
 
+  Future<void> _editVehicles(Driver driver, List<Vehicle> vehicles) async {
+    final l = context.l10n;
+    final linked = {for (final v in driver.vehicles) v.id};
+    final saved = await pickLinks(
+      context,
+      title: l.editVehicles,
+      intro: l.editVehiclesIntro(name: driver.name),
+      options: vehicleOptions(l, vehicles, keep: linked),
+      selected: linked,
+      emptyText: l.noVehiclesToLink,
+      onSave: (ids) =>
+          ref.read(ownerApiProvider).setDriverVehicles(driver.id, ids.toList()),
+    );
+    if (saved != null) refreshAfter(ref, {OwnerArea.fleet});
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -260,6 +300,15 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
     final isOwner = ref.watch(isOwnerProvider);
     final defaultRule = ref.watch(defaultPayRuleProvider).value;
     final d = widget.driver;
+    // The list reloads after a change (e.g. its vehicles), so read it from there.
+    final current =
+        ref
+            .watch(driversProvider)
+            .value
+            ?.where((x) => x.id == d.id)
+            .firstOrNull ??
+        d;
+    final vehicles = ref.watch(fleetVehiclesProvider);
     final query = (vehicleId: null, driverId: d.id, expiringWithinDays: null);
     return Scaffold(
       appBar: AppBar(title: Text(d.name)),
@@ -370,6 +419,30 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
                   child: Text(l.save),
                 ),
                 const SizedBox(height: 12),
+                SectionCard(
+                  key: const Key('driver-vehicles'),
+                  title: l.vehicles,
+                  actions: [
+                    TextButton.icon(
+                      key: const Key('edit-driver-vehicles'),
+                      icon: const Icon(Icons.directions_car_outlined, size: 18),
+                      label: Text(l.editVehicles),
+                      onPressed: vehicles.isLoading
+                          ? null
+                          : () => _editVehicles(
+                              current,
+                              vehicles.value ?? const [],
+                            ),
+                    ),
+                  ],
+                  child: LinkChips(
+                    labels: [
+                      for (final v in current.vehicles)
+                        formatRegistration(v.registrationNo),
+                    ],
+                    emptyText: l.noLinkedVehicles,
+                  ),
+                ),
                 SectionCard(
                   title: l.documents,
                   actions: [

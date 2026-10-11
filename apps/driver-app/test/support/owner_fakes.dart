@@ -17,6 +17,7 @@ JsonMap vehicleJson({
   String id = vehicleId,
   String reg = 'MH12AB1234',
   String status = 'active',
+  List<JsonMap> drivers = const [],
 }) => {
   'id': id,
   'registrationNo': reg,
@@ -27,6 +28,7 @@ JsonMap vehicleJson({
   'vehicleModelId': null,
   'lastOdometerKm': 48210,
   'status': status,
+  'drivers': drivers,
   'createdAt': '2026-09-01T05:00:00.000Z',
 };
 
@@ -50,6 +52,7 @@ JsonMap driverJson({
   String name = 'Ramesh Kumar',
   JsonMap? payRule,
   String membershipStatus = 'active',
+  List<JsonMap> vehicles = const [],
 }) => {
   'id': id,
   'userId': '0199c7a2-0000-7000-8000-0000000000f1',
@@ -58,6 +61,7 @@ JsonMap driverJson({
   'status': 'active',
   'membershipStatus': membershipStatus,
   'payRule': payRule,
+  'vehicles': vehicles,
   'createdAt': '2026-09-01T05:00:00.000Z',
 };
 
@@ -462,6 +466,33 @@ class FakeOwnerApi implements OwnerApi {
     driverJson(),
     driverJson(id: driver2Id, name: 'Suresh Patil'),
   ];
+
+  /// Who may drive what, by vehicle id: the first car is shared by both
+  /// drivers, the second is Suresh's only. Served as each vehicle's `drivers`
+  /// and each driver's `vehicles`, like the API.
+  Map<String, Set<String>> links = {
+    vehicleId: {driverId, driver2Id},
+    vehicle2Id: {driver2Id},
+  };
+
+  JsonMap _withDrivers(JsonMap v) => {
+    ...v,
+    'drivers': [
+      for (final d in driverList)
+        if (links[v['id']]?.contains(d['id']) ?? false)
+          {'id': d['id'], 'name': d['name']},
+    ],
+  };
+
+  JsonMap _withVehicles(JsonMap d) => {
+    ...d,
+    'vehicles': [
+      for (final v in vehicleList)
+        if (links[v['id']]?.contains(d['id']) ?? false)
+          {'id': v['id'], 'registrationNo': v['registrationNo']},
+    ],
+  };
+
   List<JsonMap> memberList = [
     memberJson(
       id: '0199c7a2-0000-7000-8000-000000000m00',
@@ -681,19 +712,36 @@ class FakeOwnerApi implements OwnerApi {
   @override
   Future<List<Vehicle>> vehicles({String? status}) async {
     _record('vehicles');
-    return vehicleList.map(Vehicle.fromJson).toList();
+    return vehicleList.map(_withDrivers).map(Vehicle.fromJson).toList();
   }
 
   @override
   Future<Vehicle> vehicle(String id) async {
     _record('vehicle', {'id': id});
-    return Vehicle.fromJson(vehicleList.firstWhere((v) => v['id'] == id));
+    return Vehicle.fromJson(
+      _withDrivers(vehicleList.firstWhere((v) => v['id'] == id)),
+    );
   }
 
   @override
   Future<Vehicle> createVehicle(JsonMap body) async {
     _record('createVehicle', body);
-    return Vehicle.fromJson({...vehicleJson(), ...body});
+    final id = '0199c7a2-0000-7000-8000-0000000000ac';
+    vehicleList = [
+      ...vehicleList,
+      {...vehicleJson(id: id), ...body}..remove('driverIds'),
+    ];
+    links[id] = {...?(body['driverIds'] as List?)?.cast<String>()};
+    return Vehicle.fromJson(_withDrivers(vehicleList.last));
+  }
+
+  @override
+  Future<Vehicle> setVehicleDrivers(String id, List<String> driverIds) async {
+    _record('setVehicleDrivers', {'id': id, 'driverIds': driverIds});
+    links[id] = {...driverIds};
+    return Vehicle.fromJson(
+      _withDrivers(vehicleList.firstWhere((v) => v['id'] == id)),
+    );
   }
 
   @override
@@ -718,16 +766,37 @@ class FakeOwnerApi implements OwnerApi {
   @override
   Future<List<Driver>> drivers({String? status}) async {
     _record('drivers');
-    return driverList.map(Driver.fromJson).toList();
+    return driverList.map(_withVehicles).map(Driver.fromJson).toList();
   }
 
   @override
   Future<Driver> inviteDriver({
     required String name,
     required String phone,
+    List<String> vehicleIds = const [],
   }) async {
-    _record('inviteDriver', {'name': name, 'phone': phone});
+    _record('inviteDriver', {
+      'name': name,
+      'phone': phone,
+      'vehicleIds': vehicleIds,
+    });
     return Driver.fromJson(driverJson(name: name, membershipStatus: 'invited'));
+  }
+
+  @override
+  Future<Driver> setDriverVehicles(String id, List<String> vehicleIds) async {
+    _record('setDriverVehicles', {'id': id, 'vehicleIds': vehicleIds});
+    for (final v in vehicleList) {
+      final drivers = links[v['id']! as String] ??= {};
+      if (vehicleIds.contains(v['id'])) {
+        drivers.add(id);
+      } else {
+        drivers.remove(id);
+      }
+    }
+    return Driver.fromJson(
+      _withVehicles(driverList.firstWhere((d) => d['id'] == id)),
+    );
   }
 
   @override

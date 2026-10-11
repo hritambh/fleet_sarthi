@@ -562,10 +562,6 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String get noVehiclesOffline =>
-      'अभी कोई गाड़ी नहीं। गाड़ियाँ लाने के लिए एक बार इंटरनेट से जुड़ें।';
-
-  @override
   String get pickup => 'पिकअप';
 
   @override
@@ -2502,4 +2498,96 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get currentPasswordWrong => 'मौजूदा पासवर्ड ग़लत है।';
+
+  @override
+  String get editDrivers => 'ड्राइवर बदलें';
+
+  @override
+  String get editVehicles => 'गाड़ियाँ बदलें';
+
+  @override
+  String get noLinkedDrivers =>
+      'अभी कोई ड्राइवर जुड़ा नहीं है। इस गाड़ी की ट्रिप सिर्फ़ जुड़े हुए ड्राइवर को दी जा सकती है।';
+
+  @override
+  String get noLinkedVehicles =>
+      'अभी कोई गाड़ी जुड़ी नहीं है। इस ड्राइवर को सिर्फ़ जुड़ी हुई गाड़ी में ट्रिप दी जा सकती है।';
+
+  @override
+  String editDriversIntro({required String vehicle}) {
+    return '$vehicle कौन चला सकता है? इस गाड़ी की ट्रिप सिर्फ़ इन्हीं ड्राइवरों को दी जा सकती है।';
+  }
+
+  @override
+  String editVehiclesIntro({required String name}) {
+    return '$name कौन-सी गाड़ियाँ चला सकते हैं? उन्हें सिर्फ़ इन्हीं गाड़ियों में ट्रिप मिल सकती है।';
+  }
+
+  @override
+  String get driversOptional => 'ड्राइवर (वैकल्पिक)';
+
+  @override
+  String get vehiclesOptional => 'गाड़ियाँ (वैकल्पिक)';
+
+  @override
+  String get driversOptionalHint =>
+      'इसे कौन चला सकता है। बाद में बदल सकते हैं।';
+
+  @override
+  String get vehiclesOptionalHint =>
+      'वे कौन-सी गाड़ियाँ चला सकते हैं। बाद में बदल सकते हैं।';
+
+  @override
+  String get noneSelected => 'अभी कोई नहीं';
+
+  @override
+  String get noDriversToLink => 'अभी कोई ड्राइवर नहीं। पहले ड्राइवर जोड़ें।';
+
+  @override
+  String get noVehiclesToLink => 'अभी कोई गाड़ी नहीं। पहले गाड़ी जोड़ें।';
+
+  @override
+  String get vehicleHasNoDrivers =>
+      'इस गाड़ी से कोई ड्राइवर जुड़ा नहीं है। पहले गाड़ी के पेज पर ड्राइवर जोड़ें।';
+
+  @override
+  String get driverHasNoVehicles =>
+      'इस ड्राइवर से कोई गाड़ी जुड़ी नहीं है। पहले ड्राइवर के पेज पर गाड़ियाँ जोड़ें।';
+
+  @override
+  String get noVehiclesLinkedToYou =>
+      'अभी आपसे कोई गाड़ी नहीं जुड़ी है। फ़्लीट मालिक से कहें कि आपको किसी गाड़ी से जोड़ दें।';
+
+  @override
+  String get noVehiclesLinkedHint =>
+      'अगर आप ऑफ़लाइन हैं, तो गाड़ियाँ लाने के लिए एक बार इंटरनेट से जुड़ें।';
+
+  @override
+  String get errorDriverNotLinked =>
+      'ड्राइवर इस गाड़ी से जुड़ा नहीं है। मालिक गाड़ी के पेज पर उन्हें जोड़ सकते हैं।';
+
+  @override
+  String errorDriverNotLinkedNamed({
+    required String driver,
+    required String vehicle,
+  }) {
+    return '$driver $vehicle से जुड़े नहीं हैं। पहले गाड़ी के पेज पर उन्हें जोड़ें।';
+  }
+
+  @override
+  String get errorLinkInUse =>
+      'ड्राइवर की इस गाड़ी में असाइन या चल रही ट्रिप हैं। हटाने से पहले उन्हें किसी और को दें या ख़त्म करें।';
+
+  @override
+  String errorLinkInUseCount({required int count}) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'ड्राइवर की इस गाड़ी में $count असाइन या चल रही ट्रिप हैं। हटाने से पहले उन्हें किसी और को दें या ख़त्म करें।',
+      one:
+          'ड्राइवर की इस गाड़ी में 1 असाइन या चल रही ट्रिप है। हटाने से पहले उसे किसी और को दें या ख़त्म करें।',
+    );
+    return '$_temp0';
+  }
 }

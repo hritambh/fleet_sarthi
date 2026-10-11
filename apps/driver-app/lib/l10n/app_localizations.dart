@@ -1068,12 +1068,6 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 hour} other{{count} hours}}'**
   String hours({required int count});
 
-  /// No description provided for @noVehiclesOffline.
-  ///
-  /// In en, this message translates to:
-  /// **'No vehicles yet. Connect to the internet once to load them.'**
-  String get noVehiclesOffline;
-
   /// No description provided for @pickup.
   ///
   /// In en, this message translates to:
@@ -4390,6 +4384,135 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your current password is wrong.'**
   String get currentPasswordWrong;
+
+  /// No description provided for @editDrivers.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit drivers'**
+  String get editDrivers;
+
+  /// No description provided for @editVehicles.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit vehicles'**
+  String get editVehicles;
+
+  /// No description provided for @noLinkedDrivers.
+  ///
+  /// In en, this message translates to:
+  /// **'No drivers linked yet. Trips in this vehicle can only go to a linked driver.'**
+  String get noLinkedDrivers;
+
+  /// No description provided for @noLinkedVehicles.
+  ///
+  /// In en, this message translates to:
+  /// **'No vehicles linked yet. This driver can only get trips in a linked vehicle.'**
+  String get noLinkedVehicles;
+
+  /// No description provided for @editDriversIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Who may drive {vehicle}? Trips can only pair it with these drivers.'**
+  String editDriversIntro({required String vehicle});
+
+  /// No description provided for @editVehiclesIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Which vehicles may {name} drive? They can only get trips in these.'**
+  String editVehiclesIntro({required String name});
+
+  /// No description provided for @driversOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Drivers (optional)'**
+  String get driversOptional;
+
+  /// No description provided for @vehiclesOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicles (optional)'**
+  String get vehiclesOptional;
+
+  /// No description provided for @driversOptionalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Who may drive it. You can change this later.'**
+  String get driversOptionalHint;
+
+  /// No description provided for @vehiclesOptionalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Which vehicles they may drive. You can change this later.'**
+  String get vehiclesOptionalHint;
+
+  /// No description provided for @noneSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'None yet'**
+  String get noneSelected;
+
+  /// No description provided for @noDriversToLink.
+  ///
+  /// In en, this message translates to:
+  /// **'No drivers yet. Invite a driver first.'**
+  String get noDriversToLink;
+
+  /// No description provided for @noVehiclesToLink.
+  ///
+  /// In en, this message translates to:
+  /// **'No vehicles yet. Add a vehicle first.'**
+  String get noVehiclesToLink;
+
+  /// No description provided for @vehicleHasNoDrivers.
+  ///
+  /// In en, this message translates to:
+  /// **'No drivers are linked to this vehicle. Link drivers on the vehicle\'s page first.'**
+  String get vehicleHasNoDrivers;
+
+  /// No description provided for @driverHasNoVehicles.
+  ///
+  /// In en, this message translates to:
+  /// **'No vehicles are linked to this driver. Link vehicles on the driver\'s page first.'**
+  String get driverHasNoVehicles;
+
+  /// No description provided for @noVehiclesLinkedToYou.
+  ///
+  /// In en, this message translates to:
+  /// **'No vehicles are linked to you yet. Ask your fleet owner to link you to a vehicle.'**
+  String get noVehiclesLinkedToYou;
+
+  /// No description provided for @noVehiclesLinkedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'If you\'re offline, connect to the internet once so the app can load them.'**
+  String get noVehiclesLinkedHint;
+
+  /// No description provided for @errorDriverNotLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'The driver isn\'t linked to this vehicle. The owner can link them on the vehicle\'s page.'**
+  String get errorDriverNotLinked;
+
+  /// No description provided for @errorDriverNotLinkedNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'{driver} isn\'t linked to {vehicle}. Link them on the vehicle\'s page first.'**
+  String errorDriverNotLinkedNamed({
+    required String driver,
+    required String vehicle,
+  });
+
+  /// No description provided for @errorLinkInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'The driver has assigned or running trips in this vehicle. Reassign or finish them before unlinking.'**
+  String get errorLinkInUse;
+
+  /// No description provided for @errorLinkInUseCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{The driver has 1 assigned or running trip in this vehicle. Reassign or finish it before unlinking.} other{The driver has {count} assigned or running trips in this vehicle. Reassign or finish them before unlinking.}}'**
+  String errorLinkInUseCount({required int count});
 }
 
 class _AppLocalizationsDelegate

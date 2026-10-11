@@ -6,9 +6,11 @@ import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../core/api/models.dart';
 import '../../core/api/owner_api.dart';
+import '../../core/api/owner_models.dart';
 import '../common/format.dart';
 import 'documents_screen.dart';
 import 'fuel_screens.dart';
+import 'links.dart';
 import 'owner_providers.dart';
 import 'owner_text.dart';
 import 'owner_widgets.dart';
@@ -140,6 +142,9 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
   late String _fuelType = widget.vehicle?.fuelType ?? 'diesel';
   late String? _modelId = widget.vehicle?.vehicleModelId;
   late String _status = widget.vehicle?.status ?? 'active';
+
+  /// Drivers to link when adding; an existing vehicle's are edited on its page.
+  Set<String> _driverIds = {};
   String? _problem;
   bool _busy = false;
 
@@ -170,7 +175,10 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
     final ok = await runAction(context, () async {
       final api = ref.read(ownerApiProvider);
       if (editing == null) {
-        await api.createVehicle(body);
+        await api.createVehicle({
+          ...body,
+          if (_driverIds.isNotEmpty) 'driverIds': _driverIds.toList(),
+        });
       } else {
         await api.updateVehicle(editing.id, body);
       }
@@ -187,6 +195,9 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final models = ref.watch(vehicleModelsProvider).value ?? const [];
+    final drivers = widget.vehicle == null
+        ? ref.watch(driversProvider).value ?? const <Driver>[]
+        : const <Driver>[];
     TextField field(
       String key,
       String label, {
@@ -270,6 +281,19 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
                   l.currentOdometer,
                   keyboard: TextInputType.number,
                 ),
+                if (widget.vehicle == null) ...[
+                  const SizedBox(height: 12),
+                  LinkSelectField(
+                    key: const Key('vehicle-drivers'),
+                    label: l.driversOptional,
+                    helper: l.driversOptionalHint,
+                    sheetTitle: l.drivers,
+                    options: driverOptions(l, drivers),
+                    value: _driverIds,
+                    emptyText: l.noDriversToLink,
+                    onChanged: (ids) => setState(() => _driverIds = ids),
+                  ),
+                ],
                 if (widget.vehicle != null) ...[
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
@@ -391,6 +415,7 @@ class VehicleDetailScreen extends ConsumerWidget {
                   ]),
                 ),
               ),
+              PageWidth(child: VehicleDriversSection(vehicle: v)),
               Expanded(
                 child: TabBarView(
                   children: [
@@ -406,6 +431,77 @@ class VehicleDetailScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// Who may drive [vehicle], with "Edit drivers".
+class VehicleDriversSection extends ConsumerWidget {
+  const VehicleDriversSection({required this.vehicle, super.key});
+  final Vehicle vehicle;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final drivers = ref.watch(driversProvider);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l.drivers,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+              ),
+              TextButton.icon(
+                key: const Key('edit-vehicle-drivers'),
+                icon: const Icon(Icons.people_alt_outlined, size: 18),
+                label: Text(l.editDrivers),
+                onPressed: drivers.isLoading
+                    ? null
+                    : () => editVehicleDrivers(
+                        context,
+                        ref,
+                        vehicle,
+                        drivers.value ?? const [],
+                      ),
+              ),
+            ],
+          ),
+          LinkChips(
+            labels: [for (final d in vehicle.drivers) d.name],
+            emptyText: l.noLinkedDrivers,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Opens the sheet for who may drive [vehicle] and saves the choice.
+Future<void> editVehicleDrivers(
+  BuildContext context,
+  WidgetRef ref,
+  Vehicle vehicle,
+  List<Driver> drivers,
+) async {
+  final l = context.l10n;
+  final linked = {for (final d in vehicle.drivers) d.id};
+  final saved = await pickLinks(
+    context,
+    title: l.editDrivers,
+    intro: l.editDriversIntro(
+      vehicle: formatRegistration(vehicle.registrationNo),
+    ),
+    options: driverOptions(l, drivers, keep: linked),
+    selected: linked,
+    emptyText: l.noDriversToLink,
+    onSave: (ids) =>
+        ref.read(ownerApiProvider).setVehicleDrivers(vehicle.id, ids.toList()),
+  );
+  if (saved != null) refreshAfter(ref, {OwnerArea.fleet});
 }
 
 class _VehicleDocuments extends ConsumerWidget {

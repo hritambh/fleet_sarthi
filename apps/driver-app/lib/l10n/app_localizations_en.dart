@@ -566,10 +566,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get noVehiclesOffline =>
-      'No vehicles yet. Connect to the internet once to load them.';
-
-  @override
   String get pickup => 'Pickup';
 
   @override
@@ -2508,4 +2504,96 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get currentPasswordWrong => 'Your current password is wrong.';
+
+  @override
+  String get editDrivers => 'Edit drivers';
+
+  @override
+  String get editVehicles => 'Edit vehicles';
+
+  @override
+  String get noLinkedDrivers =>
+      'No drivers linked yet. Trips in this vehicle can only go to a linked driver.';
+
+  @override
+  String get noLinkedVehicles =>
+      'No vehicles linked yet. This driver can only get trips in a linked vehicle.';
+
+  @override
+  String editDriversIntro({required String vehicle}) {
+    return 'Who may drive $vehicle? Trips can only pair it with these drivers.';
+  }
+
+  @override
+  String editVehiclesIntro({required String name}) {
+    return 'Which vehicles may $name drive? They can only get trips in these.';
+  }
+
+  @override
+  String get driversOptional => 'Drivers (optional)';
+
+  @override
+  String get vehiclesOptional => 'Vehicles (optional)';
+
+  @override
+  String get driversOptionalHint =>
+      'Who may drive it. You can change this later.';
+
+  @override
+  String get vehiclesOptionalHint =>
+      'Which vehicles they may drive. You can change this later.';
+
+  @override
+  String get noneSelected => 'None yet';
+
+  @override
+  String get noDriversToLink => 'No drivers yet. Invite a driver first.';
+
+  @override
+  String get noVehiclesToLink => 'No vehicles yet. Add a vehicle first.';
+
+  @override
+  String get vehicleHasNoDrivers =>
+      'No drivers are linked to this vehicle. Link drivers on the vehicle\'s page first.';
+
+  @override
+  String get driverHasNoVehicles =>
+      'No vehicles are linked to this driver. Link vehicles on the driver\'s page first.';
+
+  @override
+  String get noVehiclesLinkedToYou =>
+      'No vehicles are linked to you yet. Ask your fleet owner to link you to a vehicle.';
+
+  @override
+  String get noVehiclesLinkedHint =>
+      'If you\'re offline, connect to the internet once so the app can load them.';
+
+  @override
+  String get errorDriverNotLinked =>
+      'The driver isn\'t linked to this vehicle. The owner can link them on the vehicle\'s page.';
+
+  @override
+  String errorDriverNotLinkedNamed({
+    required String driver,
+    required String vehicle,
+  }) {
+    return '$driver isn\'t linked to $vehicle. Link them on the vehicle\'s page first.';
+  }
+
+  @override
+  String get errorLinkInUse =>
+      'The driver has assigned or running trips in this vehicle. Reassign or finish them before unlinking.';
+
+  @override
+  String errorLinkInUseCount({required int count}) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'The driver has $count assigned or running trips in this vehicle. Reassign or finish them before unlinking.',
+      one:
+          'The driver has 1 assigned or running trip in this vehicle. Reassign or finish it before unlinking.',
+    );
+    return '$_temp0';
+  }
 }

@@ -88,9 +88,19 @@ abstract class OwnerApi {
   Future<Vehicle> vehicle(String id);
   Future<Vehicle> createVehicle(JsonMap body);
   Future<Vehicle> updateVehicle(String id, JsonMap body);
+
+  /// Replaces the drivers who may drive vehicle [id].
+  Future<Vehicle> setVehicleDrivers(String id, List<String> driverIds);
   Future<List<VehicleModel>> vehicleModels();
   Future<List<Driver>> drivers({String? status});
-  Future<Driver> inviteDriver({required String name, required String phone});
+  Future<Driver> inviteDriver({
+    required String name,
+    required String phone,
+    List<String> vehicleIds = const [],
+  });
+
+  /// Replaces the vehicles driver [id] may drive.
+  Future<Driver> setDriverVehicles(String id, List<String> vehicleIds);
   Future<Driver> updateDriver(String id, {String? name, String? status});
   Future<Driver> setDriverPayRule(String id, PayRule? payRule);
   Future<List<Member>> members();
@@ -302,6 +312,16 @@ class HttpOwnerApi implements OwnerApi {
       Vehicle.fromJson(await _obj('PATCH', '/vehicles/$id', body: body));
 
   @override
+  Future<Vehicle> setVehicleDrivers(String id, List<String> driverIds) async =>
+      Vehicle.fromJson(
+        await _obj(
+          'PUT',
+          '/vehicles/$id/drivers',
+          body: {'driverIds': driverIds},
+        ),
+      );
+
+  @override
   Future<List<VehicleModel>> vehicleModels() async =>
       (await _list('/vehicle-models')).map(VehicleModel.fromJson).toList();
 
@@ -315,9 +335,28 @@ class HttpOwnerApi implements OwnerApi {
   Future<Driver> inviteDriver({
     required String name,
     required String phone,
+    List<String> vehicleIds = const [],
   }) async => Driver.fromJson(
-    await _obj('POST', '/drivers', body: {'name': name, 'phone': phone}),
+    await _obj(
+      'POST',
+      '/drivers',
+      body: {
+        'name': name,
+        'phone': phone,
+        if (vehicleIds.isNotEmpty) 'vehicleIds': vehicleIds,
+      },
+    ),
   );
+
+  @override
+  Future<Driver> setDriverVehicles(String id, List<String> vehicleIds) async =>
+      Driver.fromJson(
+        await _obj(
+          'PUT',
+          '/drivers/$id/vehicles',
+          body: {'vehicleIds': vehicleIds},
+        ),
+      );
 
   @override
   Future<Driver> updateDriver(

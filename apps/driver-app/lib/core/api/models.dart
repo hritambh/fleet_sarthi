@@ -556,6 +556,19 @@ class Trip {
   };
 }
 
+/// A driver who may drive a vehicle (trips can only pair the two when linked).
+class LinkedDriver {
+  const LinkedDriver({required this.id, required this.name});
+
+  factory LinkedDriver.fromJson(JsonMap json) =>
+      LinkedDriver(id: json.str('id'), name: json.str('name'));
+
+  final String id;
+  final String name;
+
+  JsonMap toJson() => {'id': id, 'name': name};
+}
+
 class Vehicle {
   const Vehicle({
     required this.id,
@@ -567,9 +580,11 @@ class Vehicle {
     this.year,
     this.status = 'active',
     this.vehicleModelId,
+    this.drivers = const [],
   });
 
-  /// Vehicles cached before the fleet fields were kept parse with defaults.
+  /// Vehicles cached before the fleet fields (or the linked drivers) were
+  /// kept parse with defaults.
   factory Vehicle.fromJson(JsonMap json) => Vehicle(
     id: json.str('id'),
     registrationNo: json.str('registrationNo'),
@@ -580,6 +595,7 @@ class Vehicle {
     year: json.intOrNull('year'),
     status: json.strOrNull('status') ?? 'active',
     vehicleModelId: json.strOrNull('vehicleModelId'),
+    drivers: json.objectsOrEmpty('drivers').map(LinkedDriver.fromJson).toList(),
   );
 
   final String id;
@@ -593,6 +609,11 @@ class Vehicle {
   final String? vehicleModelId;
 
   bool get isActive => status == 'active';
+
+  /// The drivers who may drive it; a trip can only pair it with one of them.
+  final List<LinkedDriver> drivers;
+
+  bool isLinkedTo(String driverId) => drivers.any((d) => d.id == driverId);
 
   /// petrol, diesel, cng or petrol_cng.
   final String fuelType;
@@ -612,6 +633,7 @@ class Vehicle {
     'year': year,
     'status': status,
     'vehicleModelId': vehicleModelId,
+    'drivers': [for (final d in drivers) d.toJson()],
   };
 }
 

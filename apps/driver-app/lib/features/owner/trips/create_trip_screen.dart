@@ -7,6 +7,7 @@ import '../../../app/providers.dart';
 import '../../../core/api/json.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../common/format.dart';
+import '../links.dart';
 import '../owner_providers.dart';
 import '../owner_widgets.dart';
 import 'owner_trip_detail_screen.dart';
@@ -316,17 +317,29 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
+                // Only linked pairs can be assigned: the drivers follow the
+                // vehicle, and with no vehicle yet, the vehicles follow the driver.
                 VehiclePicker(
                   value: _vehicleId,
                   label: l.vehicleOptional,
                   noneLabel: l.assignLater,
-                  onChanged: (v) => setState(() => _vehicleId = v),
+                  driverId: _vehicleId == null ? _driverId : null,
+                  onChanged: (v) => setState(() {
+                    _vehicleId = v;
+                    final driver = _driverId;
+                    if (v != null &&
+                        driver != null &&
+                        !pairLinked(ref, v, driver)) {
+                      _driverId = null;
+                    }
+                  }),
                 ),
                 const SizedBox(height: 12),
                 DriverPicker(
                   value: _driverId,
                   label: l.driverOptional,
                   noneLabel: l.assignLater,
+                  vehicleId: _vehicleId,
                   onChanged: (v) => setState(() => _driverId = v),
                 ),
                 if (_problem != null) ...[
