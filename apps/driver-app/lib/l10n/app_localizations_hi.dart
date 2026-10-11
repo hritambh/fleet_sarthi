@@ -821,6 +821,19 @@ class AppLocalizationsHi extends AppLocalizations {
       'रद्द करने का कोई अनुरोध बाकी नहीं है';
 
   @override
+  String rejectAnotherTripRunning({required String route}) {
+    return 'दूसरी ट्रिप शुरू करने से पहले अपनी ट्रिप $route ख़त्म करें';
+  }
+
+  @override
+  String get errorDriverOnTrip =>
+      'ड्राइवर की एक ट्रिप पहले से चल रही है। दूसरी शुरू करने से पहले उसे ख़त्म करें।';
+
+  @override
+  String get errorVehicleOnTrip =>
+      'यह गाड़ी पहले से दूसरी ट्रिप पर चल रही है। पहले वह ट्रिप ख़त्म करें।';
+
+  @override
   String get rejectNotAllowed => 'आप इस ट्रिप पर यह नहीं कर सकते';
 
   @override

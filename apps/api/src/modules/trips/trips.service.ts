@@ -347,6 +347,7 @@ export class TripsService {
         input.occurredAt,
         () => 'start',
         async (tx, trip) => {
+          await this.assertNothingRunning(tx, trip);
           const reading = await this.recordOdometer(tx, auth, trip, input.odometer, 'trip_start');
           await tx.trip.update({
             where: { id: trip.id },
@@ -358,6 +359,41 @@ export class TripsService {
     } catch (error) {
       throw await this.keepOrphanEvidence(auth, id, error, input.odometer, 'trip_start');
     }
+  }
+
+  /**
+   * One trip on the road at a time, per driver and per vehicle: a trip can't start
+   * while the driver, or the car, is still on another one. (Scheduled windows can be
+   * apart and still both be running if the earlier trip was never ended.)
+   */
+  private async assertNothingRunning(tx: TenantTx, trip: TripRow): Promise<void> {
+    const running = await tx.trip.findFirst({
+      where: {
+        orgId: tx.orgId,
+        status: 'started',
+        id: { not: trip.id },
+        OR: [
+          ...(trip.driverId ? [{ driverId: trip.driverId }] : []),
+          ...(trip.vehicleId ? [{ vehicleId: trip.vehicleId }] : []),
+        ],
+      },
+      select: { id: true, fromText: true, toText: true, driverId: true },
+    });
+    if (!running) return;
+    const route = running.toText ? `${running.fromText} → ${running.toText}` : running.fromText;
+    const details = { tripId: running.id, route };
+    if (trip.driverId && running.driverId === trip.driverId) {
+      throw new AppError(
+        'DRIVER_ON_TRIP',
+        `The driver already has a trip on the road (${route}); end it first`,
+        details,
+      );
+    }
+    throw new AppError(
+      'VEHICLE_ON_TRIP',
+      `This vehicle is already on the road (${route}); end that trip first`,
+      details,
+    );
   }
 
   async end(

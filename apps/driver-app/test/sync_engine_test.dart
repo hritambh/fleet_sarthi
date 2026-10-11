@@ -181,6 +181,28 @@ void main() {
   });
 
   group('local-first trip actions', () {
+    test('refuses to start a trip while another is on the road', () async {
+      await engine.cacheTrip(
+        Trip.fromJson(
+          tripJson(
+            id: 'a0000000-0000-4000-8000-0000000000aa',
+            status: 'started',
+          ),
+        ),
+      );
+      await expectLater(
+        trips.start(await cached(), photo: fakePhoto('odo'), km: 48210),
+        throwsA(
+          isA<LocalRejection>().having(
+            (r) => r.reason,
+            'reason',
+            RejectionReason.anotherTripRunning,
+          ),
+        ),
+      );
+      expect(await engine.outbox.pending(), isEmpty);
+    });
+
     test(
       'starting offline updates the trip immediately and queues photo then command',
       () async {

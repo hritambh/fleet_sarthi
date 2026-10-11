@@ -1,13 +1,14 @@
 import type { Session, Trip } from '@taxcy/contracts';
 import { randomUUID } from 'node:crypto';
 import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import {
   bearer,
   createVehicle,
   driverSession,
   key,
   odometer,
+  parkRunningTrips,
   ownerSession,
   runJobs,
   schedule,
@@ -113,6 +114,10 @@ beforeAll(async () => {
   h = await startHarness();
   owner = await ownerSession(h);
   driver = await driverSession(h, owner);
+});
+
+afterEach(async () => {
+  await parkRunningTrips(h);
 });
 
 afterAll(async () => {

@@ -18,6 +18,12 @@ class TripDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final running = ref
+        .watch(tripsProvider)
+        .value
+        ?.map((v) => v.trip)
+        .where((x) => x.status == 'started' && x.id != tripId)
+        .firstOrNull;
     final view = ref.watch(tripProvider(tripId)).value;
     final l = context.l10n;
     final fmt = context.fmt;
@@ -144,13 +150,23 @@ class TripDetailScreen extends ConsumerWidget {
                   runSpacing: 8,
                   alignment: WrapAlignment.end,
                   children: [
+                    if (can.contains('start') && running != null)
+                      Text(
+                        l.rejectAnotherTripRunning(route: running.routeLabel),
+                        key: const Key('another-trip-running'),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
                     if (can.contains('start'))
                       FilledButton.icon(
                         key: const Key('start-trip'),
                         icon: const Icon(Icons.play_arrow),
                         label: Text(l.startTrip),
-                        onPressed: () =>
-                            _push(context, StartTripScreen(trip: t)),
+                        // One trip on the road at a time.
+                        onPressed: running != null
+                            ? null
+                            : () => _push(context, StartTripScreen(trip: t)),
                       ),
                     if (t.status == 'started') ...[
                       OutlinedButton.icon(

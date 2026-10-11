@@ -123,6 +123,18 @@ export async function driverSession(
   return { session, driverId: (invite.body as { id: string }).id };
 }
 
+/**
+ * Test isolation for files that share one driver: a driver can have only one trip on
+ * the road, so trips a test left running are marked ended (straight in the database,
+ * skipping the end command and its jobs) before the next test.
+ */
+export async function parkRunningTrips(h: Harness): Promise<void> {
+  await h.owner.trip.updateMany({
+    where: { status: 'started' },
+    data: { status: 'ended', endedAt: new Date() },
+  });
+}
+
 /** Runs a scheduled job's handler directly. */
 export async function runSchedule(h: Harness, topic: string): Promise<void> {
   await h.app.get(JobDispatcher).dispatch({ topic, orgId: null, payload: {} });

@@ -658,6 +658,14 @@
   "@rejectCancellationPending": {},
   "rejectNoPendingCancellation": "There is no pending cancellation request",
   "@rejectNoPendingCancellation": {},
+  "rejectAnotherTripRunning": "End your trip {route} before starting another",
+  "@rejectAnotherTripRunning": {
+    "placeholders": { "route": { "type": "String" } }
+  },
+  "errorDriverOnTrip": "The driver already has a trip on the road. End it before starting another.",
+  "@errorDriverOnTrip": {},
+  "errorVehicleOnTrip": "This vehicle is already on the road on another trip. End that trip first.",
+  "@errorVehicleOnTrip": {},
   "rejectNotAllowed": "You can't do this on this trip",
   "@rejectNotAllowed": {},
   "rejectWrongState": "This can't be done while the trip is {status}",

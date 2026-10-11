@@ -28,6 +28,8 @@ String? errorCodeText(AppLocalizations l, String code) => switch (code) {
   'ODOMETER_BEFORE_START' => l.errorOdometerBeforeStart,
   'OTP_INVALID' => l.errorOtpInvalid,
   'OTP_EXPIRED' => l.errorOtpExpired,
+  'DRIVER_ON_TRIP' => l.errorDriverOnTrip,
+  'VEHICLE_ON_TRIP' => l.errorVehicleOnTrip,
   'INVALID_CREDENTIALS' => l.errorInvalidCredentials,
   'ACCOUNT_EXISTS' => l.errorAccountExists,
   'GOOGLE_TOKEN_INVALID' => l.errorGoogleTokenInvalid,
@@ -71,5 +73,8 @@ String rejectionText(AppLocalizations l, LocalRejection r) =>
       RejectionReason.notAllowed => l.rejectNotAllowed,
       RejectionReason.wrongState => l.rejectWrongState(
         status: statusLabel(l, r.status ?? ''),
+      ),
+      RejectionReason.anotherTripRunning => l.rejectAnotherTripRunning(
+        route: r.route ?? '',
       ),
     };

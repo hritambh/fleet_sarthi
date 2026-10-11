@@ -1518,6 +1518,24 @@ abstract class AppLocalizations {
   /// **'There is no pending cancellation request'**
   String get rejectNoPendingCancellation;
 
+  /// No description provided for @rejectAnotherTripRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'End your trip {route} before starting another'**
+  String rejectAnotherTripRunning({required String route});
+
+  /// No description provided for @errorDriverOnTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'The driver already has a trip on the road. End it before starting another.'**
+  String get errorDriverOnTrip;
+
+  /// No description provided for @errorVehicleOnTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'This vehicle is already on the road on another trip. End that trip first.'**
+  String get errorVehicleOnTrip;
+
   /// No description provided for @rejectNotAllowed.
   ///
   /// In en, this message translates to:

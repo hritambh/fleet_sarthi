@@ -1,13 +1,14 @@
 import type { Session, Trip } from '@taxcy/contracts';
 import { randomUUID } from 'node:crypto';
 import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import {
   bearer,
   createVehicle,
   driverSession,
   key,
   odometer,
+  parkRunningTrips,
   ownerSession,
   schedule,
   startHarness,
@@ -88,6 +89,10 @@ beforeAll(async () => {
   h = await startHarness();
   owner = await ownerSession(h, 'fleet', 'Sharma Travels');
   driver = await driverSession(h, owner, 'Ramesh Kumar');
+});
+
+afterEach(async () => {
+  await parkRunningTrips(h);
 });
 
 afterAll(async () => {
@@ -368,6 +373,60 @@ describe('cancelling a started trip needs a reason and approval', () => {
       cancellationRequest: { status: 'rejected' },
     });
     await end(trip, driver.session).expect(200);
+  });
+});
+
+describe('one trip on the road at a time', () => {
+  it('a driver cannot start a second trip until the first has ended, nor can its vehicle', async () => {
+    const solo = await driverSession(h, owner, 'Arjun Mehta');
+    const make = async (vehicleId?: string) => {
+      vehicleSeq += 1;
+      const vehicle = vehicleId
+        ? { id: vehicleId }
+        : await createVehicle(h, owner, `MH14OT${String(vehicleSeq).padStart(4, '0')}`);
+      const res = await request(h.http)
+        .post('/v1/trips')
+        .set(...bearer(owner))
+        .send({
+          tripType: 'one_way',
+          from: { text: 'Aundh' },
+          to: { text: 'Lavasa' },
+          ...schedule(),
+          quotedFarePaise: 250_000,
+          vehicleId: vehicle.id,
+          driverId: solo.driverId,
+        })
+        .expect(201);
+      return { ...(res.body as Trip), vehicleId: vehicle.id };
+    };
+    const first = await make();
+    const second = await make();
+    await start(first, solo.session, 1_000).expect(200);
+
+    const blocked = await start(second, solo.session, 2_000).expect(409);
+    expect(blocked.body).toMatchObject({
+      error: { code: 'DRIVER_ON_TRIP', details: { tripId: first.id, route: 'Aundh → Lavasa' } },
+    });
+
+    // The same car can't start with another driver either.
+    const other = await driverSession(h, owner, 'Kiran Joshi');
+    const sameCar = await request(h.http)
+      .post('/v1/trips')
+      .set(...bearer(owner))
+      .send({
+        tripType: 'local_rental',
+        from: { text: 'Baner' },
+        ...schedule(),
+        quotedFarePaise: 80_000,
+        vehicleId: first.vehicleId,
+        driverId: other.driverId,
+      })
+      .expect(201);
+    const carBusy = await start(sameCar.body as Trip, other.session, 1_010).expect(409);
+    expect(carBusy.body).toMatchObject({ error: { code: 'VEHICLE_ON_TRIP' } });
+
+    await end(first, solo.session, 1_150).expect(200);
+    await start(second, solo.session, 2_000).expect(200);
   });
 });
 

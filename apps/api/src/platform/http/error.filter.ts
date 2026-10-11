@@ -29,8 +29,15 @@ function fromDatabase(error: unknown): AppError | undefined {
       return new AppError('DRIVER_BUSY', 'Driver is already booked for an overlapping time');
     return new AppError('CONFLICT', 'Overlaps an existing booking');
   }
-  if (pg.code === '23505')
+  if (pg.code === '23505') {
+    const constraint = pg.constraint ?? /constraint "([^"]+)"/.exec(pg.message ?? '')?.[1] ?? '';
+    // Backstops for two trips starting at once (the service checks first).
+    if (constraint === 'trips_one_running_per_driver')
+      return new AppError('DRIVER_ON_TRIP', 'The driver already has a trip on the road');
+    if (constraint === 'trips_one_running_per_vehicle')
+      return new AppError('VEHICLE_ON_TRIP', 'The vehicle is already on the road');
     return new AppError('CONFLICT', 'A record with these values already exists');
+  }
   return undefined;
 }
 

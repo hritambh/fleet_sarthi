@@ -12,6 +12,10 @@ export const ErrorCode = z.enum([
   'TRIP_REASSIGNED',
   'VEHICLE_BUSY',
   'DRIVER_BUSY',
+  /** Starting a trip while the driver already has one on the road (details.tripId, route). */
+  'DRIVER_ON_TRIP',
+  /** Starting a trip in a vehicle that's already on the road (details.tripId, route). */
+  'VEHICLE_ON_TRIP',
   'CANCELLATION_PENDING',
   'ALREADY_SETTLED',
   'IDEMPOTENCY_CONFLICT',

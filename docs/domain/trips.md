@@ -47,6 +47,10 @@ The transition table lives in `libs/domain/trips/state-machine.ts` as pure data 
 
 Any other transition is rejected with `409 ILLEGAL_TRANSITION` and the body `{ from, command, allowed: [...] }`.
 
+## One trip on the road at a time
+
+A driver can have only one trip `started` at a time, and so can a vehicle. Booking checks compare scheduled windows (exclusion constraints on `busy_window`), but two trips with separate windows could otherwise both be running if the earlier one was never ended. So starting a trip also checks for another running trip and fails with `DRIVER_ON_TRIP` or `VEHICLE_ON_TRIP` (`details.tripId`, `details.route`). Partial unique indexes (`trips_one_running_per_driver`, `trips_one_running_per_vehicle`) back this up against two starts at once. The driver app refuses offline too, and greys out **Start trip** while another trip is running.
+
 ## Trip events
 
 Every successful transition appends one row to `trip_events`, in the same transaction as the trip update:

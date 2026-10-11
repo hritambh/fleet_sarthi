@@ -31,10 +31,13 @@ enum RejectionReason {
   noPendingCancellation,
   notAllowed,
   wrongState,
+
+  /// Another of the driver's trips is still on the road.
+  anotherTripRunning,
 }
 
 class LocalRejection implements Exception {
-  LocalRejection(this.reason, this.message, {this.km, this.status});
+  LocalRejection(this.reason, this.message, {this.km, this.status, this.route});
   final RejectionReason reason;
 
   /// English, for logs and tests; the UI translates [reason].
@@ -45,6 +48,9 @@ class LocalRejection implements Exception {
 
   /// The trip's status, for [RejectionReason.wrongState].
   final String? status;
+
+  /// The running trip's route, for [RejectionReason.anotherTripRunning].
+  final String? route;
 
   @override
   String toString() => message;
@@ -84,6 +90,17 @@ class TripsRepository {
     Trip.fromJson(asJsonMap(jsonDecode(row.json))),
     conflict: row.conflict,
   );
+
+  /// The driver's trip on the road, if it isn't [tripId]: only one trip can run at
+  /// a time (the server enforces it too, per driver and per vehicle).
+  Future<Trip?> runningTripOtherThan(String tripId) async {
+    final rows =
+        await (db.select(db.cachedTrips)..where(
+              (t) => t.status.equals('started') & t.id.isNotValue(tripId),
+            ))
+            .get();
+    return rows.isEmpty ? null : _view(rows.first).trip;
+  }
 
   /// Checks the Dart port of the state machine before queuing, so the driver
   /// gets an immediate answer even offline.
@@ -194,6 +211,14 @@ class TripsRepository {
     required int km,
   }) async {
     _assertAllowed(trip, 'start');
+    final running = await runningTripOtherThan(trip.id);
+    if (running != null) {
+      throw LocalRejection(
+        RejectionReason.anotherTripRunning,
+        'End your trip ${running.routeLabel} before starting another',
+        route: running.routeLabel,
+      );
+    }
     await db.transaction(() async {
       final odometer = await _odometer(photo, km);
       final at = _now();

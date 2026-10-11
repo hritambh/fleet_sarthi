@@ -82,7 +82,7 @@ Drivers can also create trips themselves in the app (for example a walk-in custo
 
 ### Assign
 
-Pick a vehicle and driver. If either is already booked for an overlapping time, you'll see which trip conflicts.
+Pick a vehicle and driver. If either is already booked for an overlapping time, you'll see which trip conflicts. A driver, and a vehicle, can only have one trip on the road at a time: a trip can't start until the earlier one has ended.
 
 ### Track
 

@@ -47,6 +47,8 @@ For a customer you pick up yourself, tap **New trip**: choose one way, round tri
 
 ## Start a trip
 
+You can have one trip on the road at a time. While a trip is running, **Start trip** on your other trips is greyed out until you end it.
+
 1. Open the trip and tap **Start trip**.
 2. Take a clear photo of the **odometer** with the in-app camera.
 3. Type the odometer reading exactly as shown.

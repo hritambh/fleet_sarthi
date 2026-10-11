@@ -824,6 +824,19 @@ class AppLocalizationsEn extends AppLocalizations {
       'There is no pending cancellation request';
 
   @override
+  String rejectAnotherTripRunning({required String route}) {
+    return 'End your trip $route before starting another';
+  }
+
+  @override
+  String get errorDriverOnTrip =>
+      'The driver already has a trip on the road. End it before starting another.';
+
+  @override
+  String get errorVehicleOnTrip =>
+      'This vehicle is already on the road on another trip. End that trip first.';
+
+  @override
   String get rejectNotAllowed => 'You can\'t do this on this trip';
 
   @override

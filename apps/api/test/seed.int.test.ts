@@ -13,9 +13,18 @@ afterAll(async () => {
   await h.close();
 });
 
+/** The seeded org, found by its owner's phone: other test files also use the name. */
+const demoOrg = () =>
+  h.owner.organization.findFirstOrThrow({
+    where: {
+      name: 'Sharma Travels',
+      memberships: { some: { user: { phoneE164: '+919000000001' }, roles: { has: 'owner' } } },
+    },
+  });
+
 describe('demo seed', () => {
   it('creates the org, people and vehicles', async () => {
-    const org = await h.owner.organization.findFirstOrThrow({ where: { name: 'Sharma Travels' } });
+    const org = await demoOrg();
     expect(await h.owner.vehicle.count({ where: { orgId: org.id } })).toBe(3);
     expect(await h.owner.driver.count({ where: { orgId: org.id } })).toBe(3);
     expect(await h.owner.membership.count({ where: { orgId: org.id } })).toBe(5);
@@ -60,6 +69,10 @@ describe('demo seed', () => {
 
   it('is safe to run twice', async () => {
     await runSeed(h.app);
-    expect(await h.owner.organization.count({ where: { name: 'Sharma Travels' } })).toBe(1);
+    expect(
+      await h.owner.organization.count({
+        where: { memberships: { some: { user: { phoneE164: '+919000000001' } } } },
+      }),
+    ).toBe(1);
   });
 });

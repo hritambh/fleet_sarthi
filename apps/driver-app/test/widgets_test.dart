@@ -8,6 +8,7 @@ import 'package:taxcy_driver/core/repositories/trips_repository.dart';
 import 'package:taxcy_driver/core/sync/sync_engine.dart';
 import 'package:taxcy_driver/features/common/widgets.dart';
 import 'package:taxcy_driver/features/fuel/fuel_fill_screen.dart';
+import 'package:taxcy_driver/features/trips/trip_detail_screen.dart';
 import 'package:taxcy_driver/features/trips/trip_forms.dart';
 import 'package:taxcy_driver/features/trips/trips_screen.dart';
 import 'package:taxcy_driver/l10n/app_localizations.dart';
@@ -99,6 +100,36 @@ void main() {
       expect(find.text(label), findsOneWidget);
     }
     expect(find.text('Pune Station → Mumbai Airport T2'), findsNWidgets(4));
+  });
+
+  testWidgets('a second trip can\'t be started while one is on the road', (
+    tester,
+  ) async {
+    final h = await Harness.create();
+    addTearDown(h.dispose);
+    await h.engine.cacheTrip(
+      Trip.fromJson({
+        ...tripJson(
+          id: 'a0000000-0000-4000-8000-000000000011',
+          status: 'started',
+        ),
+        'from': {'text': 'Aundh', 'point': null},
+        'to': {'text': 'Lavasa', 'point': null},
+      }),
+    );
+    const nextId = 'a0000000-0000-4000-8000-000000000012';
+    await h.engine.cacheTrip(Trip.fromJson(tripJson(id: nextId)));
+
+    await tester.pumpWidget(h.screen(const TripDetailScreen(tripId: nextId)));
+    await settle(tester);
+    expect(
+      find.text('End your trip Aundh → Lavasa before starting another'),
+      findsOneWidget,
+    );
+    final start = tester.widget<ButtonStyleButton>(
+      find.byKey(const Key('start-trip')),
+    );
+    expect(start.onPressed, isNull);
   });
 
   group('log fuel picks the vehicle from the driver\'s trips', () {

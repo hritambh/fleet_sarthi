@@ -185,6 +185,8 @@ export const en = {
     OTP_INVALID: 'That code is wrong. Check it and try again.',
     OTP_EXPIRED: 'That code has expired. Ask for a new one.',
     INVALID_CREDENTIALS: 'Wrong mobile number or password.',
+    DRIVER_ON_TRIP: 'The driver already has a trip on the road. End it before starting another.',
+    VEHICLE_ON_TRIP: 'This vehicle is already on the road on another trip. End that trip first.',
     ACCOUNT_EXISTS: 'This number already has an account. Log in, or reset your password.',
     GOOGLE_TOKEN_INVALID: 'Google sign-in didn’t work. Try again.',
     GOOGLE_ACCOUNT_CONFLICT: 'This number is already linked to a different Google account.',
