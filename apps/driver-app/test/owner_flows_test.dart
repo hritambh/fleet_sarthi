@@ -272,10 +272,10 @@ void main() {
     expect(find.text('Pickup on the map'), findsOneWidget);
     final use = find.byKey(const Key('pin-use'));
     expect(tester.widget<FilledButton>(use).onPressed, isNull);
+    // A single tap drops the pin at once: 1 ms (flutter_map's zero-length
+    // timer), not the 250 ms double-tap window.
     await tester.tap(find.byKey(const Key('pin-map')));
-    // The map waits out its double-tap window before reporting a tap.
-    await tester.pump(const Duration(milliseconds: 500));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 1));
     expect(tester.widget<FilledButton>(use).onPressed, isNotNull);
     await tester.tap(use);
     await tester.pumpAndSettle();

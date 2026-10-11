@@ -121,6 +121,12 @@ class _PinPickerScreenState extends ConsumerState<PinPickerScreen> {
                   ? _pune
                   : LatLng(start.lat, start.lng),
               initialZoom: start == null ? 11 : 14,
+              // Without double-tap zoom the map reports a tap at once instead
+              // of waiting to see if a second tap follows; pinch and the
+              // scroll wheel still zoom.
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.all & ~InteractiveFlag.doubleTapZoom,
+              ),
               onTap: (_, point) => setState(
                 () => _pin = GeoPoint(
                   _round(point.latitude),
