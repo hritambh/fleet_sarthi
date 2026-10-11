@@ -1,0 +1,146 @@
+# Render Blueprint: the API, the admin web and a Key Value (Redis) instance, all on
+# Render's free plan. Postgres (Neon) and object storage (Cloudflare R2) live outside
+# Render. Step-by-step guide, values for every variable, and the free-tier limits:
+# docs/deployment.md.
+#
+# Variables marked `sync: false` are asked for when you create the Blueprint and are
+# never stored in this file. Never put secrets here.
+
+services:
+  # ── API (NestJS) ────────────────────────────────────────────────────────────
+  - type: web
+    name: taxcy-api
+    runtime: node
+    plan: free
+    region: singapore
+    # Bun is preinstalled on Render's native runtimes (BUN_VERSION picks the version);
+    # the API itself runs on Node.
+    buildCommand: bun install --frozen-lockfile && bunx nx run @taxcy/api:build
+    # Free web services have no pre-deploy command, so this script creates the app
+    # role, applies migrations (and optionally seeds) before starting the API.
+    startCommand: ./infra/render/start-api.sh
+    healthCheckPath: /v1/health/live
+    autoDeployTrigger: commit
+    buildFilter:
+      ignoredPaths:
+        - apps/driver-app/**
+        - apps/admin-web/**
+        - docs/**
+    envVars:
+      - key: NODE_VERSION
+        value: '24'
+      - key: BUN_VERSION
+        value: 1.4.2
+      - key: NX_DAEMON
+        value: 'false'
+      - key: NX_NO_CLOUD
+        value: 'true'
+      - key: NODE_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: info
+      # No free background workers on Render: the API runs the outbox relay, queue
+      # workers and schedules itself. Keep the service at one instance.
+      - key: JOBS_MODE
+        value: in-process
+      # No SMS provider yet: login codes are written to the API log (Logs tab), and
+      # production refuses that unless DEMO_MODE is on. Demo deployments only.
+      - key: SMS_PROVIDER
+        value: console
+      - key: DEMO_MODE
+        value: 'true'
+      - key: OCR_PROVIDER
+        value: stub
+      # Load the demo fleet on start (skips once it exists). Set to true for a demo.
+      - key: SEED_DEMO_DATA
+        value: 'false'
+      # Every client reaches the API through Render's proxy, so the per-IP OTP limit
+      # is shared by everyone; per-phone limits still apply.
+      - key: OTP_IP_LIMIT_PER_HOUR
+        value: '120'
+
+      # Neon (or another Postgres with PostGIS). Owner URL for roles + migrations,
+      # app-role URL (user taxcy_api, a password you choose) for the API.
+      - key: DATABASE_MIGRATION_URL
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: taxcy-redis
+          property: connectionString
+
+      # Cloudflare R2 (S3 API).
+      - key: S3_ENDPOINT
+        sync: false
+      - key: S3_REGION
+        value: auto
+      - key: S3_BUCKET
+        value: taxcy-media
+      - key: S3_ACCESS_KEY_ID
+        sync: false
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false
+
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      # The admin web's URL, e.g. https://taxcy-admin.onrender.com (comma-separated).
+      - key: CORS_ORIGINS
+        sync: false
+      # Optional: real Google sign-in. Empty switches Google off in production.
+      - key: GOOGLE_WEB_CLIENT_ID
+        sync: false
+      - key: GOOGLE_EXTRA_CLIENT_IDS
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+
+  # ── Admin web (React SPA) ───────────────────────────────────────────────────
+  - type: web
+    name: taxcy-admin
+    runtime: static
+    buildCommand: bun install --frozen-lockfile && bunx nx run @taxcy/admin-web:build
+    staticPublishPath: apps/admin-web/dist
+    autoDeployTrigger: commit
+    buildFilter:
+      ignoredPaths:
+        - apps/driver-app/**
+        - apps/api/**
+        - apps/workers/**
+        - docs/**
+    routes:
+      # Client-side routing: every path serves the app.
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+    envVars:
+      - key: NODE_VERSION
+        value: '24'
+      - key: BUN_VERSION
+        value: 1.4.2
+      - key: NX_DAEMON
+        value: 'false'
+      - key: NX_NO_CLOUD
+        value: 'true'
+      # The API's public URL, e.g. https://taxcy-api.onrender.com (read at build time:
+      # redeploy the site after changing it).
+      - key: VITE_API_URL
+        sync: false
+
+  # ── Redis for OTPs, rate limits and BullMQ ──────────────────────────────────
+  - type: keyvalue
+    name: taxcy-redis
+    plan: free
+    region: singapore
+    # BullMQ needs noeviction: evicted keys would silently lose jobs.
+    maxmemoryPolicy: noeviction
+    # Internal connections only (the API, same region). No public access.
+    ipAllowList: []
