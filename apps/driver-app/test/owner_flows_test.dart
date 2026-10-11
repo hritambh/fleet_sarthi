@@ -260,12 +260,42 @@ void main() {
     await tester.enterText(find.byKey(const Key('owner-trip-to')), 'Shirdi');
     await tester.enterText(find.byKey(const Key('owner-trip-fare')), '4500');
     await tester.enterText(find.byKey(const Key('owner-trip-km')), '300');
+
+    // Pin the pickup on the map: nothing to use until the map is tapped.
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(const Key('owner-trip-from-pin')),
+        matching: find.text('Add map pin'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Pickup on the map'), findsOneWidget);
+    final use = find.byKey(const Key('pin-use'));
+    expect(tester.widget<FilledButton>(use).onPressed, isNull);
+    await tester.tap(find.byKey(const Key('pin-map')));
+    // The map waits out its double-tap window before reporting a tap.
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pumpAndSettle();
+    expect(tester.widget<FilledButton>(use).onPressed, isNotNull);
+    await tester.tap(use);
+    await tester.pumpAndSettle();
+    // Back on the form, the pickup shows its pin; the drop has none.
+    expect(find.text('Change'), findsOneWidget);
+    expect(find.text('Add map pin'), findsOneWidget);
+
     await tester.tap(find.byKey(const Key('owner-create-trip')));
     await settle(tester);
     final body = h.owner.last('createTrip').args;
     expect(body['quotedFarePaise'], 450000);
     expect(body['includedKm'], 300);
     expect(body.containsKey('vehicleId'), isFalse);
+    final from = body['from'] as Map;
+    expect(from['text'], 'Pune');
+    // The map opens on Pune and the tap lands at its centre.
+    final point = from['point'] as Map;
+    expect(point['lat'] as double, closeTo(18.52, 0.05));
+    expect(point['lng'] as double, closeTo(73.86, 0.05));
+    expect(body['to'], {'text': 'Shirdi'});
 
     // On the new trip's page: assign it.
     expect(find.byKey(const Key('trip-assign')), findsOneWidget);

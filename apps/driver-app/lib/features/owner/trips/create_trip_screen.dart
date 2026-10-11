@@ -5,12 +5,14 @@ import 'package:uuid/uuid.dart';
 
 import '../../../app/providers.dart';
 import '../../../core/api/json.dart';
+import '../../../core/api/models.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../common/format.dart';
 import '../links.dart';
 import '../owner_providers.dart';
 import '../owner_widgets.dart';
 import 'owner_trip_detail_screen.dart';
+import 'pin_picker.dart';
 
 /// What the create-trip form collected.
 class NewTripInput {
@@ -26,6 +28,8 @@ class NewTripInput {
     this.customerPhone = '',
     this.vehicleId,
     this.driverId,
+    this.fromPoint,
+    this.toPoint,
   });
 
   final String tripType;
@@ -41,10 +45,14 @@ class NewTripInput {
   final String customerPhone;
   final String? vehicleId;
   final String? driverId;
+
+  /// Optional map pins for the pickup and drop.
+  final GeoPoint? fromPoint;
+  final GeoPoint? toPoint;
 }
 
 /// The POST /trips body for [input], or the first problem with it (in the
-/// user's language). Mirrors the admin web's checks.
+/// user's language). Mirrors the API's checks.
 ({JsonMap? body, String? problem}) newTripBody(
   AppLocalizations l,
   NewTripInput input, {
@@ -77,8 +85,12 @@ class NewTripInput {
     body: {
       'id': id,
       'tripType': input.tripType,
-      'from': {'text': input.fromText.trim()},
-      if (!local) 'to': {'text': input.toText.trim()},
+      'from': {
+        'text': input.fromText.trim(),
+        'point': ?input.fromPoint?.toJson(),
+      },
+      if (!local)
+        'to': {'text': input.toText.trim(), 'point': ?input.toPoint?.toJson()},
       'scheduledStartAt': input.start.toUtc().toIso8601String(),
       'scheduledEndAt': input.end.toUtc().toIso8601String(),
       'quotedFarePaise': fare,
@@ -120,6 +132,8 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
   late DateTime _end = _start.add(const Duration(hours: 4));
   String? _vehicleId;
   String? _driverId;
+  GeoPoint? _fromPoint;
+  GeoPoint? _toPoint;
   String? _problem;
   bool _busy = false;
 
@@ -165,6 +179,8 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
         customerPhone: _phone.text,
         vehicleId: _vehicleId,
         driverId: _driverId,
+        fromPoint: _fromPoint,
+        toPoint: _toPoint,
       ),
       id: _id,
     );
@@ -221,6 +237,13 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
                     prefixIcon: const Icon(Icons.trip_origin),
                   ),
                 ),
+                PinField(
+                  key: const Key('owner-trip-from-pin'),
+                  title: l.pickupOnMap,
+                  value: _fromPoint,
+                  near: _toPoint,
+                  onChanged: (p) => setState(() => _fromPoint = p),
+                ),
                 if (!local) ...[
                   const SizedBox(height: 12),
                   TextField(
@@ -230,6 +253,13 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
                       labelText: l.drop,
                       prefixIcon: const Icon(Icons.place),
                     ),
+                  ),
+                  PinField(
+                    key: const Key('owner-trip-to-pin'),
+                    title: l.dropOnMap,
+                    value: _toPoint,
+                    near: _fromPoint,
+                    onChanged: (p) => setState(() => _toPoint = p),
                   ),
                 ],
                 const SizedBox(height: 12),

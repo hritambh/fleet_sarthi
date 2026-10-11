@@ -75,7 +75,7 @@ Roles belong to a fleet, not to your account. If you own one fleet and drive in 
 **Trips → New trip**
 
 - Type: **One way**, **Round trip** or **Local rental**.
-- Pickup and drop, as text (local rentals have no drop point).
+- Pickup and drop, as text (local rentals have no drop point). Optionally tap **Add map pin** under either one, tap the map where the place is (tap again to move the pin), then **Use this pin**. The pins show on the trip's map; the text is still what the driver reads.
 - Scheduled start and end, customer name and phone, and the **quoted fare** in ₹.
 - **Included km** (optional): the km the fare covers, e.g. 300 for a 300 km package. The trip page shows how far the trip went past it, and the driver is prompted to add an extra km charge.
 

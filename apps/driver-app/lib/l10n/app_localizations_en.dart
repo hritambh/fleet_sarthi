@@ -2590,4 +2590,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createFleet => 'Create fleet';
+
+  @override
+  String get addMapPin => 'Add map pin';
+
+  @override
+  String get changePin => 'Change';
+
+  @override
+  String get removePin => 'Remove pin';
+
+  @override
+  String get pickupOnMap => 'Pickup on the map';
+
+  @override
+  String get dropOnMap => 'Drop on the map';
+
+  @override
+  String get pinPickerHint =>
+      'Tap the map to drop the pin. Tap again to move it.';
+
+  @override
+  String get usePin => 'Use this pin';
 }

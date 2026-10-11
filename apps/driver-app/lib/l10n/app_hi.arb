@@ -721,5 +721,12 @@
   "fleetNameLabel": "फ़्लीट या कारोबार का नाम",
   "fleetNameTooShort": "कम से कम 2 अक्षर लिखें",
   "iDriveToo": "मैं अपनी गाड़ियाँ खुद भी चलाता/चलाती हूँ",
-  "createFleet": "फ़्लीट बनाएँ"
+  "createFleet": "फ़्लीट बनाएँ",
+  "addMapPin": "मैप पर पिन लगाएँ",
+  "changePin": "बदलें",
+  "removePin": "पिन हटाएँ",
+  "pickupOnMap": "मैप पर पिकअप",
+  "dropOnMap": "मैप पर ड्रॉप",
+  "pinPickerHint": "पिन लगाने के लिए मैप पर टैप करें। बदलने के लिए फिर से टैप करें।",
+  "usePin": "यह पिन लगाएँ"
 }

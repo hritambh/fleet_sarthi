@@ -4501,6 +4501,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create fleet'**
   String get createFleet;
+
+  /// No description provided for @addMapPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Add map pin'**
+  String get addMapPin;
+
+  /// No description provided for @changePin.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get changePin;
+
+  /// No description provided for @removePin.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove pin'**
+  String get removePin;
+
+  /// No description provided for @pickupOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup on the map'**
+  String get pickupOnMap;
+
+  /// No description provided for @dropOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop on the map'**
+  String get dropOnMap;
+
+  /// No description provided for @pinPickerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the map to drop the pin. Tap again to move it.'**
+  String get pinPickerHint;
+
+  /// No description provided for @usePin.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this pin'**
+  String get usePin;
 }
 
 class _AppLocalizationsDelegate

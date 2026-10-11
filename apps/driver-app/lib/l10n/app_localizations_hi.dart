@@ -2584,4 +2584,26 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get createFleet => 'फ़्लीट बनाएँ';
+
+  @override
+  String get addMapPin => 'मैप पर पिन लगाएँ';
+
+  @override
+  String get changePin => 'बदलें';
+
+  @override
+  String get removePin => 'पिन हटाएँ';
+
+  @override
+  String get pickupOnMap => 'मैप पर पिकअप';
+
+  @override
+  String get dropOnMap => 'मैप पर ड्रॉप';
+
+  @override
+  String get pinPickerHint =>
+      'पिन लगाने के लिए मैप पर टैप करें। बदलने के लिए फिर से टैप करें।';
+
+  @override
+  String get usePin => 'यह पिन लगाएँ';
 }

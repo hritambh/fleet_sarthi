@@ -2195,5 +2195,19 @@
   "iDriveToo": "I also drive my own vehicles",
   "@iDriveToo": {},
   "createFleet": "Create fleet",
-  "@createFleet": {}
+  "@createFleet": {},
+  "addMapPin": "Add map pin",
+  "@addMapPin": {},
+  "changePin": "Change",
+  "@changePin": {},
+  "removePin": "Remove pin",
+  "@removePin": {},
+  "pickupOnMap": "Pickup on the map",
+  "@pickupOnMap": {},
+  "dropOnMap": "Drop on the map",
+  "@dropOnMap": {},
+  "pinPickerHint": "Tap the map to drop the pin. Tap again to move it.",
+  "@pinPickerHint": {},
+  "usePin": "Use this pin",
+  "@usePin": {}
 }
