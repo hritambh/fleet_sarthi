@@ -16,6 +16,10 @@ export const ErrorCode = z.enum([
   'DRIVER_ON_TRIP',
   /** Starting a trip in a vehicle that's already on the road (details.tripId, route). */
   'VEHICLE_ON_TRIP',
+  /** Pairing a driver with a vehicle they aren't linked to (details.vehicleId, driverId). */
+  'DRIVER_NOT_LINKED',
+  /** Unlinking a driver from a vehicle they have assigned or running trips in (details.tripIds). */
+  'LINK_IN_USE',
   'CANCELLATION_PENDING',
   'ALREADY_SETTLED',
   'IDEMPOTENCY_CONFLICT',

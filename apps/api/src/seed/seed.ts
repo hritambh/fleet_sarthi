@@ -137,7 +137,9 @@ class Seeder {
             .then((m) => m?.id),
         }),
       );
-      const driver = await this.db.tenant(orgId, (tx) => this.fleet.inviteDriver(tx, pair.driver));
+      const driver = await this.db.tenant(orgId, (tx) =>
+        this.fleet.inviteDriver(tx, { ...pair.driver, vehicleIds: [vehicle.id] }),
+      );
       await this.db.tenant(orgId, (tx) =>
         tx.membership.updateMany({
           where: { orgId, userId: driver.userId },

@@ -13,16 +13,31 @@ const vehicleSelect = {
   lastOdometerKm: true,
   status: true,
   createdAt: true,
+  drivers: {
+    select: { driver: { select: { id: true, name: true } } },
+    orderBy: { driver: { name: 'asc' } },
+  },
 } as const;
 
 const driverInclude = {
   membership: { select: { status: true, user: { select: { phoneE164: true } } } },
+  vehicles: {
+    select: { vehicle: { select: { id: true, registrationNo: true } } },
+    orderBy: { vehicle: { registrationNo: 'asc' } },
+  },
 } as const;
 
 type DriverRow = Prisma.DriverGetPayload<{ include: typeof driverInclude }>;
 
-function toVehicle(row: Prisma.VehicleGetPayload<{ select: typeof vehicleSelect }>): Vehicle {
-  return { ...row, status: row.status === 'inactive' ? 'inactive' : 'active' };
+function toVehicle({
+  drivers,
+  ...row
+}: Prisma.VehicleGetPayload<{ select: typeof vehicleSelect }>): Vehicle {
+  return {
+    ...row,
+    status: row.status === 'inactive' ? 'inactive' : 'active',
+    drivers: drivers.map((link) => link.driver),
+  };
 }
 
 function toDriver(row: DriverRow): Driver {
@@ -38,15 +53,24 @@ function toDriver(row: DriverRow): Driver {
         ? membershipStatus
         : 'active',
     payRule: row.payRule === null ? null : PayRule.parse(row.payRule),
+    vehicles: row.vehicles.map((link) => link.vehicle),
     createdAt: row.createdAt,
   };
 }
 
 @Injectable()
 export class FleetRepository {
-  async listVehicles(tx: TenantTx, status?: 'active' | 'inactive'): Promise<Vehicle[]> {
+  /** With `driverId`, only the vehicles that driver is linked to. */
+  async listVehicles(
+    tx: TenantTx,
+    filter: { status?: 'active' | 'inactive' | undefined; driverId?: string | undefined } = {},
+  ): Promise<Vehicle[]> {
     const rows = await tx.vehicle.findMany({
-      where: { orgId: tx.orgId, ...(status ? { status } : {}) },
+      where: {
+        orgId: tx.orgId,
+        ...(filter.status ? { status: filter.status } : {}),
+        ...(filter.driverId ? { drivers: { some: { driverId: filter.driverId } } } : {}),
+      },
       select: vehicleSelect,
       orderBy: { registrationNo: 'asc' },
     });
@@ -110,6 +134,29 @@ export class FleetRepository {
       include: driverInclude,
     });
     return row ? toDriver(row) : null;
+  }
+
+  async linkedPairs(
+    tx: TenantTx,
+    where: { vehicleId: string } | { driverId: string },
+  ): Promise<{ vehicleId: string; driverId: string }[]> {
+    return tx.vehicleDriver.findMany({
+      where: { orgId: tx.orgId, ...where },
+      select: { vehicleId: true, driverId: true },
+    });
+  }
+
+  async link(tx: TenantTx, pairs: { vehicleId: string; driverId: string }[]): Promise<void> {
+    if (!pairs.length) return;
+    await tx.vehicleDriver.createMany({
+      data: pairs.map((p) => ({ ...p, orgId: tx.orgId })),
+      skipDuplicates: true,
+    });
+  }
+
+  async unlink(tx: TenantTx, pairs: { vehicleId: string; driverId: string }[]): Promise<void> {
+    if (!pairs.length) return;
+    await tx.vehicleDriver.deleteMany({ where: { orgId: tx.orgId, OR: pairs } });
   }
 
   async updateDriver(

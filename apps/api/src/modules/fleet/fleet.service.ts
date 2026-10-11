@@ -6,6 +6,11 @@ import { definedOnly, type Patch } from '../../platform/patch.js';
 import { newId } from '../../platform/ids.js';
 import { FleetRepository } from './fleet.repository.js';
 
+interface Pair {
+  vehicleId: string;
+  driverId: string;
+}
+
 @Injectable()
 export class FleetService {
   constructor(private readonly repo: FleetRepository) {}
@@ -26,6 +31,7 @@ export class FleetService {
       fuelType: FuelType;
       vehicleModelId?: string | undefined;
       lastOdometerKm?: number | undefined;
+      driverIds?: string[] | undefined;
     },
   ): Promise<Vehicle> {
     const duplicate = await tx.vehicle.count({
@@ -33,8 +39,23 @@ export class FleetService {
     });
     if (duplicate)
       throw new AppError('CONFLICT', `${input.registrationNo} is already in your fleet`);
-    return this.repo.createVehicle(tx, {
-      id: newId(),
+    const driverIds = new Set(input.driverIds ?? []);
+    await this.assertAllExist(tx, 'driver', [...driverIds]);
+    // An owner-driver drives every vehicle they add.
+    const org = await tx.organization.findUniqueOrThrow({
+      where: { id: tx.orgId },
+      select: { kind: true },
+    });
+    if (org.kind === 'dco') {
+      const owners = await tx.driver.findMany({
+        where: { orgId: tx.orgId, membership: { roles: { has: 'owner' } } },
+        select: { id: true },
+      });
+      for (const owner of owners) driverIds.add(owner.id);
+    }
+    const id = newId();
+    await this.repo.createVehicle(tx, {
+      id,
       registrationNo: input.registrationNo,
       make: input.make,
       model: input.model,
@@ -43,6 +64,74 @@ export class FleetService {
       vehicleModelId: input.vehicleModelId ?? null,
       lastOdometerKm: input.lastOdometerKm ?? null,
     });
+    await this.repo.link(
+      tx,
+      [...driverIds].map((driverId) => ({ vehicleId: id, driverId })),
+    );
+    return this.requireVehicle(tx, id);
+  }
+
+  /** Replaces the drivers who may drive a vehicle. */
+  async setVehicleDrivers(tx: TenantTx, vehicleId: string, driverIds: string[]): Promise<Vehicle> {
+    await this.requireVehicle(tx, vehicleId);
+    await this.assertAllExist(tx, 'driver', driverIds);
+    await this.relink(
+      tx,
+      await this.repo.linkedPairs(tx, { vehicleId }),
+      driverIds.map((driverId) => ({ vehicleId, driverId })),
+    );
+    return this.requireVehicle(tx, vehicleId);
+  }
+
+  /** Replaces the vehicles a driver may drive. */
+  async setDriverVehicles(tx: TenantTx, driverId: string, vehicleIds: string[]): Promise<Driver> {
+    await this.requireDriver(tx, driverId);
+    await this.assertAllExist(tx, 'vehicle', vehicleIds);
+    await this.relink(
+      tx,
+      await this.repo.linkedPairs(tx, { driverId }),
+      vehicleIds.map((vehicleId) => ({ vehicleId, driverId })),
+    );
+    return this.requireDriver(tx, driverId);
+  }
+
+  private async relink(tx: TenantTx, current: Pair[], wanted: Pair[]): Promise<void> {
+    const key = (p: Pair) => `${p.vehicleId}:${p.driverId}`;
+    const wantedKeys = new Set(wanted.map(key));
+    const currentKeys = new Set(current.map(key));
+    const removed = current.filter((p) => !wantedKeys.has(key(p)));
+    if (removed.length) {
+      // Trips already booked with a pair keep it until they're reassigned or done.
+      const open = await tx.trip.findMany({
+        where: { orgId: tx.orgId, status: { in: ['assigned', 'started'] }, OR: removed },
+        select: { id: true },
+        orderBy: { scheduledStartAt: 'asc' },
+      });
+      if (open.length) {
+        throw new AppError(
+          'LINK_IN_USE',
+          `Reassign or finish the ${open.length} assigned or running trip(s) with this driver and vehicle first`,
+          { tripIds: open.map((t) => t.id) },
+        );
+      }
+    }
+    await this.repo.unlink(tx, removed);
+    await this.repo.link(
+      tx,
+      wanted.filter((p) => !currentKeys.has(key(p))),
+    );
+  }
+
+  private async assertAllExist(
+    tx: TenantTx,
+    kind: 'vehicle' | 'driver',
+    ids: string[],
+  ): Promise<void> {
+    if (!ids.length) return;
+    const where = { orgId: tx.orgId, id: { in: ids } };
+    const found =
+      kind === 'vehicle' ? await tx.vehicle.count({ where }) : await tx.driver.count({ where });
+    if (found !== new Set(ids).size) throw notFound(kind === 'vehicle' ? 'Vehicle' : 'Driver');
   }
 
   async updateVehicle(
@@ -66,7 +155,11 @@ export class FleetService {
    * a manager who also drives) gains the driver role. The membership stays
    * 'invited' until their first sign-in.
    */
-  async inviteDriver(tx: TenantTx, input: { name: string; phone: string }): Promise<Driver> {
+  async inviteDriver(
+    tx: TenantTx,
+    input: { name: string; phone: string; vehicleIds?: string[] | undefined },
+  ): Promise<Driver> {
+    await this.assertAllExist(tx, 'vehicle', input.vehicleIds ?? []);
     const user = await tx.user.upsert({
       where: { phoneE164: input.phone },
       update: {},
@@ -100,6 +193,10 @@ export class FleetService {
     await tx.driver.create({
       data: { id, orgId: tx.orgId, membershipId: membership.id, userId: user.id, name: input.name },
     });
+    await this.repo.link(
+      tx,
+      (input.vehicleIds ?? []).map((vehicleId) => ({ vehicleId, driverId: id })),
+    );
     return this.requireDriver(tx, id);
   }
 

@@ -107,17 +107,31 @@ export async function runJobs(h: Harness): Promise<number> {
   throw new Error('runJobs: jobs keep producing events after 20 rounds');
 }
 
-/** Owner invites a driver; the driver signs in through OTP and gets a session for the org. */
+async function ids(h: Harness, session: Session, path: string): Promise<string[]> {
+  const res = await request(h.http)
+    .get(path)
+    .set(...bearer(session))
+    .expect(200);
+  return (res.body as { id: string }[]).map((row) => row.id);
+}
+
+/**
+ * Owner invites a driver; the driver signs in through OTP and gets a session for the org.
+ * Unless `linkAll` is false, the driver is linked to every vehicle in the org (and
+ * createVehicle links every driver), so tests can pair anyone with anything.
+ */
 export async function driverSession(
   h: Harness,
   owner: Session,
   name = 'Ramesh Kumar',
+  { linkAll = true }: { linkAll?: boolean } = {},
 ): Promise<{ session: Session; driverId: string }> {
   const phone = randomPhone();
+  const vehicleIds = linkAll ? await ids(h, owner, '/v1/vehicles') : [];
   const invite = await request(h.http)
     .post('/v1/drivers')
     .set(...bearer(owner))
-    .send({ name, phone })
+    .send({ name, phone, vehicleIds })
     .expect(201);
   const session = await login(h, phone);
   return { session, driverId: (invite.body as { id: string }).id };
@@ -177,11 +191,20 @@ export async function createVehicle(
   registrationNo: string,
   fuelType = 'diesel',
   lastOdometerKm = 48_000,
+  { linkAll = true }: { linkAll?: boolean } = {},
 ) {
+  const driverIds = linkAll ? await ids(h, owner, '/v1/drivers') : [];
   const res = await request(h.http)
     .post('/v1/vehicles')
     .set(...bearer(owner))
-    .send({ registrationNo, make: 'Toyota', model: 'Innova Crysta', fuelType, lastOdometerKm })
+    .send({
+      registrationNo,
+      make: 'Toyota',
+      model: 'Innova Crysta',
+      fuelType,
+      lastOdometerKm,
+      driverIds,
+    })
     .expect(201);
   return res.body as { id: string; registrationNo: string };
 }

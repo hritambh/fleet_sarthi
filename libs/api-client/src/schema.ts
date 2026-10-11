@@ -386,10 +386,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Vehicles in the org */
+    /** Vehicles in the org (for a driver: only the vehicles they're linked to) */
     get: operations['getVehicles'];
     put?: never;
-    /** Add a vehicle */
+    /** Add a vehicle, optionally with the drivers who may drive it (in an owner-driver org, the owner is always linked) */
     post: operations['postVehicles'];
     delete?: never;
     options?: never;
@@ -413,6 +413,23 @@ export interface paths {
     head?: never;
     /** Update a vehicle */
     patch: operations['patchVehiclesId'];
+    trace?: never;
+  };
+  '/vehicles/{id}/drivers': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Set the drivers who may drive a vehicle. A driver with an assigned or running trip in it can't be removed */
+    put: operations['putVehiclesIdDrivers'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   '/vehicle-models': {
@@ -442,7 +459,7 @@ export interface paths {
     /** Drivers in the org */
     get: operations['getDrivers'];
     put?: never;
-    /** Invite a driver by phone; they sign in to the app with that number */
+    /** Invite a driver by phone, optionally with the vehicles they may drive; they sign in to the app with that number */
     post: operations['postDrivers'];
     delete?: never;
     options?: never;
@@ -466,6 +483,23 @@ export interface paths {
     head?: never;
     /** Update a driver */
     patch: operations['patchDriversId'];
+    trace?: never;
+  };
+  '/drivers/{id}/vehicles': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Set the vehicles a driver may drive. A vehicle they have an assigned or running trip in can't be removed */
+    put: operations['putDriversIdVehicles'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   '/drivers/{id}/pay-rule': {
@@ -1125,6 +1159,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -1204,6 +1240,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -1281,6 +1319,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -1383,6 +1423,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -1458,6 +1500,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -1562,6 +1606,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -1664,6 +1710,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -1767,6 +1815,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -1840,6 +1890,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -1953,6 +2005,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -2056,6 +2110,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -2152,6 +2208,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -2224,6 +2282,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -2322,6 +2382,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -2410,6 +2472,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -2489,6 +2553,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -2588,6 +2654,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -2668,6 +2736,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -2755,6 +2825,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -2837,6 +2909,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -2944,6 +3018,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -3025,6 +3101,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -3100,6 +3178,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -3157,6 +3237,11 @@ export interface operations {
             lastOdometerKm: number | null;
             /** @enum {string} */
             status: 'active' | 'inactive';
+            drivers: {
+              /** Format: uuid */
+              id: string;
+              name: string;
+            }[];
             /** Format: date-time */
             createdAt: string;
           }[];
@@ -3185,6 +3270,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -3231,6 +3318,7 @@ export interface operations {
           /** Format: uuid */
           vehicleModelId?: string;
           lastOdometerKm?: number;
+          driverIds?: string[];
         };
       };
     };
@@ -3254,6 +3342,11 @@ export interface operations {
             lastOdometerKm: number | null;
             /** @enum {string} */
             status: 'active' | 'inactive';
+            drivers: {
+              /** Format: uuid */
+              id: string;
+              name: string;
+            }[];
             /** Format: date-time */
             createdAt: string;
           };
@@ -3282,6 +3375,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -3339,6 +3434,11 @@ export interface operations {
             lastOdometerKm: number | null;
             /** @enum {string} */
             status: 'active' | 'inactive';
+            drivers: {
+              /** Format: uuid */
+              id: string;
+              name: string;
+            }[];
             /** Format: date-time */
             createdAt: string;
           };
@@ -3367,6 +3467,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -3440,6 +3542,11 @@ export interface operations {
             lastOdometerKm: number | null;
             /** @enum {string} */
             status: 'active' | 'inactive';
+            drivers: {
+              /** Format: uuid */
+              id: string;
+              name: string;
+            }[];
             /** Format: date-time */
             createdAt: string;
           };
@@ -3468,6 +3575,106 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
+                | 'CANCELLATION_PENDING'
+                | 'ALREADY_SETTLED'
+                | 'IDEMPOTENCY_CONFLICT'
+                | 'IDEMPOTENCY_KEY_REQUIRED'
+                | 'VERSION_CONFLICT'
+                | 'CONFLICT'
+                | 'FUEL_TYPE_MISMATCH'
+                | 'ODOMETER_BEFORE_START'
+                | 'OTP_INVALID'
+                | 'OTP_EXPIRED'
+                | 'INVALID_CREDENTIALS'
+                | 'ACCOUNT_EXISTS'
+                | 'GOOGLE_TOKEN_INVALID'
+                | 'GOOGLE_ACCOUNT_CONFLICT'
+                | 'RATE_LIMITED'
+                | 'UPLOAD_NOT_FOUND'
+                | 'UPLOAD_MISMATCH'
+                | 'INTERNAL';
+              message: string;
+              details?: unknown;
+              requestId?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  putVehiclesIdDrivers: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': {
+          driverIds: string[];
+        };
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            /** Format: uuid */
+            id: string;
+            registrationNo: string;
+            make: string;
+            model: string;
+            year: number | null;
+            /** @enum {string} */
+            fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng';
+            vehicleModelId: string | null;
+            lastOdometerKm: number | null;
+            /** @enum {string} */
+            status: 'active' | 'inactive';
+            drivers: {
+              /** Format: uuid */
+              id: string;
+              name: string;
+            }[];
+            /** Format: date-time */
+            createdAt: string;
+          };
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            error: {
+              /** @enum {string} */
+              code:
+                | 'VALIDATION_FAILED'
+                | 'UNAUTHENTICATED'
+                | 'TOKEN_EXPIRED'
+                | 'FORBIDDEN_ROLE'
+                | 'NO_ACTIVE_ORG'
+                | 'NOT_FOUND'
+                | 'ILLEGAL_TRANSITION'
+                | 'TRIP_CANCELLED'
+                | 'TRIP_REASSIGNED'
+                | 'VEHICLE_BUSY'
+                | 'DRIVER_BUSY'
+                | 'DRIVER_ON_TRIP'
+                | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -3543,6 +3750,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -3633,6 +3842,11 @@ export interface operations {
                     }
                 )
               | null;
+            vehicles: {
+              /** Format: uuid */
+              id: string;
+              registrationNo: string;
+            }[];
             /** Format: date-time */
             createdAt: string;
           }[];
@@ -3661,6 +3875,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -3700,6 +3916,7 @@ export interface operations {
         'application/json': {
           name: string;
           phone: string;
+          vehicleIds?: string[];
         };
       };
     };
@@ -3756,6 +3973,11 @@ export interface operations {
                     }
                 )
               | null;
+            vehicles: {
+              /** Format: uuid */
+              id: string;
+              registrationNo: string;
+            }[];
             /** Format: date-time */
             createdAt: string;
           };
@@ -3784,6 +4006,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -3874,6 +4098,11 @@ export interface operations {
                     }
                 )
               | null;
+            vehicles: {
+              /** Format: uuid */
+              id: string;
+              registrationNo: string;
+            }[];
             /** Format: date-time */
             createdAt: string;
           };
@@ -3902,6 +4131,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -4000,6 +4231,11 @@ export interface operations {
                     }
                 )
               | null;
+            vehicles: {
+              /** Format: uuid */
+              id: string;
+              registrationNo: string;
+            }[];
             /** Format: date-time */
             createdAt: string;
           };
@@ -4028,6 +4264,139 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
+                | 'CANCELLATION_PENDING'
+                | 'ALREADY_SETTLED'
+                | 'IDEMPOTENCY_CONFLICT'
+                | 'IDEMPOTENCY_KEY_REQUIRED'
+                | 'VERSION_CONFLICT'
+                | 'CONFLICT'
+                | 'FUEL_TYPE_MISMATCH'
+                | 'ODOMETER_BEFORE_START'
+                | 'OTP_INVALID'
+                | 'OTP_EXPIRED'
+                | 'INVALID_CREDENTIALS'
+                | 'ACCOUNT_EXISTS'
+                | 'GOOGLE_TOKEN_INVALID'
+                | 'GOOGLE_ACCOUNT_CONFLICT'
+                | 'RATE_LIMITED'
+                | 'UPLOAD_NOT_FOUND'
+                | 'UPLOAD_MISMATCH'
+                | 'INTERNAL';
+              message: string;
+              details?: unknown;
+              requestId?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  putDriversIdVehicles: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': {
+          vehicleIds: string[];
+        };
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            userId: string;
+            name: string;
+            phone: string;
+            /** @enum {string} */
+            status: 'active' | 'inactive';
+            /** @enum {string} */
+            membershipStatus: 'invited' | 'active' | 'suspended';
+            payRule:
+              | (
+                  | {
+                      allowanceToDriver: boolean;
+                      /** @constant */
+                      kind: 'none';
+                    }
+                  | {
+                      allowanceToDriver: boolean;
+                      /** @constant */
+                      kind: 'percent_of_fare';
+                      percent: number;
+                      /** @enum {string} */
+                      base: 'quoted' | 'expected';
+                    }
+                  | {
+                      allowanceToDriver: boolean;
+                      /** @constant */
+                      kind: 'per_trip';
+                      amountPaise: number;
+                    }
+                  | {
+                      allowanceToDriver: boolean;
+                      /** @constant */
+                      kind: 'per_km';
+                      paisePerKm: number;
+                    }
+                  | {
+                      allowanceToDriver: boolean;
+                      /** @constant */
+                      kind: 'fixed_daily';
+                      amountPaise: number;
+                    }
+                )
+              | null;
+            vehicles: {
+              /** Format: uuid */
+              id: string;
+              registrationNo: string;
+            }[];
+            /** Format: date-time */
+            createdAt: string;
+          };
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            error: {
+              /** @enum {string} */
+              code:
+                | 'VALIDATION_FAILED'
+                | 'UNAUTHENTICATED'
+                | 'TOKEN_EXPIRED'
+                | 'FORBIDDEN_ROLE'
+                | 'NO_ACTIVE_ORG'
+                | 'NOT_FOUND'
+                | 'ILLEGAL_TRANSITION'
+                | 'TRIP_CANCELLED'
+                | 'TRIP_REASSIGNED'
+                | 'VEHICLE_BUSY'
+                | 'DRIVER_BUSY'
+                | 'DRIVER_ON_TRIP'
+                | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -4158,6 +4527,11 @@ export interface operations {
                     }
                 )
               | null;
+            vehicles: {
+              /** Format: uuid */
+              id: string;
+              registrationNo: string;
+            }[];
             /** Format: date-time */
             createdAt: string;
           };
@@ -4186,6 +4560,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -4277,6 +4653,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -4381,6 +4759,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -4481,6 +4861,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -4556,6 +4938,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -4642,6 +5026,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -4741,6 +5127,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -4875,6 +5263,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -5109,6 +5499,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -5373,6 +5765,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -5602,6 +5996,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -5862,6 +6258,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -5950,6 +6348,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -6190,6 +6590,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -6421,6 +6823,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -6668,6 +7072,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -6944,6 +7350,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -7181,6 +7589,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -7431,6 +7841,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -7670,6 +8082,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -7907,6 +8321,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -8138,6 +8554,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -8388,6 +8806,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -8618,6 +9038,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -8847,6 +9269,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -8956,6 +9380,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -9091,6 +9517,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -9201,6 +9629,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -9311,6 +9741,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -9402,6 +9834,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -9485,6 +9919,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -9568,6 +10004,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -9810,6 +10248,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -9899,6 +10339,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -10087,6 +10529,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -10277,6 +10721,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -10487,6 +10933,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -10562,6 +11010,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -10769,6 +11219,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -10870,6 +11322,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
@@ -10979,6 +11433,8 @@ export interface operations {
                 | 'DRIVER_BUSY'
                 | 'DRIVER_ON_TRIP'
                 | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'

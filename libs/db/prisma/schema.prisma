@@ -304,6 +304,7 @@ model Vehicle {
   trips        Trip[]
   fuelFills    FuelFill[]
   odometers    OdometerReading[]
+  drivers      VehicleDriver[]
 
   @@unique([orgId, registrationNo])
   @@map("vehicles")
@@ -323,9 +324,27 @@ model Driver {
   trips       Trip[]
   fuelFills   FuelFill[]
   collections TripCollection[]
+  vehicles    VehicleDriver[]
 
   @@index([orgId])
   @@map("drivers")
+}
+
+/// Which drivers may drive which vehicles (many to many, within one org). Trips can
+/// only put a driver on a vehicle they're linked to.
+model VehicleDriver {
+  orgId     String   @map("org_id") @db.Uuid
+  vehicleId String   @map("vehicle_id") @db.Uuid
+  driverId  String   @map("driver_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  driver  Driver  @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  @@id([vehicleId, driverId])
+  @@index([driverId])
+  @@index([orgId])
+  @@map("vehicle_drivers")
 }
 
 model Document {

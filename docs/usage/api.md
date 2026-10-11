@@ -128,15 +128,17 @@ Drivers are added with `POST /drivers`, which also creates their driver profile.
 
 | Endpoint                     | Who                    | Idempotency-Key | What it does                                                                   |
 | ---------------------------- | ---------------------- | --------------- | ------------------------------------------------------------------------------ |
-| `GET /vehicles`              | owner, manager, driver |                 | Vehicles in the org                                                            |
+| `GET /vehicles`              | owner, manager, driver |                 | Vehicles in the org (a driver gets only the vehicles they're linked to)        |
 | `POST /vehicles`             | owner, manager         |                 | Add a vehicle                                                                  |
 | `GET /vehicles/{id}`         | owner, manager, driver |                 | A vehicle                                                                      |
 | `PATCH /vehicles/{id}`       | owner, manager         |                 | Update a vehicle                                                               |
+| `PUT /vehicles/{id}/drivers` | owner, manager         |                 | Set the drivers who may drive the vehicle                                      |
 | `GET /vehicle-models`        | owner, manager, driver |                 | Known vehicle models (used to seed fuel baselines)                             |
 | `GET /drivers`               | owner, manager         |                 | Drivers in the org                                                             |
 | `POST /drivers`              | owner, manager         |                 | Invite a driver by phone; they sign in to the app with that number             |
 | `GET /drivers/{id}`          | owner, manager         |                 | A driver                                                                       |
 | `PATCH /drivers/{id}`        | owner, manager         |                 | Update a driver                                                                |
+| `PUT /drivers/{id}/vehicles` | owner, manager         |                 | Set the vehicles the driver may drive                                          |
 | `PUT /drivers/{id}/pay-rule` | owner                  |                 | Override a driver's pay rule (null = use the org default)                      |
 | `GET /documents`             | owner, manager         |                 | Current documents (renewed ones are hidden unless includeSuperseded)           |
 | `POST /documents`            | owner, manager         |                 | Add a document to a vehicle (RC, insurance, permit, PUC) or a driver (licence) |

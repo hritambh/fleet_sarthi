@@ -175,6 +175,18 @@ describe('trip lifecycle', () => {
   });
 });
 
+describe('unassigning', () => {
+  it('takes the driver and vehicle off and returns the trip to created', async () => {
+    const trip = await newTrip();
+    const res = await request(h.http)
+      .post(`/v1/trips/${trip.id}/unassign`)
+      .set(...bearer(owner))
+      .set(...key())
+      .expect(200);
+    expect(res.body).toMatchObject({ status: 'created', vehicle: null, driver: null });
+  });
+});
+
 describe('idempotent commands', () => {
   it('replays the stored response for the same key, without a second event', async () => {
     const trip = await newTrip();

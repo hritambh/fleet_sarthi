@@ -1,12 +1,17 @@
 import type { Session } from '@taxcy/contracts';
 import { istBusinessDate } from '@taxcy/domain';
+import { randomUUID } from 'node:crypto';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
   bearer,
+  createVehicle as addVehicle,
   driverSession,
+  key,
   ownerSession,
+  randomPhone,
   runSchedule,
+  schedule,
   startHarness,
   type Harness,
 } from './harness.js';
@@ -148,6 +153,170 @@ describe('drivers', () => {
       .send({ payRule: null })
       .expect(200);
     expect(cleared.body).toMatchObject({ payRule: null });
+  });
+});
+
+describe('drivers and vehicles (many to many)', () => {
+  const unlinked = { linkAll: false };
+  interface Linked {
+    id: string;
+    drivers: { id: string; name: string }[];
+  }
+
+  function trip(vehicleId: string, driverId: string, session = owner) {
+    return request(h.http)
+      .post('/v1/trips')
+      .set(...bearer(session))
+      .send({
+        tripType: 'one_way',
+        customer: { name: 'Anita Desai', phone: '+919822222222' },
+        from: { text: 'Pune Station' },
+        to: { text: 'Mumbai Airport T2' },
+        ...schedule(),
+        quotedFarePaise: 350_000,
+        vehicleId,
+        driverId,
+      });
+  }
+
+  function setDrivers(vehicleId: string, driverIds: string[]) {
+    return request(h.http)
+      .put(`/v1/vehicles/${vehicleId}/drivers`)
+      .set(...bearer(owner))
+      .send({ driverIds });
+  }
+
+  it('links a vehicle to several drivers, and a driver to several vehicles', async () => {
+    const asha = await driverSession(h, owner, 'Asha Rao', unlinked);
+    const bala = await driverSession(h, owner, 'Bala Iyer', unlinked);
+    const v1 = await addVehicle(h, owner, 'MH12LK0001', 'diesel', 48_000, unlinked);
+    const v2 = await addVehicle(h, owner, 'MH12LK0002', 'diesel', 48_000, unlinked);
+
+    const linked = await setDrivers(v1.id, [bala.driverId, asha.driverId]).expect(200);
+    expect((linked.body as Linked).drivers).toEqual([
+      { id: asha.driverId, name: 'Asha Rao' },
+      { id: bala.driverId, name: 'Bala Iyer' },
+    ]);
+    const res = await request(h.http)
+      .put(`/v1/drivers/${asha.driverId}/vehicles`)
+      .set(...bearer(owner))
+      .send({ vehicleIds: [v1.id, v2.id] })
+      .expect(200);
+    expect(res.body).toMatchObject({
+      vehicles: [
+        { id: v1.id, registrationNo: 'MH12LK0001' },
+        { id: v2.id, registrationNo: 'MH12LK0002' },
+      ],
+    });
+    const v2Now = await request(h.http)
+      .get(`/v1/vehicles/${v2.id}`)
+      .set(...bearer(owner))
+      .expect(200);
+    expect((v2Now.body as Linked).drivers.map((d) => d.id)).toEqual([asha.driverId]);
+
+    // A driver sees only their vehicles.
+    const mine = await request(h.http)
+      .get('/v1/vehicles')
+      .set(...bearer(bala.session))
+      .expect(200);
+    expect((mine.body as Linked[]).map((v) => v.id)).toEqual([v1.id]);
+  });
+
+  it('only lets trips pair a driver with a vehicle they are linked to', async () => {
+    const driver = await driverSession(h, owner, 'Chetan Das', unlinked);
+    const vehicle = await addVehicle(h, owner, 'MH12LK0003', 'diesel', 48_000, unlinked);
+    const refused = await trip(vehicle.id, driver.driverId).expect(409);
+    expect(refused.body).toMatchObject({
+      error: {
+        code: 'DRIVER_NOT_LINKED',
+        details: { driverName: 'Chetan Das', registrationNo: 'MH12LK0003' },
+      },
+    });
+    // Drivers creating their own trip can only pick their vehicles too.
+    await trip(vehicle.id, driver.driverId, driver.session).expect(409);
+
+    await setDrivers(vehicle.id, [driver.driverId]).expect(200);
+    await trip(vehicle.id, driver.driverId).expect(201);
+  });
+
+  it("won't unlink a pair that has an assigned trip until it's reassigned", async () => {
+    const driver = await driverSession(h, owner, 'Deepa Nair', unlinked);
+    const vehicle = await addVehicle(h, owner, 'MH12LK0004', 'diesel', 48_000, unlinked);
+    await setDrivers(vehicle.id, [driver.driverId]).expect(200);
+    const booked = await trip(vehicle.id, driver.driverId).expect(201);
+    const tripId = (booked.body as { id: string }).id;
+
+    const refused = await setDrivers(vehicle.id, []).expect(409);
+    expect(refused.body).toMatchObject({
+      error: { code: 'LINK_IN_USE', details: { tripIds: [tripId] } },
+    });
+    await request(h.http)
+      .put(`/v1/drivers/${driver.driverId}/vehicles`)
+      .set(...bearer(owner))
+      .send({ vehicleIds: [] })
+      .expect(409);
+
+    await request(h.http)
+      .post(`/v1/trips/${tripId}/unassign`)
+      .set(...bearer(owner))
+      .set(...key())
+      .expect(200);
+    const cleared = await setDrivers(vehicle.id, []).expect(200);
+    expect((cleared.body as Linked).drivers).toEqual([]);
+  });
+
+  it('links drivers given when adding a vehicle or inviting a driver', async () => {
+    const vehicle = await addVehicle(h, owner, 'MH12LK0005', 'diesel', 48_000, unlinked);
+    const invite = await request(h.http)
+      .post('/v1/drivers')
+      .set(...bearer(owner))
+      .send({ name: 'Esha Kapoor', phone: randomPhone(), vehicleIds: [vehicle.id] })
+      .expect(201);
+    expect(invite.body).toMatchObject({ vehicles: [{ id: vehicle.id }] });
+    const driverId = (invite.body as { id: string }).id;
+    const added = await request(h.http)
+      .post('/v1/vehicles')
+      .set(...bearer(owner))
+      .send({
+        registrationNo: 'MH12LK0006',
+        make: 'Maruti',
+        model: 'Ertiga',
+        fuelType: 'cng',
+        driverIds: [driverId],
+      })
+      .expect(201);
+    expect((added.body as Linked).drivers.map((d) => d.id)).toEqual([driverId]);
+  });
+
+  it('rejects unknown, repeated or other-org ids', async () => {
+    const vehicle = await addVehicle(h, owner, 'MH12LK0007', 'diesel', 48_000, unlinked);
+    const driver = await driverSession(h, owner, 'Farah Khan', unlinked);
+    await setDrivers(vehicle.id, [randomUUID()]).expect(404);
+    await setDrivers(vehicle.id, [driver.driverId, driver.driverId]).expect(400);
+    const otherOwner = await ownerSession(h, 'fleet', 'Other Travels');
+    const outsider = await driverSession(h, otherOwner, 'Outsider', unlinked);
+    await setDrivers(vehicle.id, [outsider.driverId]).expect(404);
+  });
+
+  it('managers can link, drivers cannot', async () => {
+    const vehicle = await addVehicle(h, owner, 'MH12LK0008', 'diesel', 48_000, unlinked);
+    const driver = await driverSession(h, owner, 'Gita Sen', unlinked);
+    const res = await request(h.http)
+      .put(`/v1/vehicles/${vehicle.id}/drivers`)
+      .set(...bearer(driver.session))
+      .send({ driverIds: [driver.driverId] })
+      .expect(403);
+    expect(res.body).toMatchObject({ error: { code: 'FORBIDDEN_ROLE' } });
+  });
+
+  it('links an owner-driver to every vehicle they add', async () => {
+    const dco = await ownerSession(h, 'dco', 'Solo Cabs');
+    const res = await request(h.http)
+      .post('/v1/vehicles')
+      .set(...bearer(dco))
+      .send({ registrationNo: 'MH12LK0009', make: 'Toyota', model: 'Etios', fuelType: 'diesel' })
+      .expect(201);
+    expect((res.body as Linked).drivers).toHaveLength(1);
   });
 });
 

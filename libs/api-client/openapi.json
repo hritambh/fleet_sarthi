@@ -76,6 +76,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -185,6 +187,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -300,6 +304,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -504,6 +510,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -607,6 +615,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -821,6 +831,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -1026,6 +1038,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -1235,6 +1249,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -1333,6 +1349,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -1567,6 +1585,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -1776,6 +1796,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -1964,6 +1986,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -2059,6 +2083,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -2251,6 +2277,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -2411,6 +2439,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -2526,6 +2556,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -2722,6 +2754,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -2844,6 +2878,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -2986,6 +3022,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -3117,6 +3155,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -3347,6 +3387,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -3478,6 +3520,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -3585,6 +3629,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -3627,7 +3673,7 @@
     "/vehicles": {
       "get": {
         "operationId": "getVehicles",
-        "summary": "Vehicles in the org",
+        "summary": "Vehicles in the org (for a driver: only the vehicles they're linked to)",
         "tags": ["fleet"],
         "parameters": [
           {
@@ -3709,6 +3755,23 @@
                         "type": "string",
                         "enum": ["active", "inactive"]
                       },
+                      "drivers": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "name": {
+                              "type": "string"
+                            }
+                          },
+                          "required": ["id", "name"]
+                        }
+                      },
                       "createdAt": {
                         "type": "string",
                         "format": "date-time",
@@ -3725,6 +3788,7 @@
                       "vehicleModelId",
                       "lastOdometerKm",
                       "status",
+                      "drivers",
                       "createdAt"
                     ]
                   }
@@ -3759,6 +3823,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -3799,7 +3865,7 @@
       },
       "post": {
         "operationId": "postVehicles",
-        "summary": "Add a vehicle",
+        "summary": "Add a vehicle, optionally with the drivers who may drive it (in an owner-driver org, the owner is always linked)",
         "tags": ["fleet"],
         "requestBody": {
           "required": true,
@@ -3840,6 +3906,15 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 9007199254740991
+                  },
+                  "driverIds": {
+                    "maxItems": 200,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    }
                   }
                 },
                 "required": ["registrationNo", "make", "model", "fuelType"]
@@ -3914,6 +3989,23 @@
                       "type": "string",
                       "enum": ["active", "inactive"]
                     },
+                    "drivers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["id", "name"]
+                      }
+                    },
                     "createdAt": {
                       "type": "string",
                       "format": "date-time",
@@ -3930,6 +4022,7 @@
                     "vehicleModelId",
                     "lastOdometerKm",
                     "status",
+                    "drivers",
                     "createdAt"
                   ]
                 }
@@ -3963,6 +4056,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -4086,6 +4181,23 @@
                       "type": "string",
                       "enum": ["active", "inactive"]
                     },
+                    "drivers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["id", "name"]
+                      }
+                    },
                     "createdAt": {
                       "type": "string",
                       "format": "date-time",
@@ -4102,6 +4214,7 @@
                     "vehicleModelId",
                     "lastOdometerKm",
                     "status",
+                    "drivers",
                     "createdAt"
                   ]
                 }
@@ -4135,6 +4248,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -4305,6 +4420,23 @@
                       "type": "string",
                       "enum": ["active", "inactive"]
                     },
+                    "drivers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["id", "name"]
+                      }
+                    },
                     "createdAt": {
                       "type": "string",
                       "format": "date-time",
@@ -4321,6 +4453,7 @@
                     "vehicleModelId",
                     "lastOdometerKm",
                     "status",
+                    "drivers",
                     "createdAt"
                   ]
                 }
@@ -4354,6 +4487,223 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
+                            "CANCELLATION_PENDING",
+                            "ALREADY_SETTLED",
+                            "IDEMPOTENCY_CONFLICT",
+                            "IDEMPOTENCY_KEY_REQUIRED",
+                            "VERSION_CONFLICT",
+                            "CONFLICT",
+                            "FUEL_TYPE_MISMATCH",
+                            "ODOMETER_BEFORE_START",
+                            "OTP_INVALID",
+                            "OTP_EXPIRED",
+                            "INVALID_CREDENTIALS",
+                            "ACCOUNT_EXISTS",
+                            "GOOGLE_TOKEN_INVALID",
+                            "GOOGLE_ACCOUNT_CONFLICT",
+                            "RATE_LIMITED",
+                            "UPLOAD_NOT_FOUND",
+                            "UPLOAD_MISMATCH",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {},
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["code", "message"]
+                    }
+                  },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vehicles/{id}/drivers": {
+      "put": {
+        "operationId": "putVehiclesIdDrivers",
+        "summary": "Set the drivers who may drive a vehicle. A driver with an assigned or running trip in it can't be removed",
+        "tags": ["fleet"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "driverIds": {
+                    "maxItems": 200,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    }
+                  }
+                },
+                "required": ["driverIds"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "registrationNo": {
+                      "type": "string"
+                    },
+                    "make": {
+                      "type": "string"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "year": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "fuelType": {
+                      "type": "string",
+                      "enum": ["petrol", "diesel", "cng", "petrol_cng"]
+                    },
+                    "vehicleModelId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "lastOdometerKm": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": ["active", "inactive"]
+                    },
+                    "drivers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["id", "name"]
+                      }
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "registrationNo",
+                    "make",
+                    "model",
+                    "year",
+                    "fuelType",
+                    "vehicleModelId",
+                    "lastOdometerKm",
+                    "status",
+                    "drivers",
+                    "createdAt"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_FAILED",
+                            "UNAUTHENTICATED",
+                            "TOKEN_EXPIRED",
+                            "FORBIDDEN_ROLE",
+                            "NO_ACTIVE_ORG",
+                            "NOT_FOUND",
+                            "ILLEGAL_TRANSITION",
+                            "TRIP_CANCELLED",
+                            "TRIP_REASSIGNED",
+                            "VEHICLE_BUSY",
+                            "DRIVER_BUSY",
+                            "DRIVER_ON_TRIP",
+                            "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -4458,6 +4808,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -4649,6 +5001,23 @@
                           }
                         ]
                       },
+                      "vehicles": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "registrationNo": {
+                              "type": "string"
+                            }
+                          },
+                          "required": ["id", "registrationNo"]
+                        }
+                      },
                       "createdAt": {
                         "type": "string",
                         "format": "date-time",
@@ -4663,6 +5032,7 @@
                       "status",
                       "membershipStatus",
                       "payRule",
+                      "vehicles",
                       "createdAt"
                     ]
                   }
@@ -4697,6 +5067,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -4737,7 +5109,7 @@
       },
       "post": {
         "operationId": "postDrivers",
-        "summary": "Invite a driver by phone; they sign in to the app with that number",
+        "summary": "Invite a driver by phone, optionally with the vehicles they may drive; they sign in to the app with that number",
         "tags": ["fleet"],
         "requestBody": {
           "required": true,
@@ -4755,6 +5127,15 @@
                   "phone": {
                     "type": "string",
                     "pattern": "^\\+91[6-9]\\d{9}$"
+                  },
+                  "vehicleIds": {
+                    "maxItems": 200,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    }
                   }
                 },
                 "required": ["name", "phone"]
@@ -4896,6 +5277,23 @@
                         }
                       ]
                     },
+                    "vehicles": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "registrationNo": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["id", "registrationNo"]
+                      }
+                    },
                     "createdAt": {
                       "type": "string",
                       "format": "date-time",
@@ -4910,6 +5308,7 @@
                     "status",
                     "membershipStatus",
                     "payRule",
+                    "vehicles",
                     "createdAt"
                   ]
                 }
@@ -4943,6 +5342,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -5133,6 +5534,23 @@
                         }
                       ]
                     },
+                    "vehicles": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "registrationNo": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["id", "registrationNo"]
+                      }
+                    },
                     "createdAt": {
                       "type": "string",
                       "format": "date-time",
@@ -5147,6 +5565,7 @@
                     "status",
                     "membershipStatus",
                     "payRule",
+                    "vehicles",
                     "createdAt"
                   ]
                 }
@@ -5180,6 +5599,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -5390,6 +5811,23 @@
                         }
                       ]
                     },
+                    "vehicles": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "registrationNo": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["id", "registrationNo"]
+                      }
+                    },
                     "createdAt": {
                       "type": "string",
                       "format": "date-time",
@@ -5404,6 +5842,7 @@
                     "status",
                     "membershipStatus",
                     "payRule",
+                    "vehicles",
                     "createdAt"
                   ]
                 }
@@ -5437,6 +5876,288 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
+                            "CANCELLATION_PENDING",
+                            "ALREADY_SETTLED",
+                            "IDEMPOTENCY_CONFLICT",
+                            "IDEMPOTENCY_KEY_REQUIRED",
+                            "VERSION_CONFLICT",
+                            "CONFLICT",
+                            "FUEL_TYPE_MISMATCH",
+                            "ODOMETER_BEFORE_START",
+                            "OTP_INVALID",
+                            "OTP_EXPIRED",
+                            "INVALID_CREDENTIALS",
+                            "ACCOUNT_EXISTS",
+                            "GOOGLE_TOKEN_INVALID",
+                            "GOOGLE_ACCOUNT_CONFLICT",
+                            "RATE_LIMITED",
+                            "UPLOAD_NOT_FOUND",
+                            "UPLOAD_MISMATCH",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {},
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["code", "message"]
+                    }
+                  },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/drivers/{id}/vehicles": {
+      "put": {
+        "operationId": "putDriversIdVehicles",
+        "summary": "Set the vehicles a driver may drive. A vehicle they have an assigned or running trip in can't be removed",
+        "tags": ["fleet"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "vehicleIds": {
+                    "maxItems": 200,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    }
+                  }
+                },
+                "required": ["vehicleIds"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "userId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "phone": {
+                      "type": "string",
+                      "pattern": "^\\+91[6-9]\\d{9}$"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": ["active", "inactive"]
+                    },
+                    "membershipStatus": {
+                      "type": "string",
+                      "enum": ["invited", "active", "suspended"]
+                    },
+                    "payRule": {
+                      "anyOf": [
+                        {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "allowanceToDriver": {
+                                  "type": "boolean"
+                                },
+                                "kind": {
+                                  "type": "string",
+                                  "const": "none"
+                                }
+                              },
+                              "required": ["allowanceToDriver", "kind"]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "allowanceToDriver": {
+                                  "type": "boolean"
+                                },
+                                "kind": {
+                                  "type": "string",
+                                  "const": "percent_of_fare"
+                                },
+                                "percent": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 100
+                                },
+                                "base": {
+                                  "type": "string",
+                                  "enum": ["quoted", "expected"]
+                                }
+                              },
+                              "required": ["allowanceToDriver", "kind", "percent", "base"]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "allowanceToDriver": {
+                                  "type": "boolean"
+                                },
+                                "kind": {
+                                  "type": "string",
+                                  "const": "per_trip"
+                                },
+                                "amountPaise": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 9007199254740991
+                                }
+                              },
+                              "required": ["allowanceToDriver", "kind", "amountPaise"]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "allowanceToDriver": {
+                                  "type": "boolean"
+                                },
+                                "kind": {
+                                  "type": "string",
+                                  "const": "per_km"
+                                },
+                                "paisePerKm": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 9007199254740991
+                                }
+                              },
+                              "required": ["allowanceToDriver", "kind", "paisePerKm"]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "allowanceToDriver": {
+                                  "type": "boolean"
+                                },
+                                "kind": {
+                                  "type": "string",
+                                  "const": "fixed_daily"
+                                },
+                                "amountPaise": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 9007199254740991
+                                }
+                              },
+                              "required": ["allowanceToDriver", "kind", "amountPaise"]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "vehicles": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "registrationNo": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["id", "registrationNo"]
+                      }
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "userId",
+                    "name",
+                    "phone",
+                    "status",
+                    "membershipStatus",
+                    "payRule",
+                    "vehicles",
+                    "createdAt"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_FAILED",
+                            "UNAUTHENTICATED",
+                            "TOKEN_EXPIRED",
+                            "FORBIDDEN_ROLE",
+                            "NO_ACTIVE_ORG",
+                            "NOT_FOUND",
+                            "ILLEGAL_TRANSITION",
+                            "TRIP_CANCELLED",
+                            "TRIP_REASSIGNED",
+                            "VEHICLE_BUSY",
+                            "DRIVER_BUSY",
+                            "DRIVER_ON_TRIP",
+                            "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -5741,6 +6462,23 @@
                         }
                       ]
                     },
+                    "vehicles": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "registrationNo": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["id", "registrationNo"]
+                      }
+                    },
                     "createdAt": {
                       "type": "string",
                       "format": "date-time",
@@ -5755,6 +6493,7 @@
                     "status",
                     "membershipStatus",
                     "payRule",
+                    "vehicles",
                     "createdAt"
                   ]
                 }
@@ -5788,6 +6527,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -6021,6 +6762,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -6256,6 +6999,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -6491,6 +7236,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -6619,6 +7366,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -6793,6 +7542,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -6966,6 +7717,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -7238,6 +7991,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -8058,6 +8813,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -8960,6 +9717,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -9727,6 +10486,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -10619,6 +11380,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -10820,6 +11583,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -11620,6 +12385,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -12396,6 +13163,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -13217,6 +13986,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -14116,6 +14887,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -14911,6 +15684,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -15742,6 +16517,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -16541,6 +17318,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -17336,6 +18115,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -18112,6 +18893,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -18927,6 +19710,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -19704,6 +20489,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -20474,6 +21261,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -20825,6 +21614,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -21137,6 +21928,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -21418,6 +22211,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -21662,6 +22457,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -21836,6 +22633,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -21980,6 +22779,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -22156,6 +22957,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -22960,6 +23763,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -23163,6 +23968,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -23685,6 +24492,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -24216,6 +25025,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -24822,6 +25633,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -24934,6 +25747,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -25511,6 +26326,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -25721,6 +26538,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
@@ -25945,6 +26764,8 @@
                             "DRIVER_BUSY",
                             "DRIVER_ON_TRIP",
                             "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
                             "CANCELLATION_PENDING",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",

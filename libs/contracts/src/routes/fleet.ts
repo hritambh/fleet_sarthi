@@ -23,6 +23,8 @@ export const Vehicle = z.object({
   vehicleModelId: Id.nullable(),
   lastOdometerKm: z.number().int().nullable(),
   status: ActiveStatus,
+  /** Drivers who may drive this vehicle; trips can only pair it with one of them. */
+  drivers: z.array(z.object({ id: Id, name: z.string() })),
   createdAt: DateTime,
 });
 export type Vehicle = z.infer<typeof Vehicle>;
@@ -43,6 +45,11 @@ const VehicleInput = z.object({
   vehicleModelId: Id.optional(),
   lastOdometerKm: z.number().int().nonnegative().optional(),
 });
+
+const IdList = z
+  .array(Id)
+  .max(200)
+  .refine((ids) => new Set(ids).size === ids.length, 'Each id may appear only once');
 
 export const PayRule = z.intersection(
   z.discriminatedUnion('kind', [
@@ -70,6 +77,8 @@ export const Driver = z.object({
   membershipStatus: z.enum(['invited', 'active', 'suspended']),
   /** Overrides the org's default pay rule; null uses the default. */
   payRule: PayRule.nullable(),
+  /** Vehicles this driver may drive. */
+  vehicles: z.array(z.object({ id: Id, registrationNo: z.string() })),
   createdAt: DateTime,
 });
 export type Driver = z.infer<typeof Driver>;
@@ -117,7 +126,7 @@ export const fleetRoutes = {
   listVehicles: defineRoute({
     method: 'GET',
     path: '/vehicles',
-    summary: 'Vehicles in the org',
+    summary: "Vehicles in the org (for a driver: only the vehicles they're linked to)",
     tag: 'fleet',
     access: access.anyMember,
     query: z.object({ status: ActiveStatus.optional() }),
@@ -126,11 +135,12 @@ export const fleetRoutes = {
   createVehicle: defineRoute({
     method: 'POST',
     path: '/vehicles',
-    summary: 'Add a vehicle',
+    summary:
+      'Add a vehicle, optionally with the drivers who may drive it (in an owner-driver org, the owner is always linked)',
     tag: 'fleet',
     access: access.staff,
     status: 201,
-    body: VehicleInput,
+    body: VehicleInput.extend({ driverIds: IdList.optional() }),
     response: Vehicle,
   }),
   getVehicle: defineRoute({
@@ -150,6 +160,17 @@ export const fleetRoutes = {
     access: access.staff,
     params: IdParam,
     body: VehicleInput.partial().extend({ status: ActiveStatus.optional() }),
+    response: Vehicle,
+  }),
+  setVehicleDrivers: defineRoute({
+    method: 'PUT',
+    path: '/vehicles/{id}/drivers',
+    summary:
+      "Set the drivers who may drive a vehicle. A driver with an assigned or running trip in it can't be removed",
+    tag: 'fleet',
+    access: access.staff,
+    params: IdParam,
+    body: z.object({ driverIds: IdList }),
     response: Vehicle,
   }),
   listVehicleModels: defineRoute({
@@ -172,11 +193,16 @@ export const fleetRoutes = {
   inviteDriver: defineRoute({
     method: 'POST',
     path: '/drivers',
-    summary: 'Invite a driver by phone; they sign in to the app with that number',
+    summary:
+      'Invite a driver by phone, optionally with the vehicles they may drive; they sign in to the app with that number',
     tag: 'fleet',
     access: access.staff,
     status: 201,
-    body: z.object({ name: z.string().trim().min(1).max(100), phone: PhoneE164 }),
+    body: z.object({
+      name: z.string().trim().min(1).max(100),
+      phone: PhoneE164,
+      vehicleIds: IdList.optional(),
+    }),
     response: Driver,
   }),
   getDriver: defineRoute({
@@ -199,6 +225,17 @@ export const fleetRoutes = {
       name: z.string().trim().min(1).max(100).optional(),
       status: ActiveStatus.optional(),
     }),
+    response: Driver,
+  }),
+  setDriverVehicles: defineRoute({
+    method: 'PUT',
+    path: '/drivers/{id}/vehicles',
+    summary:
+      "Set the vehicles a driver may drive. A vehicle they have an assigned or running trip in can't be removed",
+    tag: 'fleet',
+    access: access.staff,
+    params: IdParam,
+    body: z.object({ vehicleIds: IdList }),
     response: Driver,
   }),
   setDriverPayRule: defineRoute({

@@ -47,6 +47,16 @@ The transition table lives in `libs/domain/trips/state-machine.ts` as pure data 
 
 Any other transition is rejected with `409 ILLEGAL_TRANSITION` and the body `{ from, command, allowed: [...] }`.
 
+## Drivers and vehicles
+
+A vehicle belongs to one org (a fleet, or an owner-driver), and an org can have many vehicles. Drivers and vehicles are many to many: owners and managers link each driver to the vehicles they may drive, on the vehicle or the driver (`PUT /vehicles/{id}/drivers`, `PUT /drivers/{id}/vehicles`, or when adding a vehicle or inviting a driver).
+
+- Assigning a trip, creating one with a driver and vehicle, or reassigning it, needs a linked pair; otherwise `409 DRIVER_NOT_LINKED` (`details.driverName`, `details.registrationNo`).
+- Unlinking a pair that has `assigned` or `started` trips fails with `409 LINK_IN_USE` (`details.tripIds`): reassign or finish those trips first. Ended trips keep their history.
+- Drivers see only their linked vehicles (`GET /vehicles`), so a driver creating their own trip picks one of those.
+- In an owner-driver org, the owner is linked to every vehicle they add.
+- When this rule was introduced, existing data was linked from trip history: every driver to each vehicle they'd had a trip in, and owner-drivers to all their vehicles.
+
 ## One trip on the road at a time
 
 A driver can have only one trip `started` at a time, and so can a vehicle. Booking checks compare scheduled windows (exclusion constraints on `busy_window`), but two trips with separate windows could otherwise both be running if the earlier one was never ended. So starting a trip also checks for another running trip and fails with `DRIVER_ON_TRIP` or `VEHICLE_ON_TRIP` (`details.tripId`, `details.route`). Partial unique indexes (`trips_one_running_per_driver`, `trips_one_running_per_vehicle`) back this up against two starts at once. The driver app refuses offline too, and greys out **Start trip** while another trip is running.

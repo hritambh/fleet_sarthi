@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { fleetRoutes as r, type RouteInput, type RouteOutput } from '@taxcy/contracts';
-import type { TenantAuth } from '../../platform/auth/auth-context.js';
+import { hasRole, type TenantAuth } from '../../platform/auth/auth-context.js';
 import { Input, Route, Tenant } from '../../platform/http/route.js';
 import { Db } from '../../platform/prisma.service.js';
 import { DocumentsService } from './documents.service.js';
@@ -23,7 +23,13 @@ export class FleetController {
     @Tenant() a: TenantAuth,
     @Input() { query }: RouteInput<typeof r.listVehicles>,
   ): Promise<RouteOutput<typeof r.listVehicles>> {
-    return this.db.tenant(a.orgId, (tx) => this.repo.listVehicles(tx, query.status));
+    return this.db.tenant(a.orgId, async (tx) => {
+      // Drivers see only the vehicles they may drive.
+      if (hasRole(a, 'owner', 'manager'))
+        return this.repo.listVehicles(tx, { status: query.status });
+      const me = await this.repo.findDriverByUser(tx, a.userId);
+      return me ? this.repo.listVehicles(tx, { status: query.status, driverId: me.id }) : [];
+    });
   }
 
   @Route(r.createVehicle)
@@ -48,6 +54,16 @@ export class FleetController {
     @Input() { params, body }: RouteInput<typeof r.updateVehicle>,
   ): Promise<RouteOutput<typeof r.updateVehicle>> {
     return this.db.tenant(a.orgId, (tx) => this.fleet.updateVehicle(tx, params.id, body));
+  }
+
+  @Route(r.setVehicleDrivers)
+  setVehicleDrivers(
+    @Tenant() a: TenantAuth,
+    @Input() { params, body }: RouteInput<typeof r.setVehicleDrivers>,
+  ): Promise<RouteOutput<typeof r.setVehicleDrivers>> {
+    return this.db.tenant(a.orgId, (tx) =>
+      this.fleet.setVehicleDrivers(tx, params.id, body.driverIds),
+    );
   }
 
   @Route(r.listVehicleModels)
@@ -91,6 +107,16 @@ export class FleetController {
     @Input() { params, body }: RouteInput<typeof r.updateDriver>,
   ): Promise<RouteOutput<typeof r.updateDriver>> {
     return this.db.tenant(a.orgId, (tx) => this.fleet.updateDriver(tx, params.id, body));
+  }
+
+  @Route(r.setDriverVehicles)
+  setDriverVehicles(
+    @Tenant() a: TenantAuth,
+    @Input() { params, body }: RouteInput<typeof r.setDriverVehicles>,
+  ): Promise<RouteOutput<typeof r.setDriverVehicles>> {
+    return this.db.tenant(a.orgId, (tx) =>
+      this.fleet.setDriverVehicles(tx, params.id, body.vehicleIds),
+    );
   }
 
   @Route(r.setDriverPayRule)

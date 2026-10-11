@@ -327,7 +327,12 @@ export class TripsService {
       new Date(),
       () => 'unassign',
       async (tx, trip) => {
-        await tx.trip.update({ where: { id: trip.id }, data: { vehicleId: null, driverId: null } });
+        // The status changes in the same statement: an assigned trip must have both
+        // (trips_assignment_check).
+        await tx.trip.update({
+          where: { id: trip.id },
+          data: { vehicleId: null, driverId: null, status: 'created' },
+        });
         return { previousDriverId: trip.driverId, previousVehicleId: trip.vehicleId };
       },
     );
@@ -850,14 +855,28 @@ export class TripsService {
     vehicleId: string,
     driverId: string,
   ): Promise<void> {
-    const [vehicle, driver] = await Promise.all([
-      tx.vehicle.findFirst({ where: { id: vehicleId, orgId: tx.orgId }, select: { status: true } }),
-      tx.driver.findFirst({ where: { id: driverId, orgId: tx.orgId }, select: { status: true } }),
+    const [vehicle, driver, linked] = await Promise.all([
+      tx.vehicle.findFirst({
+        where: { id: vehicleId, orgId: tx.orgId },
+        select: { status: true, registrationNo: true },
+      }),
+      tx.driver.findFirst({
+        where: { id: driverId, orgId: tx.orgId },
+        select: { status: true, name: true },
+      }),
+      tx.vehicleDriver.count({ where: { orgId: tx.orgId, vehicleId, driverId } }),
     ]);
     if (!vehicle) throw notFound('Vehicle');
     if (!driver) throw notFound('Driver');
     if (vehicle.status !== 'active' || driver.status !== 'active') {
       throw new AppError('CONFLICT', 'Inactive vehicles and drivers cannot be assigned');
+    }
+    if (!linked) {
+      throw new AppError(
+        'DRIVER_NOT_LINKED',
+        `${driver.name} isn't linked to ${vehicle.registrationNo}. Link them on the vehicle or driver first`,
+        { vehicleId, driverId, driverName: driver.name, registrationNo: vehicle.registrationNo },
+      );
     }
     // The busy_window exclusion constraints reject overlapping bookings (→ VEHICLE_BUSY / DRIVER_BUSY).
     // The status changes to 'assigned' in the same statement so the constraint sees it.
