@@ -3,7 +3,14 @@ import { toApiError } from './errors.js';
 import { authenticatedFetch, SessionStore } from './session.js';
 import { safeLocalStorage } from './storage.js';
 
-export const API_BASE = '/api/v1';
+/**
+ * The API's origin when it is served from another host (set at build time, e.g.
+ * VITE_API_URL=https://taxcy-api.onrender.com). Unset in development, where Vite
+ * proxies /api to the local API.
+ */
+const API_ORIGIN = (import.meta.env['VITE_API_URL'] as string | undefined)?.replace(/\/+$/, '');
+
+export const API_BASE = API_ORIGIN ? `${API_ORIGIN}/v1` : '/api/v1';
 
 export const sessionStore = new SessionStore(safeLocalStorage, API_BASE);
 
