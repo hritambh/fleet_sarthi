@@ -124,7 +124,7 @@ Seeded org "Sharma Travels"
   driver   Imran Shaikh    +91 90000 00013   (Etios, petrol)
 ```
 
-Re-running the seed is safe. `bun run db:reset` wipes the database and seeds it again.
+Re-running the seed is safe. `bun run db:reset` wipes the database and seeds it again. [Demo data](usage/demo-data.md) lists what the seed contains and walks through trying each feature with it.
 
 ## Step 8: Log in to the admin web
 

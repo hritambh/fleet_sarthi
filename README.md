@@ -92,6 +92,7 @@ To build the Android APK or host a free demo (Render + Neon + Cloudflare R2), se
 | [Evidence and anti-tampering](docs/domain/evidence.md)          | Photo capture, signed uploads, OCR, review queue                |
 | [Owner guide](docs/usage/owner-guide.md)                        | How a fleet owner uses the admin web                            |
 | [Driver guide](docs/usage/driver-guide.md)                      | How a driver uses the mobile app                                |
+| [Demo data](docs/usage/demo-data.md)                            | The seeded demo fleet: logins, planted problems, walkthroughs   |
 | [API usage](docs/usage/api.md)                                  | Auth flow, headers, idempotency, errors, generated client       |
 | [Decisions](docs/decisions.md)                                  | Open questions, accepted defaults, known risks                  |
 | [Roadmap](docs/roadmap.md)                                      | Milestone checklist                                             |
