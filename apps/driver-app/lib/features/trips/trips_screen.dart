@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/preferences.dart';
 import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../core/repositories/trips_repository.dart';
@@ -14,6 +13,7 @@ import '../common/widgets.dart';
 import '../fuel/fuel_fill_screen.dart';
 import 'new_trip_screen.dart';
 import 'trip_detail_screen.dart';
+import '../workspaces/workspace_switcher.dart';
 
 enum TripGroup { onTheRoad, today, upcoming, recent }
 
@@ -82,7 +82,7 @@ class TripsScreen extends ConsumerWidget {
           PopupMenuButton<String>(
             key: const Key('driver-menu'),
             onSelected: (value) => switch (value) {
-              'owner' => ref.read(appModeProvider.notifier).set(AppMode.owner),
+              'workspace' => showWorkspaceSwitcher(context, ref),
               'language' => showLanguagePicker(context, ref),
               'security' => Navigator.of(context).push(
                 MaterialPageRoute<void>(
@@ -93,12 +93,11 @@ class TripsScreen extends ConsumerWidget {
               _ => null,
             },
             itemBuilder: (_) => [
-              if (ref.read(authProvider).value?.isStaff ?? false)
-                PopupMenuItem(
-                  key: const Key('switch-to-owner'),
-                  value: 'owner',
-                  child: Text(l.ownerMode),
-                ),
+              PopupMenuItem(
+                key: const Key('switch-workspace'),
+                value: 'workspace',
+                child: Text(l.switchWorkspace),
+              ),
               PopupMenuItem(value: 'language', child: Text(l.language)),
               PopupMenuItem(
                 key: const Key('driver-account-security'),

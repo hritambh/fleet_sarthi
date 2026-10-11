@@ -13,7 +13,7 @@ const Env = z
       .default('info'),
     CORS_ORIGINS: z
       .string()
-      .default('http://localhost:5173,http://localhost:5174')
+      .default('http://localhost:5174')
       .transform((v) =>
         v
           .split(',')

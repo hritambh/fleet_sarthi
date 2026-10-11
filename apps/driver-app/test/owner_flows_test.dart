@@ -54,10 +54,10 @@ void main() {
       expect(screensFor(session(['driver']), null), AppMode.driver);
       expect(screensFor(session(['owner']), null), AppMode.owner);
       expect(screensFor(session(['manager']), AppMode.driver), AppMode.owner);
-      expect(screensFor(session(['owner', 'driver']), null), AppMode.driver);
+      expect(screensFor(session(['owner', 'driver']), null), AppMode.owner);
       expect(
-        screensFor(session(['owner', 'driver']), AppMode.owner),
-        AppMode.owner,
+        screensFor(session(['owner', 'driver']), AppMode.driver),
+        AppMode.driver,
       );
       expect(screensFor(session([]), null), isNull);
     });
@@ -72,7 +72,22 @@ void main() {
       expect(find.byKey(const Key('owner-nav')), findsNothing);
       await tester.tap(find.byKey(const Key('driver-menu')));
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('switch-to-owner')), findsNothing);
+      await tester.tap(find.byKey(const Key('switch-workspace')));
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(
+          const Key('workspace-driver-0199c7a2-0000-7000-8000-000000000999'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(
+          const Key('workspace-owner-0199c7a2-0000-7000-8000-000000000999'),
+        ),
+        findsNothing,
+      );
+      // They can still become an owner from the same account.
+      expect(find.byKey(const Key('set-up-fleet')), findsOneWidget);
     });
 
     for (final role in ['owner', 'manager']) {
@@ -92,35 +107,50 @@ void main() {
       final h = await owner(tester, roles: ['owner', 'driver']);
       await tester.pumpWidget(h.wrap(const TaxcyDriverApp()));
       await settle(tester);
-      expect(find.text('My trips'), findsOneWidget);
-
-      await tester.tap(find.byKey(const Key('driver-menu')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('switch-to-owner')));
-      await settle(tester);
+      // Owning the fleet opens owner mode first.
       expect(find.byKey(const Key('owner-nav')), findsOneWidget);
-      expect(h.prefs.getString('app_mode_v1'), 'owner');
 
       await tester.tap(find.text('More'));
       await settle(tester);
-      await tester.tap(find.byKey(const Key('switch-to-driver')));
+      await tester.tap(find.byKey(const Key('switch-workspace')));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(
+          const Key('workspace-driver-0199c7a2-0000-7000-8000-000000000999'),
+        ),
+      );
       await settle(tester);
       expect(find.text('My trips'), findsOneWidget);
       expect(h.prefs.getString('app_mode_v1'), 'driver');
+
+      await tester.tap(find.byKey(const Key('driver-menu')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('switch-workspace')));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(
+          const Key('workspace-owner-0199c7a2-0000-7000-8000-000000000999'),
+        ),
+      );
+      await settle(tester);
+      expect(find.byKey(const Key('owner-nav')), findsOneWidget);
+      expect(h.prefs.getString('app_mode_v1'), 'owner');
+      // Same fleet: no new session, nothing cleared.
+      expect(h.auth.names, isNot(contains('switchOrg')));
     });
 
-    testWidgets('an owner-driver who last used owner mode starts there', (
+    testWidgets('an owner-driver who last used driver mode starts there', (
       tester,
     ) async {
       phone(tester);
       final h = await Harness.create(
         session: session(['owner', 'driver']),
-        preferences: {'app_mode_v1': 'owner'},
+        preferences: {'app_mode_v1': 'driver'},
       );
       addTearDown(h.dispose);
       await tester.pumpWidget(h.wrap(const TaxcyDriverApp()));
       await settle(tester);
-      expect(find.byKey(const Key('owner-nav')), findsOneWidget);
+      expect(find.text('My trips'), findsOneWidget);
     });
 
     testWidgets('on a wide screen owner mode uses a side rail', (tester) async {

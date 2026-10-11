@@ -105,7 +105,7 @@ Start and end each need an `odometer_reading`: a photo taken with the in-app cam
 
 ## Charges
 
-Decision D2: charges are entered by **the driver** (during or at the end of the trip, in the app) **or an owner/manager** (in the admin web, at any time before the day is settled). Each charge records:
+Decision D2: charges are entered by **the driver** (during or at the end of the trip, in the app) **or an owner/manager** (in the app's owner mode, at any time before the day is settled). Each charge records:
 
 - `kind`: toll, parking, state tax, driver allowance, night charge, extra km, or other
 - `amount_paise` and an optional receipt photo

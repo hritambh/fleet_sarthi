@@ -108,13 +108,6 @@ class AppLocalizationsHi extends AppLocalizations {
   String get loginCheckNumber => 'नंबर जाँचें और फिर कोशिश करें।';
 
   @override
-  String get noFleetTitle => 'अभी किसी फ़्लीट में नहीं जुड़े हैं';
-
-  @override
-  String get noFleetBody =>
-      'आपका नंबर अभी किसी फ़्लीट में दर्ज नहीं है। अपने फ़्लीट मालिक से जुड़वाने को कहें, या फ़्लीट सारथी एडमिन वेबसाइट पर अपनी फ़्लीट बनाएँ।';
-
-  @override
   String get ownerMode => 'मालिक मोड';
 
   @override
@@ -2524,4 +2517,71 @@ class AppLocalizationsHi extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get switchWorkspace => 'मोड या फ़्लीट बदलें';
+
+  @override
+  String workspaceManage({required String fleet}) {
+    return '$fleet संभालें';
+  }
+
+  @override
+  String workspaceDrive({required String fleet}) {
+    return '$fleet के लिए गाड़ी चलाएँ';
+  }
+
+  @override
+  String get workspaceManageHint =>
+      'मालिक मोड: गाड़ियाँ, ड्राइवर, ट्रिप और हिसाब';
+
+  @override
+  String get workspaceDriveHint => 'ड्राइवर मोड: आपकी ट्रिप, ईंधन और फ़ोटो';
+
+  @override
+  String get setUpMyFleet => 'मेरी अपनी गाड़ियाँ हैं: अपनी फ़्लीट बनाएँ';
+
+  @override
+  String unsyncedBeforeSwitch({required int count}) {
+    return 'इस फ़ोन पर ट्रिप के $count अपडेट अभी भेजे नहीं गए हैं। इंटरनेट चालू करें, सिंक होने दें, फिर बदलें।';
+  }
+
+  @override
+  String get getStartedTitle => 'फ़्लीट सारथी में स्वागत है';
+
+  @override
+  String get getStartedDriveTitle => 'किसी गाड़ी मालिक के लिए गाड़ी चलाएँ';
+
+  @override
+  String getStartedDriveBody({required String phone}) {
+    return 'मालिक से कहें कि वे अपने फ़्लीट सारथी में $phone को ड्राइवर के रूप में जोड़ें। फिर ‘फिर से देखें’ दबाएँ।';
+  }
+
+  @override
+  String get checkAgain => 'फिर से देखें';
+
+  @override
+  String get stillNoFleet => 'अभी किसी मालिक ने आपको नहीं जोड़ा है।';
+
+  @override
+  String get getStartedOwnTitle => 'आपकी अपनी गाड़ियाँ हैं?';
+
+  @override
+  String get getStartedOwnBody =>
+      'गाड़ियाँ और ड्राइवर जोड़ने के लिए अपनी फ़्लीट बनाएँ। इसी अकाउंट से आप दूसरे मालिकों के लिए गाड़ी भी चला सकते हैं।';
+
+  @override
+  String get createFleetTitle => 'अपनी फ़्लीट बनाएँ';
+
+  @override
+  String get fleetNameLabel => 'फ़्लीट या कारोबार का नाम';
+
+  @override
+  String get fleetNameTooShort => 'कम से कम 2 अक्षर लिखें';
+
+  @override
+  String get iDriveToo => 'मैं अपनी गाड़ियाँ खुद भी चलाता/चलाती हूँ';
+
+  @override
+  String get createFleet => 'फ़्लीट बनाएँ';
 }

@@ -19,6 +19,11 @@ class Membership {
   final String orgName;
   final List<String> roles;
 
+  bool get isDriver => roles.contains('driver');
+
+  /// Owners and managers run the fleet (owner mode).
+  bool get isStaff => roles.contains('owner') || roles.contains('manager');
+
   JsonMap toJson() => {'orgId': orgId, 'orgName': orgName, 'roles': roles};
 }
 
@@ -78,6 +83,12 @@ class Session {
 
   /// Owners and managers get owner mode; managers can't change settings or pay.
   bool get isStaff => isOwner || roles.contains('manager');
+
+  /// The same session with an up-to-date list of the user's fleets.
+  Session withMemberships(List<Membership> memberships) => Session.fromJson({
+    ...toJson(),
+    'memberships': memberships.map((m) => m.toJson()).toList(),
+  });
 
   JsonMap toJson() => {
     'accessToken': accessToken,

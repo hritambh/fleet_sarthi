@@ -112,4 +112,44 @@ class FakeAuthApi implements AuthApi {
 
   @override
   Future<void> logout(String refreshToken) async => _record('logout');
+
+  /// What GET /me lists; [switchOrg] and [createOrg] use it for the session
+  /// they return.
+  List<Membership> currentMemberships = const [];
+
+  Session _sessionIn(String orgId) => Session.fromJson({
+    ...sessionJson(roles: roles),
+    'activeOrgId': orgId,
+    'memberships': currentMemberships.map((m) => m.toJson()).toList(),
+  });
+
+  @override
+  Future<List<Membership>> memberships() async {
+    _record('memberships');
+    return currentMemberships;
+  }
+
+  @override
+  Future<Session> switchOrg(String orgId) async {
+    _record('switchOrg', {'orgId': orgId});
+    return _sessionIn(orgId);
+  }
+
+  @override
+  Future<Session> createOrg({
+    required String name,
+    required String kind,
+  }) async {
+    _record('createOrg', {'name': name, 'kind': kind});
+    const orgId = '0199c7a2-0000-7000-8000-000000000777';
+    currentMemberships = [
+      ...currentMemberships,
+      Membership(
+        orgId: orgId,
+        orgName: name,
+        roles: ['owner', if (kind == 'dco') 'driver'],
+      ),
+    ];
+    return _sessionIn(orgId);
+  }
 }

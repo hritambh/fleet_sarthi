@@ -5,8 +5,7 @@
 ```mermaid
 flowchart LR
   subgraph Clients
-    AW[Admin web<br/>React + Vite]
-    DA[Driver app<br/>Flutter + SQLite outbox]
+    DA[Fleet Sarthi app<br/>Flutter: Android + web<br/>owner and driver modes,<br/>SQLite outbox]
   end
   subgraph Backend
     API[apps/api<br/>NestJS modular monolith]
@@ -16,7 +15,6 @@ flowchart LR
   RD[(Redis)]
   S3[(S3 / RustFS locally)]
 
-  AW -- HTTPS + JWT --> API
   DA -- HTTPS + JWT, batched sync --> API
   DA -- signed PUT --> S3
   API --> PG
@@ -56,7 +54,7 @@ HTTP ─▶ Controller ─▶ Service ─▶ Repository ─▶ Postgres
 - **Controllers** parse input with `libs/contracts` schemas, call one service method and map the result to a response. No business logic.
 - **Services** open transactions, load data through repositories, call domain functions, persist results and write outbox events.
 - **Repositories and services** use Prisma (`libs/db`) on the transaction they're given, with raw SQL for PostGIS and partitioned tables. They receive the tenant through `TenantTx`, so a query can't run without one, and they convert `bigint` paise to `number`.
-- **`libs/domain`** takes plain data and returns plain data: easy to unit-test, and reusable by the admin web. The Flutter driver app can't import it; it gets the trip transition table as a JSON export, kept in sync by a shared fixture test.
+- **`libs/domain`** takes plain data and returns plain data: easy to unit-test. The Flutter app can't import it; it gets the trip transition table as a JSON export, kept in sync by a shared fixture test.
 
 ## Multi-tenancy
 
@@ -71,6 +69,17 @@ Enforcement has three layers, so that missing one doesn't leak data:
    This costs one extra round trip per standalone query. If profiling shows that matters, RLS can be turned off for reads with a flag while keeping layers 1–2.
 
 Switching orgs is an explicit call that issues a new token pair for the target org.
+
+## One app, owner and driver modes
+
+Owners, managers and drivers use the same account and the same app (`apps/driver-app`, on Android and the web). Roles belong to a membership, not to the user, so one person can run one fleet and drive in another: U1 owns fleet A (vehicle V1) and drives V2 for U2's fleet B, while U2 owns B and drives V1 for A. Each of them has two memberships, and what they can see and do follows the fleet they're working in.
+
+- **Workspaces.** The app turns memberships into workspaces (`lib/app/workspaces.dart`): **Manage _fleet_** for each owner/manager membership (owner mode) and **Drive for _fleet_** for each driver one (driver mode). **Switch mode or fleet** (owner mode: More; driver mode: the menu) lists them.
+- **Default.** At sign-in the API opens a fleet the user owns or manages, before older driver memberships (`defaultOrgId` in `session.service.ts`), and the app opens owner mode there. Someone who owns and drives the same fleet (a DCO) starts in owner mode, then gets their last choice.
+- **Switching.** Another mode in the same fleet is a local change. Another fleet calls `POST /auth/switch-org` for a new token pair, then clears the device's local trips and outbox, which belong to the old fleet. The app first tries to sync and refuses while anything is still unsent (queued writes, photos, GPS points, a trip under way), so nothing is lost or sent to the wrong fleet.
+- **No fleet yet.** A new user gets a get-started screen: give an owner their number to be added as a driver (then **Check again**, which re-reads `GET /me`), or **set up my fleet** (`POST /orgs`, kind `fleet`, or `dco` when they also drive), which opens it in owner mode.
+
+On the web the same app is served as a Flutter web build ([deployment](deployment.md#the-web-app)); it replaced the earlier React admin console.
 
 ## Authentication
 

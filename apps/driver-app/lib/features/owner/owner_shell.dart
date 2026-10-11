@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/preferences.dart';
 import '../../app/providers.dart';
+import '../../app/workspaces.dart';
 import '../../app/theme.dart';
 import '../account/account_security_screen.dart';
 import '../common/format.dart';
@@ -20,6 +20,7 @@ import 'settings_screen.dart';
 import 'settlements_screen.dart';
 import 'trips/owner_trips_screen.dart';
 import 'vehicles_screen.dart';
+import '../workspaces/workspace_switcher.dart';
 
 /// Owner mode: Dashboard / Trips / Alerts / More. A bottom navigation bar on
 /// phones, a side rail on wide screens (tablets, the web build on a desktop).
@@ -214,13 +215,12 @@ class MoreScreen extends ConsumerWidget {
                   title: Text(l.language),
                   onTap: () => showLanguagePicker(context, ref),
                 ),
-                if (session?.isDriver ?? false)
+                if (session != null && workspacesFor(session).length > 1)
                   ListTile(
-                    key: const Key('switch-to-driver'),
-                    leading: const Icon(Icons.local_taxi),
-                    title: Text(l.driverMode),
-                    onTap: () =>
-                        ref.read(appModeProvider.notifier).set(AppMode.driver),
+                    key: const Key('switch-workspace'),
+                    leading: const Icon(Icons.swap_horiz),
+                    title: Text(l.switchWorkspace),
+                    onTap: () => showWorkspaceSwitcher(context, ref),
                   ),
                 ListTile(
                   leading: const Icon(Icons.logout),

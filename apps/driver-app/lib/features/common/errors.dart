@@ -1,3 +1,4 @@
+import '../../app/workspaces.dart';
 import '../../core/api/api.dart';
 import '../../core/repositories/trips_repository.dart';
 import '../../l10n/app_localizations.dart';
@@ -49,6 +50,7 @@ String errorText(AppLocalizations l, Object error) => switch (error) {
   ApiException(:final code, :final message, :final details) =>
     _detailedText(l, code, details) ?? errorCodeText(l, code) ?? message,
   LocalRejection() => rejectionText(l, error),
+  UnsyncedWorkException(:final count) => l.unsyncedBeforeSwitch(count: count),
   _ => l.somethingWentWrong(error: '$error'),
 };
 

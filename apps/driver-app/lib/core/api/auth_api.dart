@@ -50,6 +50,17 @@ abstract class AuthApi {
   Future<Account> account();
 
   Future<void> logout(String refreshToken);
+
+  /// The fleets the user belongs to now, including any that added them since
+  /// they signed in.
+  Future<List<Membership>> memberships();
+
+  /// A new session in [orgId], one of the user's fleets.
+  Future<Session> switchOrg(String orgId);
+
+  /// Creates a fleet owned by the user ([kind] `fleet`, or `dco` when they
+  /// also drive) and returns a session in it.
+  Future<Session> createOrg({required String name, required String kind});
 }
 
 /// [AuthApi] over the shared HTTP client (same base URL and token refresh).
@@ -123,6 +134,38 @@ class HttpAuthApi implements AuthApi {
   @override
   Future<Account> account() async =>
       Account.fromJson(asJsonMap(await _api.send('GET', '/me')));
+
+  @override
+  Future<List<Membership>> memberships() async => asJsonMap(
+    await _api.send('GET', '/me'),
+  ).objects('memberships').map(Membership.fromJson).toList();
+
+  @override
+  Future<Session> switchOrg(String orgId) async => Session.fromJson(
+    asJsonMap(
+      await _api.send(
+        'POST',
+        '/auth/switch-org',
+        body: {'orgId': orgId},
+        withRefreshToken: true,
+      ),
+    ),
+  );
+
+  @override
+  Future<Session> createOrg({
+    required String name,
+    required String kind,
+  }) async => Session.fromJson(
+    asJsonMap(
+      await _api.send(
+        'POST',
+        '/orgs',
+        body: {'name': name, 'kind': kind},
+        withRefreshToken: true,
+      ),
+    ),
+  );
 
   @override
   Future<void> logout(String refreshToken) => _api.send(

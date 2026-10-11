@@ -278,18 +278,6 @@ abstract class AppLocalizations {
   /// **'Check the number and try again.'**
   String get loginCheckNumber;
 
-  /// No description provided for @noFleetTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Not part of a fleet yet'**
-  String get noFleetTitle;
-
-  /// No description provided for @noFleetBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Your number isn\'t registered in any fleet yet. Ask your fleet owner to add you, or create your fleet on the Fleet Sarthi admin website.'**
-  String get noFleetBody;
-
   /// No description provided for @ownerMode.
   ///
   /// In en, this message translates to:
@@ -4399,6 +4387,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{The driver has 1 assigned or running trip in this vehicle. Reassign or finish it before unlinking.} other{The driver has {count} assigned or running trips in this vehicle. Reassign or finish them before unlinking.}}'**
   String errorLinkInUseCount({required int count});
+
+  /// No description provided for @switchWorkspace.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch mode or fleet'**
+  String get switchWorkspace;
+
+  /// No description provided for @workspaceManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage {fleet}'**
+  String workspaceManage({required String fleet});
+
+  /// No description provided for @workspaceDrive.
+  ///
+  /// In en, this message translates to:
+  /// **'Drive for {fleet}'**
+  String workspaceDrive({required String fleet});
+
+  /// No description provided for @workspaceManageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner mode: vehicles, drivers, trips and money'**
+  String get workspaceManageHint;
+
+  /// No description provided for @workspaceDriveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver mode: your trips, fuel and photos'**
+  String get workspaceDriveHint;
+
+  /// No description provided for @setUpMyFleet.
+  ///
+  /// In en, this message translates to:
+  /// **'I own vehicles: set up my fleet'**
+  String get setUpMyFleet;
+
+  /// No description provided for @unsyncedBeforeSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} trip updates on this phone haven\'t been sent yet. Go online, let them sync, then switch.'**
+  String unsyncedBeforeSwitch({required int count});
+
+  /// No description provided for @getStartedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Fleet Sarthi'**
+  String get getStartedTitle;
+
+  /// No description provided for @getStartedDriveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Drive for a vehicle owner'**
+  String get getStartedDriveTitle;
+
+  /// No description provided for @getStartedDriveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the owner to add {phone} as a driver in their Fleet Sarthi. Then tap Check again.'**
+  String getStartedDriveBody({required String phone});
+
+  /// No description provided for @checkAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Check again'**
+  String get checkAgain;
+
+  /// No description provided for @stillNoFleet.
+  ///
+  /// In en, this message translates to:
+  /// **'No owner has added you yet.'**
+  String get stillNoFleet;
+
+  /// No description provided for @getStartedOwnTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Own vehicles?'**
+  String get getStartedOwnTitle;
+
+  /// No description provided for @getStartedOwnBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your fleet to add vehicles and drivers. You can still drive for other owners from the same account.'**
+  String get getStartedOwnBody;
+
+  /// No description provided for @createFleetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your fleet'**
+  String get createFleetTitle;
+
+  /// No description provided for @fleetNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fleet or business name'**
+  String get fleetNameLabel;
+
+  /// No description provided for @fleetNameTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter at least 2 characters'**
+  String get fleetNameTooShort;
+
+  /// No description provided for @iDriveToo.
+  ///
+  /// In en, this message translates to:
+  /// **'I also drive my own vehicles'**
+  String get iDriveToo;
+
+  /// No description provided for @createFleet.
+  ///
+  /// In en, this message translates to:
+  /// **'Create fleet'**
+  String get createFleet;
 }
 
 class _AppLocalizationsDelegate

@@ -15,6 +15,16 @@ import { hashPassword, verifyPassword } from './passwords.js';
 
 const hashToken = (token: string): string => createHash('sha256').update(token).digest('hex');
 
+/**
+ * The org a session opens in when none is asked for: the first one the user owns or
+ * manages, so fleet owners land on their dashboard, then their oldest membership.
+ */
+export const defaultOrgId = (memberships: readonly Membership[]): string | null =>
+  (
+    memberships.find((m) => m.roles.includes('owner') || m.roles.includes('manager')) ??
+    memberships[0]
+  )?.orgId ?? null;
+
 /** Thrown inside a transaction when a rotated refresh token is presented again. */
 class RefreshTokenReuse extends Error {
   constructor(readonly familyId: string) {
@@ -153,7 +163,7 @@ export class SessionService {
     const memberships = await this.repo.activeMemberships(tx, user.id);
     return this.issue(tx, user, memberships, {
       userId: user.id,
-      orgId: memberships[0]?.orgId ?? null,
+      orgId: defaultOrgId(memberships),
       deviceId: device.deviceId,
     });
   }
@@ -206,10 +216,15 @@ export class SessionService {
     });
   }
 
+  /**
+   * The user and their fleets. Invites sent since they signed in are activated here,
+   * as at sign-in, so a signed-in user sees a fleet that just added them.
+   */
   async me(auth: AuthContext): Promise<{ user: AccountRow; memberships: Membership[] }> {
     return this.db.system(async (tx) => {
       const user = await this.repo.findAccount(tx, { id: auth.userId });
       if (!user) throw new AppError('UNAUTHENTICATED', 'User no longer exists');
+      await this.repo.activateInvitedMemberships(tx, auth.userId);
       return { user, memberships: await this.repo.activeMemberships(tx, auth.userId) };
     });
   }
@@ -248,7 +263,7 @@ export class SessionService {
     const stillMember = memberships.some((m) => m.orgId === wantedOrgId);
     if (options.requireOrg && !stillMember)
       throw new AppError('NOT_FOUND', 'Organization not found');
-    const orgId = stillMember ? wantedOrgId : (memberships[0]?.orgId ?? null);
+    const orgId = stillMember ? wantedOrgId : defaultOrgId(memberships);
     const session = await this.issue(tx, user, memberships, {
       userId: user.id,
       orgId,

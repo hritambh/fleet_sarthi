@@ -24,7 +24,7 @@ void main() {
     expect(devicePlatform, 'ios');
   });
 
-  testWidgets('a member with no role in the fleet is told to ask the owner', (
+  testWidgets('a member with no role gets the get-started screen', (
     tester,
   ) async {
     final h = await Harness.create(
@@ -33,7 +33,7 @@ void main() {
     addTearDown(h.dispose);
     await tester.pumpWidget(h.wrap(const TaxcyDriverApp()));
     await settle(tester);
-    expect(find.text('Not part of a fleet yet'), findsOneWidget);
+    expect(find.text('Welcome to Fleet Sarthi'), findsOneWidget);
   });
 
   testWidgets('trips are grouped: on the road, today, upcoming, recent', (

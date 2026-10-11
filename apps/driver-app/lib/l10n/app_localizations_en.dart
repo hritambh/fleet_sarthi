@@ -108,13 +108,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginCheckNumber => 'Check the number and try again.';
 
   @override
-  String get noFleetTitle => 'Not part of a fleet yet';
-
-  @override
-  String get noFleetBody =>
-      'Your number isn\'t registered in any fleet yet. Ask your fleet owner to add you, or create your fleet on the Fleet Sarthi admin website.';
-
-  @override
   String get ownerMode => 'Owner mode';
 
   @override
@@ -2530,4 +2523,71 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get switchWorkspace => 'Switch mode or fleet';
+
+  @override
+  String workspaceManage({required String fleet}) {
+    return 'Manage $fleet';
+  }
+
+  @override
+  String workspaceDrive({required String fleet}) {
+    return 'Drive for $fleet';
+  }
+
+  @override
+  String get workspaceManageHint =>
+      'Owner mode: vehicles, drivers, trips and money';
+
+  @override
+  String get workspaceDriveHint => 'Driver mode: your trips, fuel and photos';
+
+  @override
+  String get setUpMyFleet => 'I own vehicles: set up my fleet';
+
+  @override
+  String unsyncedBeforeSwitch({required int count}) {
+    return '$count trip updates on this phone haven\'t been sent yet. Go online, let them sync, then switch.';
+  }
+
+  @override
+  String get getStartedTitle => 'Welcome to Fleet Sarthi';
+
+  @override
+  String get getStartedDriveTitle => 'Drive for a vehicle owner';
+
+  @override
+  String getStartedDriveBody({required String phone}) {
+    return 'Ask the owner to add $phone as a driver in their Fleet Sarthi. Then tap Check again.';
+  }
+
+  @override
+  String get checkAgain => 'Check again';
+
+  @override
+  String get stillNoFleet => 'No owner has added you yet.';
+
+  @override
+  String get getStartedOwnTitle => 'Own vehicles?';
+
+  @override
+  String get getStartedOwnBody =>
+      'Set up your fleet to add vehicles and drivers. You can still drive for other owners from the same account.';
+
+  @override
+  String get createFleetTitle => 'Set up your fleet';
+
+  @override
+  String get fleetNameLabel => 'Fleet or business name';
+
+  @override
+  String get fleetNameTooShort => 'Enter at least 2 characters';
+
+  @override
+  String get iDriveToo => 'I also drive my own vehicles';
+
+  @override
+  String get createFleet => 'Create fleet';
 }

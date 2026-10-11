@@ -1,4 +1,4 @@
-# Render Blueprint: the API, the admin web and a Key Value (Redis) instance, all on
+# Render Blueprint: the API, the web app and a Key Value (Redis) instance, all on
 # Render's free plan. Postgres (Neon) and object storage (Backblaze B2) live outside
 # Render. Step-by-step guide, values for every variable, and the free-tier limits:
 # docs/deployment.md.
@@ -24,7 +24,6 @@ services:
     buildFilter:
       ignoredPaths:
         - apps/driver-app/**
-        - apps/admin-web/**
         - docs/**
     envVars:
       - key: NODE_VERSION
@@ -88,49 +87,46 @@ services:
 
       - key: JWT_ACCESS_SECRET
         generateValue: true
-      # The admin web's URL, e.g. https://taxcy-admin.onrender.com (comma-separated).
+      # The web app's URL, e.g. https://taxcy-web.onrender.com (comma-separated).
       - key: CORS_ORIGINS
         sync: false
       - key: SENTRY_DSN
         sync: false
 
-  # ── Admin web (React SPA) ───────────────────────────────────────────────────
+  # ── Web app (Flutter) ───────────────────────────────────────────────────────
+  # The same app as the APK, built for the browser: owner mode (dashboard,
+  # vehicles, drivers, money) and driver mode, chosen per fleet after sign-in.
   - type: web
-    name: taxcy-admin
+    name: taxcy-web
     runtime: static
-    buildCommand: bun install --frozen-lockfile && bunx nx run @taxcy/admin-web:build
-    staticPublishPath: apps/admin-web/dist
+    # Fetches the pinned Flutter SDK (not in Render's image), then builds.
+    buildCommand: ./infra/render/build-web.sh
+    staticPublishPath: apps/driver-app/build/web
     autoDeployTrigger: commit
     buildFilter:
-      ignoredPaths:
+      paths:
         - apps/driver-app/**
-        - apps/api/**
-        - apps/workers/**
-        - docs/**
+        - infra/render/build-web.sh
     routes:
       # Client-side routing: every path serves the app.
       - type: rewrite
         source: /*
         destination: /index.html
     headers:
-      - path: /assets/*
+      # Flutter's file names aren't content-hashed (main.dart.js), so browsers
+      # must revalidate to pick up a new deploy.
+      - path: /*
         name: Cache-Control
-        value: public, max-age=31536000, immutable
+        value: no-cache
       - path: /*
         name: X-Frame-Options
         value: DENY
     envVars:
-      - key: NODE_VERSION
-        value: '24'
-      - key: BUN_VERSION
-        value: 1.4.2
-      - key: NX_DAEMON
-        value: 'false'
-      - key: NX_NO_CLOUD
-        value: 'true'
-      # The API's public URL, e.g. https://taxcy-api.onrender.com (read at build time:
-      # redeploy the site after changing it).
-      - key: VITE_API_URL
+      - key: FLUTTER_VERSION
+        value: 3.38.5
+      # The API's public URL, e.g. https://taxcy-api.onrender.com, no /v1 (compiled
+      # in at build time: redeploy the site after changing it).
+      - key: API_URL
         sync: false
 
   # ── Redis for reset codes, rate limits and BullMQ ──────────────────────────────────

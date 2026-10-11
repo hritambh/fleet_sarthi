@@ -7,6 +7,7 @@ import '../features/common/widgets.dart';
 import '../features/login/login_screen.dart';
 import '../features/owner/owner_shell.dart';
 import '../features/trips/trips_screen.dart';
+import '../features/workspaces/get_started_screen.dart';
 import '../l10n/app_localizations.dart';
 import 'preferences.dart';
 import 'providers.dart';
@@ -30,8 +31,8 @@ class TaxcyDriverApp extends ConsumerWidget {
 
 /// Signed out → login. Signed in: owners and managers get owner mode, drivers
 /// their trips (after the first-run location consent). An owner-driver (DCO)
-/// switches between the two; the choice is remembered. Anyone else is told to
-/// ask their fleet owner.
+/// switches between the two; the choice is remembered. Someone in no fleet yet
+/// gets the get-started screen (drive for an owner, or set up a fleet).
 class _Root extends ConsumerWidget {
   const _Root();
 
@@ -52,18 +53,19 @@ class _Root extends ConsumerWidget {
           ),
           AppMode.owner => const OwnerShell(),
           AppMode.driver => const _DriverHome(),
-          null => const NoFleetScreen(),
+          null => const GetStartedScreen(),
         };
       },
     );
   }
 }
 
-/// Which screens a signed-in member gets: owner mode for staff, the driver
-/// screens for drivers, and for someone with both (a DCO) their last choice,
-/// starting on the driver screens. Null when they have neither role.
+/// Which screens a signed-in member gets in the active fleet: owner mode for
+/// staff, the driver screens for drivers, and for someone with both (a DCO)
+/// their last choice, starting in owner mode. Null when they have neither role
+/// there (or no fleet yet).
 AppMode? screensFor(Session session, AppMode? chosen) {
-  if (session.isStaff && session.isDriver) return chosen ?? AppMode.driver;
+  if (session.isStaff && session.isDriver) return chosen ?? AppMode.owner;
   if (session.isStaff) return AppMode.owner;
   if (session.isDriver) return AppMode.driver;
   return null;
