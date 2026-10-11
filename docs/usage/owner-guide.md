@@ -50,12 +50,14 @@ Everything is shown in the chosen language, including alerts, settlement lines a
 
 - Registration number, make/model, year, and **fuel type** (petrol, diesel, CNG, or petrol + CNG). Fuel type is required and decides whether fuel is measured in litres or kg.
 - Current odometer reading (optional, used to catch odometer rollbacks).
+- **Drivers** (optional): who may drive it. A trip can only pair a vehicle with a driver linked to it. Change the list any time with **Edit drivers** in the vehicle list or on the vehicle's page. In an owner-driver business you're linked to every vehicle you add.
 
 ### Drivers
 
 **Fleet → Drivers → Invite driver**
 
 - Name and mobile number. The driver signs in to the app with that number; no password is needed.
+- **Vehicles** (optional): the vehicles they may drive. A driver can be linked to several vehicles, and a vehicle to several drivers. Change it later with **Edit vehicles** in the driver list. A driver can't be unlinked from a vehicle while they have an assigned or running trip in it: reassign or finish that trip first.
 
 ### Documents
 
@@ -76,13 +78,13 @@ Everything is shown in the chosen language, including alerts, settlement lines a
 - Scheduled start and end, customer name and phone, and the **quoted fare** in ₹.
 - **Included km** (optional): the km the fare covers, e.g. 300 for a 300 km package. The trip page shows how far the trip went past it, and the driver is prompted to add an extra km charge.
 
-Drivers can also create trips themselves in the app (for example a walk-in customer). Those are assigned to the driver, in the vehicle they picked, and the usual double-booking checks apply.
+Drivers can also create trips themselves in the app (for example a walk-in customer). Those are assigned to the driver, in the vehicle they picked (drivers only see the vehicles they're linked to), and the usual double-booking checks apply.
 
 **Charges.** Night charges, extra km and driver allowance are extra fare: added to what the customer pays and never reimbursed to the driver. Tolls, parking, state tax and other charges are expenses, reimbursed to the driver when they paid.
 
 ### Assign
 
-Pick a vehicle and driver. If either is already booked for an overlapping time, you'll see which trip conflicts. A driver, and a vehicle, can only have one trip on the road at a time: a trip can't start until the earlier one has ended.
+Pick a vehicle and driver. Only drivers linked to the chosen vehicle are offered (and, if you pick the driver first, only their vehicles); a vehicle with no linked drivers says so, with **Edit drivers** to link some without leaving the form. If either is already booked for an overlapping time, you'll see which trip conflicts. A driver, and a vehicle, can only have one trip on the road at a time: a trip can't start until the earlier one has ended.
 
 ### Track
 
@@ -185,7 +187,7 @@ The Taxcy app (the same one drivers use) has the admin console's features for ow
 | **Dashboard** | Today's trips by status, open alerts by severity, items to review, documents due in the next 30 days, and the most urgent open alerts                                                                                                                                                                                                                                                                                                                         |
 | **Trips**     | All trips, filtered by status, day, driver and vehicle. **New trip** creates one (optionally with included km and an assigned car and driver). A trip's page has assign / reassign / unassign, cancel, the driver's cancellation request (approve with an optional cancellation fare, or reject with a note), charges (add or void), payments, odometer photos with typed vs read values, the route on a map with the odometer-vs-GPS check, and the timeline |
 | **Alerts**    | The inbox, filtered by status and kind: acknowledge, resolve or dismiss; fuel alerts can be dismissed as a false alarm                                                                                                                                                                                                                                                                                                                                        |
-| **More**      | Vehicles (add, edit, deactivate; each with its documents, fuel audit and trips), Drivers (invite, edit, deactivate, pay), Members (invite and remove managers), Documents (add with a photo, renew), Fuel (each car's cycles on a chart, fills, void a fill with a reason), Review, Settlements (per day, per driver, **Mark settled**), Settings, Account security, Language, Sign out                                                                       |
+| **More**      | Vehicles (add, edit, deactivate, **Edit drivers**; each with its documents, fuel audit and trips), Drivers (invite, edit, deactivate, pay, **Edit vehicles**), Members (invite and remove managers), Documents (add with a photo, renew), Fuel (each car's cycles on a chart, fills, void a fill with a reason), Review, Settlements (per day, per driver, **Mark settled**), Settings, Account security, Language, Sign out                                  |
 
 - **Charges:** night charge, extra km and driver allowance are extra fare the customer pays, so they have no "driver paid" option. Tolls, parking, state tax and other charges can be marked as paid by the driver (reimbursed in settlement).
 - **Managers** can do everything above except change settings and pay: the audit thresholds, the default pay rule and a driver's own pay rule are shown read-only, and only the owner can invite or remove managers.
