@@ -52,7 +52,7 @@ docs/           Architecture, domain rules, database, usage guides
 | Monorepo       | Bun workspaces (package manager) + Nx (task runner); Node 24 runtime                                               |
 | API            | NestJS, Prisma ORM, Zod                                                                                            |
 | Database       | PostgreSQL 16 + PostGIS + btree_gist                                                                               |
-| Jobs / cache   | Redis + BullMQ (separate `workers` app, same codebase)                                                             |
+| Jobs / cache   | Redis + BullMQ (separate `workers` app, same codebase; or inside the API on free hosting)                          |
 | Object storage | S3-compatible, signed upload URLs (RustFS locally)                                                                 |
 | Admin web      | React, Vite, TanStack Query, React Router, Tailwind, shadcn/ui, MapLibre, i18next (English, Hindi)                 |
 | App            | Flutter: camera, geolocator (foreground service), drift (SQLite), gen-l10n (English, Hindi), flutter_map, fl_chart |
@@ -74,12 +74,15 @@ bun run dev                   # api :3000, workers, admin web :5173
 
 Before the first `dev`, run `bun run db:migrate && bun run db:seed` to create the schema and the demo fleet. Then sign in at <http://localhost:5173> with a seeded phone number (e.g. `9000000001`, the owner): choose **Use an SMS code instead** (seeded users have no password yet); the OTP is printed in the `bun run dev` log. You can then set a password under **My account**, or try **Sign up** and **Continue with Google (local test)**, which takes any email until Google client ids are configured ([Google sign-in](docs/development.md#google-sign-in)). To try the driver app without an emulator, run `bun run dev:driver-web` in a second terminal and sign in at <http://localhost:5174> as a driver (e.g. `9000000011`), or as the owner (`9000000001`) for owner mode.
 
+To build the Android APK or host a free demo (Render + Neon + Cloudflare R2), see [`docs/deployment.md`](docs/deployment.md): `API_URL=https://<your-api> bun run build:apk`.
+
 ## Documentation
 
 | Doc                                                             | What's in it                                                    |
 | --------------------------------------------------------------- | --------------------------------------------------------------- |
 | [Getting started](docs/getting-started.md)                      | Step-by-step: run the backend, admin web and driver app locally |
 | [Development guide](docs/development.md)                        | Local setup, env vars, scripts, testing, conventions            |
+| [Deployment](docs/deployment.md)                                | Build the Android APK; free hosting on Render, Neon and R2      |
 | [Architecture](docs/architecture.md)                            | Modules, layering, tenancy, jobs, idempotency, offline sync     |
 | [Database](docs/database.md)                                    | ERD, table reference, constraints, partitioning                 |
 | [Domain: trips](docs/domain/trips.md)                           | State machine, events, odometer evidence, conflicts             |

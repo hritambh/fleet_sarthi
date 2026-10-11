@@ -27,7 +27,7 @@ flowchart LR
   WK -- read objects --> S3
 ```
 
-`apps/api` and `apps/workers` are built from the same codebase and share modules, repositories and `libs/domain`. They are separate processes so that slow work (OCR, cycle recomputation, PostGIS distance) never blocks requests and can scale on its own.
+`apps/api` and `apps/workers` are built from the same codebase and share modules, repositories and `libs/domain`. They are separate processes so that slow work (OCR, cycle recomputation, PostGIS distance) never blocks requests and can scale on its own. The job runner itself (`apps/api/src/platform/jobs/job-runner.ts`: outbox relay, a BullMQ worker per queue, schedules) lives in the API package; on free hosting with no background worker, `JOBS_MODE=in-process` runs it inside the single API process instead ([deployment](deployment.md)).
 
 ## API modules
 

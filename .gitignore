@@ -8,3 +8,8 @@ coverage/
 .env.local
 .DS_Store
 .claude/worktrees/
+
+# Android signing keys (see docs/deployment.md). Never commit them.
+key.properties
+*.jks
+*.keystore
