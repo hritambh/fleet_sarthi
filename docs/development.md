@@ -1,6 +1,6 @@
 # Development guide
 
-For a first run, follow [getting-started.md](getting-started.md). This page is the reference: tools, services, environment variables, scripts, tests and conventions.
+For a first run, follow [getting-started.md](getting-started.md); to build the APK or host a free demo, see [deployment.md](deployment.md). This page is the reference: tools, services, environment variables, scripts, tests and conventions.
 
 ## Toolchain
 
@@ -72,6 +72,8 @@ The API and workers validate their environment at startup with Zod (`apps/api/sr
 | `OTP_TTL_SECONDS` / `OTP_MAX_ATTEMPTS` / `OTP_IP_LIMIT_PER_HOUR`                    | `300` / `5` / `30`                            | OTP login                                                         |
 | `GOOGLE_WEB_CLIENT_ID` / `GOOGLE_EXTRA_CLIENT_IDS`                                  | empty                                         | Google sign-in; see [Google sign-in](#google-sign-in)             |
 | `SMS_PROVIDER` / `OCR_PROVIDER`                                                     | `console` / `stub`                            | Provider selection (only stubs exist so far)                      |
+| `JOBS_MODE`                                                                         | `external`                                    | `external`: the workers app runs jobs; `in-process`: the API does |
+| `DEMO_MODE`                                                                         | `false`                                       | Allows `SMS_PROVIDER=console` in production (codes in the log)    |
 | `SENTRY_DSN`                                                                        | empty                                         | Sentry is enabled when set                                        |
 | `WORKERS_DASHBOARD_PORT`                                                            | `3001`                                        | Bull Board                                                        |
 
@@ -84,8 +86,11 @@ Run from the repo root with `bun run <script>`.
 | `dev`                                     | API, workers and admin web in watch mode (builds libs first)                                         |
 | `dev:api` / `dev:workers` / `dev:admin`   | One app only                                                                                         |
 | `dev:driver-web`                          | The Flutter driver app in Chrome on port 5174 (needs the API running)                                |
+| `build:apk`                               | Release APK of the app for `API_URL` into `dist/driver-app/` ([deployment](deployment.md))           |
+| `driver:keystore`                         | Create the app's upload keystore and `android/key.properties` (once)                                 |
 | `infra:up` / `infra:down` / `infra:reset` | Start, stop, or wipe and restart Postgres, Redis and RustFS                                          |
 | `db:migrate`                              | Apply migrations (`prisma migrate deploy`)                                                           |
+| `db:deploy`                               | Create/update the app role from `DATABASE_URL`, then apply migrations (hosted databases)             |
 | `db:seed`                                 | Load the demo fleet (safe to re-run; skips if it already exists)                                     |
 | `db:reset`                                | Drop everything, migrate, and seed                                                                   |
 | `db:migration <name>`                     | Create a migration for review (`prisma migrate dev --create-only`)                                   |
