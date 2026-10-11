@@ -31,5 +31,6 @@ export async function createWorkerContext(): Promise<INestApplicationContext> {
 
 export { APP_CONFIG, type AppConfig } from './platform/config.js';
 export { JobDispatcher } from './platform/jobs/job-dispatcher.js';
+export { JobRunner, redisConnection } from './platform/jobs/job-runner.js';
 export { OutboxRelay } from './platform/jobs/outbox-relay.js';
 export { queueFor, SCHEDULES, type JobEvent } from './platform/jobs/on-job.js';
