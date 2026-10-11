@@ -1,8 +1,10 @@
-# Taxcy
+# Fleet Sarthi
 
 Fleet audit and intercity cab operations for small fleet owners (2–15 cars) and owner-drivers (DCOs) in India.
 
-Taxcy gives a fleet owner a trustworthy picture of what their cars and drivers actually did: trips with photo-verified odometer readings, fuel fills audited against each vehicle's own history, GPS-vs-odometer distance checks, and a daily cash settlement per driver.
+> Formerly called Taxcy. Code identifiers (packages `@taxcy/*`, the Dart package `taxcy_driver`, the Android/iOS app ids, database and env names) keep the old name; only what users see was renamed.
+
+Fleet Sarthi gives a fleet owner a trustworthy picture of what their cars and drivers actually did: trips with photo-verified odometer readings, fuel fills audited against each vehicle's own history, GPS-vs-odometer distance checks, and a daily cash settlement per driver.
 
 > **Status: M0.1–M1.8 and M1.10 done.** The API, workers, admin console and the Flutter app (offline-first driver screens plus an owner/manager mode, in English and Hindi) are built, and a demo fleet can be seeded. Next up is M1.9 (end-to-end tests). See [`docs/roadmap.md`](docs/roadmap.md) for progress and [`docs/decisions.md`](docs/decisions.md) for design decisions.
 
@@ -33,7 +35,7 @@ apps/
   api/          NestJS modular monolith (HTTP API)
   workers/      BullMQ workers: OCR, fuel cycles, GPS distance, document expiry, outbox relay
   admin-web/    React + Vite admin console for owners and managers
-  driver-app/   Flutter app "Taxcy": offline-first driver screens, owner mode, English + Hindi
+  driver-app/   Flutter app "Fleet Sarthi": offline-first driver screens, owner mode, English + Hindi
 libs/
   db/           Prisma schema, migrations, TypedSQL queries and client (shared by api + workers)
   contracts/    Zod schemas + inferred types shared by API and clients

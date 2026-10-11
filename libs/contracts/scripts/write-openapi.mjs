@@ -7,5 +7,5 @@ if (!out) {
   process.stderr.write('usage: write-openapi.mjs <output.json>\n');
   process.exit(1);
 }
-const document = buildOpenApiDocument(allRoutes, { title: 'Taxcy API', version: '0.1.0' });
+const document = buildOpenApiDocument(allRoutes, { title: 'Fleet Sarthi API', version: '0.1.0' });
 writeFileSync(out, `${JSON.stringify(document, null, 2)}\n`);

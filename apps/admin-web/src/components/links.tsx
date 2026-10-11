@@ -255,7 +255,11 @@ export function EditVehicleDriversModal({
         save.mutate(driverIds, { onSuccess: onClose });
       }}
     >
-      <DriverCheckList legend={t('fleet.links.drivers')} value={driverIds} onChange={setDriverIds} />
+      <DriverCheckList
+        legend={t('fleet.links.drivers')}
+        value={driverIds}
+        onChange={setDriverIds}
+      />
     </LinkModal>
   );
 }

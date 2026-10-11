@@ -1,6 +1,6 @@
 # Driver guide (mobile app)
 
-> Describes the driver screens of the Taxcy app (built in M1.8; English and Hindi since M1.10). Owners and managers use the same app; see the [owner guide](owner-guide.md#owner-mode-in-the-app). Drivers use the Android or iOS app; the browser version (`bun run dev:driver-web`) is for demos and testing, and records the route only while its tab is open.
+> Describes the driver screens of the Fleet Sarthi app (built in M1.8; English and Hindi since M1.10). Owners and managers use the same app; see the [owner guide](owner-guide.md#owner-mode-in-the-app). Drivers use the Android or iOS app; the browser version (`bun run dev:driver-web`) is for demos and testing, and records the route only while its tab is open.
 
 ## Sign in
 
@@ -8,7 +8,7 @@ Always use the mobile number your fleet owner registered: that's how your trips 
 
 - **Mobile number + password** (the first screen). Enter your number and password and tap **Log in**.
 - **Use an SMS code instead**: enter your number, tap **Send code**, and enter the 6-digit code from the SMS. This always works, even without a password. **Resend code** becomes available after a short wait.
-- **New to Taxcy? Sign up**: enter your number and tap **Send code**, then enter the code, your name (optional) and a password twice (at least 8 characters). If the number already has a password, the app offers **Log in** or **Reset password** instead.
+- **New to Fleet Sarthi? Sign up**: enter your number and tap **Send code**, then enter the code, your name (optional) and a password twice (at least 8 characters). If the number already has a password, the app offers **Log in** or **Reset password** instead.
 - **Forgot password?**: enter your number, tap **Send code**, then enter the code and a new password. You are logged in, and signed out everywhere else.
 - **Continue with Google** (when your fleet's server has it switched on): pick your Google account. The first time, the app asks you to **verify your phone**: enter your number and the SMS code, and your Google account is linked to it. After that, Google logs you straight in. If the app says the number is linked to a different Google account, use your password or an SMS code. Without a connection the Google button is hidden; password and SMS code still work once you're online.
 
@@ -32,7 +32,7 @@ If you are also the fleet owner (an owner-driver), the same **⋮** menu has **O
 
 Some phones stop apps from running in the background to save battery. To make sure your trips are recorded correctly:
 
-- **Settings → Apps → Taxcy → Battery → No restrictions** (on Xiaomi: "No restrictions"; on Oppo, Vivo and Realme: "Allow background activity").
+- **Settings → Apps → Fleet Sarthi → Battery → No restrictions** (on Xiaomi: "No restrictions"; on Oppo, Vivo and Realme: "Allow background activity").
 - Keep **location** set to "Allow all the time" or "While using the app". The trip notification keeps the app active.
 
 If GPS keeps getting cut off, your trips show as "inconclusive" to your owner.

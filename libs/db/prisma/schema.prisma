@@ -1,4 +1,4 @@
-// Taxcy database schema.
+// Fleet Sarthi database schema.
 //
 // Prisma can't express everything this schema relies on. Those parts live in
 // hand-written migrations and are listed in docs/database.md#prisma-notes:

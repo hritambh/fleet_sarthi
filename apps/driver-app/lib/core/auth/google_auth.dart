@@ -28,7 +28,7 @@ abstract class GoogleAuth {
   /// Google's own sign-in button (web only; empty elsewhere).
   Widget button({String? locale});
 
-  /// Forgets the Google account on this device (signing out of Taxcy).
+  /// Forgets the Google account on this device (signing out of Fleet Sarthi).
   Future<void> signOut();
 }
 

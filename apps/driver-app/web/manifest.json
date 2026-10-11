@@ -1,11 +1,11 @@
 {
-    "name": "Taxcy",
-    "short_name": "Taxcy",
+    "name": "Fleet Sarthi",
+    "short_name": "Fleet Sarthi",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Taxcy app for drivers and fleet owners",
+    "description": "Fleet Sarthi app for drivers and fleet owners",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

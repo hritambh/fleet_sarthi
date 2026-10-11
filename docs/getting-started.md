@@ -1,4 +1,4 @@
-# Getting started: run Taxcy locally, step by step
+# Getting started: run Fleet Sarthi locally, step by step
 
 > Everything in this guide works as of M1.8. The one exception is the Maestro end-to-end flow (M1.9), marked below. The driver app has been built and unit-tested, and compiles for Chrome, but hasn't yet been run on a real phone; see [roadmap.md](roadmap.md).
 

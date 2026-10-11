@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Taxcy</string>
+	<string>Fleet Sarthi</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -27,11 +27,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Taxcy uses the camera to photograph the odometer and fuel receipts as trip evidence.</string>
+	<string>Fleet Sarthi uses the camera to photograph the odometer and fuel receipts as trip evidence.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Taxcy keeps recording the route while a trip is running, even in the background. It stops when the trip ends.</string>
+	<string>Fleet Sarthi keeps recording the route while a trip is running, even in the background. It stops when the trip ends.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Taxcy records your route while a trip is running, and tags odometer and receipt photos with where they were taken.</string>
+	<string>Fleet Sarthi records your route while a trip is running, and tags odometer and receipt photos with where they were taken.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

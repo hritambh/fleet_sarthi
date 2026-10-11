@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'Taxcy'**
+  /// **'Fleet Sarthi'**
   String get appTitle;
 
   /// No description provided for @signOut.
@@ -293,7 +293,7 @@ abstract class AppLocalizations {
   /// No description provided for @noFleetBody.
   ///
   /// In en, this message translates to:
-  /// **'Your number isn\'t registered in any fleet yet. Ask your fleet owner to add you, or create your fleet on the Taxcy admin website.'**
+  /// **'Your number isn\'t registered in any fleet yet. Ask your fleet owner to add you, or create your fleet on the Fleet Sarthi admin website.'**
   String get noFleetBody;
 
   /// No description provided for @ownerMode.
@@ -1395,7 +1395,7 @@ abstract class AppLocalizations {
   /// No description provided for @consentWhen.
   ///
   /// In en, this message translates to:
-  /// **'Taxcy records your phone\'s location only while a trip is running (between \"Start trip\" and \"End trip\"). A notification is shown the whole time it is recording.'**
+  /// **'Fleet Sarthi records your phone\'s location only while a trip is running (between \"Start trip\" and \"End trip\"). A notification is shown the whole time it is recording.'**
   String get consentWhen;
 
   /// No description provided for @consentWhy.
@@ -1461,7 +1461,7 @@ abstract class AppLocalizations {
   /// No description provided for @gpsNotificationText.
   ///
   /// In en, this message translates to:
-  /// **'Taxcy is recording your route for this trip.'**
+  /// **'Fleet Sarthi is recording your route for this trip.'**
   String get gpsNotificationText;
 
   /// No description provided for @rejectEndBeforeStart.
@@ -2599,7 +2599,7 @@ abstract class AppLocalizations {
   /// No description provided for @inviteDriverIntro.
   ///
   /// In en, this message translates to:
-  /// **'The driver signs in to the Taxcy app with this number; no password needed.'**
+  /// **'The driver signs in to the Fleet Sarthi app with this number; no password needed.'**
   String get inviteDriverIntro;
 
   /// No description provided for @enterIndianMobile.
@@ -2671,7 +2671,7 @@ abstract class AppLocalizations {
   /// No description provided for @payNone.
   ///
   /// In en, this message translates to:
-  /// **'None (salaried, paid outside Taxcy)'**
+  /// **'None (salaried, paid outside Fleet Sarthi)'**
   String get payNone;
 
   /// No description provided for @payPercent.
@@ -3510,7 +3510,7 @@ abstract class AppLocalizations {
   /// No description provided for @reviewIntro.
   ///
   /// In en, this message translates to:
-  /// **'Items where Taxcy isn’t sure. Nothing here blocked the driver; your decision corrects the record.'**
+  /// **'Items where Fleet Sarthi isn’t sure. Nothing here blocked the driver; your decision corrects the record.'**
   String get reviewIntro;
 
   /// No description provided for @nothingToReview.
@@ -4094,7 +4094,7 @@ abstract class AppLocalizations {
   /// No description provided for @newHereSignUp.
   ///
   /// In en, this message translates to:
-  /// **'New to Taxcy? Sign up'**
+  /// **'New to Fleet Sarthi? Sign up'**
   String get newHereSignUp;
 
   /// No description provided for @haveAccountLogIn.

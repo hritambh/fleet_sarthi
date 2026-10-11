@@ -6,11 +6,11 @@ The admin web is for **owners** and **managers**. Drivers use the [mobile app](d
 
 ## 1. Sign in
 
-Your **mobile number** is your identity in Taxcy: invites and fleets go by it. The sign-in page offers three ways in.
+Your **mobile number** is your identity in Fleet Sarthi: invites and fleets go by it. The sign-in page offers three ways in.
 
 - **Mobile number + password** (the default). Enter your 10-digit number and your password. A wrong number and a wrong password give the same message, on purpose. After several wrong tries you have to wait a few minutes.
 - **SMS code.** Choose **Use an SMS code instead**, enter your number, then the 6-digit code we text you. **Resend code** becomes available after a short wait. In local development the code is printed in the API log.
-- **Continue with Google.** The first time, Google asks which account to use and then Taxcy asks you to **verify your phone**: enter your mobile number and the SMS code. From then on, Google signs you straight in. Finish within 10 minutes; if it takes longer, you're sent back to start again. A number can be linked to only one Google account, and a Google account to only one number. In local development (no Google client id configured) the button reads **Continue with Google (local test)** and asks for any email instead of opening Google; it never appears in production.
+- **Continue with Google.** The first time, Google asks which account to use and then Fleet Sarthi asks you to **verify your phone**: enter your mobile number and the SMS code. From then on, Google signs you straight in. Finish within 10 minutes; if it takes longer, you're sent back to start again. A number can be linked to only one Google account, and a Google account to only one number. In local development (no Google client id configured) the button reads **Continue with Google (local test)** and asks for any email instead of opening Google; it never appears in production.
 
 The page shows only the ways that are switched on: without Google configured in production, the Google button is hidden.
 
@@ -18,7 +18,7 @@ If you belong to more than one organization, you start in the first one; switch 
 
 ### Sign up
 
-New to Taxcy? Choose **Sign up**, enter your mobile number and the SMS code, then your name (optional) and a password (at least 8 characters, typed twice). You're signed in straight away. If you're not part of a fleet yet, you're asked to set up your business (a fleet, or an owner-driver). If you were invited as a manager, the invite is picked up automatically.
+New to Fleet Sarthi? Choose **Sign up**, enter your mobile number and the SMS code, then your name (optional) and a password (at least 8 characters, typed twice). You're signed in straight away. If you're not part of a fleet yet, you're asked to set up your business (a fleet, or an owner-driver). If you were invited as a manager, the invite is picked up automatically.
 
 If the number already has a password, sign-up says so: sign in, or reset the password instead. Someone who has only ever used SMS codes (for example an invited driver) can sign up to add a password to the same account.
 
@@ -119,7 +119,7 @@ On the trip detail page, **Charges → Add** lets you add tolls, parking, state 
 
 **Getting accurate numbers:** ask drivers to fill **to full tank** regularly and to turn on "Full tank" in the app when they do. Efficiency can only be measured between two full-tank fills.
 
-New vehicles use a typical figure for their model for the first 3 cycles. After that, Taxcy compares each vehicle against its own history.
+New vehicles use a typical figure for their model for the first 3 cycles. After that, Fleet Sarthi compares each vehicle against its own history.
 
 ## 5. Alerts
 
@@ -137,7 +137,7 @@ Each alert explains in plain language what happened and what to check. Mark it *
 
 ## 6. Review queue
 
-**Review** lists items where Taxcy isn't sure and needs a decision. Most often the photo and the typed number don't match. Each item shows the photo, the typed value and the value read from the photo. Choose:
+**Review** lists items where Fleet Sarthi isn't sure and needs a decision. Most often the photo and the typed number don't match. Each item shows the photo, the typed value and the value read from the photo. Choose:
 
 - **Keep typed value**
 - **Use value from photo**
@@ -170,7 +170,7 @@ Open a row to see every item in it. Once you've received the cash, click **Mark 
 
 | Option          | Example                                           |
 | --------------- | ------------------------------------------------- |
-| None            | Salaried drivers paid outside Taxcy               |
+| None            | Salaried drivers paid outside Fleet Sarthi        |
 | Percent of fare | 20% of quoted fare (or of fare including charges) |
 | Per trip        | ₹300 per trip                                     |
 | Per km          | ₹2 per km driven                                  |
@@ -180,7 +180,7 @@ Turn **Driver allowance goes to driver** on if the bata customers pay belongs to
 
 ## Owner mode in the app
 
-The Taxcy app (the same one drivers use) has the admin console's features for owners and managers. Sign in with your number and password, an SMS code, or Google (the same options as the [driver guide](driver-guide.md#sign-in), including **Sign up** and **Forgot password?**): owners and managers get the fleet screens straight away. An owner-driver (DCO) starts on their driver screens and switches with **⋮ → Owner mode**, and back with **More → Driver mode**; the app remembers the last choice.
+The Fleet Sarthi app (the same one drivers use) has the admin console's features for owners and managers. Sign in with your number and password, an SMS code, or Google (the same options as the [driver guide](driver-guide.md#sign-in), including **Sign up** and **Forgot password?**): owners and managers get the fleet screens straight away. An owner-driver (DCO) starts on their driver screens and switches with **⋮ → Owner mode**, and back with **More → Driver mode**; the app remembers the last choice.
 
 | Tab           | What's there                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

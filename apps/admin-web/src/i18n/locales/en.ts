@@ -5,8 +5,8 @@
  */
 export const en = {
   app: {
-    name: 'Taxcy',
-    documentTitle: '{{page}} · Taxcy Admin',
+    name: 'Fleet Sarthi',
+    documentTitle: '{{page}} · Fleet Sarthi Admin',
     pageNotFound: 'Page not found',
     pageNotFoundHint: 'Check the address, or use the menu.',
   },
@@ -82,7 +82,7 @@ export const en = {
     create: 'Create',
     staffOnly: 'This console is for owners and managers',
     driverHere:
-      'You’re a driver at {{org}}. Use the Taxcy app on your phone for your trips and fuel.',
+      'You’re a driver at {{org}}. Use the Fleet Sarthi app on your phone for your trips and fuel.',
     thisOrganization: 'this organization',
     switchTo: 'Switch to {{org}}',
     password: 'Password',
@@ -93,7 +93,7 @@ export const en = {
     useSmsCode: 'Use an SMS code instead',
     usePassword: 'Sign in with a password instead',
     smsSubtitle: 'We’ll send a 6-digit code to your mobile by SMS.',
-    noAccount: 'New to Taxcy?',
+    noAccount: 'New to Fleet Sarthi?',
     signUp: 'Sign up',
     haveAccount: 'Already have an account?',
     backToSignIn: 'Back to sign in',
@@ -160,7 +160,7 @@ export const en = {
   },
   errors: {
     generic: 'Something went wrong',
-    network: 'Couldn’t reach Taxcy. Check your internet connection and try again.',
+    network: 'Couldn’t reach Fleet Sarthi. Check your internet connection and try again.',
     requestFailed: 'Request failed ({{status}})',
     VALIDATION_FAILED: 'Some details aren’t valid. Check the form and try again.',
     UNAUTHENTICATED: 'Your session has ended; sign in again.',
@@ -200,7 +200,8 @@ export const en = {
     INTERNAL: 'Something went wrong on our side. Try again in a moment.',
     // Worded from the error's details when the server sends them.
     detailed: {
-      driverNotLinked: '{{driver}} isn’t linked to {{vehicle}}. Add them to the vehicle’s drivers first.',
+      driverNotLinked:
+        '{{driver}} isn’t linked to {{vehicle}}. Add them to the vehicle’s drivers first.',
       linkInUse_one:
         'A driver and vehicle you’re unlinking still have {{count}} assigned or running trip together. Reassign or finish {{count}} trip first.',
       linkInUse_other:
@@ -282,7 +283,7 @@ export const en = {
       dismissed: 'Dismissed',
     },
     payRuleKind: {
-      none: 'None (salaried, paid outside Taxcy)',
+      none: 'None (salaried, paid outside Fleet Sarthi)',
       percent_of_fare: 'Percent of fare',
       per_trip: 'Fixed amount per trip',
       per_km: 'Per km driven',
@@ -416,7 +417,7 @@ export const en = {
   review: {
     title: 'Review',
     description:
-      'Items where Taxcy isn’t sure. Nothing here blocked the driver; your decision corrects the record.',
+      'Items where Fleet Sarthi isn’t sure. Nothing here blocked the driver; your decision corrects the record.',
     nothingToReview: 'Nothing to review',
     noItems: 'No items',
     typedByDriver: 'Typed by the driver',
@@ -832,7 +833,8 @@ export const en = {
       title: 'Drivers',
       invite: 'Invite driver',
       inviteTitle: 'Invite a driver',
-      inviteHelp: 'The driver signs in to the Taxcy app with this number; no password needed.',
+      inviteHelp:
+        'The driver signs in to the Fleet Sarthi app with this number; no password needed.',
       name: 'Name',
       mobileNumber: 'Mobile number',
       invalidMobile: 'Enter a 10-digit Indian mobile number',

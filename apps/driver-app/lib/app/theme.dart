@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Taxcy blue on white: blue app bars and actions, white surfaces, blue-tinted
+/// Fleet Sarthi blue on white: blue app bars and actions, white surfaces, blue-tinted
 /// neutrals. Mirrors the admin web's palette (Tailwind blue scale).
 abstract final class TaxcyColors {
   static const blue50 = Color(0xFFEFF6FF);

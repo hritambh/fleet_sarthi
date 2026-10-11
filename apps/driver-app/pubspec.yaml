@@ -1,5 +1,5 @@
 name: taxcy_driver
-description: "Taxcy app: offline-first driver screens and online owner/manager mode"
+description: "Fleet Sarthi app: offline-first driver screens and online owner/manager mode"
 publish_to: 'none'
 version: 0.1.0
 

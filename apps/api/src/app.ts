@@ -8,7 +8,7 @@ import { APP_CONFIG, type AppConfig } from './platform/config.js';
 import { assertRoutesBound } from './platform/http/route-registry.js';
 
 const DOCS_HTML = `<!doctype html>
-<html><head><meta charset="utf-8"><title>Taxcy API</title>
+<html><head><meta charset="utf-8"><title>Fleet Sarthi API</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css"></head>
 <body><div id="ui"></div>
 <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
@@ -16,7 +16,7 @@ const DOCS_HTML = `<!doctype html>
 </body></html>`;
 
 export function openApiDocument(): Record<string, unknown> {
-  return buildOpenApiDocument(allRoutes, { title: 'Taxcy API', version: '0.1.0' });
+  return buildOpenApiDocument(allRoutes, { title: 'Fleet Sarthi API', version: '0.1.0' });
 }
 
 /** Builds the configured Nest app (shared by main.ts and integration tests). */

@@ -18,7 +18,7 @@ const reviewStatuses = [
   'dismissed',
 ];
 
-/// Items Taxcy isn't sure about: photo vs typed value; the owner decides.
+/// Items Fleet Sarthi isn't sure about: photo vs typed value; the owner decides.
 class ReviewScreen extends ConsumerStatefulWidget {
   const ReviewScreen({super.key});
 

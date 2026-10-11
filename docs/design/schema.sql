@@ -1,4 +1,4 @@
--- Taxcy — proposed schema for Phase 0 + Phase 1 (design reference, not a migration).
+-- Fleet Sarthi — proposed schema for Phase 0 + Phase 1 (design reference, not a migration).
 -- Once M0.2 lands, libs/db/prisma (schema.prisma + migrations) is the source of truth.
 -- IDs: UUIDv7 generated in the app (server) or UUIDv4 from the client (offline records).
 

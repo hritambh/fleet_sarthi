@@ -121,7 +121,7 @@ describe('language switcher', () => {
     expect(screen.getByRole('button', { name: 'साइन अप करें' })).toBeInTheDocument();
     expect(document.documentElement.lang).toBe('hi');
     expect(window.localStorage.getItem('taxcy.language')).toBe('hi');
-    expect(document.title).toBe('साइन इन · Taxcy एडमिन');
+    expect(document.title).toBe('साइन इन · फ़्लीट सारथी एडमिन');
   });
 
   it('words the SMS code step and its errors in Hindi', async () => {
@@ -362,7 +362,7 @@ describe('errors', () => {
       'अनुरोध नहीं हो पाया (404)',
     );
     expect(errorMessage(new TypeError('Failed to fetch'))).toBe(
-      'Taxcy से कनेक्ट नहीं हो पाया। इंटरनेट कनेक्शन जाँचें और फिर कोशिश करें।',
+      'फ़्लीट सारथी से कनेक्ट नहीं हो पाया। इंटरनेट कनेक्शन जाँचें और फिर कोशिश करें।',
     );
   });
 });

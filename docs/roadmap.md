@@ -21,7 +21,7 @@ Each milestone ends with lint, typecheck and tests passing, a summary of what ch
 - [x] **M1.7 Admin web:** login; fleet CRUD; trips (create/assign/list/detail with photos and map); fuel cycles chart; alerts; review queue; settlements
 - [x] **M1.8 Driver app (Flutter):** login; my trips; start (odometer camera); live trip; end (odometer + collections); fuel fill (receipt camera, full-tank toggle); offline indicator + sync engine
 - [ ] **M1.9 End-to-end tests:** integration tests for trip lifecycle, idempotent and conflicting sync, tenant isolation; Maestro start → end flow; docs pass
-- [x] **M1.10 App: English + Hindi, owner mode:** gen-l10n (English, Hindi) across every screen, language picker, codes-to-text for alerts, settlement lines, review reasons and errors; owner/manager mode in the same app with admin-web parity (online-first); app renamed "Taxcy"
+- [x] **M1.10 App: English + Hindi, owner mode:** gen-l10n (English, Hindi) across every screen, language picker, codes-to-text for alerts, settlement lines, review reasons and errors; owner/manager mode in the same app with admin-web parity (online-first); app renamed "Fleet Sarthi"
 
 ## Known gaps (found while building M1.7–M1.8)
 

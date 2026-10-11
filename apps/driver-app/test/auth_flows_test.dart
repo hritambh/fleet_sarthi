@@ -529,7 +529,7 @@ void main() {
       expect(find.text('लॉग इन करें'), findsOneWidget);
       expect(find.text('पासवर्ड भूल गए?'), findsOneWidget);
       expect(find.text('इसके बजाय SMS कोड से लॉग इन करें'), findsOneWidget);
-      expect(find.text('Taxcy पर नए हैं? साइन अप करें'), findsOneWidget);
+      expect(find.text('फ़्लीट सारथी पर नए हैं? साइन अप करें'), findsOneWidget);
       expect(find.text('Google (लोकल टेस्ट)'), findsOneWidget);
       // Any overflow fails the test.
     });

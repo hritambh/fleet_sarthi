@@ -9,7 +9,7 @@ class AppLocalizationsHi extends AppLocalizations {
   AppLocalizationsHi([String locale = 'hi']) : super(locale);
 
   @override
-  String get appTitle => 'Taxcy';
+  String get appTitle => 'Fleet Sarthi';
 
   @override
   String get signOut => 'साइन आउट';
@@ -115,7 +115,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get noFleetBody =>
-      'आपका नंबर अभी किसी फ़्लीट में दर्ज नहीं है। अपने फ़्लीट मालिक से जुड़वाने को कहें, या Taxcy एडमिन वेबसाइट पर अपनी फ़्लीट बनाएँ।';
+      'आपका नंबर अभी किसी फ़्लीट में दर्ज नहीं है। अपने फ़्लीट मालिक से जुड़वाने को कहें, या फ़्लीट सारथी एडमिन वेबसाइट पर अपनी फ़्लीट बनाएँ।';
 
   @override
   String get ownerMode => 'मालिक मोड';
@@ -743,7 +743,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get consentWhen =>
-      'Taxcy आपके फ़ोन की लोकेशन सिर्फ़ ट्रिप चलते समय (\"ट्रिप शुरू करें\" से \"ट्रिप खत्म करें\" तक) रिकॉर्ड करता है। रिकॉर्डिंग के पूरे समय एक नोटिफ़िकेशन दिखता रहता है।';
+      'फ़्लीट सारथी आपके फ़ोन की लोकेशन सिर्फ़ ट्रिप चलते समय (\"ट्रिप शुरू करें\" से \"ट्रिप खत्म करें\" तक) रिकॉर्ड करता है। रिकॉर्डिंग के पूरे समय एक नोटिफ़िकेशन दिखता रहता है।';
 
   @override
   String get consentWhy =>
@@ -783,7 +783,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get gpsNotificationText =>
-      'Taxcy इस ट्रिप का रास्ता रिकॉर्ड कर रहा है।';
+      'फ़्लीट सारथी इस ट्रिप का रास्ता रिकॉर्ड कर रहा है।';
 
   @override
   String get rejectEndBeforeStart =>
@@ -1417,7 +1417,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get inviteDriverIntro =>
-      'ड्राइवर इसी नंबर से Taxcy ऐप में साइन इन करेगा; पासवर्ड की ज़रूरत नहीं।';
+      'ड्राइवर इसी नंबर से फ़्लीट सारथी ऐप में साइन इन करेगा; पासवर्ड की ज़रूरत नहीं।';
 
   @override
   String get enterIndianMobile => '10 अंकों का भारतीय मोबाइल नंबर डालें';
@@ -1456,7 +1456,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get payRuleHow => 'ड्राइवर को पगार कैसे मिलती है';
 
   @override
-  String get payNone => 'कोई नहीं (तनख्वाह, Taxcy के बाहर)';
+  String get payNone => 'कोई नहीं (तनख्वाह, फ़्लीट सारथी के बाहर)';
 
   @override
   String get payPercent => 'किराए का प्रतिशत';
@@ -1987,7 +1987,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get reviewIntro =>
-      'जिन चीज़ों पर Taxcy पक्का नहीं है। इनसे ड्राइवर का काम नहीं रुका; आपका फ़ैसला रिकॉर्ड ठीक करेगा।';
+      'जिन चीज़ों पर फ़्लीट सारथी पक्का नहीं है। इनसे ड्राइवर का काम नहीं रुका; आपका फ़ैसला रिकॉर्ड ठीक करेगा।';
 
   @override
   String get nothingToReview => 'जाँचने को कुछ नहीं';
@@ -2340,7 +2340,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get usePasswordInstead => 'पासवर्ड से लॉग इन करें';
 
   @override
-  String get newHereSignUp => 'Taxcy पर नए हैं? साइन अप करें';
+  String get newHereSignUp => 'फ़्लीट सारथी पर नए हैं? साइन अप करें';
 
   @override
   String get haveAccountLogIn => 'पहले से अकाउंट है? लॉग इन करें';

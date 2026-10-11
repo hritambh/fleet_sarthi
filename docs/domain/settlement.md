@@ -42,7 +42,7 @@ Decision D3: pay is **configurable**. The org sets a default in **Settings → D
 
 | `kind`            | Parameters                                | Daily earnings                                                      |
 | ----------------- | ----------------------------------------- | ------------------------------------------------------------------- |
-| `none`            | —                                         | 0 (salaried drivers paid outside Taxcy)                             |
+| `none`            | —                                         | 0 (salaried drivers paid outside Fleet Sarthi)                      |
 | `percent_of_fare` | `percent`, `base: 'quoted' \| 'expected'` | percent × Σ quoted fares (or expected fares, which include charges) |
 | `per_trip`        | `amountPaise`                             | amount × trips that day                                             |
 | `per_km`          | `paisePerKm`                              | rate × Σ odometer km of the day's trips                             |

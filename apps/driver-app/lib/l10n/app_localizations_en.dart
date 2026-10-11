@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Taxcy';
+  String get appTitle => 'Fleet Sarthi';
 
   @override
   String get signOut => 'Sign out';
@@ -115,7 +115,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noFleetBody =>
-      'Your number isn\'t registered in any fleet yet. Ask your fleet owner to add you, or create your fleet on the Taxcy admin website.';
+      'Your number isn\'t registered in any fleet yet. Ask your fleet owner to add you, or create your fleet on the Fleet Sarthi admin website.';
 
   @override
   String get ownerMode => 'Owner mode';
@@ -747,7 +747,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get consentWhen =>
-      'Taxcy records your phone\'s location only while a trip is running (between \"Start trip\" and \"End trip\"). A notification is shown the whole time it is recording.';
+      'Fleet Sarthi records your phone\'s location only while a trip is running (between \"Start trip\" and \"End trip\"). A notification is shown the whole time it is recording.';
 
   @override
   String get consentWhy =>
@@ -787,7 +787,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gpsNotificationText =>
-      'Taxcy is recording your route for this trip.';
+      'Fleet Sarthi is recording your route for this trip.';
 
   @override
   String get rejectEndBeforeStart => 'The trip must end after it starts';
@@ -1421,7 +1421,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inviteDriverIntro =>
-      'The driver signs in to the Taxcy app with this number; no password needed.';
+      'The driver signs in to the Fleet Sarthi app with this number; no password needed.';
 
   @override
   String get enterIndianMobile => 'Enter a 10-digit Indian mobile number';
@@ -1460,7 +1460,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get payRuleHow => 'How the driver is paid';
 
   @override
-  String get payNone => 'None (salaried, paid outside Taxcy)';
+  String get payNone => 'None (salaried, paid outside Fleet Sarthi)';
 
   @override
   String get payPercent => 'Percent of fare';
@@ -1992,7 +1992,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reviewIntro =>
-      'Items where Taxcy isn’t sure. Nothing here blocked the driver; your decision corrects the record.';
+      'Items where Fleet Sarthi isn’t sure. Nothing here blocked the driver; your decision corrects the record.';
 
   @override
   String get nothingToReview => 'Nothing to review';
@@ -2346,7 +2346,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get usePasswordInstead => 'Log in with your password';
 
   @override
-  String get newHereSignUp => 'New to Taxcy? Sign up';
+  String get newHereSignUp => 'New to Fleet Sarthi? Sign up';
 
   @override
   String get haveAccountLogIn => 'Already have an account? Log in';
