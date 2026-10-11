@@ -16,6 +16,8 @@
     "typecheck": "prisma generate && tsc -p tsconfig.json",
     "lint": "eslint .",
     "migrate": "node --env-file-if-exists=../../.env node_modules/.bin/prisma migrate deploy",
+    "roles": "node --env-file-if-exists=../../.env scripts/ensure-app-role.mjs",
+    "deploy": "bun run roles && bun run migrate",
     "migration": "node --env-file-if-exists=../../.env node_modules/.bin/prisma migrate dev --create-only --name",
     "drift": "node --env-file-if-exists=../../.env scripts/check-drift.mjs",
     "studio": "node --env-file-if-exists=../../.env node_modules/.bin/prisma studio",
