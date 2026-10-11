@@ -367,6 +367,48 @@ describe('errors', () => {
   });
 });
 
+describe('driver ↔ vehicle link errors', () => {
+  const notLinked = new ApiError(409, 'DRIVER_NOT_LINKED', 'Ramesh isn’t linked', {
+    vehicleId: '0199c7a2-5b7e-7c3d-9f00-1a2b3c4d5e03',
+    driverId: '0199c7a2-5b7e-7c3d-9f00-1a2b3c4d5e10',
+    driverName: 'Ramesh Kumar',
+    registrationNo: 'MH12AB1234',
+  });
+  const inUse = (count: number) =>
+    new ApiError(409, 'LINK_IN_USE', 'Reassign or finish…', {
+      tripIds: Array.from({ length: count }, (_, i) => `trip-${String(i)}`),
+    });
+
+  it('name the driver, the vehicle and how many trips are in the way', async () => {
+    expect(errorMessage(notLinked)).toBe(
+      'Ramesh Kumar isn’t linked to MH 12 AB 1234. Add them to the vehicle’s drivers first.',
+    );
+    expect(errorMessage(inUse(1))).toBe(
+      'A driver and vehicle you’re unlinking still have 1 assigned or running trip together. Reassign or finish 1 trip first.',
+    );
+    expect(errorMessage(inUse(3))).toBe(
+      'A driver and vehicle you’re unlinking still have 3 assigned or running trips together. Reassign or finish 3 trips first.',
+    );
+    await i18n.changeLanguage('hi');
+    expect(errorMessage(notLinked)).toBe(
+      'Ramesh Kumar MH 12 AB 1234 से जुड़े नहीं हैं। पहले उन्हें गाड़ी के ड्राइवरों में जोड़ें।',
+    );
+    expect(errorMessage(inUse(3))).toBe(
+      'जिस ड्राइवर और गाड़ी को आप अलग कर रहे हैं, उनकी 3 ट्रिप अभी सौंपी हुई या चल रही हैं। पहले 3 ट्रिप किसी और को सौंपें या पूरी करें।',
+    );
+  });
+
+  it('fall back to a general message without details', async () => {
+    expect(errorMessage(new ApiError(409, 'DRIVER_NOT_LINKED', 'x'))).toBe(
+      'This driver isn’t linked to this vehicle. Link them on the vehicle or the driver first.',
+    );
+    await i18n.changeLanguage('hi');
+    expect(errorMessage(new ApiError(409, 'LINK_IN_USE', 'x', { tripIds: [] }))).toBe(
+      'जिस ड्राइवर और गाड़ी को आप अलग कर रहे हैं, उनकी साथ वाली ट्रिप अभी सौंपी हुई या चल रही हैं। पहले वे ट्रिप किसी और को सौंपें या पूरी करें।',
+    );
+  });
+});
+
 describe('review reasons', () => {
   it('use the reason code, or recognised English text, else show the text as sent', async () => {
     await i18n.changeLanguage('hi');

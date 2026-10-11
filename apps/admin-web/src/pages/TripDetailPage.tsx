@@ -4,7 +4,8 @@ import { useMemo, useState, type SubmitEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router';
 import { RouteMap } from '../components/maps.js';
-import { DriverSelect, Photo, VehicleSelect } from '../components/shared.js';
+import { TripPairFields } from '../components/links.js';
+import { Photo } from '../components/shared.js';
 import { TripStatusBadge } from '../components/status.js';
 import {
   Badge,
@@ -109,12 +110,14 @@ function AssignModal({ trip, onClose }: { trip: Trip; onClose: () => void }) {
       }
     >
       <div className="space-y-4">
-        <Field label={t('trips.vehicle')}>
-          {(props) => <VehicleSelect {...props} value={vehicleId} onChange={setVehicleId} />}
-        </Field>
-        <Field label={t('trips.driver')}>
-          {(props) => <DriverSelect {...props} value={driverId} onChange={setDriverId} />}
-        </Field>
+        <TripPairFields
+          vehicleId={vehicleId}
+          driverId={driverId}
+          onVehicleChange={setVehicleId}
+          onDriverChange={setDriverId}
+          vehicleLabel={t('trips.vehicle')}
+          driverLabel={t('trips.driver')}
+        />
         <p className="text-xs text-slate-500">{t('trips.assign.overlapHint')}</p>
         <InlineError error={assign.error} />
       </div>

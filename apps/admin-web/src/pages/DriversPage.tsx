@@ -1,8 +1,9 @@
 import { PayRule as PayRuleSchema, PhoneE164 } from '@taxcy/contracts';
-import { UserPlus } from 'lucide-react';
+import { Pencil, UserPlus } from 'lucide-react';
 import { useState, type SubmitEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/context.js';
+import { EditDriverVehiclesModal, VehicleCheckList, VehicleChips } from '../components/links.js';
 import { PayRuleEditor } from '../components/PayRuleEditor.js';
 import {
   Badge,
@@ -33,10 +34,12 @@ function InviteModal({ onClose }: { onClose: () => void }) {
   const { t } = useTranslation();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [vehicleIds, setVehicleIds] = useState<string[]>([]);
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const invite = useApiMutation(
-    (body: { name: string; phone: string }) => call(api.POST('/drivers', { body })),
-    [keys.drivers],
+    (body: { name: string; phone: string; vehicleIds: string[] }) =>
+      call(api.POST('/drivers', { body })),
+    [keys.drivers, keys.vehicles],
   );
 
   function submit(event: SubmitEvent<HTMLFormElement>) {
@@ -47,7 +50,7 @@ function InviteModal({ onClose }: { onClose: () => void }) {
       return;
     }
     setPhoneError(null);
-    invite.mutate({ name: name.trim(), phone: normalized }, { onSuccess: onClose });
+    invite.mutate({ name: name.trim(), phone: normalized, vehicleIds }, { onSuccess: onClose });
   }
 
   return (
@@ -80,6 +83,12 @@ function InviteModal({ onClose }: { onClose: () => void }) {
             />
           )}
         </Field>
+        <VehicleCheckList
+          legend={t('fleet.links.pickVehicles')}
+          hint={t('fleet.links.pickVehiclesHint')}
+          value={vehicleIds}
+          onChange={setVehicleIds}
+        />
         <InlineError error={invite.error} />
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={onClose}>
@@ -224,6 +233,7 @@ export function DriversPage() {
   const defaultRule = useDefaultPayRule();
   const [inviting, setInviting] = useState(false);
   const [editing, setEditing] = useState<Driver | null>(null);
+  const [linking, setLinking] = useState<Driver | null>(null);
 
   return (
     <>
@@ -253,6 +263,7 @@ export function DriversPage() {
                   <tr>
                     <Th>{t('people.drivers.colName')}</Th>
                     <Th>{t('people.drivers.colPhone')}</Th>
+                    <Th>{t('people.drivers.colVehicles')}</Th>
                     <Th>{t('people.drivers.colPay')}</Th>
                     <Th>{t('people.drivers.colStatus')}</Th>
                     <Th />
@@ -263,6 +274,22 @@ export function DriversPage() {
                     <tr key={d.id} className="hover:bg-slate-50">
                       <Td className="font-medium">{d.name}</Td>
                       <Td>{fmtPhone(d.phone)}</Td>
+                      <Td>
+                        <span className="flex flex-wrap items-center gap-2">
+                          <VehicleChips vehicles={d.vehicles} />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            aria-label={t('fleet.links.editVehiclesFor', { driver: d.name })}
+                            onClick={() => {
+                              setLinking(d);
+                            }}
+                          >
+                            <Pencil className="size-3.5" aria-hidden />
+                            {t('fleet.links.editVehicles')}
+                          </Button>
+                        </span>
+                      </Td>
                       <Td>
                         {d.payRule ? (
                           describePayRule(d.payRule)
@@ -311,6 +338,14 @@ export function DriversPage() {
         <InviteModal
           onClose={() => {
             setInviting(false);
+          }}
+        />
+      )}
+      {linking && (
+        <EditDriverVehiclesModal
+          driver={linking}
+          onClose={() => {
+            setLinking(null);
           }}
         />
       )}

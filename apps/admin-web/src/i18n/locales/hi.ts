@@ -191,6 +191,9 @@ export const hi: Translation = {
     DRIVER_ON_TRIP:
       'ड्राइवर की एक ट्रिप पहले से चल रही है। दूसरी शुरू करने से पहले उसे ख़त्म करें।',
     VEHICLE_ON_TRIP: 'यह गाड़ी पहले से दूसरी ट्रिप पर चल रही है। पहले वह ट्रिप ख़त्म करें।',
+    DRIVER_NOT_LINKED: 'यह ड्राइवर इस गाड़ी से जुड़ा नहीं है। पहले गाड़ी या ड्राइवर पर उन्हें जोड़ें।',
+    LINK_IN_USE:
+      'जिस ड्राइवर और गाड़ी को आप अलग कर रहे हैं, उनकी साथ वाली ट्रिप अभी सौंपी हुई या चल रही हैं। पहले वे ट्रिप किसी और को सौंपें या पूरी करें।',
     ACCOUNT_EXISTS: 'इस नंबर का अकाउंट पहले से है। लॉग इन करें, या पासवर्ड रीसेट करें।',
     GOOGLE_TOKEN_INVALID: 'Google से साइन इन नहीं हो पाया। फिर से कोशिश करें।',
     GOOGLE_ACCOUNT_CONFLICT: 'यह नंबर पहले से किसी दूसरे Google अकाउंट से जुड़ा है।',
@@ -198,6 +201,13 @@ export const hi: Translation = {
     UPLOAD_NOT_FOUND: 'फ़ोटो अभी अपलोड नहीं हुई है।',
     UPLOAD_MISMATCH: 'अपलोड की गई फ़ाइल उम्मीद के मुताबिक़ नहीं थी।',
     INTERNAL: 'हमारी तरफ़ से कुछ गड़बड़ हुई। थोड़ी देर में फिर कोशिश करें।',
+    detailed: {
+      driverNotLinked: '{{driver}} {{vehicle}} से जुड़े नहीं हैं। पहले उन्हें गाड़ी के ड्राइवरों में जोड़ें।',
+      linkInUse_one:
+        'जिस ड्राइवर और गाड़ी को आप अलग कर रहे हैं, उनकी {{count}} ट्रिप अभी सौंपी हुई या चल रही है। पहले {{count}} ट्रिप किसी और को सौंपें या पूरी करें।',
+      linkInUse_other:
+        'जिस ड्राइवर और गाड़ी को आप अलग कर रहे हैं, उनकी {{count}} ट्रिप अभी सौंपी हुई या चल रही हैं। पहले {{count}} ट्रिप किसी और को सौंपें या पूरी करें।',
+    },
   },
   enums: {
     tripStatus: {
@@ -665,6 +675,7 @@ export const hi: Translation = {
         fuel: 'फ़्यूल',
         odometer: 'ओडोमीटर',
         status: 'स्थिति',
+        drivers: 'ड्राइवर',
       },
     },
     vehicleForm: {
@@ -783,6 +794,35 @@ export const hi: Translation = {
       pickerLabel: '{{label}}: पिन लगाने के लिए नक्शे पर क्लिक करें',
       pickerHint: 'चाहें तो: सही जगह पर पिन लगाने के लिए नक्शे पर क्लिक करें।',
     },
+    links: {
+      drivers: 'ड्राइवर',
+      vehicles: 'गाड़ियाँ',
+      noDrivers: 'कोई ड्राइवर नहीं',
+      noVehicles: 'कोई गाड़ी नहीं',
+      editDrivers: 'ड्राइवर बदलें',
+      editVehicles: 'गाड़ियाँ बदलें',
+      editDriversFor: '{{vehicle}} के ड्राइवर बदलें',
+      editVehiclesFor: '{{driver}} की गाड़ियाँ बदलें',
+      editDriversTitle: '{{vehicle}} के ड्राइवर',
+      editVehiclesTitle: '{{driver}} की गाड़ियाँ',
+      editDriversHelp: 'इस गाड़ी की ट्रिप सिर्फ़ यहाँ चुने गए ड्राइवरों को दी जा सकती है।',
+      editVehiclesHelp: 'इस ड्राइवर को सिर्फ़ यहाँ चुनी गई गाड़ियों में ट्रिप दी जा सकती है।',
+      pickDrivers: 'कौन-से ड्राइवर इसे चला सकते हैं (वैकल्पिक)',
+      pickDriversHint: 'इस गाड़ी की ट्रिप सिर्फ़ इन ड्राइवरों को मिलेगी। इसे बाद में बदल सकते हैं।',
+      pickVehicles: 'ये कौन-सी गाड़ियाँ चला सकते हैं (वैकल्पिक)',
+      pickVehiclesHint: 'इस ड्राइवर को सिर्फ़ इन गाड़ियों में ट्रिप मिलेगी। इसे बाद में बदल सकते हैं।',
+      ownerAutoLinked: 'ओनर-ड्राइवर होने के नाते आप अपनी जोड़ी हर गाड़ी से अपने-आप जुड़ जाते हैं।',
+      noDriversToPick: 'अभी कोई ड्राइवर नहीं। पहले ड्राइवर जोड़ें।',
+      noVehiclesToPick: 'अभी कोई गाड़ी नहीं। पहले गाड़ी जोड़ें।',
+      inactiveSuffix: '{{name}} (निष्क्रिय)',
+      selectedCount_one: '{{count}} चुना गया',
+      selectedCount_other: '{{count}} चुने गए',
+      viewTrips: 'ट्रिप देखें',
+      vehicleHasNoDrivers: '{{vehicle}} से अभी कोई सक्रिय ड्राइवर नहीं जुड़ा है।',
+      driverHasNoVehicles: '{{driver}} से अभी कोई सक्रिय गाड़ी नहीं जुड़ी है।',
+      onlyLinkedDrivers: 'सिर्फ़ {{vehicle}} से जुड़े ड्राइवर।',
+      onlyLinkedVehicles: 'सिर्फ़ {{driver}} से जुड़ी गाड़ियाँ।',
+    },
   },
   people: {
     drivers: {
@@ -809,6 +849,7 @@ export const hi: Translation = {
       colStatus: 'स्थिति',
       default: 'डिफ़ॉल्ट',
       defaultWithRule: 'डिफ़ॉल्ट · {{rule}}',
+      colVehicles: 'गाड़ियाँ',
       notSignedIn: 'अभी साइन इन नहीं किया',
       manage: 'बदलें',
     },

@@ -1,17 +1,26 @@
 import { ImageOff } from 'lucide-react';
 import type { SelectHTMLAttributes } from 'react';
+import type { Driver, Vehicle } from '../lib/api-types.js';
 import { useTranslation } from 'react-i18next';
 import { fmtRegistration } from '../lib/format.js';
 import { useDrivers, useMediaUrl, useVehicles } from '../lib/queries.js';
 import { Select, Spinner } from './ui.js';
 
-type SelectProps = Omit<SelectHTMLAttributes<HTMLSelectElement>, 'onChange' | 'value'> & {
+type SelectProps<T> = Omit<SelectHTMLAttributes<HTMLSelectElement>, 'onChange' | 'value'> & {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  /** Offer only the items this accepts (e.g. the drivers linked to a vehicle). */
+  filter?: ((item: T) => boolean) | undefined;
 };
 
-export function VehicleSelect({ value, onChange, placeholder, ...props }: SelectProps) {
+export function VehicleSelect({
+  value,
+  onChange,
+  placeholder,
+  filter,
+  ...props
+}: SelectProps<Vehicle>) {
   const { t } = useTranslation();
   const vehicles = useVehicles('active');
   return (
@@ -26,7 +35,7 @@ export function VehicleSelect({ value, onChange, placeholder, ...props }: Select
       <option value="">
         {vehicles.isPending ? t('common.loading') : (placeholder ?? t('common.selectVehicle'))}
       </option>
-      {vehicles.data?.map((v) => (
+      {(filter ? vehicles.data?.filter(filter) : vehicles.data)?.map((v) => (
         <option key={v.id} value={v.id}>
           {fmtRegistration(v.registrationNo)} · {v.model}
         </option>
@@ -35,7 +44,13 @@ export function VehicleSelect({ value, onChange, placeholder, ...props }: Select
   );
 }
 
-export function DriverSelect({ value, onChange, placeholder, ...props }: SelectProps) {
+export function DriverSelect({
+  value,
+  onChange,
+  placeholder,
+  filter,
+  ...props
+}: SelectProps<Driver>) {
   const { t } = useTranslation();
   const drivers = useDrivers('active');
   return (
@@ -50,7 +65,7 @@ export function DriverSelect({ value, onChange, placeholder, ...props }: SelectP
       <option value="">
         {drivers.isPending ? t('common.loading') : (placeholder ?? t('common.selectDriver'))}
       </option>
-      {drivers.data?.map((d) => (
+      {(filter ? drivers.data?.filter(filter) : drivers.data)?.map((d) => (
         <option key={d.id} value={d.id}>
           {d.membershipStatus === 'invited' ? t('common.invitedSuffix', { name: d.name }) : d.name}
         </option>

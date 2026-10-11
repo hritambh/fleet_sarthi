@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router';
+import { DriverChips, EditVehicleDriversModal } from '../components/links.js';
 import { TripStatusBadge } from '../components/status.js';
 import {
   Badge,
@@ -81,6 +82,7 @@ export function VehicleDetailPage() {
     { id: 'trips', label: t('fleet.vehicleDetail.tabTrips') },
   ];
   const [editing, setEditing] = useState(false);
+  const [linking, setLinking] = useState(false);
 
   return (
     <QueryState query={vehicle}>
@@ -119,6 +121,19 @@ export function VehicleDetailPage() {
               />
               <Stat label={t('fleet.vehicleDetail.added')} value={fmtDateTime(v.createdAt)} />
             </dl>
+            <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
+              <span className="text-xs text-slate-500">{t('fleet.links.drivers')}</span>
+              <DriverChips drivers={v.drivers} />
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  setLinking(true);
+                }}
+              >
+                {t('fleet.links.editDrivers')}
+              </Button>
+            </div>
           </Card>
           <Tabs tabs={tabs} value={tab} onChange={setTab} />
           {tab === 'documents' && (
@@ -126,6 +141,14 @@ export function VehicleDetailPage() {
           )}
           {tab === 'fuel' && <VehicleFuelPanel vehicleId={id} />}
           {tab === 'trips' && <VehicleTrips vehicleId={id} />}
+          {linking && (
+            <EditVehicleDriversModal
+              vehicle={v}
+              onClose={() => {
+                setLinking(false);
+              }}
+            />
+          )}
           {editing && (
             <VehicleFormModal
               open

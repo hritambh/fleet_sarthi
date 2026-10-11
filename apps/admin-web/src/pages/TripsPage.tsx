@@ -2,6 +2,7 @@ import { Plus } from 'lucide-react';
 import { useState, type SubmitEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useSearchParams } from 'react-router';
+import { TripPairFields } from '../components/links.js';
 import { PointPicker, type LatLng } from '../components/maps.js';
 import { DriverSelect, VehicleSelect } from '../components/shared.js';
 import { TripStatusBadge } from '../components/status.js';
@@ -244,26 +245,16 @@ function CreateTripModal({ onClose }: { onClose: () => void }) {
             />
           )}
         </Field>
-        <Field label={t('trips.create.vehicleOptional')}>
-          {(props) => (
-            <VehicleSelect
-              {...props}
-              value={vehicleId}
-              onChange={setVehicleId}
-              placeholder={t('trips.create.assignLater')}
-            />
-          )}
-        </Field>
-        <Field label={t('trips.create.driverOptional')}>
-          {(props) => (
-            <DriverSelect
-              {...props}
-              value={driverId}
-              onChange={setDriverId}
-              placeholder={t('trips.create.assignLater')}
-            />
-          )}
-        </Field>
+        <TripPairFields
+          vehicleId={vehicleId}
+          driverId={driverId}
+          onVehicleChange={setVehicleId}
+          onDriverChange={setDriverId}
+          vehicleLabel={t('trips.create.vehicleOptional')}
+          driverLabel={t('trips.create.driverOptional')}
+          placeholder={t('trips.create.assignLater')}
+          hintClassName="sm:col-span-2"
+        />
         <div className="space-y-2 sm:col-span-2">
           {problem && <p className="text-sm text-red-600">{problem}</p>}
           <InlineError error={create.error} />

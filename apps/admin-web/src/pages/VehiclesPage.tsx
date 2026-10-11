@@ -1,8 +1,10 @@
 import { RegistrationNo } from '@taxcy/contracts';
-import { Plus } from 'lucide-react';
+import { Pencil, Plus } from 'lucide-react';
 import { useState, type SubmitEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { useAuth } from '../auth/context.js';
+import { DriverCheckList, DriverChips, EditVehicleDriversModal } from '../components/links.js';
 import {
   Badge,
   Button,
@@ -37,7 +39,9 @@ export function VehicleFormModal({
   vehicle?: Vehicle;
 }) {
   const { t } = useTranslation();
+  const auth = useAuth();
   const models = useVehicleModels();
+  const [driverIds, setDriverIds] = useState<string[]>([]);
   const [form, setForm] = useState(() => ({
     registrationNo: vehicle?.registrationNo ?? '',
     make: vehicle?.make ?? '',
@@ -77,7 +81,7 @@ export function VehicleFormModal({
         ...(form.year ? { year: Number(form.year) } : {}),
         ...(form.vehicleModelId ? { vehicleModelId: form.vehicleModelId } : {}),
         ...(form.lastOdometerKm ? { lastOdometerKm: Number(form.lastOdometerKm) } : {}),
-        ...(vehicle ? { status: form.status } : {}),
+        ...(vehicle ? { status: form.status } : { driverIds }),
       },
       { onSuccess: onClose },
     );
@@ -212,6 +216,20 @@ export function VehicleFormModal({
             />
           )}
         </Field>
+        {!vehicle && (
+          <div className="sm:col-span-2">
+            <DriverCheckList
+              legend={t('fleet.links.pickDrivers')}
+              hint={
+                auth.activeMembership?.orgKind === 'dco'
+                  ? t('fleet.links.ownerAutoLinked')
+                  : t('fleet.links.pickDriversHint')
+              }
+              value={driverIds}
+              onChange={setDriverIds}
+            />
+          </div>
+        )}
         {vehicle && (
           <Field label={t('fleet.vehicleForm.status')}>
             {(props) => (
@@ -249,6 +267,7 @@ export function VehiclesPage() {
   const [status, setStatus] = useState<'' | 'active' | 'inactive'>('');
   const vehicles = useVehicles(status || undefined);
   const [creating, setCreating] = useState(false);
+  const [linking, setLinking] = useState<Vehicle | null>(null);
 
   return (
     <>
@@ -292,6 +311,7 @@ export function VehiclesPage() {
                   <tr>
                     <Th>{t('fleet.vehicles.col.registration')}</Th>
                     <Th>{t('fleet.vehicles.col.vehicle')}</Th>
+                    <Th>{t('fleet.vehicles.col.drivers')}</Th>
                     <Th>{t('fleet.vehicles.col.fuel')}</Th>
                     <Th align="right">{t('fleet.vehicles.col.odometer')}</Th>
                     <Th>{t('fleet.vehicles.col.status')}</Th>
@@ -312,6 +332,24 @@ export function VehiclesPage() {
                         {v.make} {v.model}
                         {v.year ? ` (${String(v.year)})` : ''}
                       </Td>
+                      <Td>
+                        <span className="flex flex-wrap items-center gap-2">
+                          <DriverChips drivers={v.drivers} />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            aria-label={t('fleet.links.editDriversFor', {
+                              vehicle: fmtRegistration(v.registrationNo),
+                            })}
+                            onClick={() => {
+                              setLinking(v);
+                            }}
+                          >
+                            <Pencil className="size-3.5" aria-hidden />
+                            {t('fleet.links.editDrivers')}
+                          </Button>
+                        </span>
+                      </Td>
                       <Td>{t(`enums.fuelType.${v.fuelType}`)}</Td>
                       <Td align="right">{fmtKm(v.lastOdometerKm)}</Td>
                       <Td>
@@ -329,6 +367,14 @@ export function VehiclesPage() {
           }
         </QueryState>
       </Card>
+      {linking && (
+        <EditVehicleDriversModal
+          vehicle={linking}
+          onClose={() => {
+            setLinking(null);
+          }}
+        />
+      )}
       {creating && (
         <VehicleFormModal
           open

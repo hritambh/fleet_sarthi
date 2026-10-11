@@ -187,6 +187,10 @@ export const en = {
     INVALID_CREDENTIALS: 'Wrong mobile number or password.',
     DRIVER_ON_TRIP: 'The driver already has a trip on the road. End it before starting another.',
     VEHICLE_ON_TRIP: 'This vehicle is already on the road on another trip. End that trip first.',
+    DRIVER_NOT_LINKED:
+      'This driver isn’t linked to this vehicle. Link them on the vehicle or the driver first.',
+    LINK_IN_USE:
+      'A driver and vehicle you’re unlinking still have assigned or running trips together. Reassign or finish those trips first.',
     ACCOUNT_EXISTS: 'This number already has an account. Log in, or reset your password.',
     GOOGLE_TOKEN_INVALID: 'Google sign-in didn’t work. Try again.',
     GOOGLE_ACCOUNT_CONFLICT: 'This number is already linked to a different Google account.',
@@ -194,6 +198,14 @@ export const en = {
     UPLOAD_NOT_FOUND: 'The photo hasn’t been uploaded yet.',
     UPLOAD_MISMATCH: 'The uploaded file didn’t match what was expected.',
     INTERNAL: 'Something went wrong on our side. Try again in a moment.',
+    // Worded from the error's details when the server sends them.
+    detailed: {
+      driverNotLinked: '{{driver}} isn’t linked to {{vehicle}}. Add them to the vehicle’s drivers first.',
+      linkInUse_one:
+        'A driver and vehicle you’re unlinking still have {{count}} assigned or running trip together. Reassign or finish {{count}} trip first.',
+      linkInUse_other:
+        'A driver and vehicle you’re unlinking still have {{count}} assigned or running trips together. Reassign or finish {{count}} trips first.',
+    },
   },
   enums: {
     tripStatus: {
@@ -664,6 +676,7 @@ export const en = {
         fuel: 'Fuel',
         odometer: 'Odometer',
         status: 'Status',
+        drivers: 'Drivers',
       },
     },
     vehicleForm: {
@@ -782,6 +795,37 @@ export const en = {
       pickerLabel: '{{label}}: click to place a pin',
       pickerHint: 'Optional: click the map to pin the exact spot.',
     },
+    links: {
+      drivers: 'Drivers',
+      vehicles: 'Vehicles',
+      noDrivers: 'No drivers',
+      noVehicles: 'No vehicles',
+      editDrivers: 'Edit drivers',
+      editVehicles: 'Edit vehicles',
+      editDriversFor: 'Edit drivers of {{vehicle}}',
+      editVehiclesFor: 'Edit vehicles of {{driver}}',
+      editDriversTitle: 'Drivers of {{vehicle}}',
+      editVehiclesTitle: 'Vehicles {{driver}} drives',
+      editDriversHelp: 'Trips in this vehicle can only be given to the drivers ticked here.',
+      editVehiclesHelp: 'This driver can only be given trips in the vehicles ticked here.',
+      pickDrivers: 'Drivers who may drive it (optional)',
+      pickDriversHint:
+        'Trips in this vehicle can only go to these drivers. You can change this later.',
+      pickVehicles: 'Vehicles they may drive (optional)',
+      pickVehiclesHint:
+        'This driver can only get trips in these vehicles. You can change this later.',
+      ownerAutoLinked: 'As an owner-driver, you’re linked to every vehicle you add.',
+      noDriversToPick: 'No drivers yet. Invite drivers first.',
+      noVehiclesToPick: 'No vehicles yet. Add a vehicle first.',
+      inactiveSuffix: '{{name}} (inactive)',
+      selectedCount_one: '{{count}} selected',
+      selectedCount_other: '{{count}} selected',
+      viewTrips: 'View the trips',
+      vehicleHasNoDrivers: 'No active drivers are linked to {{vehicle}} yet.',
+      driverHasNoVehicles: 'No active vehicles are linked to {{driver}} yet.',
+      onlyLinkedDrivers: 'Only drivers linked to {{vehicle}}.',
+      onlyLinkedVehicles: 'Only vehicles linked to {{driver}}.',
+    },
   },
   people: {
     drivers: {
@@ -808,6 +852,7 @@ export const en = {
       colStatus: 'Status',
       default: 'Default',
       defaultWithRule: 'Default · {{rule}}',
+      colVehicles: 'Vehicles',
       notSignedIn: 'Hasn’t signed in yet',
       manage: 'Manage',
     },
