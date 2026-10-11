@@ -91,27 +91,14 @@ class VehiclesScreen extends ConsumerWidget {
   }
 }
 
-/// Vehicles as cards on the desktop, three or four to a row.
+/// Vehicles as cards on the desktop.
 class _VehicleGrid extends StatelessWidget {
   const _VehicleGrid(this.vehicles);
   final List<Vehicle> vehicles;
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, box) {
-      const gap = 16.0;
-      final columns = box.maxWidth >= 1200 ? 4 : 3;
-      final width = (box.maxWidth - gap * (columns - 1)) / columns;
-      return Wrap(
-        spacing: gap,
-        runSpacing: gap,
-        children: [
-          for (final v in vehicles)
-            SizedBox(width: width, child: _VehicleCard(v)),
-        ],
-      );
-    },
-  );
+  Widget build(BuildContext context) =>
+      CardGrid(children: [for (final v in vehicles) _VehicleCard(v)]);
 }
 
 class _VehicleCard extends StatelessWidget {
@@ -136,26 +123,10 @@ class _VehicleCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  // Cabs carry yellow commercial plates.
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFD43B),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: const Color(0xFF1F2937)),
-                    ),
-                    child: Text(
-                      formatRegistration(v.registrationNo),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.8,
-                        color: Color(0xFF111827),
-                      ),
-                    ),
+                  Flexible(
+                    child: NumberPlate(formatRegistration(v.registrationNo)),
                   ),
+                  const SizedBox(width: 8),
                   const Spacer(),
                   ToneChip(
                     v.isActive ? l.active : l.inactive,

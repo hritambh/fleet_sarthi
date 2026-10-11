@@ -2229,5 +2229,19 @@
   "colCustomer": "Customer",
   "@colCustomer": {},
   "colFare": "Fare",
-  "@colFare": {}
+  "@colFare": {},
+  "colDocument": "Document",
+  "@colDocument": {},
+  "colFor": "For",
+  "@colFor": {},
+  "colNumber": "Number",
+  "@colNumber": {},
+  "colRole": "Role",
+  "@colRole": {},
+  "colBalance": "Balance",
+  "@colBalance": {},
+  "colShortfall": "Short",
+  "@colShortfall": {},
+  "usualEfficiency": "Usual efficiency",
+  "@usualEfficiency": {}
 }

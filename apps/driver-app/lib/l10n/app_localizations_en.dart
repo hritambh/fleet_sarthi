@@ -2642,4 +2642,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get colFare => 'Fare';
+
+  @override
+  String get colDocument => 'Document';
+
+  @override
+  String get colFor => 'For';
+
+  @override
+  String get colNumber => 'Number';
+
+  @override
+  String get colRole => 'Role';
+
+  @override
+  String get colBalance => 'Balance';
+
+  @override
+  String get colShortfall => 'Short';
+
+  @override
+  String get usualEfficiency => 'Usual efficiency';
 }

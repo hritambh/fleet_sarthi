@@ -2636,4 +2636,25 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get colFare => 'किराया';
+
+  @override
+  String get colDocument => 'दस्तावेज़';
+
+  @override
+  String get colFor => 'किसका';
+
+  @override
+  String get colNumber => 'नंबर';
+
+  @override
+  String get colRole => 'भूमिका';
+
+  @override
+  String get colBalance => 'बाकी हिसाब';
+
+  @override
+  String get colShortfall => 'कमी';
+
+  @override
+  String get usualEfficiency => 'आम माइलेज';
 }

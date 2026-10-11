@@ -14,6 +14,7 @@ import 'documents_screen.dart';
 import 'fuel_screens.dart';
 import 'owner_providers.dart';
 import 'owner_text.dart';
+import 'owner_widgets.dart';
 import 'people_screens.dart';
 import 'review_screen.dart';
 import 'settings_screen.dart';
@@ -314,7 +315,7 @@ class _FleetCard extends ConsumerWidget {
                   backgroundColor: TaxcyColors.blue600,
                   foregroundColor: Colors.white,
                   child: Text(
-                    _initials(session.activeMembership?.orgName ?? ''),
+                    initials(session.activeMembership?.orgName ?? ''),
                     style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                 ),
@@ -357,11 +358,6 @@ class _FleetCard extends ConsumerWidget {
       ),
     );
   }
-}
-
-String _initials(String name) {
-  final words = name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
-  return words.take(2).map((w) => w[0].toUpperCase()).join();
 }
 
 class _GroupLabel extends StatelessWidget {
@@ -479,7 +475,7 @@ class _AccountFooter extends ConsumerWidget {
             backgroundColor: Colors.white.withValues(alpha: 0.12),
             foregroundColor: Colors.white,
             child: Text(
-              _initials(name),
+              initials(name),
               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
             ),
           ),

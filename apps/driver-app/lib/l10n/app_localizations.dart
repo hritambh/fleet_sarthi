@@ -4603,6 +4603,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Fare'**
   String get colFare;
+
+  /// No description provided for @colDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Document'**
+  String get colDocument;
+
+  /// No description provided for @colFor.
+  ///
+  /// In en, this message translates to:
+  /// **'For'**
+  String get colFor;
+
+  /// No description provided for @colNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Number'**
+  String get colNumber;
+
+  /// No description provided for @colRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get colRole;
+
+  /// No description provided for @colBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get colBalance;
+
+  /// No description provided for @colShortfall.
+  ///
+  /// In en, this message translates to:
+  /// **'Short'**
+  String get colShortfall;
+
+  /// No description provided for @usualEfficiency.
+  ///
+  /// In en, this message translates to:
+  /// **'Usual efficiency'**
+  String get usualEfficiency;
 }
 
 class _AppLocalizationsDelegate

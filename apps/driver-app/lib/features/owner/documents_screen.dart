@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
+import '../../app/theme.dart';
 import '../../core/api/owner_models.dart';
 import '../../core/media/captured_photo.dart';
 import '../../core/media/upload_now.dart';
@@ -104,6 +105,52 @@ class DocumentsList extends ConsumerWidget {
       onRetry: () => ref.invalidate(documentsProvider(query)),
       builder: (list) => list.isEmpty
           ? EmptyState(l.noDocuments)
+          : isDesktop(context)
+          ? DesktopTable(
+              key: const Key('document-table'),
+              columns: [
+                TableColumn(l.colDocument, flex: 3),
+                if (!scoped) TableColumn(l.colFor, flex: 3),
+                TableColumn(l.colNumber, flex: 3),
+                TableColumn(l.expiresOn, flex: 2),
+                TableColumn(l.status, flex: 2),
+                const TableColumn('', flex: 1, end: true),
+              ],
+              rows: [
+                for (final d in list)
+                  TableRowData(
+                    key: ValueKey('document-${d.id}'),
+                    cells: [
+                      Text(
+                        docTypeLabel(l, d.docType),
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      if (!scoped)
+                        d.vehicleId != null
+                            ? NumberPlate(subject(d))
+                            : Row(
+                                children: [
+                                  InitialsAvatar(subject(d), radius: 14),
+                                  const SizedBox(width: 8),
+                                  Flexible(
+                                    child: Text(
+                                      subject(d),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                      Text(
+                        d.number ?? '–',
+                        style: const TextStyle(color: TaxcyColors.muted),
+                      ),
+                      Text(fmt.calendarDate(d.expiresOn)),
+                      DocumentStatusChip(d),
+                      _menu(context, d),
+                    ],
+                  ),
+              ],
+            )
           : Column(
               children: [
                 for (final d in list)
@@ -125,35 +172,28 @@ class DocumentsList extends ConsumerWidget {
                       trailing: Wrap(
                         crossAxisAlignment: WrapCrossAlignment.center,
                         spacing: 4,
-                        children: [
-                          DocumentStatusChip(d),
-                          PopupMenuButton<String>(
-                            onSelected: (action) => switch (action) {
-                              'view' => _view(context, d),
-                              _ => openScreen<void>(
-                                context,
-                                DocumentFormScreen(renewing: d),
-                              ),
-                            },
-                            itemBuilder: (_) => [
-                              if (d.mediaId != null)
-                                PopupMenuItem(
-                                  value: 'view',
-                                  child: Text(l.viewPhoto),
-                                ),
-                              if (d.status != 'superseded')
-                                PopupMenuItem(
-                                  value: 'renew',
-                                  child: Text(l.renew),
-                                ),
-                            ],
-                          ),
-                        ],
+                        children: [DocumentStatusChip(d), _menu(context, d)],
                       ),
                     ),
                   ),
               ],
             ),
+    );
+  }
+
+  Widget _menu(BuildContext context, FleetDocument d) {
+    final l = context.l10n;
+    return PopupMenuButton<String>(
+      onSelected: (action) => switch (action) {
+        'view' => _view(context, d),
+        _ => openScreen<void>(context, DocumentFormScreen(renewing: d)),
+      },
+      itemBuilder: (_) => [
+        if (d.mediaId != null)
+          PopupMenuItem(value: 'view', child: Text(l.viewPhoto)),
+        if (d.status != 'superseded')
+          PopupMenuItem(value: 'renew', child: Text(l.renew)),
+      ],
     );
   }
 

@@ -738,5 +738,12 @@
   "greetingEvening": "शुभ संध्या",
   "colRoute": "रूट",
   "colCustomer": "ग्राहक",
-  "colFare": "किराया"
+  "colFare": "किराया",
+  "colDocument": "दस्तावेज़",
+  "colFor": "किसका",
+  "colNumber": "नंबर",
+  "colRole": "भूमिका",
+  "colBalance": "बाकी हिसाब",
+  "colShortfall": "कमी",
+  "usualEfficiency": "आम माइलेज"
 }

@@ -43,6 +43,13 @@ class DriversScreen extends ConsumerWidget {
             onRetry: () => ref.invalidate(driversProvider),
             builder: (list) => list.isEmpty
                 ? EmptyState(l.noDriversYet)
+                : isDesktop(context)
+                ? CardGrid(
+                    children: [
+                      for (final d in list)
+                        _DriverCard(driver: d, defaultRule: defaultRule),
+                    ],
+                  )
                 : Column(
                     children: [
                       for (final d in list)
@@ -88,6 +95,107 @@ class DriversScreen extends ConsumerWidget {
                   ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A driver on the desktop: avatar, number, status, pay rule and the vehicles
+/// they may drive.
+class _DriverCard extends StatelessWidget {
+  const _DriverCard({required this.driver, required this.defaultRule});
+  final Driver driver;
+  final PayRule? defaultRule;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final fmt = context.fmt;
+    final d = driver;
+    final pay = d.payRule != null
+        ? payRuleText(fmt, d.payRule!)
+        : defaultRule == null
+        ? null
+        : l.payDefault(rule: payRuleText(fmt, defaultRule!));
+    return Card(
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        key: ValueKey('driver-${d.id}'),
+        onTap: () => openScreen<void>(context, DriverScreen(driver: d)),
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  InitialsAvatar(d.name, radius: 22),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          d.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        Text(
+                          formatPhone(d.phone),
+                          style: const TextStyle(color: TaxcyColors.muted),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ToneChip(
+                    d.isActive ? l.active : l.inactive,
+                    tone: d.isActive ? Tone.success : Tone.neutral,
+                  ),
+                ],
+              ),
+              if (d.membershipStatus == 'invited') ...[
+                const SizedBox(height: 8),
+                ToneChip(l.notSignedInYet, tone: Tone.brand),
+              ],
+              const SizedBox(height: 14),
+              const Divider(height: 1),
+              const SizedBox(height: 12),
+              if (pay != null)
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.payments_outlined,
+                      size: 18,
+                      color: TaxcyColors.muted,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        pay,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final v in d.vehicles)
+                    ToneChip(
+                      formatRegistration(v.registrationNo),
+                      tone: Tone.brand,
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -500,56 +608,131 @@ class MembersScreen extends ConsumerWidget {
           AsyncView(
             value: members,
             onRetry: () => ref.invalidate(membersProvider),
-            builder: (list) => Column(
-              children: [
-                for (final m in list)
-                  Card(
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    child: ListTile(
-                      key: ValueKey('member-${m.id}'),
-                      title: Text(m.name ?? formatPhone(m.phone)),
-                      subtitle: Text(
-                        [
-                          formatPhone(m.phone),
-                          m.roles.map((r) => roleLabel(l, r)).join(', '),
-                          memberStatusLabel(l, m.status),
-                        ].join(' · '),
-                      ),
-                      trailing:
-                          isOwner &&
-                              m.isManager &&
-                              m.status != 'suspended' &&
-                              m.userId != me
-                          ? IconButton(
-                              key: ValueKey('remove-manager-${m.id}'),
-                              tooltip: l.removeManager,
-                              icon: const Icon(Icons.person_remove),
-                              onPressed: () async {
-                                final yes = await confirmAction(
-                                  context,
-                                  title: l.removeManager,
-                                  message: l.removeManagerConfirm(
-                                    name: m.name ?? formatPhone(m.phone),
+            builder: (list) => isDesktop(context)
+                ? DesktopTable(
+                    key: const Key('member-table'),
+                    columns: [
+                      TableColumn(l.name, flex: 4),
+                      TableColumn(l.mobileNumber, flex: 3),
+                      TableColumn(l.colRole, flex: 3),
+                      TableColumn(l.status),
+                      const TableColumn('', flex: 1, end: true),
+                    ],
+                    rows: [
+                      for (final m in list)
+                        TableRowData(
+                          key: ValueKey('member-${m.id}'),
+                          cells: [
+                            Row(
+                              children: [
+                                InitialsAvatar(
+                                  m.name ?? formatPhone(m.phone),
+                                  radius: 16,
+                                ),
+                                const SizedBox(width: 10),
+                                Flexible(
+                                  child: Text(
+                                    m.name ?? formatPhone(m.phone),
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
-                                  confirm: l.remove,
-                                );
-                                if (!yes || !context.mounted) return;
-                                await runAction(context, () async {
-                                  await ref
-                                      .read(ownerApiProvider)
-                                      .removeManager(m.id);
-                                  refreshAfter(ref, {OwnerArea.fleet});
-                                });
-                              },
-                            )
-                          : null,
-                    ),
+                                ),
+                              ],
+                            ),
+                            Text(
+                              formatPhone(m.phone),
+                              style: const TextStyle(color: TaxcyColors.muted),
+                            ),
+                            Wrap(
+                              spacing: 4,
+                              runSpacing: 4,
+                              children: [
+                                for (final r in m.roles)
+                                  ToneChip(
+                                    roleLabel(l, r),
+                                    tone: r == 'owner'
+                                        ? Tone.brand
+                                        : Tone.neutral,
+                                  ),
+                              ],
+                            ),
+                            ToneChip(
+                              memberStatusLabel(l, m.status),
+                              tone: m.status == 'active'
+                                  ? Tone.success
+                                  : m.status == 'suspended'
+                                  ? Tone.danger
+                                  : Tone.warning,
+                            ),
+                            _removeManager(context, ref, m, isOwner, me) ??
+                                const SizedBox.shrink(),
+                          ],
+                        ),
+                    ],
+                  )
+                : Column(
+                    children: [
+                      for (final m in list)
+                        Card(
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          child: ListTile(
+                            key: ValueKey('member-${m.id}'),
+                            title: Text(m.name ?? formatPhone(m.phone)),
+                            subtitle: Text(
+                              [
+                                formatPhone(m.phone),
+                                m.roles.map((r) => roleLabel(l, r)).join(', '),
+                                memberStatusLabel(l, m.status),
+                              ].join(' · '),
+                            ),
+                            trailing: _removeManager(
+                              context,
+                              ref,
+                              m,
+                              isOwner,
+                              me,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-              ],
-            ),
           ),
         ],
       ),
     );
   }
+}
+
+/// The owner's "remove manager" button for [m], or null when it doesn't apply.
+Widget? _removeManager(
+  BuildContext context,
+  WidgetRef ref,
+  Member m,
+  bool isOwner,
+  String? me,
+) {
+  final l = context.l10n;
+  if (!isOwner || !m.isManager || m.status == 'suspended' || m.userId == me) {
+    return null;
+  }
+  return IconButton(
+    key: ValueKey('remove-manager-${m.id}'),
+    tooltip: l.removeManager,
+    icon: const Icon(Icons.person_remove),
+    onPressed: () async {
+      final yes = await confirmAction(
+        context,
+        title: l.removeManager,
+        message: l.removeManagerConfirm(name: m.name ?? formatPhone(m.phone)),
+        confirm: l.remove,
+      );
+      if (!yes || !context.mounted) return;
+      await runAction(context, () async {
+        await ref.read(ownerApiProvider).removeManager(m.id);
+        refreshAfter(ref, {OwnerArea.fleet});
+      });
+    },
+  );
 }

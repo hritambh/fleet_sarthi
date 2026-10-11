@@ -105,6 +105,47 @@ void main() {
     );
   });
 
+  testWidgets('every section lays out on the desktop', (tester) async {
+    await desktop(tester);
+    // Each section with what makes its desktop page: a table, a card grid, or
+    // the wide form. A layout overflow anywhere fails the test.
+    final pages = <String, Finder>{
+      'alerts': find.byType(Card),
+      'review': find.byKey(const Key('review-keep-typed')),
+      'vehicles': find.byType(CardGrid),
+      'drivers': find.byType(CardGrid),
+      'documents': find.byKey(const Key('document-table')),
+      'fuel': find.byType(CardGrid),
+      'settlements': find.byKey(const Key('settlement-table')),
+      'members': find.byKey(const Key('member-table')),
+      'settings': find.byKey(const Key('save-thresholds')),
+    };
+    for (final MapEntry(key: section, value: marker) in pages.entries) {
+      await tester.tap(find.byKey(Key('side-$section')));
+      await settle(tester);
+      expect(marker, findsWidgets, reason: section);
+      expect(tester.takeException(), isNull, reason: section);
+    }
+  });
+
+  testWidgets('settings put the thresholds beside language and pay', (
+    tester,
+  ) async {
+    await desktop(tester);
+    await tester.tap(find.byKey(const Key('side-settings')));
+    await settle(tester);
+    final thresholds = tester.getTopLeft(find.byKey(const Key('audit-k')));
+    final language = tester.getTopLeft(
+      find.byKey(const Key('settings-language')),
+    );
+    // Side by side, not stacked; and two threshold fields share a row.
+    expect(language.dx, greaterThan(thresholds.dx));
+    expect(
+      tester.getTopLeft(find.byKey(const Key('audit-min'))).dy,
+      thresholds.dy,
+    );
+  });
+
   testWidgets('a laptop just below the desktop width keeps the rail', (
     tester,
   ) async {

@@ -132,83 +132,101 @@ class AlertCard extends ConsumerWidget {
     final fmt = context.fmt;
     final a = alert;
     final link = _subjectLink(context);
-    return Card(
-      key: ValueKey('alert-${a.id}'),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                SeverityChip(a.severity),
-                ToneChip(alertKindLabel(l, a.kind)),
-                if (a.status != 'open') ToneChip(alertStatusLabel(l, a.status)),
-                if (a.falsePositive) ToneChip(l.falseAlarm, tone: Tone.brand),
-                Text(
-                  fmt.dayTime(a.createdAt),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: TaxcyColors.muted,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              alertTitle(fmt, a),
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              alertBody(fmt, a),
-              maxLines: compact ? 3 : null,
-              overflow: compact ? TextOverflow.ellipsis : null,
-            ),
-            if (!compact) ...[
-              const SizedBox(height: 8),
+    final desktop = isDesktop(context);
+    final accent = switch (a.severity) {
+      'critical' => Colors.red.shade600,
+      'warning' => Colors.amber.shade700,
+      _ => TaxcyColors.blue600,
+    };
+    // Full width, so short alerts don't shrink to their text.
+    return SizedBox(
+      width: double.infinity,
+      child: Card(
+        key: ValueKey('alert-${a.id}'),
+        clipBehavior: Clip.antiAlias,
+        child: Container(
+          // On the desktop, the severity colours the card's left edge.
+          decoration: desktop
+              ? BoxDecoration(
+                  border: Border(left: BorderSide(color: accent, width: 4)),
+                )
+              : null,
+          padding: EdgeInsets.all(desktop ? 18 : 14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Wrap(
                 spacing: 6,
                 runSpacing: 6,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  if (link != null)
-                    TextButton(onPressed: link.$2, child: Text(link.$1)),
-                  if (a.status == 'open')
-                    TextButton(
-                      key: const Key('alert-acknowledge'),
-                      onPressed: () => _update(context, ref, 'acknowledged'),
-                      child: Text(l.acknowledge),
+                  SeverityChip(a.severity),
+                  ToneChip(alertKindLabel(l, a.kind)),
+                  if (a.status != 'open')
+                    ToneChip(alertStatusLabel(l, a.status)),
+                  if (a.falsePositive) ToneChip(l.falseAlarm, tone: Tone.brand),
+                  Text(
+                    fmt.dayTime(a.createdAt),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: TaxcyColors.muted,
                     ),
-                  if (a.isOpen && a.isFuel)
-                    OutlinedButton(
-                      key: const Key('alert-false-alarm'),
-                      onPressed: () => _update(
-                        context,
-                        ref,
-                        'dismissed',
-                        falsePositive: true,
-                      ),
-                      child: Text(l.dismissFalseAlarm),
-                    ),
-                  if (a.isOpen)
-                    OutlinedButton(
-                      key: const Key('alert-dismiss'),
-                      onPressed: () => _update(context, ref, 'dismissed'),
-                      child: Text(l.dismiss),
-                    ),
-                  if (a.isOpen)
-                    FilledButton(
-                      key: const Key('alert-resolve'),
-                      onPressed: () => _update(context, ref, 'resolved'),
-                      child: Text(l.markResolved),
-                    ),
+                  ),
                 ],
               ),
+              const SizedBox(height: 8),
+              Text(
+                alertTitle(fmt, a),
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                alertBody(fmt, a),
+                maxLines: compact ? 3 : null,
+                overflow: compact ? TextOverflow.ellipsis : null,
+              ),
+              if (!compact) ...[
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    if (link != null)
+                      TextButton(onPressed: link.$2, child: Text(link.$1)),
+                    if (a.status == 'open')
+                      TextButton(
+                        key: const Key('alert-acknowledge'),
+                        onPressed: () => _update(context, ref, 'acknowledged'),
+                        child: Text(l.acknowledge),
+                      ),
+                    if (a.isOpen && a.isFuel)
+                      OutlinedButton(
+                        key: const Key('alert-false-alarm'),
+                        onPressed: () => _update(
+                          context,
+                          ref,
+                          'dismissed',
+                          falsePositive: true,
+                        ),
+                        child: Text(l.dismissFalseAlarm),
+                      ),
+                    if (a.isOpen)
+                      OutlinedButton(
+                        key: const Key('alert-dismiss'),
+                        onPressed: () => _update(context, ref, 'dismissed'),
+                        child: Text(l.dismiss),
+                      ),
+                    if (a.isOpen)
+                      FilledButton(
+                        key: const Key('alert-resolve'),
+                        onPressed: () => _update(context, ref, 'resolved'),
+                        child: Text(l.markResolved),
+                      ),
+                  ],
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

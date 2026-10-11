@@ -36,8 +36,9 @@ class PageWidth extends StatelessWidget {
       constraints: BoxConstraints(
         maxWidth: isDesktop(context) ? desktopMaxWidth : ownerMaxWidth,
       ),
-      // Full width up to the cap, so narrower content lines up on the left.
-      child: SizedBox(width: double.infinity, child: child),
+      // Narrower content (a filter, a short card) lines up on the left
+      // instead of centring; it keeps its own width.
+      child: Align(alignment: AlignmentDirectional.topStart, child: child),
     ),
   );
 }
@@ -783,3 +784,165 @@ void fire(Future<void> future) => unawaited(future);
 final isOwnerProvider = Provider<bool>(
   (ref) => ref.watch(authProvider).value?.isOwner ?? false,
 );
+
+/// A column of a [DesktopTable]: its header, its share of the width, and
+/// whether its cells line up on the right (amounts).
+class TableColumn {
+  const TableColumn(this.label, {this.flex = 2, this.end = false});
+  final String label;
+  final int flex;
+  final bool end;
+}
+
+/// One row of a [DesktopTable]; [onTap] makes it clickable.
+class TableRowData {
+  const TableRowData({required this.key, required this.cells, this.onTap});
+  final Key key;
+  final List<Widget> cells;
+  final VoidCallback? onTap;
+}
+
+/// A table for the desktop layout: a tinted header, then one row per item that
+/// highlights on hover and opens on click.
+class DesktopTable extends StatelessWidget {
+  const DesktopTable({required this.columns, required this.rows, super.key});
+  final List<TableColumn> columns;
+  final List<TableRowData> rows;
+
+  Widget _cells(List<Widget> children) => Row(
+    children: [
+      for (var i = 0; i < columns.length; i++)
+        Expanded(
+          flex: columns[i].flex,
+          child: Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Align(
+              alignment: columns[i].end
+                  ? AlignmentDirectional.centerEnd
+                  : AlignmentDirectional.centerStart,
+              child: children[i],
+            ),
+          ),
+        ),
+    ],
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    const headerStyle = TextStyle(
+      color: TaxcyColors.muted,
+      fontSize: 12,
+      fontWeight: FontWeight.w600,
+      letterSpacing: 0.3,
+    );
+    return Card(
+      margin: const EdgeInsets.only(top: 4),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          Container(
+            color: TaxcyColors.blue50,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: _cells([
+              for (final c in columns)
+                Text(c.label.toUpperCase(), style: headerStyle),
+            ]),
+          ),
+          for (final row in rows)
+            InkWell(
+              key: row.key,
+              hoverColor: TaxcyColors.blue50,
+              onTap: row.onTap,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 14,
+                ),
+                decoration: const BoxDecoration(
+                  border: Border(top: BorderSide(color: TaxcyColors.border)),
+                ),
+                child: _cells(row.cells),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Cards in as many columns as fit (each at least [minWidth]), up to four.
+class CardGrid extends StatelessWidget {
+  const CardGrid({required this.children, this.minWidth = 300, super.key});
+  final List<Widget> children;
+  final double minWidth;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, box) {
+      const gap = 16.0;
+      final columns = ((box.maxWidth + gap) / (minWidth + gap)).floor().clamp(
+        1,
+        4,
+      );
+      final width = (box.maxWidth - gap * (columns - 1)) / columns;
+      return Wrap(
+        spacing: gap,
+        runSpacing: gap,
+        children: [
+          for (final child in children) SizedBox(width: width, child: child),
+        ],
+      );
+    },
+  );
+}
+
+/// "Sharma Travels" → "ST".
+String initials(String name) {
+  final words = name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
+  return words.take(2).map((w) => w[0].toUpperCase()).join();
+}
+
+/// A round avatar with someone's initials.
+class InitialsAvatar extends StatelessWidget {
+  const InitialsAvatar(this.name, {this.radius = 20, super.key});
+  final String name;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) => CircleAvatar(
+    radius: radius,
+    backgroundColor: TaxcyColors.blue100,
+    foregroundColor: TaxcyColors.blue800,
+    child: Text(
+      initials(name),
+      style: TextStyle(fontWeight: FontWeight.w700, fontSize: radius * 0.7),
+    ),
+  );
+}
+
+/// A registration number as a yellow commercial plate, like on a cab.
+class NumberPlate extends StatelessWidget {
+  const NumberPlate(this.registration, {super.key});
+  final String registration;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+    decoration: BoxDecoration(
+      color: const Color(0xFFFFD43B),
+      borderRadius: BorderRadius.circular(6),
+      border: Border.all(color: const Color(0xFF1F2937)),
+    ),
+    child: Text(
+      registration,
+      maxLines: 1,
+      softWrap: false,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        fontWeight: FontWeight.w800,
+        letterSpacing: 0.8,
+        color: Color(0xFF111827),
+      ),
+    ),
+  );
+}
