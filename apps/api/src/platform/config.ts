@@ -63,9 +63,7 @@ const Env = z
      * Empty (the default) switches it off; production allows it only with DEMO_MODE.
      */
     MASTER_PASSWORD: optional(
-      z
-        .string()
-        .min(16, 'MASTER_PASSWORD must be at least 16 characters (or empty to turn it off)'),
+      z.string().min(8, 'MASTER_PASSWORD must be at least 8 characters (or empty to turn it off)'),
     ),
 
     SENTRY_DSN: optional(z.url()),
