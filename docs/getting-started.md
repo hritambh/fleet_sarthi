@@ -121,6 +121,7 @@ Seeded org "Sharma Travels"
   driver   Ramesh Kumar    +919000000011   (Innova Crysta, diesel)
   driver   Suresh Patil    +919000000012   (Dzire, cng)
   driver   Imran Shaikh    +919000000013   (Etios, petrol)
+Seeded org "Patil Cabs": owner Suresh Patil, driver Anil Sharma (both switch between owner and driver mode)
 Sign in with any of these numbers and the password 12345678.
 ```
 

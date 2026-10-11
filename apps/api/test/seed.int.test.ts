@@ -1,3 +1,4 @@
+import type { Session } from '@taxcy/contracts';
 import { randomUUID } from 'node:crypto';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -38,8 +39,43 @@ describe('demo seed', () => {
         .post('/v1/auth/password/login')
         .send({ phone, password: DEMO_PASSWORD, deviceId: randomUUID(), platform: 'web' })
         .expect(200);
-      expect(res.body).toMatchObject({ memberships: [{ orgName: 'Sharma Travels' }] });
+      expect((res.body as Session).memberships.map((m) => m.orgName)).toContain('Sharma Travels');
     }
+  });
+
+  it('gives Anil and Suresh a fleet each and a driving job in the other', async () => {
+    const login = async (phone: string) =>
+      (
+        await request(h.http)
+          .post('/v1/auth/password/login')
+          .send({ phone, password: DEMO_PASSWORD, deviceId: randomUUID(), platform: 'web' })
+          .expect(200)
+      ).body as Session;
+    const roles = (s: Session) => s.memberships.map((m) => `${m.orgName}: ${m.roles.join('+')}`);
+
+    const anil = await login('+919000000001');
+    expect(roles(anil)).toEqual(['Sharma Travels: owner', 'Patil Cabs: driver']);
+    const suresh = await login('+919000000012');
+    expect(roles(suresh)).toEqual(['Sharma Travels: driver', 'Patil Cabs: owner']);
+    // Each signs in to the fleet they own.
+    const orgName = (s: Session) => s.memberships.find((m) => m.orgId === s.activeOrgId)?.orgName;
+    expect(orgName(anil)).toBe('Sharma Travels');
+    expect(orgName(suresh)).toBe('Patil Cabs');
+
+    // Anil has a trip to drive for Patil Cabs.
+    const driving = await request(h.http)
+      .post('/v1/auth/switch-org')
+      .set('Authorization', `Bearer ${anil.accessToken}`)
+      .send({
+        orgId: anil.memberships.find((m) => m.orgName === 'Patil Cabs')?.orgId,
+        refreshToken: anil.refreshToken,
+      })
+      .expect(200);
+    const trips = await request(h.http)
+      .get('/v1/me/trips')
+      .set('Authorization', `Bearer ${(driving.body as Session).accessToken}`)
+      .expect(200);
+    expect(trips.body).toHaveLength(1);
   });
 
   it('produces the alerts the getting-started guide promises', async () => {
@@ -85,6 +121,7 @@ describe('demo seed', () => {
       await h.owner.organization.count({
         where: { memberships: { some: { user: { phoneE164: '+919000000001' } } } },
       }),
-    ).toBe(1);
+    ).toBe(2);
+    expect(await h.owner.organization.count({ where: { name: 'Patil Cabs' } })).toBe(1);
   });
 });

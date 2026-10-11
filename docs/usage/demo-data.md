@@ -33,15 +33,16 @@ After a reset, the app in Chrome still holds the old trips and any unsent action
 
 ## Who's who
 
-| Person       | Phone        | Role    | Drives                                   | Notes                                                                  |
-| ------------ | ------------ | ------- | ---------------------------------------- | ---------------------------------------------------------------------- |
-| Anil Sharma  | `9000000001` | Owner   | —                                        | Sees and changes everything                                            |
-| Priya Nair   | `9000000002` | Manager | —                                        | Runs trips, alerts and settlements; can't change settings or pay rules |
-| Ramesh Kumar | `9000000011` | Driver  | MH12AB1234 Toyota Innova Crysta (diesel) |                                                                        |
-| Suresh Patil | `9000000012` | Driver  | MH12CD5678 Maruti Dzire (CNG)            | On a trip right now                                                    |
-| Imran Shaikh | `9000000013` | Driver  | MH12EF9012 Toyota Etios (petrol)         | Has a trip this evening                                                |
+| Person       | Phone        | Role    | Drives                                         | Notes                                                                     |
+| ------------ | ------------ | ------- | ---------------------------------------------- | ------------------------------------------------------------------------- |
+| Anil Sharma  | `9000000001` | Owner   | MH12GH3456 Maruti Ertiga (CNG), for Patil Cabs | Sees and changes everything in Sharma Travels; also drives for Patil Cabs |
+| Priya Nair   | `9000000002` | Manager | —                                              | Runs trips, alerts and settlements; can't change settings or pay rules    |
+| Ramesh Kumar | `9000000011` | Driver  | MH12AB1234 Toyota Innova Crysta (diesel)       |                                                                           |
+| Suresh Patil | `9000000012` | Driver  | MH12CD5678 Maruti Dzire (CNG)                  | On a trip right now; also owns Patil Cabs                                 |
+| Imran Shaikh | `9000000013` | Driver  | MH12EF9012 Toyota Etios (petrol)               | Has a trip this evening                                                   |
 
 - Each driver is linked to their own car only. Linking more pairs is one of the walkthroughs below.
+- **Patil Cabs** is a second, one-car fleet: Suresh owns it and Anil drives its Ertiga (one trip, tomorrow morning, Pune Station → Mumbai Airport T2). So both of them have an owner role in one fleet and a driver role in the other, and can switch modes (walkthrough 9).
 - Driver pay: the org default, **20% of the quoted fare**, with driver allowances paid to the driver.
 
 ### Signing in
@@ -90,7 +91,7 @@ otp.issued phone=+919000000001 code=482913 (dev only, not sent)
 
 ### 2. A driver's live trip (driver mode)
 
-1. Sign in as **Suresh** (`9000000012`). **Aundh → Lavasa** is on the road.
+1. Sign in as **Suresh** (`9000000012`). He opens in owner mode for Patil Cabs (the fleet he owns); switch to **Drive for Sharma Travels** (**More → Switch mode or fleet**). **Aundh → Lavasa** is on the road.
 2. Add a **toll** or **parking** charge, and a **fuel fill** (the car is filled in from the trip). They show on the trip right away, before it ends.
 3. Try to start another trip: **Start trip** is greyed out with "End your trip Aundh → Lavasa before starting another".
 4. **End trip:** take an odometer photo and enter a reading above the start reading (about 61,000 km plus the km driven). As the owner, the trip now shows in today's settlement draft for Suresh.
@@ -128,6 +129,13 @@ Sign in as **Priya** (`9000000002`). She can create and assign trips, handle ale
 3. Go back online: the actions sync in order, and the pending count drops to zero.
 
 ### 9. One account, two fleets
+
+Anil and Suresh are set up this way already:
+
+- Sign in as **Anil**: owner mode for Sharma Travels. **More → Switch mode or fleet** (on a wide screen, the fleet card at the top of the sidebar) lists **Manage Sharma Travels** and **Drive for Patil Cabs**; pick the second for driver mode with tomorrow's Mumbai Airport trip.
+- Sign in as **Suresh**: owner mode for Patil Cabs, and **Drive for Sharma Travels** for his running trip.
+
+To set it up yourself:
 
 1. Sign out and sign up with a new number (for example `9000000099`) and a password. The app shows **Welcome to Fleet Sarthi**.
 2. Tap **I own vehicles: set up my fleet**, name it, and create it. You're in owner mode in your new fleet.
