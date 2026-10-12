@@ -167,10 +167,21 @@ void main() {
     expect(accessTokenFromUserJsonUrl(null), isNull);
   });
 
-  test('the phone.email sign-in page address', () {
+  test('the phone.email sign-in page always asks for a fresh OTP', () {
     expect(
       PhoneEmailScreen.signInUrl('client-1', 'device-9').toString(),
-      'https://auth.phone.email/log-in?client_id=client-1&device=device-9&auth_type=5',
+      'https://auth.phone.email/log-in?client_id=client-1&device=device-9'
+      '&auth_type=5&mode=othernum',
     );
+    // The number typed in our form is pre-filled; anything else is left out.
+    expect(
+      PhoneEmailScreen.signInUrl(
+        'client-1',
+        'device-9',
+        phoneHint: '9876543210',
+      ).queryParameters,
+      containsPair('user_phone_no', '9876543210'),
+    );
+    expect(freshOtpParams('12345'), {'mode': 'othernum'});
   });
 }

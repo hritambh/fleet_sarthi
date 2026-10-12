@@ -30,14 +30,20 @@ const _closeGrace = Duration(milliseconds: 1500);
 /// window and closes, without navigating this window away. Returns the access
 /// token (the API checks it with phone.email), or null if the user closed the
 /// popup.
-Future<String?> openPhoneEmailPopup(String clientId) {
+/// Always asks for a number and a fresh OTP ([freshOtpParams]), pre-filled
+/// with [phoneHint].
+Future<String?> openPhoneEmailPopup(String clientId, {String phoneHint = ''}) {
   final window = web.window;
   final origin = window.location.origin;
   window.localStorage.removeItem(_resultKey);
-  final url = Uri.https('www.phone.email', '/auth/log-in', {
+  // Straight to auth.phone.email: the www.phone.email/auth/log-in address in
+  // phone.email's snippet redirects here but drops every parameter except
+  // client_id, redirect_url and auth_type.
+  final url = Uri.https('auth.phone.email', '/log-in', {
     'client_id': clientId,
     'redirect_url': '$origin/phone-otp.html',
     'auth_type': '8',
+    ...freshOtpParams(phoneHint),
   });
   // Centred, the size phone.email's own snippet uses.
   const width = 500;

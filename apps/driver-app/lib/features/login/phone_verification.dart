@@ -8,6 +8,7 @@ import '../../app/providers.dart';
 import '../../core/api/auth_models.dart';
 import '../common/format.dart';
 import 'phone_email_popup.dart';
+import 'phone_email_result.dart';
 
 /// Which sign-in methods the server offers. If it can't be asked (offline, an
 /// older API), the app sticks to passwords and reset codes.
@@ -70,12 +71,18 @@ class AppPhoneVerifier implements PhoneVerifier {
     required String deviceId,
     String phoneHint = '',
   }) => switch (otp.provider) {
-    'phone_email' when kIsWeb => openPhoneEmailPopup(otp.clientId!),
+    'phone_email' when kIsWeb => openPhoneEmailPopup(
+      otp.clientId!,
+      phoneHint: phoneHint,
+    ),
     'phone_email' => Navigator.of(context).push<String>(
       MaterialPageRoute(
         fullscreenDialog: true,
-        builder: (_) =>
-            PhoneEmailScreen(clientId: otp.clientId!, deviceId: deviceId),
+        builder: (_) => PhoneEmailScreen(
+          clientId: otp.clientId!,
+          deviceId: deviceId,
+          phoneHint: phoneHint,
+        ),
       ),
     ),
     _ => showDialog<String>(
@@ -92,18 +99,28 @@ class PhoneEmailScreen extends StatefulWidget {
   const PhoneEmailScreen({
     required this.clientId,
     required this.deviceId,
+    this.phoneHint = '',
     super.key,
   });
 
   final String clientId;
   final String deviceId;
 
-  /// The page phone.email's own Flutter package loads (auth_type 5 = app).
-  static Uri signInUrl(String clientId, String deviceId) => Uri.https(
-    'auth.phone.email',
-    '/log-in',
-    {'client_id': clientId, 'device': deviceId, 'auth_type': '5'},
-  );
+  /// The 10-digit number typed in our form, pre-filled on phone.email's page.
+  final String phoneHint;
+
+  /// The page phone.email's own Flutter package loads (auth_type 5 = app),
+  /// always asking for a number and a fresh OTP ([freshOtpParams]).
+  static Uri signInUrl(
+    String clientId,
+    String deviceId, {
+    String phoneHint = '',
+  }) => Uri.https('auth.phone.email', '/log-in', {
+    'client_id': clientId,
+    'device': deviceId,
+    'auth_type': '5',
+    ...freshOtpParams(phoneHint),
+  });
 
   @override
   State<PhoneEmailScreen> createState() => _PhoneEmailScreenState();
@@ -127,7 +144,11 @@ class _PhoneEmailScreenState extends State<PhoneEmailScreen> {
           InAppWebView(
             initialUrlRequest: URLRequest(
               url: WebUri.uri(
-                PhoneEmailScreen.signInUrl(widget.clientId, widget.deviceId),
+                PhoneEmailScreen.signInUrl(
+                  widget.clientId,
+                  widget.deviceId,
+                  phoneHint: widget.phoneHint,
+                ),
               ),
             ),
             initialSettings: InAppWebViewSettings(

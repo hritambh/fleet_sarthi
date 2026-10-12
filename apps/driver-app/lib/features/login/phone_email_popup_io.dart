@@ -6,5 +6,5 @@ class PopupBlockedException implements Exception {
   const PopupBlockedException();
 }
 
-Future<String?> openPhoneEmailPopup(String clientId) =>
+Future<String?> openPhoneEmailPopup(String clientId, {String phoneHint = ''}) =>
     throw UnsupportedError('phone.email popup is web only');
