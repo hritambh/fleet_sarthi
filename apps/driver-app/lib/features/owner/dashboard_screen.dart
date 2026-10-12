@@ -297,70 +297,77 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final firstName = (session?.name ?? '').trim().split(' ').first;
     return Scaffold(
       appBar: appBar,
-      // A quiet field of fine dots behind the cards that moves like a slow
-      // wave and reacts to the pointer (desktop only; still when reduced
-      // motion is on).
+      // A field of fine dots across the whole page, waves passing through it
+      // and reacting to the pointer (desktop only; still when reduced motion
+      // is on). The cards are slightly see-through so it shows behind them.
       body: MagneticFieldBackground(
         accentColor: TaxcyColors.blue600,
-        child: RefreshPage(
-          onRefresh: refresh,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 4, bottom: 16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            cardTheme: Theme.of(
+              context,
+            ).cardTheme.copyWith(color: Colors.white.withValues(alpha: 0.58)),
+          ),
+          child: RefreshPage(
+            onRefresh: refresh,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 4, bottom: 16),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            greeting(l, DateTime.now(), firstName),
+                            style: const TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w700,
+                              color: TaxcyColors.blue950,
+                              letterSpacing: -0.4,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${fmt.calendarDate(istToday(widget.now))}'
+                            ' · ${session?.activeMembership?.orgName ?? ''}',
+                            style: const TextStyle(color: TaxcyColors.muted),
+                          ),
+                          const SizedBox(height: 12),
+                          daySwitch,
+                        ],
+                      ),
+                    ),
+                    FilledButton.icon(
+                      key: const Key('dashboard-new-trip'),
+                      onPressed: () =>
+                          openScreen<void>(context, const CreateTripScreen()),
+                      icon: const Icon(Icons.add),
+                      label: Text(l.newTrip),
+                    ),
+                  ],
+                ),
+              ),
+              cards,
+              const SizedBox(height: 12),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          greeting(l, DateTime.now(), firstName),
-                          style: const TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w700,
-                            color: TaxcyColors.blue950,
-                            letterSpacing: -0.4,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '${fmt.calendarDate(istToday(widget.now))}'
-                          ' · ${session?.activeMembership?.orgName ?? ''}',
-                          style: const TextStyle(color: TaxcyColors.muted),
-                        ),
-                        const SizedBox(height: 12),
-                        daySwitch,
-                      ],
-                    ),
+                    flex: 3,
+                    child: Column(children: [todaysTrips, openAlerts]),
                   ),
-                  FilledButton.icon(
-                    key: const Key('dashboard-new-trip'),
-                    onPressed: () =>
-                        openScreen<void>(context, const CreateTripScreen()),
-                    icon: const Icon(Icons.add),
-                    label: Text(l.newTrip),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    flex: 2,
+                    child: Column(children: [attention, documentsDue]),
                   ),
                 ],
               ),
-            ),
-            cards,
-            const SizedBox(height: 12),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: Column(children: [todaysTrips, openAlerts]),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  flex: 2,
-                  child: Column(children: [attention, documentsDue]),
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -493,7 +500,8 @@ class _CountTile extends StatelessWidget {
       width: width,
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
       decoration: BoxDecoration(
-        color: TaxcyColors.blue50,
+        // See-through, so the desktop's dot field shows behind it too.
+        color: TaxcyColors.blue50.withValues(alpha: 0.55),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: TaxcyColors.blue100),
       ),

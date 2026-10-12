@@ -40,13 +40,20 @@ const _ringWavelength = 46.0; // distance between its crests
 const _ringSpread = 70.0; // how far the crest train reaches either side
 const _ringPush = 5.0; // how far its crests move dots, when new
 const _ringLight = 0.9; // how much its crests light dots, when new
-const _maxRings = 3; // older ripples are dropped
+// Without any input, a softer wave starts off-screen to the left every
+// second and sweeps across the whole field as a gently curved front.
+const _autoEvery = 1.0; // seconds between waves
+const _autoStrength = 0.7; // compared with a tap's ripple
+const _autoOffset = 320.0; // how far left of the field they start
+const _maxRings = 10; // older ripples are dropped
+const _ringFields = 5; // per ripple: x, y, age, life, strength
 const _buckets = 8; // size/colour steps; one draw call each
 const _idleFrame = Duration(milliseconds: 33); // resting wave updates at 30 fps
 const _settled = 0.05; // px (and px/s / 10) below which the field is at rest
 
 /// A quiet, living background of fine dots. At rest they rise and fall with
-/// a slow travelling wave, crests catching a little more light; near the pointer they swell, turn to the accent colour and part like
+/// a slow travelling wave, crests catching a little more light, and every
+/// second a softer wave sweeps across them; near the pointer they swell, turn to the accent colour and part like
 /// a lens under a soft glow, get dragged along when the pointer sweeps past,
 /// and spring back with a slight wobble. A tap sends a ripple through them.
 /// It sits behind [child] without taking its taps or gestures.
@@ -278,9 +285,14 @@ class _FieldSimulation {
   Float32List points = Float32List(0);
   final bucketSizes = Int32List(_buckets);
 
-  /// Ripples as (x, y, age) triples, oldest first.
-  final rings = Float32List(_maxRings * 3);
+  /// Ripples, oldest first, [_ringFields] floats each. Taps have strength 1;
+  /// the automatic waves less.
+  final rings = Float32List(_maxRings * _ringFields);
   int ringCount = 0;
+
+  Size size = Size.zero;
+  final _random = math.Random();
+  double _untilAuto = 0;
 
   Offset? magnet;
 
@@ -295,6 +307,7 @@ class _FieldSimulation {
   bool motion = true;
 
   void layout(Size size, double spacing) {
+    this.size = size;
     final cols = (size.width / spacing).floor() + 1;
     final rows = (size.height / spacing).floor() + 1;
     final left = (size.width - (cols - 1) * spacing) / 2;
@@ -317,16 +330,42 @@ class _FieldSimulation {
     }
   }
 
-  void addRing(Offset at) {
+  /// A tap's ripple.
+  void addRing(Offset at) => _addRing(at, _ringLife, 1);
+
+  /// An automatic wave from off-screen left, living until it has crossed the
+  /// field.
+  void _addAutoWave() {
+    final from = Offset(-_autoOffset, size.height * _random.nextDouble());
+    final far = math.max(
+      (Offset(size.width, 0) - from).distance,
+      (Offset(size.width, size.height) - from).distance,
+    );
+    _addRing(from, (far + _ringSpread * 2) / _ringSpeed, _autoStrength);
+  }
+
+  void _addRing(Offset at, double life, double strength) {
+    const n = _ringFields;
     if (ringCount == _maxRings) {
-      rings.setRange(0, (_maxRings - 1) * 3, rings, 3); // drop the oldest
+      rings.setRange(0, (_maxRings - 1) * n, rings, n); // drop the oldest
       ringCount--;
     }
-    final at3 = ringCount * 3;
-    rings[at3] = at.dx;
-    rings[at3 + 1] = at.dy;
-    rings[at3 + 2] = 0;
+    final at0 = ringCount * n;
+    rings[at0] = at.dx;
+    rings[at0 + 1] = at.dy;
+    rings[at0 + 2] = 0;
+    rings[at0 + 3] = life;
+    rings[at0 + 4] = strength;
     ringCount++;
+  }
+
+  /// Whether a tap's ripple is still running (the automatic waves alone
+  /// don't need a frame every vsync; the 30 fps idle updates carry them).
+  bool get _tapRippling {
+    for (var k = 0; k < ringCount; k++) {
+      if (rings[k * _ringFields + 4] >= 1) return true;
+    }
+    return false;
   }
 
   void clearRings() => ringCount = 0;
@@ -353,6 +392,13 @@ class _FieldSimulation {
     this.motion = motion;
     if (motion) time += dt;
     _ageRings(dt);
+    if (motion && !size.isEmpty) {
+      _untilAuto -= dt;
+      if (_untilAuto <= 0) {
+        _addAutoWave();
+        _untilAuto = _autoEvery;
+      }
+    }
     final tintIn = 1 - math.exp(-dt / _tintIn);
     final tintOut = 1 - math.exp(-dt / _tintOut);
     final m = magnet;
@@ -363,7 +409,7 @@ class _FieldSimulation {
     final glowTarget = m == null || !motion ? 0.0 : 1.0;
     glow += (glowTarget - glow) * (glowTarget > glow ? tintIn : tintOut);
     final r2 = radius * radius;
-    var busy = ringCount > 0 || (glow - glowTarget).abs() > 1e-3;
+    var busy = _tapRippling || (glow - glowTarget).abs() > 1e-3;
     for (var i = 0; i < count; i++) {
       final x = xs[i];
       final y = ys[i];
@@ -409,12 +455,12 @@ class _FieldSimulation {
 
   void _ageRings(double dt) {
     var kept = 0;
+    const n = _ringFields;
     for (var k = 0; k < ringCount; k++) {
-      final age = rings[k * 3 + 2] + dt;
-      if (age >= _ringLife) continue;
-      rings[kept * 3] = rings[k * 3];
-      rings[kept * 3 + 1] = rings[k * 3 + 1];
-      rings[kept * 3 + 2] = age;
+      final age = rings[k * n + 2] + dt;
+      if (age >= rings[k * n + 3]) continue;
+      if (kept != k) rings.setRange(kept * n, kept * n + n, rings, k * n);
+      rings[kept * n + 2] = age;
       kept++;
     }
     ringCount = kept;
@@ -475,12 +521,19 @@ class _FieldPainter extends CustomPainter {
     final ringY = Float32List(ringCount);
     final ringFront = Float32List(ringCount);
     final ringFade = Float32List(ringCount);
+    const n = _ringFields;
     for (var k = 0; k < ringCount; k++) {
-      final left = 1 - f.rings[k * 3 + 2] / _ringLife;
-      ringX[k] = f.rings[k * 3];
-      ringY[k] = f.rings[k * 3 + 1];
-      ringFront[k] = f.rings[k * 3 + 2] * _ringSpeed;
-      ringFade[k] = left * left;
+      final age = f.rings[k * n + 2];
+      final left = 1 - age / f.rings[k * n + 3];
+      final strength = f.rings[k * n + 4];
+      ringX[k] = f.rings[k * n];
+      ringY[k] = f.rings[k * n + 1];
+      ringFront[k] = age * _ringSpeed;
+      // A tap's ripple fades as it spreads; an automatic wave stays even
+      // until it nears the far edge.
+      ringFade[k] = strength >= 1
+          ? left * left
+          : strength * math.min(1, left * 4);
     }
     final points = f.points;
     final sizes = f.bucketSizes..fillRange(0, _buckets, 0);
