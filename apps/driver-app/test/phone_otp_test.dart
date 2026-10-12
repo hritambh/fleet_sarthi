@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:taxcy_driver/core/api/auth_models.dart';
+import 'package:taxcy_driver/features/login/phone_email_result.dart';
 import 'package:taxcy_driver/features/login/phone_verification.dart';
 
 import 'auth_flows_test.dart' show signedOut, tapKey, trips, type;
@@ -152,6 +153,18 @@ void main() {
       );
       expect(find.text('Verify with OTP'), findsOneWidget);
     });
+  });
+
+  test("reads the token from phone.email's web result", () {
+    expect(
+      accessTokenFromUserJsonUrl('https://user.phone.email/user_abc-123.json'),
+      'abc-123',
+    );
+    expect(
+      accessTokenFromUserJsonUrl('https://evil.example/user_x.json'),
+      isNull,
+    );
+    expect(accessTokenFromUserJsonUrl(null), isNull);
   });
 
   test('the phone.email sign-in page address', () {

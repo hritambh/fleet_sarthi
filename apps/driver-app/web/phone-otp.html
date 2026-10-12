@@ -8,20 +8,26 @@
   <body style="font-family: sans-serif; text-align: center; padding-top: 3rem">
     <p>Number verified. You can close this window.</p>
     <script>
-      // phone.email returns here (redirect_url) with ?access_token=… after the
-      // OTP. Hand the token to the app window that opened this popup (same
-      // origin only), keep a copy in case the message is still in flight when
-      // the popup closes, and close. The app sends the token to the API, which
-      // checks it with phone.email; the token is single-use.
+      // redirect_url for phone.email's website sign-in. The app opens it in
+      // "web plugin" mode, which messages the app window instead of coming
+      // here; this page is the fallback if phone.email does return here with
+      // ?access_token=…: hand the token to the opener (same origin only) and
+      // close. The API checks the token with phone.email; it's single-use.
       (function () {
         var token = new URLSearchParams(location.search).get('access_token');
         var result = { type: 'phone-otp', accessToken: token };
         try {
           localStorage.setItem('phone-otp-result', JSON.stringify(result));
         } catch (e) {}
-        if (window.opener) window.opener.postMessage(result, location.origin);
         history.replaceState(null, '', location.pathname);
-        window.close();
+        if (window.opener) {
+          window.opener.postMessage(result, location.origin);
+          window.close();
+        } else {
+          // Not a popup (phone.email navigated the app window here): go back
+          // to the app rather than leave the user on this page.
+          location.replace('/');
+        }
       })();
     </script>
   </body>

@@ -74,7 +74,7 @@ The sign-in card adapts to `GET /auth/methods`:
 ### Platforms
 
 - **Android and iOS apps:** phone.email's sign-in page opens in a native WebView (`PhoneEmailScreen`), which hands the token back through a JavaScript handler.
-- **Web app:** phone.email's website sign-in opens in a popup (`phone_email_popup_web.dart`), as in phone.email's website snippet: `https://www.phone.email/auth/log-in?client_id=…&redirect_url=<web app>/phone-otp.html`. After the OTP, phone.email sends the popup to `phone-otp.html?access_token=…` (`apps/driver-app/web/phone-otp.html`), which posts the token to the app window (same origin only) and closes. If the browser blocks the popup, the app says to allow pop-ups for the site.
+- **Web app:** phone.email's website sign-in opens in a popup (`phone_email_popup_web.dart`) in its "web plugin" mode: `https://www.phone.email/auth/log-in?client_id=…&redirect_url=<web app>/phone-otp.html&auth_type=8`. After the OTP, phone.email's page posts `{user_json_url: "https://user.phone.email/user_<access_token>.json"}` to the app window and closes; the app accepts that message only from `https://auth.phone.email` and takes the access token from the URL. (Without `auth_type=8`, phone.email instead redirects the **app window** itself to `redirect_url?access_token=…`, which would leave the app; `web/phone-otp.html` only remains as a fallback that returns to the app.) If the browser blocks the popup, the app says to allow pop-ups for the site.
 
 Both end with the same access token, which the API checks with phone.email in the same way. If phone.email asks you to register the sites that use your client id, add the web app's address (e.g. `https://taxcy-web.onrender.com`, and `http://localhost:5174` for local development).
 
