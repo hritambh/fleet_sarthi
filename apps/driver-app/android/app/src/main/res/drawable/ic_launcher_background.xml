@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The app icon's tile: Fleet Sarthi blue, lighter at the top left. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:angle="315"
+        android:endColor="#1E40AF"
+        android:startColor="#2563EB" />
+</shape>
