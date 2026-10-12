@@ -2871,4 +2871,53 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get nextMonth => 'अगला महीना';
+
+  @override
+  String get logInWithOtp => 'OTP से लॉग इन करें';
+
+  @override
+  String get noAccountForNumber =>
+      'इस नंबर से अभी कोई अकाउंट नहीं है। साइन अप करें।';
+
+  @override
+  String get signUpVerifyHint =>
+      'नंबर आपका है, यह पक्का करने के लिए हम OTP भेजेंगे।';
+
+  @override
+  String get verifyAndCreateAccount => 'नंबर सत्यापित करें और अकाउंट बनाएँ';
+
+  @override
+  String get resetWithOtpIntro =>
+      'OTP से अपना मोबाइल नंबर सत्यापित करें, फिर नया पासवर्ड चुनें।';
+
+  @override
+  String get numberVerified => 'नंबर सत्यापित हो गया';
+
+  @override
+  String get verifyWithOtp => 'OTP से सत्यापित करें';
+
+  @override
+  String get phoneVerifyTitle => 'अपना नंबर सत्यापित करें';
+
+  @override
+  String get stubVerifyHint =>
+      'टेस्ट मोड: कोई SMS नहीं भेजा जाता। नीचे दिया नंबर सत्यापित माना जाएगा।';
+
+  @override
+  String get errorPhoneOtpDisabled => 'OTP से साइन इन अभी उपलब्ध नहीं है।';
+
+  @override
+  String get errorPhoneNotVerified =>
+      'आपका नंबर सत्यापित नहीं हो सका। फिर से कोशिश करें।';
+
+  @override
+  String get errorPhoneMismatch =>
+      'आपने जो नंबर सत्यापित किया, वह लिखे गए नंबर से अलग है।';
+
+  @override
+  String get errorPhoneVerificationRequired =>
+      'साइन अप के लिए मोबाइल नंबर सत्यापित करें। Android या iOS ऐप इस्तेमाल करें।';
+
+  @override
+  String get verify => 'सत्यापित करें';
 }

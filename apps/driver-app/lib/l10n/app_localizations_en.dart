@@ -2878,4 +2878,53 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nextMonth => 'Next month';
+
+  @override
+  String get logInWithOtp => 'Log in with OTP';
+
+  @override
+  String get noAccountForNumber =>
+      'No account with this number yet. Sign up instead.';
+
+  @override
+  String get signUpVerifyHint =>
+      'We\'ll send an OTP to confirm the number is yours.';
+
+  @override
+  String get verifyAndCreateAccount => 'Verify number & create account';
+
+  @override
+  String get resetWithOtpIntro =>
+      'Verify your mobile number with an OTP, then choose a new password.';
+
+  @override
+  String get numberVerified => 'Number verified';
+
+  @override
+  String get verifyWithOtp => 'Verify with OTP';
+
+  @override
+  String get phoneVerifyTitle => 'Verify your number';
+
+  @override
+  String get stubVerifyHint =>
+      'Test mode: no SMS is sent. The number below counts as verified.';
+
+  @override
+  String get errorPhoneOtpDisabled => 'OTP sign-in isn\'t available right now.';
+
+  @override
+  String get errorPhoneNotVerified =>
+      'Couldn\'t verify your number. Try again.';
+
+  @override
+  String get errorPhoneMismatch =>
+      'The number you verified isn\'t the one you entered.';
+
+  @override
+  String get errorPhoneVerificationRequired =>
+      'Verify your mobile number to sign up. Use the Android or iOS app.';
+
+  @override
+  String get verify => 'Verify';
 }

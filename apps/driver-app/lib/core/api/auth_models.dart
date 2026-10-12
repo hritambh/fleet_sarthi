@@ -44,3 +44,38 @@ class Account {
   final String? name;
   final bool hasPassword;
 }
+
+/// Phone OTP as the server offers it (`GET /auth/methods`).
+class PhoneOtpMethod {
+  const PhoneOtpMethod({required this.provider, this.clientId});
+
+  factory PhoneOtpMethod.fromJson(JsonMap json) => PhoneOtpMethod(
+    provider: json.str('provider'),
+    clientId: json.strOrNull('clientId'),
+  );
+
+  /// `phone_email`, or `stub` (development: any number, no real OTP).
+  final String provider;
+
+  /// phone.email's public client id.
+  final String? clientId;
+}
+
+/// Which sign-in methods the server offers (`GET /auth/methods`).
+class AuthMethods {
+  const AuthMethods({this.phoneOtp, this.signupRequiresVerifiedPhone = false});
+
+  factory AuthMethods.fromJson(JsonMap json) {
+    final otp = json['phoneOtp'];
+    return AuthMethods(
+      phoneOtp: otp == null ? null : PhoneOtpMethod.fromJson(asJsonMap(otp)),
+      signupRequiresVerifiedPhone: json['signupRequiresVerifiedPhone'] == true,
+    );
+  }
+
+  /// Passwords and reset codes only (also what an unreachable server means).
+  static const none = AuthMethods();
+
+  final PhoneOtpMethod? phoneOtp;
+  final bool signupRequiresVerifiedPhone;
+}

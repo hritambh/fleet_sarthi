@@ -17,12 +17,31 @@ abstract class AuthApi {
 
   /// Phone + password sign-up. An invited number without a password gets this
   /// password and joins its fleet; ACCOUNT_EXISTS when the number already has
-  /// a password.
+  /// a password. [verificationToken] proves the number by OTP (required when
+  /// the server's [AuthMethods.signupRequiresVerifiedPhone]).
   Future<Session> signUp({
     required String phone,
     required String password,
     required DeviceInfo device,
     String? name,
+    String? verificationToken,
+  });
+
+  /// Which sign-in methods the server offers.
+  Future<AuthMethods> methods();
+
+  /// Signs in the owner of the number an OTP verified; NOT_FOUND when it has
+  /// no account.
+  Future<Session> phoneOtpLogin({
+    required String verificationToken,
+    required DeviceInfo device,
+  });
+
+  /// A new password for the number an OTP verified (instead of a reset code).
+  Future<Session> resetPasswordVerified({
+    required String verificationToken,
+    required String password,
+    required DeviceInfo device,
   });
 
   /// INVALID_CREDENTIALS for a wrong number or password alike.
@@ -90,10 +109,36 @@ class HttpAuthApi implements AuthApi {
     required String password,
     required DeviceInfo device,
     String? name,
+    String? verificationToken,
   }) => _session('/auth/signup', {
     'phone': phone,
     'password': password,
     'name': ?name,
+    'verificationToken': ?verificationToken,
+    ..._device(device),
+  });
+
+  @override
+  Future<AuthMethods> methods() async =>
+      AuthMethods.fromJson(await _public('GET', '/auth/methods'));
+
+  @override
+  Future<Session> phoneOtpLogin({
+    required String verificationToken,
+    required DeviceInfo device,
+  }) => _session('/auth/phone-otp/login', {
+    'verificationToken': verificationToken,
+    ..._device(device),
+  });
+
+  @override
+  Future<Session> resetPasswordVerified({
+    required String verificationToken,
+    required String password,
+    required DeviceInfo device,
+  }) => _session('/auth/password/reset-verified', {
+    'verificationToken': verificationToken,
+    'password': password,
     ..._device(device),
   });
 

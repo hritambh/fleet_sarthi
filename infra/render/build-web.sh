@@ -6,6 +6,12 @@
 # compiled in. Output: apps/driver-app/build/web.
 set -euo pipefail
 : "${API_URL:?set API_URL to the API server root, e.g. https://taxcy-api.onrender.com}"
+# Forgive a bare host ("taxcy-api.onrender.com"): without a scheme the browser
+# would treat it as a path on the web app itself. Drop a trailing / or /v1 too.
+[[ "$API_URL" == http://* || "$API_URL" == https://* ]] || API_URL="https://$API_URL"
+API_URL="${API_URL%/}"
+API_URL="${API_URL%/v1}"
+echo "API_URL=$API_URL"
 FLUTTER_VERSION="${FLUTTER_VERSION:-3.38.5}"
 cd "$(dirname "$0")/../.."
 

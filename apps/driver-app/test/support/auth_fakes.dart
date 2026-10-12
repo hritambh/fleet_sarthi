@@ -1,8 +1,10 @@
+import 'package:flutter/widgets.dart';
 import 'package:taxcy_driver/core/api/api.dart';
 import 'package:taxcy_driver/core/api/auth_api.dart';
 import 'package:taxcy_driver/core/api/auth_models.dart';
 import 'package:taxcy_driver/core/api/json.dart';
 import 'package:taxcy_driver/core/api/models.dart';
+import 'package:taxcy_driver/features/login/phone_verification.dart';
 
 import 'fakes.dart';
 
@@ -60,12 +62,45 @@ class FakeAuthApi implements AuthApi {
     required String password,
     required DeviceInfo device,
     String? name,
+    String? verificationToken,
   }) async {
     _record('signUp', {
       'phone': phone,
       'password': password,
       'name': name,
+      'verificationToken': ?verificationToken,
       'platform': device.platform,
+    });
+    return _session();
+  }
+
+  /// What GET /auth/methods answers; passwords only by default.
+  AuthMethods authMethods = AuthMethods.none;
+
+  @override
+  Future<AuthMethods> methods() async {
+    _record('methods');
+    return authMethods;
+  }
+
+  @override
+  Future<Session> phoneOtpLogin({
+    required String verificationToken,
+    required DeviceInfo device,
+  }) async {
+    _record('phoneOtpLogin', {'verificationToken': verificationToken});
+    return _session();
+  }
+
+  @override
+  Future<Session> resetPasswordVerified({
+    required String verificationToken,
+    required String password,
+    required DeviceInfo device,
+  }) async {
+    _record('resetPasswordVerified', {
+      'verificationToken': verificationToken,
+      'password': password,
     });
     return _session();
   }
@@ -151,5 +186,27 @@ class FakeAuthApi implements AuthApi {
       ),
     ];
     return _sessionIn(orgId);
+  }
+}
+
+/// Stands in for phone.email's OTP screen: answers [token] (null = the user
+/// backed out) and records the number hint it was given.
+class FakePhoneVerifier implements PhoneVerifier {
+  String? token = 'stub:+919000000011';
+  bool supported = true;
+  final hints = <String>[];
+
+  @override
+  bool supports(PhoneOtpMethod otp) => supported;
+
+  @override
+  Future<String?> verify(
+    BuildContext context,
+    PhoneOtpMethod otp, {
+    required String deviceId,
+    String phoneHint = '',
+  }) async {
+    hints.add(phoneHint);
+    return token;
   }
 }

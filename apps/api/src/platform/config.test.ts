@@ -51,6 +51,41 @@ describe('loadConfig', () => {
     expect(loadConfig({ ...production, DEMO_MODE: 'true' }).MASTER_PASSWORD).toBe('x'.repeat(8));
   });
 
+  it('keeps phone OTP off by default and checks its settings', () => {
+    expect(loadConfig(base).PHONE_OTP_PROVIDER).toBe('none');
+    expect(() => loadConfig({ ...base, PHONE_OTP_PROVIDER: 'phone_email' })).toThrow(
+      /PHONE_EMAIL_CLIENT_ID: required/,
+    );
+    expect(
+      loadConfig({ ...base, PHONE_OTP_PROVIDER: 'phone_email', PHONE_EMAIL_CLIENT_ID: 'id' })
+        .PHONE_EMAIL_CLIENT_ID,
+    ).toBe('id');
+    expect(() => loadConfig({ ...base, SIGNUP_REQUIRES_VERIFIED_PHONE: 'true' })).toThrow(
+      /SIGNUP_REQUIRES_VERIFIED_PHONE/,
+    );
+    expect(() =>
+      loadConfig({
+        ...base,
+        NODE_ENV: 'production',
+        DEMO_MODE: 'true',
+        PHONE_OTP_PROVIDER: 'stub',
+      }),
+    ).toThrow(/PHONE_OTP_PROVIDER: stub/);
+  });
+
+  it('normalises CORS origins to what browsers send', () => {
+    expect(
+      loadConfig({
+        ...base,
+        CORS_ORIGINS: 'taxcy-web.onrender.com, https://fleet.example.in/ ,http://localhost:5174',
+      }).CORS_ORIGINS,
+    ).toEqual([
+      'https://taxcy-web.onrender.com',
+      'https://fleet.example.in',
+      'http://localhost:5174',
+    ]);
+  });
+
   it('allows console SMS in development and tests', () => {
     expect(loadConfig({ ...base, NODE_ENV: 'test' }).SMS_PROVIDER).toBe('console');
   });
