@@ -2244,6 +2244,196 @@
   "@colShortfall": {},
   "usualEfficiency": "Usual efficiency",
   "@usualEfficiency": {},
+  "alertsInbox": "Alerts & review",
+  "@alertsInbox": {},
+  "documentsExpiredChip": "Document expired",
+  "@documentsExpiredChip": {},
+  "documentsDueChip": "Document due",
+  "@documentsDueChip": {},
+  "managersSection": "Managers",
+  "@managersSection": {},
+  "noManagersYet": "No managers yet.",
+  "@noManagersYet": {},
+  "shareTripHeading": "Trip details",
+  "@shareTripHeading": {},
+  "shareCustomer": "Customer",
+  "@shareCustomer": {},
+  "sharePickup": "Pickup",
+  "@sharePickup": {},
+  "shareDrop": "Drop",
+  "@shareDrop": {},
+  "sharePickupTime": "Pickup time",
+  "@sharePickupTime": {},
+  "shareCab": "Cab",
+  "@shareCab": {},
+  "shareDriver": "Driver",
+  "@shareDriver": {},
+  "shareFare": "Fare",
+  "@shareFare": {},
+  "shareFareWithKm": "{fare} ({km} included)",
+  "@shareFareWithKm": {
+    "placeholders": {
+      "fare": {
+        "type": "String"
+      },
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "copyDetails": "Copy details",
+  "@copyDetails": {},
+  "detailsCopied": "Trip details copied",
+  "@detailsCopied": {},
+  "shareOnWhatsApp": "Send on WhatsApp",
+  "@shareOnWhatsApp": {},
+  "whatsAppUnavailable": "Couldn't open WhatsApp",
+  "@whatsAppUnavailable": {},
+  "analytics": "Analytics",
+  "@analytics": {},
+  "analyticsIntro": "Daily fuel bought, revenue and km for the month, by vehicle.",
+  "@analyticsIntro": {},
+  "month": "Month",
+  "@month": {},
+  "perTripAverages": "Average per trip",
+  "@perTripAverages": {},
+  "avgKmPerTrip": "Km per trip",
+  "@avgKmPerTrip": {},
+  "avgRevenuePerTrip": "Revenue per trip",
+  "@avgRevenuePerTrip": {},
+  "avgFuelCostPerTrip": "Fuel cost per trip (est.)",
+  "@avgFuelCostPerTrip": {},
+  "tripsInMonth": "{count, plural, =1{1 trip this month} other{{count} trips this month}}",
+  "@tripsInMonth": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "fuelBoughtPerDay": "Fuel bought per day",
+  "@fuelBoughtPerDay": {},
+  "revenuePerDay": "Revenue per day",
+  "@revenuePerDay": {},
+  "kmPerDay": "Km driven per day",
+  "@kmPerDay": {},
+  "monthTotal": "Month total: {total}",
+  "@monthTotal": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "fuelInRupeesNote": "Shown in ₹, since litres and kg can't be added together.",
+  "@fuelInRupeesNote": {},
+  "noActivityThisMonth": "Nothing this month.",
+  "@noActivityThisMonth": {},
+  "customDay": "Custom",
+  "@customDay": {},
+  "tripsOnDay": "Trips on {date}",
+  "@tripsOnDay": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "availableCabs": "Available cabs",
+  "@availableCabs": {},
+  "availableDrivers": "Available drivers",
+  "@availableDrivers": {},
+  "tripsUnassigned": "Trips unassigned",
+  "@tripsUnassigned": {},
+  "completedTrips": "Completed trips",
+  "@completedTrips": {},
+  "percentReady": "{percent}% ready",
+  "@percentReady": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "cabsFooter": "{onTrip} on trip · {inactive} inactive",
+  "@cabsFooter": {
+    "placeholders": {
+      "onTrip": {
+        "type": "int"
+      },
+      "inactive": {
+        "type": "int"
+      }
+    }
+  },
+  "driversFooter": "{onTrip} on trip · {assigned} assigned",
+  "@driversFooter": {
+    "placeholders": {
+      "onTrip": {
+        "type": "int"
+      },
+      "assigned": {
+        "type": "int"
+      }
+    }
+  },
+  "standby": "Standby",
+  "@standby": {},
+  "needsCab": "Needs cab",
+  "@needsCab": {},
+  "pending": "pending",
+  "@pending": {},
+  "resolveQueue": "Resolve queue",
+  "@resolveQueue": {},
+  "runs": "runs",
+  "@runs": {},
+  "grossFare": "{amount} gross fare",
+  "@grossFare": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "busyFromTo": "Busy {from} – {to}",
+  "@busyFromTo": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "busyPickCleared": "The vehicle or driver you picked is booked at the new time, so it was cleared.",
+  "@busyPickCleared": {},
+  "busyPickWarning": "This vehicle or driver is already booked at this time.",
+  "@busyPickWarning": {},
+  "uploadFile": "Upload file",
+  "@uploadFile": {},
+  "chooseOtherFile": "Choose another file",
+  "@chooseOtherFile": {},
+  "uploadFileHint": "Or upload a PDF or image (JPG, PNG, WebP), up to 15 MB.",
+  "@uploadFileHint": {},
+  "fileTooLarge": "That file is larger than 15 MB.",
+  "@fileTooLarge": {},
+  "pdfDocument": "PDF document",
+  "@pdfDocument": {},
+  "imageFile": "Image",
+  "@imageFile": {},
+  "viewDocument": "View document",
+  "@viewDocument": {},
+  "documentUnavailable": "Couldn't open the document. Try again.",
+  "@documentUnavailable": {},
+  "schedule": "Schedule",
+  "@schedule": {},
+  "noTripsThisDay": "No trips this day.",
+  "@noTripsThisDay": {},
+  "previousMonth": "Previous month",
+  "@previousMonth": {},
+  "nextMonth": "Next month",
+  "@nextMonth": {},
   "logInWithOtp": "Log in with OTP",
   "@logInWithOtp": {},
   "noAccountForNumber": "No account with this number yet. Sign up instead.",

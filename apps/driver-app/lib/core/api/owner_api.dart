@@ -11,6 +11,7 @@ class TripFilter {
     this.vehicleId,
     this.from,
     this.to,
+    this.overlapping = false,
     this.limit = 200,
   });
 
@@ -19,6 +20,10 @@ class TripFilter {
   final String? vehicleId;
   final DateTime? from;
   final DateTime? to;
+
+  /// Match trips whose scheduled window overlaps [from, to) instead of those
+  /// starting inside it (calendars).
+  final bool overlapping;
   final int limit;
 
   Map<String, String> toQuery() => {
@@ -27,6 +32,7 @@ class TripFilter {
     'vehicleId': ?vehicleId,
     if (from != null) 'from': from!.toUtc().toIso8601String(),
     if (to != null) 'to': to!.toUtc().toIso8601String(),
+    if (overlapping) 'overlapping': 'true',
     'limit': '$limit',
   };
 
@@ -38,10 +44,12 @@ class TripFilter {
       other.vehicleId == vehicleId &&
       other.from == from &&
       other.to == to &&
+      other.overlapping == overlapping &&
       other.limit == limit;
 
   @override
-  int get hashCode => Object.hash(status, driverId, vehicleId, from, to, limit);
+  int get hashCode =>
+      Object.hash(status, driverId, vehicleId, from, to, overlapping, limit);
 }
 
 /// The staff (owner and manager) endpoints owner mode uses. Owner mode is
@@ -81,6 +89,14 @@ abstract class OwnerApi {
   Future<Trip> voidCharge(String tripId, String chargeId);
   Future<Trip> addCollection(String tripId, JsonMap body);
   Future<TripRoute> tripRoute(String tripId);
+
+  /// Vehicles and drivers already booked during [from, to), not counting
+  /// [excludeTripId] (the trip being reassigned).
+  Future<Availability> availability(
+    DateTime from,
+    DateTime to, {
+    String? excludeTripId,
+  });
   Future<DistanceCheck?> distanceCheck(String tripId);
 
   // Fleet
@@ -124,6 +140,13 @@ abstract class OwnerApi {
   Future<List<FuelFill>> fuelFills({String? vehicleId, int limit = 100});
   Future<FuelFill> voidFuelFill(String id, {required String reason});
   Future<VehicleFuelAudit> vehicleAudit(String vehicleId);
+
+  // Analytics
+  /// Per-vehicle, per-day figures for [month] (YYYY-MM).
+  Future<DailyAnalytics> dailyAnalytics(String month);
+
+  /// The dashboard's headline figures for IST day [date] (YYYY-MM-DD).
+  Future<DashboardSummary> dashboard(String date);
 
   // Alerts and review
   Future<List<Alert>> alerts({
@@ -286,6 +309,23 @@ class HttpOwnerApi implements OwnerApi {
   @override
   Future<TripRoute> tripRoute(String tripId) async =>
       TripRoute.fromJson(await _obj('GET', '/trips/$tripId/route'));
+
+  @override
+  Future<Availability> availability(
+    DateTime from,
+    DateTime to, {
+    String? excludeTripId,
+  }) async => Availability.fromJson(
+    await _obj(
+      'GET',
+      '/availability',
+      query: {
+        'from': from.toUtc().toIso8601String(),
+        'to': to.toUtc().toIso8601String(),
+        'excludeTripId': ?excludeTripId,
+      },
+    ),
+  );
 
   @override
   Future<DistanceCheck?> distanceCheck(String tripId) async {
@@ -477,6 +517,18 @@ class HttpOwnerApi implements OwnerApi {
     'vehicleId': ?vehicleId,
     'limit': '$limit',
   })).map(Alert.fromJson).toList();
+
+  @override
+  Future<DailyAnalytics> dailyAnalytics(String month) async =>
+      DailyAnalytics.fromJson(
+        await _obj('GET', '/analytics/daily', query: {'month': month}),
+      );
+
+  @override
+  Future<DashboardSummary> dashboard(String date) async =>
+      DashboardSummary.fromJson(
+        await _obj('GET', '/analytics/dashboard', query: {'date': date}),
+      );
 
   @override
   Future<AlertSummary> alertSummary() async =>

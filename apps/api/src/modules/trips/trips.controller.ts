@@ -16,6 +16,14 @@ export class TripsController {
     return this.trips.list(a, query);
   }
 
+  @Route(r.availability)
+  availability(
+    @Tenant() a: TenantAuth,
+    @Input() { query }: RouteInput<typeof r.availability>,
+  ): Out<typeof r.availability> {
+    return this.trips.availability(a, query);
+  }
+
   @Route(r.create)
   create(
     @Tenant() a: TenantAuth,

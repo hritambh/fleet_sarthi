@@ -8,9 +8,12 @@ import 'package:taxcy_driver/app/preferences.dart';
 import 'package:taxcy_driver/app/providers.dart';
 import 'package:taxcy_driver/core/api/models.dart';
 import 'package:taxcy_driver/core/auth/session_store.dart';
+import 'package:taxcy_driver/core/media/captured_photo.dart';
+import 'package:taxcy_driver/core/media/file_pick.dart';
 import 'package:taxcy_driver/core/sync/sync_engine.dart';
 import 'package:taxcy_driver/features/login/phone_verification.dart';
 import 'package:taxcy_driver/features/owner/trips/route_map.dart';
+import 'package:taxcy_driver/features/owner/trips/trip_share.dart';
 import 'package:taxcy_driver/l10n/app_localizations.dart';
 
 import 'auth_fakes.dart';
@@ -42,6 +45,26 @@ class Harness {
   final auth = FakeAuthApi();
   final phoneVerifier = FakePhoneVerifier();
   final owner = FakeOwnerApi();
+
+  /// Photo and file bytes kept on the "device".
+  final photoStore = MemoryPhotoStore();
+
+  /// What "Upload file" picks: a PDF by default; null makes it too large.
+  PickedFile? Function(String kind)? pickFile = (kind) => PickedFile(
+    name: 'insurance.pdf',
+    file: CapturedPhoto(
+      id: 'picked-$kind',
+      kind: kind,
+      path: '/photos/picked-$kind',
+      sha256: 'b' * 64,
+      byteSize: 2048,
+      contentType: 'application/pdf',
+      capturedAt: DateTime.utc(2026, 10, 9, 3),
+    ),
+  );
+
+  /// URLs the app asked to open outside itself (WhatsApp links), in order.
+  final openedUrls = <Uri>[];
   final InMemorySessionStore sessions;
   final SharedPreferences prefs;
   late final engine = SyncEngine(
@@ -62,14 +85,23 @@ class Harness {
       phoneVerifierProvider.overrideWithValue(phoneVerifier),
       ownerApiProvider.overrideWithValue(owner),
       mapTilesProvider.overrideWithValue(false),
+      urlOpenerProvider.overrideWithValue((uri) async {
+        openedUrls.add(uri);
+        return true;
+      }),
       sessionStoreProvider.overrideWithValue(sessions),
       syncEngineProvider.overrideWithValue(engine),
       backgroundWorkProvider.overrideWithValue(false),
       startupPreferencesProvider.overrideWithValue(prefs),
-      photoStoreProvider.overrideWithValue(MemoryPhotoStore()),
+      photoStoreProvider.overrideWithValue(photoStore),
       photoCaptureProvider.overrideWithValue(
         (context, kind) async => fakePhoto('captured-$kind', kind: kind),
       ),
+      filePickProvider.overrideWithValue((kind) async {
+        final next = pickFile;
+        if (next == null) throw const FileTooLargeException();
+        return next(kind);
+      }),
     ],
     child: child,
   );

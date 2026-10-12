@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../core/api/models.dart';
+import '../../core/api/owner_models.dart';
 import '../common/errors.dart';
 import '../common/format.dart';
 import 'owner_providers.dart';
@@ -354,6 +355,177 @@ class MetricCard extends StatelessWidget {
   );
 }
 
+/// A dashboard headline: icon and an optional pill on top, the label, a large
+/// value with a smaller suffix ("18 / 24"), then an optional progress bar,
+/// footer line and link. [highlight] tints it orange for "needs action".
+class KpiCard extends StatelessWidget {
+  const KpiCard({
+    required this.icon,
+    required this.accent,
+    required this.label,
+    required this.value,
+    this.suffix,
+    this.pill,
+    this.progress,
+    this.footer,
+    this.link,
+    this.highlight = false,
+    this.onTap,
+    super.key,
+  });
+
+  final IconData icon;
+  final Color accent;
+  final String label;
+  final String value;
+  final String? suffix;
+  final String? pill;
+
+  /// 0 to 1.
+  final double? progress;
+  final String? footer;
+
+  /// A call to action at the bottom, e.g. "Resolve queue".
+  final String? link;
+  final bool highlight;
+  final VoidCallback? onTap;
+
+  static const _orange = Color(0xFFF08A24);
+
+  @override
+  Widget build(BuildContext context) {
+    final tint = highlight ? _orange : accent;
+    return Card(
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      color: highlight ? const Color(0xFFFDE7D3) : null,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: highlight
+                          ? _orange
+                          : accent.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      icon,
+                      size: 20,
+                      color: highlight ? Colors.white : accent,
+                    ),
+                  ),
+                  const Spacer(),
+                  if (pill != null)
+                    Flexible(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: highlight
+                              ? TaxcyColors.ink
+                              : tint.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          pill!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: highlight ? Colors.white : tint,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: TaxcyColors.muted, fontSize: 13),
+              ),
+              const SizedBox(height: 2),
+              Text.rich(
+                TextSpan(
+                  text: value,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: TaxcyColors.blue950,
+                  ),
+                  children: [
+                    if (suffix != null)
+                      TextSpan(
+                        text: ' $suffix',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: TaxcyColors.muted,
+                        ),
+                      ),
+                  ],
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (progress != null) ...[
+                const SizedBox(height: 10),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(999),
+                  child: LinearProgressIndicator(
+                    value: progress!.clamp(0, 1),
+                    minHeight: 6,
+                    color: tint,
+                    backgroundColor: TaxcyColors.border,
+                  ),
+                ),
+              ],
+              if (footer != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  footer!,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: TaxcyColors.muted,
+                  ),
+                ),
+              ],
+              if (link != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  link!,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    decoration: TextDecoration.underline,
+                    color: TaxcyColors.ink,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class StatGrid extends StatelessWidget {
   const StatGrid(this.children, {super.key});
   final List<Widget> children;
@@ -652,6 +824,7 @@ class VehiclePicker extends ConsumerWidget {
     this.noneLabel,
     this.activeOnly = true,
     this.driverId,
+    this.busy = const {},
     super.key,
   });
 
@@ -661,6 +834,9 @@ class VehiclePicker extends ConsumerWidget {
   final String? noneLabel;
   final bool activeOnly;
   final String? driverId;
+
+  /// Vehicles booked during the trip's time, by id: listed but not pickable.
+  final Map<String, Busy> busy;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -688,12 +864,11 @@ class VehiclePicker extends ConsumerWidget {
         if (noneLabel != null)
           DropdownMenuItem<String?>(child: Text(noneLabel!)),
         for (final Vehicle v in list)
-          DropdownMenuItem<String?>(
-            value: v.id,
-            child: Text(
-              '${formatRegistration(v.registrationNo)} · ${v.model}',
-              overflow: TextOverflow.ellipsis,
-            ),
+          _pickerItem(
+            context,
+            id: v.id,
+            text: '${formatRegistration(v.registrationNo)} · ${v.model}',
+            busy: v.id == value ? null : busy[v.id],
           ),
       ],
       onChanged: onChanged,
@@ -711,6 +886,7 @@ class DriverPicker extends ConsumerWidget {
     required this.label,
     this.noneLabel,
     this.vehicleId,
+    this.busy = const {},
     super.key,
   });
 
@@ -719,6 +895,9 @@ class DriverPicker extends ConsumerWidget {
   final String label;
   final String? noneLabel;
   final String? vehicleId;
+
+  /// Drivers booked during the trip's time, by id: listed but not pickable.
+  final Map<String, Busy> busy;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -748,12 +927,46 @@ class DriverPicker extends ConsumerWidget {
         if (noneLabel != null)
           DropdownMenuItem<String?>(child: Text(noneLabel!)),
         for (final d in drivers)
-          DropdownMenuItem<String?>(value: d.id, child: Text(d.name)),
+          _pickerItem(
+            context,
+            id: d.id,
+            text: d.name,
+            busy: d.id == value ? null : busy[d.id],
+          ),
       ],
       onChanged: onChanged,
     );
   }
 }
+
+/// "Busy 2:00 pm – 6:00 pm" (with the day when it isn't the same day).
+String busyText(Fmt fmt, Busy b) {
+  final from = b.from.toLocal();
+  final to = b.to.toLocal();
+  final sameDay =
+      from.year == to.year && from.month == to.month && from.day == to.day;
+  return fmt.l.busyFromTo(
+    from: fmt.dayTime(b.from),
+    to: sameDay ? fmt.time(b.to) : fmt.dayTime(b.to),
+  );
+}
+
+/// A vehicle or driver in a picker; disabled and labelled when [busy].
+DropdownMenuItem<String?> _pickerItem(
+  BuildContext context, {
+  required String id,
+  required String text,
+  required Busy? busy,
+}) => DropdownMenuItem<String?>(
+  key: ValueKey('pick-$id'),
+  value: id,
+  enabled: busy == null,
+  child: Text(
+    busy == null ? text : '$text · ${busyText(context.fmt, busy)}',
+    overflow: TextOverflow.ellipsis,
+    style: busy == null ? null : const TextStyle(color: TaxcyColors.muted),
+  ),
+);
 
 /// Picks a calendar date; [value] and the result are YYYY-MM-DD.
 Future<String?> pickIsoDate(

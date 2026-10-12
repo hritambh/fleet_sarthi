@@ -157,7 +157,9 @@ void main() {
   });
 
   group('set up front', () {
-    testWidgets('adding a vehicle can link drivers', (tester) async {
+    testWidgets('adding a vehicle can untick some of its drivers', (
+      tester,
+    ) async {
       final h = await setUpOwner(tester);
       await tester.pumpWidget(h.screen(const VehicleFormScreen()));
       await settle(tester);
@@ -169,7 +171,8 @@ void main() {
       await tester.enterText(find.byKey(const Key('vehicle-model')), 'Ertiga');
       await tester.tap(find.byKey(const Key('vehicle-drivers')));
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const ValueKey('link-$driver2Id')));
+      // Every driver starts ticked; untick Ramesh.
+      await tester.tap(find.byKey(const ValueKey('link-$driverId')));
       await tester.pump();
       await tester.tap(find.byKey(const Key('links-save')));
       await tester.pumpAndSettle();
@@ -181,11 +184,13 @@ void main() {
       expect(h.owner.last('createVehicle').args['driverIds'], [driver2Id]);
     });
 
-    testWidgets('adding a vehicle without drivers sends none', (tester) async {
+    testWidgets('adding a vehicle links every active driver by default', (
+      tester,
+    ) async {
       final h = await setUpOwner(tester);
       await tester.pumpWidget(h.screen(const VehicleFormScreen()));
       await settle(tester);
-      expect(find.text('None yet'), findsOneWidget);
+      expect(find.text('Ramesh Kumar, Suresh Patil'), findsOneWidget);
       await tester.enterText(
         find.byKey(const Key('vehicle-registrationNo')),
         'MH12EF9012',
@@ -196,12 +201,54 @@ void main() {
       await tester.tap(find.byKey(const Key('vehicle-save')));
       await settle(tester);
       expect(
-        h.owner.last('createVehicle').args.containsKey('driverIds'),
-        isFalse,
+        h.owner.last('createVehicle').args['driverIds'],
+        unorderedEquals([driverId, driver2Id]),
       );
     });
 
-    testWidgets('inviting a driver can link vehicles', (tester) async {
+    testWidgets('inviting a driver links every active vehicle by default', (
+      tester,
+    ) async {
+      final h = await setUpOwner(tester);
+      await tester.pumpWidget(h.screen(const DriversScreen()));
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('invite-driver')));
+      await settle(tester);
+      await tester.enterText(find.byKey(const Key('invite-name')), 'Vijay');
+      await tester.enterText(
+        find.byKey(const Key('invite-phone')),
+        '9876543210',
+      );
+      await tester.tap(find.byKey(const Key('invite-send')));
+      await settle(tester);
+      expect(
+        h.owner.last('inviteDriver').args['vehicleIds'],
+        unorderedEquals([vehicleId, vehicle2Id]),
+      );
+    });
+
+    testWidgets('a vehicle with no drivers yet opens the sheet all ticked', (
+      tester,
+    ) async {
+      final h = await setUpOwner(tester);
+      h.owner.links = {vehicleId: {}, vehicle2Id: {}};
+      await tester.pumpWidget(
+        h.screen(const VehicleDetailScreen(vehicleId: vehicleId)),
+      );
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('edit-vehicle-drivers')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('links-save')));
+      await settle(tester);
+      await tester.pump(const Duration(milliseconds: 500));
+      await settle(tester);
+      expect(
+        h.owner.last('setVehicleDrivers').args['driverIds'],
+        unorderedEquals([driverId, driver2Id]),
+      );
+    });
+
+    testWidgets('inviting a driver can untick some vehicles', (tester) async {
       final h = await setUpOwner(tester);
       await tester.pumpWidget(h.screen(const DriversScreen()));
       await settle(tester);
@@ -214,7 +261,8 @@ void main() {
       );
       await tester.tap(find.byKey(const Key('invite-vehicles')));
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const ValueKey('link-$vehicle2Id')));
+      // Every vehicle starts ticked; untick the first.
+      await tester.tap(find.byKey(const ValueKey('link-$vehicleId')));
       await tester.pump();
       await tester.tap(find.byKey(const Key('links-save')));
       await tester.pumpAndSettle();

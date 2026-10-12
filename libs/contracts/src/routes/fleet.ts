@@ -95,6 +95,8 @@ export const Document = z.object({
   validFrom: CalendarDate.nullable(),
   expiresOn: CalendarDate,
   mediaId: Id.nullable(),
+  /** The file's type ("image/jpeg", "application/pdf", …), so apps know how to show it. */
+  mediaContentType: z.string().nullable(),
   supersededBy: Id.nullable(),
   /** Days until expiry in IST; negative once expired. */
   daysLeft: z.number().int(),

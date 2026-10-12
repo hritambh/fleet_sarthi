@@ -262,6 +262,7 @@ class FleetDocument {
     this.number,
     this.validFrom,
     this.mediaId,
+    this.mediaContentType,
   });
 
   factory FleetDocument.fromJson(JsonMap json) => FleetDocument(
@@ -273,6 +274,7 @@ class FleetDocument {
     validFrom: json.strOrNull('validFrom'),
     expiresOn: json.str('expiresOn'),
     mediaId: json.strOrNull('mediaId'),
+    mediaContentType: json.strOrNull('mediaContentType'),
     daysLeft: json.integer('daysLeft'),
     status: json.str('status'),
   );
@@ -292,6 +294,11 @@ class FleetDocument {
   final String? validFrom;
   final String expiresOn;
   final String? mediaId;
+
+  /// The file's type, e.g. image/jpeg or application/pdf.
+  final String? mediaContentType;
+
+  bool get isPdf => mediaContentType == 'application/pdf';
 
   /// Days until expiry in IST; negative once expired.
   final int daysLeft;
@@ -1232,4 +1239,204 @@ class MediaUrl {
 
   final String url;
   final DateTime expiresAt;
+}
+
+/// One vehicle on one IST day: fuel bought, revenue and km of trips closed
+/// that day. Only days with activity are sent.
+class AnalyticsDayRow {
+  const AnalyticsDayRow({
+    required this.date,
+    required this.vehicleId,
+    required this.fuelLitresMilli,
+    required this.fuelKgMilli,
+    required this.fuelCostPaise,
+    required this.revenuePaise,
+    required this.km,
+    required this.trips,
+  });
+
+  factory AnalyticsDayRow.fromJson(JsonMap json) => AnalyticsDayRow(
+    date: json.str('date'),
+    vehicleId: json.str('vehicleId'),
+    fuelLitresMilli: json.integer('fuelLitresMilli'),
+    fuelKgMilli: json.integer('fuelKgMilli'),
+    fuelCostPaise: json.integer('fuelCostPaise'),
+    revenuePaise: json.integer('revenuePaise'),
+    km: json.integer('km'),
+    trips: json.integer('trips'),
+  );
+
+  /// YYYY-MM-DD, IST.
+  final String date;
+  final String vehicleId;
+
+  /// Petrol and diesel, in millilitres.
+  final int fuelLitresMilli;
+
+  /// CNG, in grams.
+  final int fuelKgMilli;
+  final int fuelCostPaise;
+  final int revenuePaise;
+  final int km;
+  final int trips;
+}
+
+class AnalyticsVehicle {
+  const AnalyticsVehicle({
+    required this.id,
+    required this.registrationNo,
+    required this.model,
+    required this.fuelType,
+  });
+
+  factory AnalyticsVehicle.fromJson(JsonMap json) => AnalyticsVehicle(
+    id: json.str('id'),
+    registrationNo: json.str('registrationNo'),
+    model: json.str('model'),
+    fuelType: json.str('fuelType'),
+  );
+
+  final String id;
+  final String registrationNo;
+  final String model;
+  final String fuelType;
+}
+
+class DailyAnalytics {
+  const DailyAnalytics({
+    required this.month,
+    required this.vehicles,
+    required this.rows,
+    required this.trips,
+    required this.kmAvg,
+    required this.revenueAvgPaise,
+    required this.fuelCostAvgPaise,
+  });
+
+  factory DailyAnalytics.fromJson(JsonMap json) {
+    final perTrip = json.obj('perTrip');
+    return DailyAnalytics(
+      month: json.str('month'),
+      vehicles: json
+          .objects('vehicles')
+          .map(AnalyticsVehicle.fromJson)
+          .toList(),
+      rows: json.objects('rows').map(AnalyticsDayRow.fromJson).toList(),
+      trips: perTrip.integer('trips'),
+      kmAvg: perTrip.intOrNull('kmAvg'),
+      revenueAvgPaise: perTrip.intOrNull('revenueAvgPaise'),
+      fuelCostAvgPaise: perTrip.intOrNull('fuelCostAvgPaise'),
+    );
+  }
+
+  /// YYYY-MM.
+  final String month;
+  final List<AnalyticsVehicle> vehicles;
+  final List<AnalyticsDayRow> rows;
+
+  /// Trips closed in the month, and per-trip averages over them.
+  final int trips;
+  final int? kmAvg;
+  final int? revenueAvgPaise;
+
+  /// Estimated from each vehicle's fuel spend per km this month.
+  final int? fuelCostAvgPaise;
+}
+
+/// The dashboard's headline figures. Cabs and drivers are "right now"; the
+/// completed trips are for the requested IST day.
+class DashboardSummary {
+  const DashboardSummary({
+    required this.cabsTotal,
+    required this.cabsAvailable,
+    required this.cabsOnTrip,
+    required this.cabsInactive,
+    required this.driversTotal,
+    required this.driversAvailable,
+    required this.driversOnTrip,
+    required this.driversAssigned,
+    required this.unassigned,
+    required this.completedCount,
+    required this.completedGrossPaise,
+    required this.previousDayCount,
+  });
+
+  factory DashboardSummary.fromJson(JsonMap json) {
+    final cabs = json.obj('cabs');
+    final drivers = json.obj('drivers');
+    final completed = json.obj('completed');
+    return DashboardSummary(
+      cabsTotal: cabs.integer('total'),
+      cabsAvailable: cabs.integer('available'),
+      cabsOnTrip: cabs.integer('onTrip'),
+      cabsInactive: cabs.integer('inactive'),
+      driversTotal: drivers.integer('total'),
+      driversAvailable: drivers.integer('available'),
+      driversOnTrip: drivers.integer('onTrip'),
+      driversAssigned: drivers.integer('assigned'),
+      unassigned: json.integer('unassigned'),
+      completedCount: completed.integer('count'),
+      completedGrossPaise: completed.integer('grossPaise'),
+      previousDayCount: completed.integer('previousDayCount'),
+    );
+  }
+
+  final int cabsTotal;
+  final int cabsAvailable;
+  final int cabsOnTrip;
+  final int cabsInactive;
+  final int driversTotal;
+  final int driversAvailable;
+  final int driversOnTrip;
+  final int driversAssigned;
+  final int unassigned;
+  final int completedCount;
+  final int completedGrossPaise;
+  final int previousDayCount;
+
+  /// Change in completed trips against the previous day, in percent; null
+  /// when the previous day had none.
+  int? get completedChangePercent => previousDayCount == 0
+      ? null
+      : ((completedCount - previousDayCount) * 100 / previousDayCount).round();
+}
+
+/// A vehicle or driver booked on an assigned or started trip during the asked
+/// window.
+class Busy {
+  const Busy({
+    required this.id,
+    required this.tripId,
+    required this.from,
+    required this.to,
+  });
+
+  factory Busy.fromJson(JsonMap json) => Busy(
+    id: json.str('id'),
+    tripId: json.str('tripId'),
+    from: json.date('from'),
+    to: json.date('to'),
+  );
+
+  final String id;
+  final String tripId;
+  final DateTime from;
+  final DateTime to;
+}
+
+/// Who is already booked during a window, by vehicle and by driver id.
+class Availability {
+  const Availability({required this.vehicles, required this.drivers});
+
+  factory Availability.fromJson(JsonMap json) {
+    Map<String, Busy> byId(String key) => {
+      for (final b in json.objects(key).map(Busy.fromJson)) b.id: b,
+    };
+    return Availability(vehicles: byId('vehicles'), drivers: byId('drivers'));
+  }
+
+  static const none = Availability(vehicles: {}, drivers: {});
+
+  final Map<String, Busy> vehicles;
+  final Map<String, Busy> drivers;
 }

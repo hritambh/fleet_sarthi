@@ -5,7 +5,7 @@ import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../core/api/owner_models.dart';
 import '../common/format.dart';
-import 'documents_screen.dart';
+import 'people_screens.dart';
 import 'fuel_screens.dart';
 import 'owner_providers.dart';
 import 'owner_text.dart';
@@ -15,7 +15,10 @@ import 'vehicles_screen.dart';
 
 /// The alerts inbox, filtered by status and kind.
 class AlertsScreen extends ConsumerStatefulWidget {
-  const AlertsScreen({super.key});
+  const AlertsScreen({this.embedded = false, super.key});
+
+  /// Inside [AlertsInboxScreen]'s tabs: no page header of its own.
+  final bool embedded;
 
   @override
   ConsumerState<AlertsScreen> createState() => _AlertsScreenState();
@@ -32,76 +35,75 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
     final l = context.l10n;
     final alerts = ref.watch(alertsProvider(_query));
     Widget box(Widget child) => SizedBox(width: 220, child: child);
+    final body = RefreshPage(
+      onRefresh: () => ref.refresh(alertsProvider(_query).future),
+      children: [
+        Text(l.alertsIntro, style: Theme.of(context).textTheme.bodySmall),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            box(
+              DropdownButtonFormField<String?>(
+                key: const Key('alert-status-filter'),
+                initialValue: _status,
+                isExpanded: true,
+                decoration: InputDecoration(labelText: l.status, isDense: true),
+                items: [
+                  for (final s in const [
+                    'open',
+                    'acknowledged',
+                    'resolved',
+                    'dismissed',
+                  ])
+                    DropdownMenuItem<String?>(
+                      value: s,
+                      child: Text(alertStatusLabel(l, s)),
+                    ),
+                  DropdownMenuItem<String?>(child: Text(l.all)),
+                ],
+                onChanged: (v) => setState(() => _status = v),
+              ),
+            ),
+            box(
+              DropdownButtonFormField<String?>(
+                initialValue: _kind,
+                isExpanded: true,
+                decoration: InputDecoration(
+                  labelText: l.allKinds,
+                  isDense: true,
+                ),
+                items: [
+                  DropdownMenuItem<String?>(child: Text(l.allKinds)),
+                  for (final k in Alert.kinds)
+                    DropdownMenuItem<String?>(
+                      value: k,
+                      child: Text(
+                        alertKindLabel(l, k),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                ],
+                onChanged: (v) => setState(() => _kind = v),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        AsyncView(
+          value: alerts,
+          onRetry: () => ref.invalidate(alertsProvider(_query)),
+          builder: (list) => list.isEmpty
+              ? EmptyState(_status == 'open' ? l.allClear : l.noAlertsMatch)
+              : Column(children: [for (final a in list) AlertCard(a)]),
+        ),
+      ],
+    );
+    if (widget.embedded) return body;
     return Scaffold(
       appBar: AppBar(title: Text(l.navAlerts)),
-      body: RefreshPage(
-        onRefresh: () => ref.refresh(alertsProvider(_query).future),
-        children: [
-          Text(l.alertsIntro, style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              box(
-                DropdownButtonFormField<String?>(
-                  key: const Key('alert-status-filter'),
-                  initialValue: _status,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    labelText: l.status,
-                    isDense: true,
-                  ),
-                  items: [
-                    for (final s in const [
-                      'open',
-                      'acknowledged',
-                      'resolved',
-                      'dismissed',
-                    ])
-                      DropdownMenuItem<String?>(
-                        value: s,
-                        child: Text(alertStatusLabel(l, s)),
-                      ),
-                    DropdownMenuItem<String?>(child: Text(l.all)),
-                  ],
-                  onChanged: (v) => setState(() => _status = v),
-                ),
-              ),
-              box(
-                DropdownButtonFormField<String?>(
-                  initialValue: _kind,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    labelText: l.allKinds,
-                    isDense: true,
-                  ),
-                  items: [
-                    DropdownMenuItem<String?>(child: Text(l.allKinds)),
-                    for (final k in Alert.kinds)
-                      DropdownMenuItem<String?>(
-                        value: k,
-                        child: Text(
-                          alertKindLabel(l, k),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                  ],
-                  onChanged: (v) => setState(() => _kind = v),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          AsyncView(
-            value: alerts,
-            onRetry: () => ref.invalidate(alertsProvider(_query)),
-            builder: (list) => list.isEmpty
-                ? EmptyState(_status == 'open' ? l.allClear : l.noAlertsMatch)
-                : Column(children: [for (final a in list) AlertCard(a)]),
-          ),
-        ],
-      ),
+      body: body,
     );
   }
 }
@@ -250,10 +252,15 @@ class AlertCard extends ConsumerWidget {
             fire(openScreen(context, OwnerTripDetailScreen(tripId: a.tripId!))),
       );
     }
-    if (a.subjectType == 'document') {
+    if (a.subjectType == 'document' &&
+        (a.vehicleId != null || a.driverId != null)) {
       return (
         l.openDocuments,
-        () => fire(openScreen(context, const DocumentsScreen())),
+        () => openDocumentOwner(
+          context,
+          vehicleId: a.vehicleId,
+          driverId: a.driverId,
+        ),
       );
     }
     if (a.vehicleId != null) {

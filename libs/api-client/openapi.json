@@ -6517,6 +6517,9 @@
                           }
                         ]
                       },
+                      "mediaContentType": {
+                        "type": ["string", "null"]
+                      },
                       "supersededBy": {
                         "anyOf": [
                           {
@@ -6553,6 +6556,7 @@
                       "validFrom",
                       "expiresOn",
                       "mediaId",
+                      "mediaContentType",
                       "supersededBy",
                       "daysLeft",
                       "status",
@@ -6757,6 +6761,9 @@
                         }
                       ]
                     },
+                    "mediaContentType": {
+                      "type": ["string", "null"]
+                    },
                     "supersededBy": {
                       "anyOf": [
                         {
@@ -6793,6 +6800,7 @@
                     "validFrom",
                     "expiresOn",
                     "mediaId",
+                    "mediaContentType",
                     "supersededBy",
                     "daysLeft",
                     "status",
@@ -6996,6 +7004,9 @@
                         }
                       ]
                     },
+                    "mediaContentType": {
+                      "type": ["string", "null"]
+                    },
                     "supersededBy": {
                       "anyOf": [
                         {
@@ -7032,6 +7043,7 @@
                     "validFrom",
                     "expiresOn",
                     "mediaId",
+                    "mediaContentType",
                     "supersededBy",
                     "daysLeft",
                     "status",
@@ -7927,6 +7939,14 @@
               "type": "string",
               "format": "date-time",
               "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+            }
+          },
+          {
+            "name": "overlapping",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           },
           {
@@ -9530,6 +9550,186 @@
                     "createdAt",
                     "updatedAt"
                   ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_FAILED",
+                            "UNAUTHENTICATED",
+                            "TOKEN_EXPIRED",
+                            "FORBIDDEN_ROLE",
+                            "NO_ACTIVE_ORG",
+                            "NOT_FOUND",
+                            "ILLEGAL_TRANSITION",
+                            "TRIP_CANCELLED",
+                            "TRIP_REASSIGNED",
+                            "VEHICLE_BUSY",
+                            "DRIVER_BUSY",
+                            "DRIVER_ON_TRIP",
+                            "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
+                            "CANCELLATION_PENDING",
+                            "ALREADY_SETTLED",
+                            "IDEMPOTENCY_CONFLICT",
+                            "IDEMPOTENCY_KEY_REQUIRED",
+                            "VERSION_CONFLICT",
+                            "CONFLICT",
+                            "FUEL_TYPE_MISMATCH",
+                            "ODOMETER_BEFORE_START",
+                            "OTP_INVALID",
+                            "OTP_EXPIRED",
+                            "INVALID_CREDENTIALS",
+                            "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
+                            "RATE_LIMITED",
+                            "UPLOAD_NOT_FOUND",
+                            "UPLOAD_MISMATCH",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {},
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["code", "message"]
+                    }
+                  },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/availability": {
+      "get": {
+        "operationId": "getAvailability",
+        "summary": "Vehicles and drivers already booked (assigned or started trips) during [from, to), optionally ignoring one trip",
+        "tags": ["trips"],
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+            }
+          },
+          {
+            "name": "excludeTripId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "vehicles": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "tripId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "from": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                          },
+                          "to": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                          }
+                        },
+                        "required": ["id", "tripId", "from", "to"]
+                      }
+                    },
+                    "drivers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "tripId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "from": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                          },
+                          "to": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                          }
+                        },
+                        "required": ["id", "tripId", "from", "to"]
+                      }
+                    }
+                  },
+                  "required": ["vehicles", "drivers"]
                 }
               }
             }
@@ -26639,6 +26839,424 @@
                     "createdAt",
                     "resolvedAt"
                   ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_FAILED",
+                            "UNAUTHENTICATED",
+                            "TOKEN_EXPIRED",
+                            "FORBIDDEN_ROLE",
+                            "NO_ACTIVE_ORG",
+                            "NOT_FOUND",
+                            "ILLEGAL_TRANSITION",
+                            "TRIP_CANCELLED",
+                            "TRIP_REASSIGNED",
+                            "VEHICLE_BUSY",
+                            "DRIVER_BUSY",
+                            "DRIVER_ON_TRIP",
+                            "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
+                            "CANCELLATION_PENDING",
+                            "ALREADY_SETTLED",
+                            "IDEMPOTENCY_CONFLICT",
+                            "IDEMPOTENCY_KEY_REQUIRED",
+                            "VERSION_CONFLICT",
+                            "CONFLICT",
+                            "FUEL_TYPE_MISMATCH",
+                            "ODOMETER_BEFORE_START",
+                            "OTP_INVALID",
+                            "OTP_EXPIRED",
+                            "INVALID_CREDENTIALS",
+                            "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
+                            "RATE_LIMITED",
+                            "UPLOAD_NOT_FOUND",
+                            "UPLOAD_MISMATCH",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {},
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["code", "message"]
+                    }
+                  },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics/daily": {
+      "get": {
+        "operationId": "getAnalyticsDaily",
+        "summary": "Fuel bought, revenue and km per vehicle per IST day for a month",
+        "tags": ["analytics"],
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "month": {
+                      "type": "string"
+                    },
+                    "vehicles": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "registrationNo": {
+                            "type": "string"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "fuelType": {
+                            "type": "string",
+                            "enum": ["petrol", "diesel", "cng", "petrol_cng"]
+                          }
+                        },
+                        "required": ["id", "registrationNo", "model", "fuelType"]
+                      }
+                    },
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "string",
+                            "format": "date",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                          },
+                          "vehicleId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "fuelLitresMilli": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "fuelKgMilli": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "fuelCostPaise": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "revenuePaise": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "km": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "trips": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "date",
+                          "vehicleId",
+                          "fuelLitresMilli",
+                          "fuelKgMilli",
+                          "fuelCostPaise",
+                          "revenuePaise",
+                          "km",
+                          "trips"
+                        ]
+                      }
+                    },
+                    "perTrip": {
+                      "type": "object",
+                      "properties": {
+                        "trips": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "kmAvg": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "revenueAvgPaise": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "fuelCostAvgPaise": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": ["trips", "kmAvg", "revenueAvgPaise", "fuelCostAvgPaise"]
+                    }
+                  },
+                  "required": ["month", "vehicles", "rows", "perTrip"]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_FAILED",
+                            "UNAUTHENTICATED",
+                            "TOKEN_EXPIRED",
+                            "FORBIDDEN_ROLE",
+                            "NO_ACTIVE_ORG",
+                            "NOT_FOUND",
+                            "ILLEGAL_TRANSITION",
+                            "TRIP_CANCELLED",
+                            "TRIP_REASSIGNED",
+                            "VEHICLE_BUSY",
+                            "DRIVER_BUSY",
+                            "DRIVER_ON_TRIP",
+                            "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
+                            "CANCELLATION_PENDING",
+                            "ALREADY_SETTLED",
+                            "IDEMPOTENCY_CONFLICT",
+                            "IDEMPOTENCY_KEY_REQUIRED",
+                            "VERSION_CONFLICT",
+                            "CONFLICT",
+                            "FUEL_TYPE_MISMATCH",
+                            "ODOMETER_BEFORE_START",
+                            "OTP_INVALID",
+                            "OTP_EXPIRED",
+                            "INVALID_CREDENTIALS",
+                            "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
+                            "RATE_LIMITED",
+                            "UPLOAD_NOT_FOUND",
+                            "UPLOAD_MISMATCH",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {},
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["code", "message"]
+                    }
+                  },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics/dashboard": {
+      "get": {
+        "operationId": "getAnalyticsDashboard",
+        "summary": "The owner dashboard's headline figures for an IST day",
+        "tags": ["analytics"],
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "date": {
+                      "type": "string",
+                      "format": "date",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                    },
+                    "cabs": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "available": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "onTrip": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "inactive": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": ["total", "available", "onTrip", "inactive"]
+                    },
+                    "drivers": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "available": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "onTrip": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "assigned": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": ["total", "available", "onTrip", "assigned"]
+                    },
+                    "unassigned": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "completed": {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "grossPaise": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "previousDayCount": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": ["count", "grossPaise", "previousDayCount"]
+                    }
+                  },
+                  "required": ["date", "cabs", "drivers", "unassigned", "completed"]
                 }
               }
             }
