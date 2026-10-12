@@ -105,11 +105,17 @@ class _DesktopOwnerShellState extends ConsumerState<DesktopOwnerShell> {
                 children: [
                   for (final s in sections)
                     if (_opened.contains(s))
-                      HeroControllerScope.none(
-                        child: Navigator(
-                          key: _navigators[s],
-                          onGenerateRoute: (_) =>
-                              MaterialPageRoute<void>(builder: (_) => _root(s)),
+                      // Hidden sections stay alive but their animations
+                      // (e.g. the dashboard's background) stop.
+                      TickerMode(
+                        enabled: s == _section,
+                        child: HeroControllerScope.none(
+                          child: Navigator(
+                            key: _navigators[s],
+                            onGenerateRoute: (_) => MaterialPageRoute<void>(
+                              builder: (_) => _root(s),
+                            ),
+                          ),
                         ),
                       )
                     else

@@ -6,6 +6,7 @@ import '../../app/theme.dart';
 import '../../core/api/owner_api.dart';
 import '../../core/api/owner_models.dart';
 import '../common/format.dart';
+import '../common/magnetic_field_background.dart';
 import 'alerts_screen.dart';
 import 'documents_screen.dart';
 import 'owner_providers.dart';
@@ -231,115 +232,120 @@ class DashboardScreen extends ConsumerWidget {
         : due(documents.value!).length;
     return Scaffold(
       appBar: AppBar(title: Text(l.navDashboard)),
-      body: RefreshPage(
-        onRefresh: refresh,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 4, bottom: 16),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        greeting(l, DateTime.now(), firstName),
-                        style: const TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.w700,
-                          color: TaxcyColors.blue950,
-                          letterSpacing: -0.4,
+      // A quiet field of dashes behind the cards that turns towards the
+      // pointer (desktop only; still when reduced motion is on).
+      body: MagneticFieldBackground(
+        accentColor: TaxcyColors.blue600,
+        child: RefreshPage(
+          onRefresh: refresh,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 4, bottom: 16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          greeting(l, DateTime.now(), firstName),
+                          style: const TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w700,
+                            color: TaxcyColors.blue950,
+                            letterSpacing: -0.4,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${l.today} · ${fmt.calendarDate(istToday())}'
-                        ' · ${session?.activeMembership?.orgName ?? ''}',
-                        style: const TextStyle(color: TaxcyColors.muted),
-                      ),
-                    ],
+                        const SizedBox(height: 2),
+                        Text(
+                          '${l.today} · ${fmt.calendarDate(istToday())}'
+                          ' · ${session?.activeMembership?.orgName ?? ''}',
+                          style: const TextStyle(color: TaxcyColors.muted),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                FilledButton.icon(
-                  key: const Key('dashboard-new-trip'),
-                  onPressed: () =>
-                      openScreen<void>(context, const CreateTripScreen()),
-                  icon: const Icon(Icons.add),
-                  label: Text(l.newTrip),
-                ),
-              ],
+                  FilledButton.icon(
+                    key: const Key('dashboard-new-trip'),
+                    onPressed: () =>
+                        openScreen<void>(context, const CreateTripScreen()),
+                    icon: const Icon(Icons.add),
+                    label: Text(l.newTrip),
+                  ),
+                ],
+              ),
             ),
-          ),
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: MetricCard(
+                      icon: Icons.route,
+                      accent: TaxcyColors.blue600,
+                      label: l.todaysTrips,
+                      value: trips.hasValue ? fmt.number(tripList.length) : '–',
+                      hint:
+                          '${statusLabel(l, 'started')}: '
+                          '${fmt.number(tripList.where((t) => t.status == 'started').length)}',
+                      onTap: () => onOpenTab(1),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: MetricCard(
+                      icon: Icons.notifications_active_outlined,
+                      accent: Colors.red.shade600,
+                      label: l.openAlerts,
+                      value: s == null ? '–' : fmt.number(s.openAlerts),
+                      hint: s == null
+                          ? null
+                          : '${l.criticalAlerts}: ${fmt.number(s.critical)}',
+                      onTap: () => onOpenTab(2),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: MetricCard(
+                      icon: Icons.fact_check_outlined,
+                      accent: Colors.amber.shade800,
+                      label: l.toReview,
+                      value: s == null ? '–' : fmt.number(s.openReviewItems),
+                      onTap: openReview,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: MetricCard(
+                      icon: Icons.event_busy_outlined,
+                      accent: Colors.teal.shade600,
+                      label: l.documentsDueSoon,
+                      value: dueCount == null ? '–' : fmt.number(dueCount),
+                      onTap: () =>
+                          openScreen<void>(context, const DocumentsScreen()),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: MetricCard(
-                    icon: Icons.route,
-                    accent: TaxcyColors.blue600,
-                    label: l.todaysTrips,
-                    value: trips.hasValue ? fmt.number(tripList.length) : '–',
-                    hint:
-                        '${statusLabel(l, 'started')}: '
-                        '${fmt.number(tripList.where((t) => t.status == 'started').length)}',
-                    onTap: () => onOpenTab(1),
-                  ),
+                  flex: 3,
+                  child: Column(children: [todaysTrips, openAlerts]),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: MetricCard(
-                    icon: Icons.notifications_active_outlined,
-                    accent: Colors.red.shade600,
-                    label: l.openAlerts,
-                    value: s == null ? '–' : fmt.number(s.openAlerts),
-                    hint: s == null
-                        ? null
-                        : '${l.criticalAlerts}: ${fmt.number(s.critical)}',
-                    onTap: () => onOpenTab(2),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: MetricCard(
-                    icon: Icons.fact_check_outlined,
-                    accent: Colors.amber.shade800,
-                    label: l.toReview,
-                    value: s == null ? '–' : fmt.number(s.openReviewItems),
-                    onTap: openReview,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: MetricCard(
-                    icon: Icons.event_busy_outlined,
-                    accent: Colors.teal.shade600,
-                    label: l.documentsDueSoon,
-                    value: dueCount == null ? '–' : fmt.number(dueCount),
-                    onTap: () =>
-                        openScreen<void>(context, const DocumentsScreen()),
-                  ),
+                  flex: 2,
+                  child: Column(children: [attention, documentsDue]),
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 3,
-                child: Column(children: [todaysTrips, openAlerts]),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                flex: 2,
-                child: Column(children: [attention, documentsDue]),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
