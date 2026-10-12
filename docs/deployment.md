@@ -57,7 +57,27 @@ dist/driver-app/fleet-sarthi-0.1.0+76.aab              with --aab
 
 A first build takes about 5 minutes (Gradle downloads); later builds about 1 minute.
 
-For a laptop on your Wi-Fi (plain `http://192.168.x.x:3000`), don't build a release APK: use a debug run, which allows cleartext HTTP, as in [getting started](getting-started.md#step-10-run-the-driver-app): `flutter run --dart-define=API_URL=http://<LAN-IP>:3000`.
+### Rebuilding after a code change
+
+1. **Commit first.** The build number defaults to the git commit count, and Android won't install a lower build number over a higher one. Committing keeps each build's number at least as high as the one on the phone.
+2. Build from the repo root: `API_URL=https://taxcy-api.onrender.com bun run build:apk -- --split`.
+3. Install `dist/driver-app/fleet-sarthi-<version>-arm64-v8a.apk` (send it to the phone, or `adb install -r …`). It's signed with the same upload key, so it updates the installed app and keeps its data.
+
+Only changes under `apps/driver-app` need a new APK. API changes reach existing installs once Render redeploys after a push, and Render rebuilds the web app (`taxcy-web`) by itself when `apps/driver-app` changes.
+
+### Testing against your laptop
+
+Release builds only accept `https://`, so to point a phone at the API on your laptop (`http://<LAN-IP>:3000`, same Wi-Fi), build a debug APK, which allows plain HTTP:
+
+```bash
+cd apps/driver-app
+flutter build apk --debug --dart-define=API_URL=http://<LAN-IP>:3000
+# output: build/app/outputs/flutter-apk/app-debug.apk (large, ~160 MB)
+```
+
+Or run it straight on a USB-connected phone with `flutter run --dart-define=API_URL=http://<LAN-IP>:3000`. Either way, set `S3_PUBLIC_ENDPOINT=http://<LAN-IP>:9000` in the root `.env` and restart `bun run dev` so photo links work from the phone, as in [getting started](getting-started.md#step-10-sign-in-as-a-driver). On macOS, `ipconfig getifaddr en0` prints the LAN IP; if the phone can't connect, allow incoming connections for `node` and Docker in the macOS firewall.
+
+A debug build is signed with your machine's debug key, not the upload key, so uninstall the release app before installing it (and the other way round).
 
 ### Signing
 
