@@ -7,32 +7,37 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-// Tunables. Lengths in logical px, times in seconds, angles in radians.
-const _dashLength = 10.0; // dash length at rest
-const _strokeWidth = 1.2; // dash thickness
-const _restAngle = -math.pi / 6; // the shared slight diagonal at rest
-const _breathAmplitude = 0.10; // how far the resting wave tilts dashes
-const _breathPeriod = 8.0; // one wave cycle
-const _breathWavelength =
-    1100.0; // distance between wave crests across the grid
-const _maxStretch = 0.4; // dashes near the pointer grow up to 1 + this
-const _restOpacity = 0.25; // neutral dash opacity
-const _accentOpacity = 0.7; // dash opacity at full accent
-const _followTau = 0.04; // easing towards a stronger target (~120 ms to settle)
-const _relaxTau = 0.2; // easing back to rest (~600 ms to settle)
-const _ringSpeed = 400.0; // ripple expansion speed, px/s
-const _ringLife = 1.6; // ripple lifetime
-const _ringBand = 28.0; // width of the band a ripple disturbs
-const _ringFlash = 0.8; // how far a passing ripple pushes colour to the accent
+// Tunables. Lengths in logical px, times in seconds.
+const _dotSize = 2.4; // resting dot diameter
+const _maxDotSize = 6.0; // dot diameter right at the pointer
+const _restOpacity = 0.38; // resting dot opacity
+const _accentOpacity = 0.95; // dot opacity at full accent
+const _shimmer = 0.32; // how much the resting wave brightens and grows dots
+const _shimmerPeriod = 6.0; // one resting-wave cycle
+const _shimmerWavelength = 900.0; // distance between wave crests
+const _maxShift = 16.0; // how far dots are pushed out of the pointer's way
+const _stiffness = 110.0; // spring pulling a dot back to its place
+const _damping = 15.0; // below 2*sqrt(stiffness) (~21) dots wobble a little
+const _drag = 7.0; // how strongly a moving pointer drags nearby dots along
+const _tintIn = 0.05; // easing towards the accent (~150 ms)
+const _tintOut = 0.3; // easing back to neutral (~900 ms)
+const _glowRadius = 150.0; // the soft spotlight under the pointer
+const _glowOpacity = 0.16; // its strength at the centre
+const _ringSpeed = 420.0; // ripple speed, px/s
+const _ringLife = 1.5; // ripple lifetime
+const _ringBand = 38.0; // width of the band a ripple pushes and lights up
+const _ringPush = 12.0; // how far a passing ripple pushes dots outwards
+const _ringOpacity = 0.35; // the ripple's faint ring line, when new
 const _maxRings = 3; // older ripples are dropped
-const _colorBuckets = 6; // colour steps; one draw call each
+const _buckets = 8; // size/colour steps; one draw call each
 const _idleFrame = Duration(milliseconds: 50); // resting wave updates at 20 fps
-const _settledAngle =
-    0.03; // below this the field counts as settled (idle mode)
+const _settled = 0.05; // px (and px/s / 10) below which the field is at rest
 
-/// A quiet, living background: a grid of short dashes that slowly "breathe",
-/// turn towards the pointer like iron filings around a magnet, and ripple
-/// when tapped. It sits behind [child] without taking its taps or gestures.
+/// A quiet, living background of dots. A slow shimmer passes over them at
+/// rest; near the pointer they swell, turn to the accent colour and part like
+/// a lens under a soft glow, get dragged along when the pointer sweeps past,
+/// and spring back with a slight wobble. A tap sends a ripple through them.
+/// It sits behind [child] without taking its taps or gestures.
 ///
 /// With reduced motion (MediaQuery.disableAnimations) it draws the resting
 /// grid only, with a hover tint but no movement or ripples. Its animation
@@ -42,21 +47,21 @@ class MagneticFieldBackground extends StatefulWidget {
     super.key,
     this.child,
     this.accentColor,
-    this.spacing = 28,
-    this.influenceRadius = 160,
+    this.spacing = 24,
+    this.influenceRadius = 180,
     this.enableRipples = true,
   });
 
   /// Content rendered above the field.
   final Widget? child;
 
-  /// Colour the dashes blend towards near the pointer (default indigo).
+  /// Colour the dots turn near the pointer (default indigo).
   final Color? accentColor;
 
-  /// Distance between dashes.
+  /// Distance between dots.
   final double spacing;
 
-  /// How far from the pointer dashes react.
+  /// How far from the pointer dots react.
   final double influenceRadius;
 
   final bool enableRipples;
@@ -140,6 +145,10 @@ class _MagneticFieldBackgroundState extends State<MagneticFieldBackground>
   }
 
   void _pointAt(Offset? at) {
+    final from = _field.magnet;
+    if (at != null && from != null && _motion) {
+      _field.drag(at, at - from, widget.influenceRadius);
+    }
     _field.magnet = at;
     _wake();
   }
@@ -178,7 +187,7 @@ class _MagneticFieldBackgroundState extends State<MagneticFieldBackground>
         if (size != _laidOutSize || widget.spacing != _laidOutSpacing) {
           _laidOutSize = size;
           _laidOutSpacing = widget.spacing;
-          _field.layout(size, widget.spacing, motion: _motion);
+          _field.layout(size, widget.spacing);
         }
         return Listener(
           behavior: HitTestBehavior.translucent,
@@ -241,27 +250,36 @@ class _Repaint extends ChangeNotifier {
   void ping() => notifyListeners();
 }
 
-/// Per-dash state in flat arrays (no per-dash objects), stepped once a frame.
+/// Per-dot state in flat arrays (no per-dot objects), stepped once a frame:
+/// each dot is a damped spring pulled towards a target offset from its place.
 class _FieldSimulation {
   int count = 0;
-  Float32List xs = Float32List(0);
+  Float32List xs = Float32List(0); // resting position
   Float32List ys = Float32List(0);
-  Float32List angles = Float32List(0);
-  Float32List lengths = Float32List(0); // 1 = rest length
-  Float32List colors = Float32List(0); // 0 = neutral, 1 = full accent
+  Float32List ox = Float32List(0); // offset from the resting position
+  Float32List oy = Float32List(0);
+  Float32List vx = Float32List(0); // velocity of the offset
+  Float32List vy = Float32List(0);
+  Float32List tints = Float32List(0); // 0 = neutral, 1 = full accent
 
-  /// Line endpoints for drawRawPoints, one region of count * 4 per bucket.
+  /// Dot centres for drawRawPoints, one region of count * 2 per bucket.
   Float32List points = Float32List(0);
-  final bucketSizes = Int32List(_colorBuckets);
+  final bucketSizes = Int32List(_buckets);
 
   /// Ripples as (x, y, age) triples, oldest first.
-  final _rings = Float32List(_maxRings * 3);
-  int _ringCount = 0;
+  final rings = Float32List(_maxRings * 3);
+  int ringCount = 0;
 
   Offset? magnet;
-  double _time = 0;
 
-  void layout(Size size, double spacing, {required bool motion}) {
+  /// Where the glow is drawn and how strong it is (it fades in and out).
+  double glowX = 0;
+  double glowY = 0;
+  double glow = 0;
+
+  double time = 0;
+
+  void layout(Size size, double spacing) {
     final cols = (size.width / spacing).floor() + 1;
     final rows = (size.height / spacing).floor() + 1;
     final left = (size.width - (cols - 1) * spacing) / 2;
@@ -269,95 +287,127 @@ class _FieldSimulation {
     count = cols * rows;
     xs = Float32List(count);
     ys = Float32List(count);
-    angles = Float32List(count);
-    lengths = Float32List(count)..fillRange(0, count, 1);
-    colors = Float32List(count);
-    points = Float32List(count * 4 * _colorBuckets);
+    ox = Float32List(count);
+    oy = Float32List(count);
+    vx = Float32List(count);
+    vy = Float32List(count);
+    tints = Float32List(count);
+    points = Float32List(count * 2 * _buckets);
     var i = 0;
     for (var r = 0; r < rows; r++) {
       for (var c = 0; c < cols; c++, i++) {
         xs[i] = left + c * spacing;
         ys[i] = top + r * spacing;
-        angles[i] = _rest(i, motion);
       }
     }
   }
 
   void addRing(Offset at) {
-    if (_ringCount == _maxRings) {
-      _rings.setRange(0, (_maxRings - 1) * 3, _rings, 3); // drop the oldest
-      _ringCount--;
+    if (ringCount == _maxRings) {
+      rings.setRange(0, (_maxRings - 1) * 3, rings, 3); // drop the oldest
+      ringCount--;
     }
-    final at3 = _ringCount * 3;
-    _rings[at3] = at.dx;
-    _rings[at3 + 1] = at.dy;
-    _rings[at3 + 2] = 0;
-    _ringCount++;
+    final at3 = ringCount * 3;
+    rings[at3] = at.dx;
+    rings[at3 + 1] = at.dy;
+    rings[at3 + 2] = 0;
+    ringCount++;
   }
 
-  void clearRings() => _ringCount = 0;
+  void clearRings() => ringCount = 0;
 
-  double _rest(int i, bool motion) {
-    if (!motion) return _restAngle;
+  /// A pointer sweeping by [delta] at [at] drags the dots under it along.
+  void drag(Offset at, Offset delta, double radius) {
+    final r2 = radius * radius;
+    for (var i = 0; i < count; i++) {
+      final dx = xs[i] - at.dx;
+      final dy = ys[i] - at.dy;
+      final d2 = dx * dx + dy * dy;
+      if (d2 >= r2) continue;
+      final t = 1 - math.sqrt(d2) / radius;
+      final w = t * t;
+      vx[i] += delta.dx * _drag * w;
+      vy[i] += delta.dy * _drag * w;
+    }
+  }
+
+  /// The resting wave's brightness for dot [i], 0..1.
+  double shimmer(int i) {
     final phase =
-        _time / _breathPeriod - (xs[i] + ys[i] * 0.6) / _breathWavelength;
-    return _restAngle + _breathAmplitude * math.sin(2 * math.pi * phase);
+        time / _shimmerPeriod - (xs[i] + ys[i] * 0.6) / _shimmerWavelength;
+    final s = 0.5 + 0.5 * math.sin(2 * math.pi * phase);
+    return s * s * s; // a narrow bright band rather than a broad swell
   }
 
   /// Advances the field by [dt] seconds. Returns whether anything is still
-  /// moving (ripples, or dashes easing towards a target); a pointer resting
-  /// over settled dashes isn't.
+  /// moving (springs, tints or ripples); a pointer resting over settled dots
+  /// isn't.
   bool step(double dt, {required double radius, required bool motion}) {
-    _time += dt;
+    time += dt;
     _ageRings(dt);
-    final follow = 1 - math.exp(-dt / _followTau);
-    final relax = 1 - math.exp(-dt / _relaxTau);
+    final tintIn = 1 - math.exp(-dt / _tintIn);
+    final tintOut = 1 - math.exp(-dt / _tintOut);
     final m = magnet;
+    if (m != null) {
+      glowX = m.dx;
+      glowY = m.dy;
+    }
+    final glowTarget = m == null || !motion ? 0.0 : 1.0;
+    glow += (glowTarget - glow) * (glowTarget > glow ? tintIn : tintOut);
     final r2 = radius * radius;
-    var busy = _ringCount > 0;
+    var busy = ringCount > 0 || (glow - glowTarget).abs() > 1e-3;
     for (var i = 0; i < count; i++) {
       final x = xs[i];
       final y = ys[i];
-      var target = _rest(i, motion);
-      var stretch = 1.0;
+      var tx = 0.0;
+      var ty = 0.0;
       var tint = 0.0;
       if (m != null) {
-        final dx = m.dx - x;
-        final dy = m.dy - y;
+        final dx = x - m.dx;
+        final dy = y - m.dy;
         final d2 = dx * dx + dy * dy;
         if (d2 < r2) {
-          final t = 1 - math.sqrt(d2) / radius;
+          final d = math.sqrt(d2);
+          final t = 1 - d / radius;
           final w = t * t * (3 - 2 * t); // smoothstep falloff
           tint = w;
-          if (motion) {
-            target += _wrap(math.atan2(dy, dx) - target) * w;
-            stretch += _maxStretch * w;
+          if (motion && d > 0.5) {
+            // Part like a lens: pushed outwards, most at mid-radius.
+            final push = _maxShift * w * (1 - w * 0.5);
+            tx += dx / d * push;
+            ty += dy / d * push;
           }
         }
       }
-      for (var k = 0; k < _ringCount; k++) {
-        final dx = x - _rings[k * 3];
-        final dy = y - _rings[k * 3 + 1];
-        final age = _rings[k * 3 + 2];
-        final off = (math.sqrt(dx * dx + dy * dy) - age * _ringSpeed).abs();
+      for (var k = 0; k < ringCount; k++) {
+        final dx = x - rings[k * 3];
+        final dy = y - rings[k * 3 + 1];
+        final age = rings[k * 3 + 2];
+        final d = math.sqrt(dx * dx + dy * dy);
+        final off = (d - age * _ringSpeed).abs();
         if (off < _ringBand) {
           final f = (1 - off / _ringBand) * (1 - age / _ringLife);
-          // Flick perpendicular to the ring (along its tangent) and brighten.
-          target += _wrap(math.atan2(dy, dx) + math.pi / 2 - target) * f;
-          tint = math.max(tint, f * _ringFlash);
+          tint = math.max(tint, f);
+          if (d > 0.5) {
+            tx += dx / d * _ringPush * f;
+            ty += dy / d * _ringPush * f;
+          }
         }
       }
-      final rate = tint > colors[i] ? follow : relax;
-      final da = _wrap(target - angles[i]);
-      angles[i] += da * rate;
-      lengths[i] += (stretch - lengths[i]) * rate;
-      colors[i] += (tint - colors[i]) * rate;
-      // Dashes trail the slow resting wave by ~0.016 rad; anything beyond
-      // _settledAngle is a real transient that needs every frame.
+      if (motion) {
+        // Semi-implicit Euler on a damped spring towards the target offset.
+        vx[i] += (_stiffness * (tx - ox[i]) - _damping * vx[i]) * dt;
+        vy[i] += (_stiffness * (ty - oy[i]) - _damping * vy[i]) * dt;
+        ox[i] += vx[i] * dt;
+        oy[i] += vy[i] * dt;
+      }
+      tints[i] += (tint - tints[i]) * (tint > tints[i] ? tintIn : tintOut);
       if (!busy &&
-          ((colors[i] - tint).abs() > 1e-3 ||
-              (lengths[i] - stretch).abs() > 1e-3 ||
-              da.abs() > _settledAngle)) {
+          ((tints[i] - tint).abs() > 1e-3 ||
+              (ox[i] - tx).abs() > _settled ||
+              (oy[i] - ty).abs() > _settled ||
+              vx[i].abs() > _settled * 10 ||
+              vy[i].abs() > _settled * 10)) {
         busy = true;
       }
     }
@@ -366,20 +416,16 @@ class _FieldSimulation {
 
   void _ageRings(double dt) {
     var kept = 0;
-    for (var k = 0; k < _ringCount; k++) {
-      final age = _rings[k * 3 + 2] + dt;
+    for (var k = 0; k < ringCount; k++) {
+      final age = rings[k * 3 + 2] + dt;
       if (age >= _ringLife) continue;
-      _rings[kept * 3] = _rings[k * 3];
-      _rings[kept * 3 + 1] = _rings[k * 3 + 1];
-      _rings[kept * 3 + 2] = age;
+      rings[kept * 3] = rings[k * 3];
+      rings[kept * 3 + 1] = rings[k * 3 + 1];
+      rings[kept * 3 + 2] = age;
       kept++;
     }
-    _ringCount = kept;
+    ringCount = kept;
   }
-
-  /// A dash is a line, so angles that differ by pi look the same: the
-  /// shortest turn is within (-pi/2, pi/2].
-  static double _wrap(double a) => a - math.pi * (a / math.pi).roundToDouble();
 }
 
 class _FieldPainter extends CustomPainter {
@@ -388,49 +434,85 @@ class _FieldPainter extends CustomPainter {
     required Listenable repaint,
     required this.neutral,
     required this.accent,
-  }) : _paints = [
-         for (var b = 0; b < _colorBuckets; b++)
+  }) : _dots = [
+         for (var b = 0; b < _buckets; b++)
            Paint()
-             ..strokeWidth = _strokeWidth
              ..strokeCap = StrokeCap.round
+             ..strokeWidth =
+                 _dotSize + (_maxDotSize - _dotSize) * b / (_buckets - 1)
              ..color = Color.lerp(
                neutral.withValues(alpha: neutral.a * _restOpacity),
                accent.withValues(alpha: _accentOpacity),
-               b / (_colorBuckets - 1),
+               b / (_buckets - 1),
              )!,
+       ],
+       // The glow's gradient is drawn around the origin and moved with a
+       // translate, so no shader is built per frame; its strength picks one
+       // of a few ready-made paints.
+       _glows = [
+         for (var g = 1; g <= 4; g++)
+           Paint()
+             ..shader = ui.Gradient.radial(Offset.zero, _glowRadius, [
+               accent.withValues(alpha: _glowOpacity * g / 4),
+               accent.withValues(alpha: 0),
+             ]),
+       ],
+       _rings = [
+         for (var r = 1; r <= 4; r++)
+           Paint()
+             ..style = PaintingStyle.stroke
+             ..strokeWidth = 1.5
+             ..color = accent.withValues(alpha: _ringOpacity * r / 4),
        ],
        super(repaint: repaint);
 
   final _FieldSimulation field;
   final Color neutral;
   final Color accent;
-  final List<Paint> _paints;
+  final List<Paint> _dots;
+  final List<Paint> _glows;
+  final List<Paint> _rings;
 
   @override
   void paint(Canvas canvas, Size size) {
     final f = field;
+    final g = (f.glow * _glows.length).round();
+    if (g > 0) {
+      canvas
+        ..save()
+        ..translate(f.glowX, f.glowY)
+        ..drawCircle(Offset.zero, _glowRadius, _glows[g - 1])
+        ..restore();
+    }
+    for (var k = 0; k < f.ringCount; k++) {
+      final age = f.rings[k * 3 + 2];
+      final fade = ((1 - age / _ringLife) * _rings.length).ceil();
+      if (fade <= 0) continue;
+      canvas.drawCircle(
+        Offset(f.rings[k * 3], f.rings[k * 3 + 1]),
+        age * _ringSpeed,
+        _rings[fade - 1],
+      );
+    }
     final points = f.points;
-    final sizes = f.bucketSizes..fillRange(0, _colorBuckets, 0);
-    final region = f.count * 4;
+    final sizes = f.bucketSizes..fillRange(0, _buckets, 0);
+    final region = f.count * 2;
     for (var i = 0; i < f.count; i++) {
-      final b = (f.colors[i] * (_colorBuckets - 1)).round();
-      final half = _dashLength * f.lengths[i] / 2;
-      final cx = math.cos(f.angles[i]) * half;
-      final cy = math.sin(f.angles[i]) * half;
-      final at = b * region + sizes[b] * 4;
-      points[at] = f.xs[i] - cx;
-      points[at + 1] = f.ys[i] - cy;
-      points[at + 2] = f.xs[i] + cx;
-      points[at + 3] = f.ys[i] + cy;
+      // The resting wave lifts a dot partway; the pointer or a ripple more.
+      final t = math.max(f.tints[i], f.shimmer(i) * _shimmer);
+      final b = (t * (_buckets - 1)).round();
+      final at = b * region + sizes[b] * 2;
+      points[at] = f.xs[i] + f.ox[i];
+      points[at + 1] = f.ys[i] + f.oy[i];
       sizes[b]++;
     }
-    for (var b = 0; b < _colorBuckets; b++) {
+    for (var b = 0; b < _buckets; b++) {
       if (sizes[b] == 0) continue;
       final start = b * region;
       canvas.drawRawPoints(
-        ui.PointMode.lines,
-        Float32List.sublistView(points, start, start + sizes[b] * 4),
-        _paints[b],
+        ui.PointMode.points,
+        Float32List.sublistView(points, start, start + sizes[b] * 2),
+        _dots[b],
       );
     }
   }
