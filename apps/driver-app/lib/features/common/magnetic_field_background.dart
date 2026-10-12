@@ -8,46 +8,53 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 // Tunables. Lengths in logical px, times in seconds.
-const _dotSize = 2.4; // resting dot diameter
-const _maxDotSize = 6.0; // dot diameter right at the pointer
-const _restOpacity = 0.38; // resting dot opacity
-const _accentOpacity = 0.95; // dot opacity at full accent
-const _shimmer = 0.32; // how much the resting wave brightens and grows dots
-const _shimmerPeriod = 6.0; // one resting-wave cycle
-const _shimmerWavelength = 900.0; // distance between wave crests
-const _maxShift = 16.0; // how far dots are pushed out of the pointer's way
+const _dotSize = 1.5; // resting dot diameter
+const _maxDotSize = 4.0; // dot diameter right at the pointer
+const _restOpacity = 0.24; // resting dot opacity
+const _accentOpacity = 0.7; // dot opacity at full accent
+// The resting wave: a main wave and a slower cross swell, both travelling.
+// Each dot rises and falls with them and sways a little sideways, like water.
+const _waveHeight = 3.2; // how far a dot rises and falls with the main wave
+const _waveLength = 460.0; // distance between its crests
+const _wavePeriod = 5.0; // one cycle at a given dot
+const _swellHeight = 1.6;
+const _swellLength = 290.0;
+const _swellPeriod = 8.0;
+const _sway = 0.45; // sideways motion, as a share of the rise and fall
+const _waveLift = 0.26; // how much a crest brightens and grows dots
+const _maxShift = 12.0; // how far dots are pushed out of the pointer's way
 const _stiffness = 110.0; // spring pulling a dot back to its place
 const _damping = 15.0; // below 2*sqrt(stiffness) (~21) dots wobble a little
 const _drag = 7.0; // how strongly a moving pointer drags nearby dots along
 const _tintIn = 0.05; // easing towards the accent (~150 ms)
 const _tintOut = 0.3; // easing back to neutral (~900 ms)
 const _glowRadius = 150.0; // the soft spotlight under the pointer
-const _glowOpacity = 0.16; // its strength at the centre
+const _glowOpacity = 0.1; // its strength at the centre
 const _ringSpeed = 420.0; // ripple speed, px/s
 const _ringLife = 1.5; // ripple lifetime
 const _ringBand = 38.0; // width of the band a ripple pushes and lights up
-const _ringPush = 12.0; // how far a passing ripple pushes dots outwards
-const _ringOpacity = 0.35; // the ripple's faint ring line, when new
+const _ringPush = 10.0; // how far a passing ripple pushes dots outwards
+const _ringOpacity = 0.22; // the ripple's faint ring line, when new
 const _maxRings = 3; // older ripples are dropped
 const _buckets = 8; // size/colour steps; one draw call each
-const _idleFrame = Duration(milliseconds: 50); // resting wave updates at 20 fps
+const _idleFrame = Duration(milliseconds: 33); // resting wave updates at 30 fps
 const _settled = 0.05; // px (and px/s / 10) below which the field is at rest
 
-/// A quiet, living background of dots. A slow shimmer passes over them at
-/// rest; near the pointer they swell, turn to the accent colour and part like
+/// A quiet, living background of fine dots. At rest they rise and fall with
+/// a slow travelling wave, crests catching a little more light; near the pointer they swell, turn to the accent colour and part like
 /// a lens under a soft glow, get dragged along when the pointer sweeps past,
 /// and spring back with a slight wobble. A tap sends a ripple through them.
 /// It sits behind [child] without taking its taps or gestures.
 ///
 /// With reduced motion (MediaQuery.disableAnimations) it draws the resting
 /// grid only, with a hover tint but no movement or ripples. Its animation
-/// pauses when hidden (TickerMode off) and drops to 20 fps while idle.
+/// pauses when hidden (TickerMode off) and drops to 30 fps while idle.
 class MagneticFieldBackground extends StatefulWidget {
   const MagneticFieldBackground({
     super.key,
     this.child,
     this.accentColor,
-    this.spacing = 24,
+    this.spacing = 16,
     this.influenceRadius = 180,
     this.enableRipples = true,
   });
@@ -130,7 +137,7 @@ class _MagneticFieldBackgroundState extends State<MagneticFieldBackground>
     }
   }
 
-  /// While settled, only the slow wave moves: a few updates a second do.
+  /// While settled, only the slow wave moves: 30 updates a second do.
   void _scheduleBreath() {
     if (!_motion || !_visible) return;
     _breathClock
@@ -279,6 +286,9 @@ class _FieldSimulation {
 
   double time = 0;
 
+  /// Off with reduced motion: the wave then stands still.
+  bool motion = true;
+
   void layout(Size size, double spacing) {
     final cols = (size.width / spacing).floor() + 1;
     final rows = (size.height / spacing).floor() + 1;
@@ -331,19 +341,12 @@ class _FieldSimulation {
     }
   }
 
-  /// The resting wave's brightness for dot [i], 0..1.
-  double shimmer(int i) {
-    final phase =
-        time / _shimmerPeriod - (xs[i] + ys[i] * 0.6) / _shimmerWavelength;
-    final s = 0.5 + 0.5 * math.sin(2 * math.pi * phase);
-    return s * s * s; // a narrow bright band rather than a broad swell
-  }
-
   /// Advances the field by [dt] seconds. Returns whether anything is still
   /// moving (springs, tints or ripples); a pointer resting over settled dots
   /// isn't.
   bool step(double dt, {required double radius, required bool motion}) {
-    time += dt;
+    this.motion = motion;
+    if (motion) time += dt;
     _ageRings(dt);
     final tintIn = 1 - math.exp(-dt / _tintIn);
     final tintOut = 1 - math.exp(-dt / _tintOut);
@@ -497,13 +500,32 @@ class _FieldPainter extends CustomPainter {
     final points = f.points;
     final sizes = f.bucketSizes..fillRange(0, _buckets, 0);
     final region = f.count * 2;
+    // The main wave runs down and to the right, the swell across it.
+    const k1 = 2 * math.pi / _waveLength;
+    const k2 = 2 * math.pi / _swellLength;
+    final t1 = 2 * math.pi * f.time / _wavePeriod;
+    final t2 = 2 * math.pi * f.time / _swellPeriod;
+    final move = f.motion ? 1.0 : 0.0;
     for (var i = 0; i < f.count; i++) {
-      // The resting wave lifts a dot partway; the pointer or a ripple more.
-      final t = math.max(f.tints[i], f.shimmer(i) * _shimmer);
+      final x = f.xs[i];
+      final y = f.ys[i];
+      final p1 = (x * 0.8 + y * 0.6) * k1 - t1;
+      final p2 = (y * 0.87 - x * 0.5) * k2 - t2;
+      final s1 = math.sin(p1);
+      final s2 = math.sin(p2);
+      final rise = (s1 * _waveHeight + s2 * _swellHeight) * move;
+      final sway = math.cos(p1) * _waveHeight * _sway * move;
+      // Crests (0..1) catch the light; the pointer or a ripple lifts more.
+      final crest =
+          (s1 * _waveHeight + s2 * _swellHeight) /
+              (_waveHeight + _swellHeight) *
+              0.5 +
+          0.5;
+      final t = math.max(f.tints[i], crest * crest * _waveLift);
       final b = (t * (_buckets - 1)).round();
       final at = b * region + sizes[b] * 2;
-      points[at] = f.xs[i] + f.ox[i];
-      points[at + 1] = f.ys[i] + f.oy[i];
+      points[at] = x + f.ox[i] + sway * 0.8;
+      points[at + 1] = y + f.oy[i] - rise + sway * 0.6;
       sizes[b]++;
     }
     for (var b = 0; b < _buckets; b++) {

@@ -297,8 +297,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final firstName = (session?.name ?? '').trim().split(' ').first;
     return Scaffold(
       appBar: appBar,
-      // A quiet field of dashes behind the cards that turns towards the
-      // pointer (desktop only; still when reduced motion is on).
+      // A quiet field of fine dots behind the cards that moves like a slow
+      // wave and reacts to the pointer (desktop only; still when reduced
+      // motion is on).
       body: MagneticFieldBackground(
         accentColor: TaxcyColors.blue600,
         child: RefreshPage(
