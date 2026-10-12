@@ -8,15 +8,11 @@ import '../account/account_security_screen.dart';
 import '../common/format.dart';
 import '../common/language_picker.dart';
 import '../workspaces/workspace_switcher.dart';
-import 'alerts_screen.dart';
 import 'dashboard_screen.dart';
-import 'documents_screen.dart';
-import 'fuel_screens.dart';
-import 'owner_providers.dart';
+import 'analytics_screen.dart';
 import 'owner_text.dart';
 import 'owner_widgets.dart';
 import 'people_screens.dart';
-import 'review_screen.dart';
 import 'settings_screen.dart';
 import 'settlements_screen.dart';
 import 'trips/owner_trips_screen.dart';
@@ -25,14 +21,10 @@ import 'vehicles_screen.dart';
 enum OwnerSection {
   dashboard,
   trips,
-  alerts,
-  review,
   vehicles,
   drivers,
-  documents,
-  fuel,
+  analytics,
   settlements,
-  members,
   settings,
 }
 
@@ -70,22 +62,13 @@ class _DesktopOwnerShellState extends ConsumerState<DesktopOwnerShell> {
 
   Widget _root(OwnerSection section) => switch (section) {
     OwnerSection.dashboard => DashboardScreen(
-      onOpenTab: (tab) => _open(switch (tab) {
-        1 => OwnerSection.trips,
-        2 => OwnerSection.alerts,
-        _ => OwnerSection.dashboard,
-      }),
-      onOpenReview: () => _open(OwnerSection.review),
+      onOpenTrips: () => _open(OwnerSection.trips),
     ),
     OwnerSection.trips => const OwnerTripsScreen(),
-    OwnerSection.alerts => const AlertsScreen(),
-    OwnerSection.review => const ReviewScreen(),
     OwnerSection.vehicles => const VehiclesScreen(),
     OwnerSection.drivers => const DriversScreen(),
-    OwnerSection.documents => const DocumentsScreen(),
-    OwnerSection.fuel => const FuelIndexScreen(),
+    OwnerSection.analytics => const AnalyticsScreen(),
     OwnerSection.settlements => const SettlementsScreen(),
-    OwnerSection.members => const MembersScreen(),
     OwnerSection.settings => const SettingsScreen(),
   };
 
@@ -161,16 +144,13 @@ class _Sidebar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final summary = ref.watch(alertSummaryProvider).value;
-    Widget item(OwnerSection s, IconData icon, String label, [int count = 0]) =>
-        _NavItem(
-          key: Key('side-${s.name}'),
-          icon: icon,
-          label: label,
-          count: count,
-          selected: s == selected,
-          onTap: () => onOpen(s),
-        );
+    Widget item(OwnerSection s, IconData icon, String label) => _NavItem(
+      key: Key('side-${s.name}'),
+      icon: icon,
+      label: label,
+      selected: s == selected,
+      onTap: () => onOpen(s),
+    );
     return Container(
       key: const Key('owner-sidebar'),
       width: 264,
@@ -198,18 +178,6 @@ class _Sidebar extends ConsumerWidget {
                     l.navDashboard,
                   ),
                   item(OwnerSection.trips, Icons.route, l.navTrips),
-                  item(
-                    OwnerSection.alerts,
-                    Icons.notifications_outlined,
-                    l.navAlerts,
-                    summary?.openAlerts ?? 0,
-                  ),
-                  item(
-                    OwnerSection.review,
-                    Icons.fact_check_outlined,
-                    l.review,
-                    summary?.openReviewItems ?? 0,
-                  ),
                   _GroupLabel(l.navGroupFleet),
                   item(
                     OwnerSection.vehicles,
@@ -217,16 +185,7 @@ class _Sidebar extends ConsumerWidget {
                     l.vehicles,
                   ),
                   item(OwnerSection.drivers, Icons.badge_outlined, l.drivers),
-                  item(
-                    OwnerSection.documents,
-                    Icons.description_outlined,
-                    l.documents,
-                  ),
-                  item(
-                    OwnerSection.fuel,
-                    Icons.local_gas_station_outlined,
-                    l.fuel,
-                  ),
+                  item(OwnerSection.analytics, Icons.insights, l.analytics),
                   _GroupLabel(l.navGroupMoney),
                   item(
                     OwnerSection.settlements,
@@ -234,7 +193,6 @@ class _Sidebar extends ConsumerWidget {
                     l.settlements,
                   ),
                   _GroupLabel(l.navGroupSetup),
-                  item(OwnerSection.members, Icons.group_outlined, l.members),
                   item(
                     OwnerSection.settings,
                     Icons.settings_outlined,
@@ -391,7 +349,6 @@ class _NavItem extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.onTap,
-    this.count = 0,
     super.key,
   });
 
@@ -399,7 +356,6 @@ class _NavItem extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback onTap;
-  final int count;
 
   @override
   Widget build(BuildContext context) {
@@ -428,25 +384,6 @@ class _NavItem extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (count > 0)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 7,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade600,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      count > 99 ? '99+' : '$count',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
               ],
             ),
           ),

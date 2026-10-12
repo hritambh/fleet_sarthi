@@ -12,23 +12,20 @@ import 'owner_providers.dart';
 import 'owner_text.dart';
 import 'owner_widgets.dart';
 
-/// Every vehicle with its latest fuel verdict; tap for the full audit.
-class FuelIndexScreen extends ConsumerWidget {
-  const FuelIndexScreen({super.key});
+/// Every vehicle with its latest fuel verdict; tap for the full audit. Shown
+/// under the charts on the Analytics page.
+class FuelAuditList extends ConsumerWidget {
+  const FuelAuditList({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final vehicles = ref.watch(fleetVehiclesProvider);
-    return Scaffold(
-      appBar: AppBar(title: Text(l.fuel)),
-      body: RefreshPage(
-        onRefresh: () async {
-          ref
-            ..invalidate(vehicleAuditProvider)
-            ..invalidate(fleetVehiclesProvider);
-          await ref.read(fleetVehiclesProvider.future);
-        },
+    return SectionCard(
+      key: const Key('fuel-audit'),
+      title: l.fuelAudit,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(l.fuelIntro, style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 8),

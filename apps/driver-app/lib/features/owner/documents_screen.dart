@@ -5,77 +5,14 @@ import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../core/api/owner_models.dart';
 import '../../core/media/captured_photo.dart';
+import '../../core/media/file_pick.dart';
 import '../../core/media/upload_now.dart';
 import '../common/format.dart';
 import '../common/widgets.dart';
 import 'owner_providers.dart';
 import 'owner_text.dart';
 import 'owner_widgets.dart';
-
-const _windows = <int?>[null, 30, 7, 0];
-
-/// Every current document, optionally only those due soon.
-class DocumentsScreen extends ConsumerStatefulWidget {
-  const DocumentsScreen({super.key});
-
-  @override
-  ConsumerState<DocumentsScreen> createState() => _DocumentsScreenState();
-}
-
-class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
-  int? _within;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final query = (
-      vehicleId: null,
-      driverId: null,
-      expiringWithinDays: _within,
-    );
-    final action = PageAction(
-      key: const Key('add-document'),
-      icon: Icons.add,
-      label: l.addDocument,
-      onPressed: () => openScreen<void>(context, const DocumentFormScreen()),
-    );
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l.documents),
-        actions: action.headerActions(context),
-      ),
-      floatingActionButton: action.fab(context),
-      body: RefreshPage(
-        onRefresh: () => ref.refresh(documentsProvider(query).future),
-        children: [
-          SizedBox(
-            width: 280,
-            child: DropdownButtonFormField<int?>(
-              initialValue: _within,
-              isExpanded: true,
-              decoration: InputDecoration(labelText: l.status, isDense: true),
-              items: [
-                for (final w in _windows)
-                  DropdownMenuItem<int?>(
-                    value: w,
-                    child: Text(switch (w) {
-                      30 => l.filterDue30,
-                      7 => l.filterDue7,
-                      0 => l.filterDue0,
-                      _ => l.filterAllDocs,
-                    }),
-                  ),
-              ],
-              onChanged: (v) => setState(() => _within = v),
-            ),
-          ),
-          const SizedBox(height: 8),
-          DocumentsList(query: query),
-        ],
-      ),
-    );
-  }
-}
+import 'trips/trip_share.dart';
 
 /// Documents matching [query], each with view and renew. Shows whose document
 /// it is unless the list is already for one vehicle or driver.
@@ -146,7 +83,7 @@ class DocumentsList extends ConsumerWidget {
                       ),
                       Text(fmt.calendarDate(d.expiresOn)),
                       DocumentStatusChip(d),
-                      _menu(context, d),
+                      _menu(context, ref, d),
                     ],
                   ),
               ],
@@ -172,7 +109,10 @@ class DocumentsList extends ConsumerWidget {
                       trailing: Wrap(
                         crossAxisAlignment: WrapCrossAlignment.center,
                         spacing: 4,
-                        children: [DocumentStatusChip(d), _menu(context, d)],
+                        children: [
+                          DocumentStatusChip(d),
+                          _menu(context, ref, d),
+                        ],
                       ),
                     ),
                   ),
@@ -181,20 +121,42 @@ class DocumentsList extends ConsumerWidget {
     );
   }
 
-  Widget _menu(BuildContext context, FleetDocument d) {
+  Widget _menu(BuildContext context, WidgetRef ref, FleetDocument d) {
     final l = context.l10n;
     return PopupMenuButton<String>(
+      key: ValueKey('document-menu-${d.id}'),
       onSelected: (action) => switch (action) {
-        'view' => _view(context, d),
+        'view' => d.isPdf ? _openPdf(context, ref, d) : _view(context, d),
         _ => openScreen<void>(context, DocumentFormScreen(renewing: d)),
       },
       itemBuilder: (_) => [
         if (d.mediaId != null)
-          PopupMenuItem(value: 'view', child: Text(l.viewPhoto)),
+          PopupMenuItem(
+            key: const Key('document-view'),
+            value: 'view',
+            child: Text(d.isPdf ? l.viewDocument : l.viewPhoto),
+          ),
         if (d.status != 'superseded')
           PopupMenuItem(value: 'renew', child: Text(l.renew)),
       ],
     );
+  }
+
+  /// PDFs open outside the app: a new browser tab, or the phone's PDF viewer.
+  Future<void> _openPdf(
+    BuildContext context,
+    WidgetRef ref,
+    FleetDocument d,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final unavailable = context.l10n.documentUnavailable;
+    try {
+      final media = await ref.read(mediaUrlProvider(d.mediaId!).future);
+      final opened = await ref.read(urlOpenerProvider)(Uri.parse(media.url));
+      if (!opened) throw StateError('not opened');
+    } on Object {
+      messenger.showSnackBar(SnackBar(content: Text(unavailable)));
+    }
   }
 
   Future<void> _view(BuildContext context, FleetDocument d) => showDialog<void>(
@@ -228,6 +190,40 @@ class DocumentStatusChip extends StatelessWidget {
   );
 }
 
+/// On a vehicle or driver row: a chip when one of their documents has expired
+/// or expires within 30 days, nothing otherwise. Every row shares one query.
+class DocumentsDueChip extends ConsumerWidget {
+  const DocumentsDueChip({this.vehicleId, this.driverId, super.key});
+  final String? vehicleId;
+  final String? driverId;
+
+  static const dueQuery = (
+    vehicleId: null,
+    driverId: null,
+    expiringWithinDays: 30,
+  );
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final docs = ref.watch(documentsProvider(dueQuery)).value ?? const [];
+    final mine = docs.where(
+      (d) =>
+          (d.status == 'expired' || d.status == 'expiring') &&
+          (vehicleId != null
+              ? d.vehicleId == vehicleId
+              : d.driverId == driverId),
+    );
+    if (mine.isEmpty) return const SizedBox.shrink();
+    final expired = mine.any((d) => d.status == 'expired');
+    return ToneChip(
+      key: Key('docs-due-${vehicleId ?? driverId}'),
+      expired ? l.documentsExpiredChip : l.documentsDueChip,
+      tone: expired ? Tone.danger : Tone.warning,
+    );
+  }
+}
+
 /// Adds a document (for [vehicleId] or [driverId] when given) or renews [renewing].
 /// The optional photo is uploaded straight away through the media flow.
 class DocumentFormScreen extends ConsumerStatefulWidget {
@@ -258,10 +254,27 @@ class _DocumentFormScreenState extends ConsumerState<DocumentFormScreen> {
   String? _validFrom;
   String? _expiresOn;
   CapturedPhoto? _photo;
+
+  /// A PDF or image picked from files, instead of a camera photo.
+  PickedFile? _file;
   String? _problem;
   bool _busy = false;
 
   bool get _forDriver => _docType == 'driving_licence';
+
+  Future<void> _pickFile() async {
+    try {
+      final picked = await ref.read(filePickProvider)('document');
+      if (picked == null || !mounted) return;
+      setState(() {
+        _file = picked;
+        _photo = null;
+        _problem = null;
+      });
+    } on FileTooLargeException {
+      if (mounted) setState(() => _problem = context.l10n.fileTooLarge);
+    }
+  }
 
   List<String> get _types => widget.vehicleId != null
       ? FleetDocument.vehicleTypes
@@ -294,7 +307,7 @@ class _DocumentFormScreenState extends ConsumerState<DocumentFormScreen> {
     final navigator = Navigator.of(context);
     final ok = await runAction(context, () async {
       String? mediaId;
-      final photo = _photo;
+      final photo = _file?.file ?? _photo;
       if (photo != null) {
         mediaId = await uploadPhotoNow(
           ref.read(apiProvider),
@@ -412,11 +425,54 @@ class _DocumentFormScreenState extends ConsumerState<DocumentFormScreen> {
                   },
                 ),
                 const SizedBox(height: 12),
-                PhotoField(
-                  kind: 'document',
-                  label: l.documentPhotoOptional,
-                  photo: _photo,
-                  onChanged: (p) => setState(() => _photo = p),
+                if (_file == null)
+                  PhotoField(
+                    kind: 'document',
+                    label: l.documentPhotoOptional,
+                    photo: _photo,
+                    onChanged: (p) => setState(() {
+                      _photo = p;
+                      _file = null;
+                    }),
+                  )
+                else
+                  Card(
+                    margin: EdgeInsets.zero,
+                    child: ListTile(
+                      key: const Key('document-file'),
+                      leading: Icon(
+                        _file!.isPdf
+                            ? Icons.picture_as_pdf
+                            : Icons.image_outlined,
+                        color: _file!.isPdf ? Colors.red.shade700 : null,
+                      ),
+                      title: Text(_file!.name, overflow: TextOverflow.ellipsis),
+                      subtitle: Text(
+                        _file!.isPdf ? l.pdfDocument : l.imageFile,
+                      ),
+                      trailing: IconButton(
+                        key: const Key('document-file-remove'),
+                        tooltip: l.remove,
+                        icon: const Icon(Icons.close),
+                        onPressed: () => setState(() => _file = null),
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: OutlinedButton.icon(
+                    key: const Key('document-upload-file'),
+                    onPressed: _busy ? null : _pickFile,
+                    icon: const Icon(Icons.upload_file),
+                    label: Text(
+                      _file == null ? l.uploadFile : l.chooseOtherFile,
+                    ),
+                  ),
+                ),
+                Text(
+                  l.uploadFileHint,
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
                 if (_problem != null) ...[
                   const SizedBox(height: 12),

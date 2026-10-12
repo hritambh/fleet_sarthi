@@ -31,6 +31,21 @@ final distanceCheckProvider = FutureProvider.autoDispose
       (ref, id) => ref.watch(ownerApiProvider).distanceCheck(id),
     );
 
+typedef AvailabilityQuery = ({
+  DateTime from,
+  DateTime to,
+  String? excludeTripId,
+});
+
+/// Who is already booked during a trip's window (for the vehicle and driver
+/// pickers).
+final availabilityProvider = FutureProvider.autoDispose
+    .family<Availability, AvailabilityQuery>(
+      (ref, q) => ref
+          .watch(ownerApiProvider)
+          .availability(q.from, q.to, excludeTripId: q.excludeTripId),
+    );
+
 /// All vehicles, active and inactive.
 final fleetVehiclesProvider = FutureProvider.autoDispose<List<Vehicle>>(
   (ref) => ref.watch(ownerApiProvider).vehicles(),
@@ -89,6 +104,18 @@ final vehicleAuditProvider = FutureProvider.autoDispose
       (ref, vehicleId) => ref.watch(ownerApiProvider).vehicleAudit(vehicleId),
     );
 
+/// Per-vehicle, per-day analytics for a month (YYYY-MM).
+final dailyAnalyticsProvider = FutureProvider.autoDispose
+    .family<DailyAnalytics, String>(
+      (ref, month) => ref.watch(ownerApiProvider).dailyAnalytics(month),
+    );
+
+/// The dashboard's headline figures for an IST day (YYYY-MM-DD).
+final dashboardSummaryProvider = FutureProvider.autoDispose
+    .family<DashboardSummary, String>(
+      (ref, date) => ref.watch(ownerApiProvider).dashboard(date),
+    );
+
 typedef AlertQuery = ({String? status, String? kind, String? tripId});
 
 final alertsProvider = FutureProvider.autoDispose
@@ -134,13 +161,17 @@ void refreshAfter(WidgetRef ref, Set<OwnerArea> areas) {
         ref
           ..invalidate(ownerTripsProvider)
           ..invalidate(ownerTripProvider)
-          ..invalidate(tripEventsProvider);
+          ..invalidate(tripEventsProvider)
+          ..invalidate(availabilityProvider)
+          ..invalidate(dashboardSummaryProvider)
+          ..invalidate(dailyAnalyticsProvider);
       case OwnerArea.fleet:
         ref
           ..invalidate(fleetVehiclesProvider)
           ..invalidate(fleetVehicleProvider)
           ..invalidate(driversProvider)
-          ..invalidate(membersProvider);
+          ..invalidate(membersProvider)
+          ..invalidate(dashboardSummaryProvider);
       case OwnerArea.documents:
         ref.invalidate(documentsProvider);
       case OwnerArea.settings:
@@ -150,7 +181,8 @@ void refreshAfter(WidgetRef ref, Set<OwnerArea> areas) {
       case OwnerArea.fuel:
         ref
           ..invalidate(fuelFillsProvider)
-          ..invalidate(vehicleAuditProvider);
+          ..invalidate(vehicleAuditProvider)
+          ..invalidate(dailyAnalyticsProvider);
       case OwnerArea.alerts:
         ref
           ..invalidate(alertsProvider)

@@ -4645,6 +4645,378 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Usual efficiency'**
   String get usualEfficiency;
+
+  /// No description provided for @alertsInbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts & review'**
+  String get alertsInbox;
+
+  /// No description provided for @documentsExpiredChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Document expired'**
+  String get documentsExpiredChip;
+
+  /// No description provided for @documentsDueChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Document due'**
+  String get documentsDueChip;
+
+  /// No description provided for @managersSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Managers'**
+  String get managersSection;
+
+  /// No description provided for @noManagersYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No managers yet.'**
+  String get noManagersYet;
+
+  /// No description provided for @shareTripHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip details'**
+  String get shareTripHeading;
+
+  /// No description provided for @shareCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get shareCustomer;
+
+  /// No description provided for @sharePickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup'**
+  String get sharePickup;
+
+  /// No description provided for @shareDrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop'**
+  String get shareDrop;
+
+  /// No description provided for @sharePickupTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup time'**
+  String get sharePickupTime;
+
+  /// No description provided for @shareCab.
+  ///
+  /// In en, this message translates to:
+  /// **'Cab'**
+  String get shareCab;
+
+  /// No description provided for @shareDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver'**
+  String get shareDriver;
+
+  /// No description provided for @shareFare.
+  ///
+  /// In en, this message translates to:
+  /// **'Fare'**
+  String get shareFare;
+
+  /// No description provided for @shareFareWithKm.
+  ///
+  /// In en, this message translates to:
+  /// **'{fare} ({km} included)'**
+  String shareFareWithKm({required String fare, required String km});
+
+  /// No description provided for @copyDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy details'**
+  String get copyDetails;
+
+  /// No description provided for @detailsCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip details copied'**
+  String get detailsCopied;
+
+  /// No description provided for @shareOnWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Send on WhatsApp'**
+  String get shareOnWhatsApp;
+
+  /// No description provided for @whatsAppUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open WhatsApp'**
+  String get whatsAppUnavailable;
+
+  /// No description provided for @analytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics'**
+  String get analytics;
+
+  /// No description provided for @analyticsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily fuel bought, revenue and km for the month, by vehicle.'**
+  String get analyticsIntro;
+
+  /// No description provided for @month.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get month;
+
+  /// No description provided for @perTripAverages.
+  ///
+  /// In en, this message translates to:
+  /// **'Average per trip'**
+  String get perTripAverages;
+
+  /// No description provided for @avgKmPerTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Km per trip'**
+  String get avgKmPerTrip;
+
+  /// No description provided for @avgRevenuePerTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue per trip'**
+  String get avgRevenuePerTrip;
+
+  /// No description provided for @avgFuelCostPerTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel cost per trip (est.)'**
+  String get avgFuelCostPerTrip;
+
+  /// No description provided for @tripsInMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 trip this month} other{{count} trips this month}}'**
+  String tripsInMonth({required int count});
+
+  /// No description provided for @fuelBoughtPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel bought per day'**
+  String get fuelBoughtPerDay;
+
+  /// No description provided for @revenuePerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue per day'**
+  String get revenuePerDay;
+
+  /// No description provided for @kmPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Km driven per day'**
+  String get kmPerDay;
+
+  /// No description provided for @monthTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Month total: {total}'**
+  String monthTotal({required String total});
+
+  /// No description provided for @fuelInRupeesNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown in ₹, since litres and kg can\'t be added together.'**
+  String get fuelInRupeesNote;
+
+  /// No description provided for @noActivityThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing this month.'**
+  String get noActivityThisMonth;
+
+  /// No description provided for @customDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get customDay;
+
+  /// No description provided for @tripsOnDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips on {date}'**
+  String tripsOnDay({required String date});
+
+  /// No description provided for @availableCabs.
+  ///
+  /// In en, this message translates to:
+  /// **'Available cabs'**
+  String get availableCabs;
+
+  /// No description provided for @availableDrivers.
+  ///
+  /// In en, this message translates to:
+  /// **'Available drivers'**
+  String get availableDrivers;
+
+  /// No description provided for @tripsUnassigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips unassigned'**
+  String get tripsUnassigned;
+
+  /// No description provided for @completedTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed trips'**
+  String get completedTrips;
+
+  /// No description provided for @percentReady.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% ready'**
+  String percentReady({required int percent});
+
+  /// No description provided for @cabsFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'{onTrip} on trip · {inactive} inactive'**
+  String cabsFooter({required int onTrip, required int inactive});
+
+  /// No description provided for @driversFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'{onTrip} on trip · {assigned} assigned'**
+  String driversFooter({required int onTrip, required int assigned});
+
+  /// No description provided for @standby.
+  ///
+  /// In en, this message translates to:
+  /// **'Standby'**
+  String get standby;
+
+  /// No description provided for @needsCab.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs cab'**
+  String get needsCab;
+
+  /// No description provided for @pending.
+  ///
+  /// In en, this message translates to:
+  /// **'pending'**
+  String get pending;
+
+  /// No description provided for @resolveQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve queue'**
+  String get resolveQueue;
+
+  /// No description provided for @runs.
+  ///
+  /// In en, this message translates to:
+  /// **'runs'**
+  String get runs;
+
+  /// No description provided for @grossFare.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} gross fare'**
+  String grossFare({required String amount});
+
+  /// No description provided for @busyFromTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Busy {from} – {to}'**
+  String busyFromTo({required String from, required String to});
+
+  /// No description provided for @busyPickCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'The vehicle or driver you picked is booked at the new time, so it was cleared.'**
+  String get busyPickCleared;
+
+  /// No description provided for @busyPickWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This vehicle or driver is already booked at this time.'**
+  String get busyPickWarning;
+
+  /// No description provided for @uploadFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload file'**
+  String get uploadFile;
+
+  /// No description provided for @chooseOtherFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another file'**
+  String get chooseOtherFile;
+
+  /// No description provided for @uploadFileHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Or upload a PDF or image (JPG, PNG, WebP), up to 15 MB.'**
+  String get uploadFileHint;
+
+  /// No description provided for @fileTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'That file is larger than 15 MB.'**
+  String get fileTooLarge;
+
+  /// No description provided for @pdfDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF document'**
+  String get pdfDocument;
+
+  /// No description provided for @imageFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Image'**
+  String get imageFile;
+
+  /// No description provided for @viewDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'View document'**
+  String get viewDocument;
+
+  /// No description provided for @documentUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the document. Try again.'**
+  String get documentUnavailable;
+
+  /// No description provided for @schedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get schedule;
+
+  /// No description provided for @noTripsThisDay.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips this day.'**
+  String get noTripsThisDay;
+
+  /// No description provided for @previousMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get previousMonth;
+
+  /// No description provided for @nextMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get nextMonth;
 }
 
 class _AppLocalizationsDelegate

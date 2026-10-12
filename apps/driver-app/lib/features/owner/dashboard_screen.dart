@@ -7,57 +7,89 @@ import '../../core/api/owner_api.dart';
 import '../../core/api/owner_models.dart';
 import '../common/format.dart';
 import '../common/magnetic_field_background.dart';
+import 'alerts_inbox.dart';
 import 'alerts_screen.dart';
 import 'documents_screen.dart';
 import 'owner_providers.dart';
 import 'owner_text.dart';
 import 'owner_widgets.dart';
-import 'review_screen.dart';
+import 'people_screens.dart';
 import 'trips/create_trip_screen.dart';
 import 'trips/owner_trips_screen.dart';
+import 'vehicles_screen.dart';
 
 const _severityOrder = {'critical': 0, 'warning': 1, 'info': 2};
 
-/// Today at a glance: trips by status, what needs attention, documents due, and
-/// the most urgent open alerts. [onOpenTab] switches the owner shell's tab.
-/// On a desktop-sized screen: a greeting, headline numbers and two columns.
-class DashboardScreen extends ConsumerWidget {
-  const DashboardScreen({
-    required this.onOpenTab,
-    this.onOpenReview,
-    super.key,
-  });
-  final ValueChanged<int> onOpenTab;
+enum _Day { today, yesterday, custom }
 
-  /// Opens the review queue (the desktop sidebar's section); without it, the
-  /// review screen is pushed.
-  final VoidCallback? onOpenReview;
+/// A day at a glance: headline cards (cabs and drivers free right now, the
+/// unassigned queue, completed trips and gross fare), that day's trips, what
+/// needs attention, documents due and the most urgent open alerts. The date
+/// switch picks the day. On a desktop-sized screen: a greeting and two columns.
+class DashboardScreen extends ConsumerStatefulWidget {
+  const DashboardScreen({required this.onOpenTrips, this.now, super.key});
 
-  static TripFilter todayFilter([DateTime? now]) {
-    final (from, to) = istDayRange(istToday(now));
+  /// Switches the owner shell to the Trips section.
+  final VoidCallback onOpenTrips;
+
+  /// Today, for tests; defaults to the clock.
+  final DateTime? now;
+
+  static TripFilter dayFilter(String date) {
+    final (from, to) = istDayRange(date);
     return TripFilter(from: from, to: to);
   }
 
-  static const _openAlerts = (status: 'open', kind: null, tripId: null);
-  static const _dueDocuments = (
-    vehicleId: null,
-    driverId: null,
-    expiringWithinDays: 30,
-  );
+  static TripFilter todayFilter([DateTime? now]) => dayFilter(istToday(now));
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  static const _openAlerts = (status: 'open', kind: null, tripId: null);
+  static const _dueDocuments = DocumentsDueChip.dueQuery;
+
+  var _day = _Day.today;
+  String? _custom;
+
+  String get _date => switch (_day) {
+    _Day.today => istToday(widget.now),
+    _Day.yesterday => istDaysAgo(1, widget.now),
+    _Day.custom => _custom ?? istToday(widget.now),
+  };
+
+  Future<void> _pickDay(_Day day) async {
+    if (day != _Day.custom) {
+      setState(() => _day = day);
+      return;
+    }
+    final today = DateTime.parse(istToday(widget.now));
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.parse(_date),
+      firstDate: today.subtract(const Duration(days: 365 * 3)),
+      lastDate: today.add(const Duration(days: 365)),
+    );
+    if (picked == null) return;
+    setState(() {
+      _day = _Day.custom;
+      _custom = istDate(DateTime.utc(picked.year, picked.month, picked.day));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l = context.l10n;
     final fmt = context.fmt;
-    final filter = todayFilter();
+    final date = _date;
+    final filter = DashboardScreen.dayFilter(date);
     final trips = ref.watch(ownerTripsProvider(filter));
     final summary = ref.watch(alertSummaryProvider);
+    final headline = ref.watch(dashboardSummaryProvider(date));
     final alerts = ref.watch(alertsProvider(_openAlerts));
     final documents = ref.watch(documentsProvider(_dueDocuments));
     final desktop = isDesktop(context);
-    void openReview() => onOpenReview != null
-        ? onOpenReview!()
-        : openScreen<void>(context, const ReviewScreen());
     // Count tiles share a row evenly on the desktop; on phones they wrap.
     Widget tiles(List<Widget> children) => desktop
         ? Row(
@@ -69,14 +101,37 @@ class DashboardScreen extends ConsumerWidget {
             ],
           )
         : Wrap(spacing: 8, runSpacing: 8, children: children);
-    List<FleetDocument> due(List<FleetDocument> docs) => docs
-        .where((d) => d.status == 'expiring' || d.status == 'expired')
-        .toList();
+
+    final daySwitch = SegmentedButton<_Day>(
+      key: const Key('dashboard-day'),
+      showSelectedIcon: false,
+      segments: [
+        ButtonSegment(value: _Day.today, label: Text(l.today)),
+        ButtonSegment(value: _Day.yesterday, label: Text(l.yesterday)),
+        ButtonSegment(
+          value: _Day.custom,
+          icon: const Icon(Icons.calendar_today, size: 16),
+          label: Text(
+            _day == _Day.custom ? fmt.calendarDate(date) : l.customDay,
+          ),
+        ),
+      ],
+      selected: {_day},
+      onSelectionChanged: (s) => _pickDay(s.first),
+    );
+
+    final cards = AsyncView(
+      value: headline,
+      onRetry: () => ref.invalidate(dashboardSummaryProvider(date)),
+      builder: (s) => _HeadlineCards(s, onOpenTrips: widget.onOpenTrips),
+    );
 
     final todaysTrips = SectionCard(
-      title: l.todaysTrips,
+      title: _day == _Day.today
+          ? l.todaysTrips
+          : l.tripsOnDay(date: fmt.calendarDate(date)),
       actions: [
-        TextButton(onPressed: () => onOpenTab(1), child: Text(l.seeAll)),
+        TextButton(onPressed: widget.onOpenTrips, child: Text(l.seeAll)),
       ],
       child: AsyncView(
         value: trips,
@@ -117,27 +172,27 @@ class DashboardScreen extends ConsumerWidget {
             count: s.critical,
             label: l.criticalAlerts,
             color: Colors.red.shade700,
-            onTap: () => onOpenTab(2),
+            onTap: () => openAlertsInbox(context),
             width: desktop ? null : 104,
           ),
           _CountTile(
             count: s.warning,
             label: l.severityWarning,
             color: Colors.amber.shade900,
-            onTap: () => onOpenTab(2),
+            onTap: () => openAlertsInbox(context),
             width: desktop ? null : 104,
           ),
           _CountTile(
             count: s.info,
             label: l.severityInfo,
-            onTap: () => onOpenTab(2),
+            onTap: () => openAlertsInbox(context),
             width: desktop ? null : 104,
           ),
           _CountTile(
             key: const Key('review-count'),
             count: s.openReviewItems,
             label: l.toReview,
-            onTap: openReview,
+            onTap: () => openAlertsInbox(context, 1),
             width: desktop ? null : 104,
           ),
         ]),
@@ -145,27 +200,30 @@ class DashboardScreen extends ConsumerWidget {
     );
     final documentsDue = SectionCard(
       title: l.documentsDueSoon,
-      actions: [
-        TextButton(
-          onPressed: () => openScreen<void>(context, const DocumentsScreen()),
-          child: Text(l.seeAll),
-        ),
-      ],
       child: AsyncView(
         value: documents,
         onRetry: () => ref.invalidate(documentsProvider(_dueDocuments)),
         builder: (docs) {
-          final soon = due(docs).take(6).toList();
+          final soon = docs
+              .where((d) => d.status == 'expiring' || d.status == 'expired')
+              .take(6)
+              .toList();
           if (soon.isEmpty) return EmptyState(l.nothingExpiring);
           return Column(
             children: [
               for (final d in soon)
                 ListTile(
+                  key: ValueKey('due-${d.id}'),
                   dense: true,
                   contentPadding: EdgeInsets.zero,
                   title: Text(docTypeLabel(l, d.docType)),
                   subtitle: Text(fmt.calendarDate(d.expiresOn)),
                   trailing: DocumentStatusChip(d),
+                  onTap: () => openDocumentOwner(
+                    context,
+                    vehicleId: d.vehicleId,
+                    driverId: d.driverId,
+                  ),
                 ),
             ],
           );
@@ -175,7 +233,10 @@ class DashboardScreen extends ConsumerWidget {
     final openAlerts = SectionCard(
       title: l.openAlerts,
       actions: [
-        TextButton(onPressed: () => onOpenTab(2), child: Text(l.seeAll)),
+        TextButton(
+          onPressed: () => openAlertsInbox(context),
+          child: Text(l.seeAll),
+        ),
       ],
       child: AsyncView(
         value: alerts,
@@ -195,25 +256,34 @@ class DashboardScreen extends ConsumerWidget {
     Future<void> refresh() async {
       ref
         ..invalidate(alertSummaryProvider)
+        ..invalidate(dashboardSummaryProvider(date))
         ..invalidate(alertsProvider(_openAlerts))
         ..invalidate(documentsProvider(_dueDocuments))
         ..invalidate(ownerTripsProvider(filter));
       await ref.read(ownerTripsProvider(filter).future);
     }
 
+    final appBar = AppBar(
+      title: Text(l.navDashboard),
+      actions: const [AlertsBell()],
+    );
+
     if (!desktop) {
       return Scaffold(
-        appBar: AppBar(title: Text(l.navDashboard)),
+        appBar: appBar,
         body: RefreshPage(
           onRefresh: refresh,
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Text(
-                '${l.today} · ${fmt.calendarDate(istToday())}',
-                style: Theme.of(context).textTheme.titleLarge,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: daySwitch,
               ),
             ),
+            const SizedBox(height: 8),
+            cards,
+            const SizedBox(height: 8),
             todaysTrips,
             attention,
             documentsDue,
@@ -225,13 +295,8 @@ class DashboardScreen extends ConsumerWidget {
 
     final session = ref.watch(authProvider).value;
     final firstName = (session?.name ?? '').trim().split(' ').first;
-    final tripList = trips.value ?? const [];
-    final s = summary.value;
-    final dueCount = documents.value == null
-        ? null
-        : due(documents.value!).length;
     return Scaffold(
-      appBar: AppBar(title: Text(l.navDashboard)),
+      appBar: appBar,
       // A quiet field of dashes behind the cards that turns towards the
       // pointer (desktop only; still when reduced motion is on).
       body: MagneticFieldBackground(
@@ -259,10 +324,12 @@ class DashboardScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${l.today} · ${fmt.calendarDate(istToday())}'
+                          '${fmt.calendarDate(istToday(widget.now))}'
                           ' · ${session?.activeMembership?.orgName ?? ''}',
                           style: const TextStyle(color: TaxcyColors.muted),
                         ),
+                        const SizedBox(height: 12),
+                        daySwitch,
                       ],
                     ),
                   ),
@@ -276,59 +343,7 @@ class DashboardScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
-                    child: MetricCard(
-                      icon: Icons.route,
-                      accent: TaxcyColors.blue600,
-                      label: l.todaysTrips,
-                      value: trips.hasValue ? fmt.number(tripList.length) : '–',
-                      hint:
-                          '${statusLabel(l, 'started')}: '
-                          '${fmt.number(tripList.where((t) => t.status == 'started').length)}',
-                      onTap: () => onOpenTab(1),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: MetricCard(
-                      icon: Icons.notifications_active_outlined,
-                      accent: Colors.red.shade600,
-                      label: l.openAlerts,
-                      value: s == null ? '–' : fmt.number(s.openAlerts),
-                      hint: s == null
-                          ? null
-                          : '${l.criticalAlerts}: ${fmt.number(s.critical)}',
-                      onTap: () => onOpenTab(2),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: MetricCard(
-                      icon: Icons.fact_check_outlined,
-                      accent: Colors.amber.shade800,
-                      label: l.toReview,
-                      value: s == null ? '–' : fmt.number(s.openReviewItems),
-                      onTap: openReview,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: MetricCard(
-                      icon: Icons.event_busy_outlined,
-                      accent: Colors.teal.shade600,
-                      label: l.documentsDueSoon,
-                      value: dueCount == null ? '–' : fmt.number(dueCount),
-                      onTap: () =>
-                          openScreen<void>(context, const DocumentsScreen()),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            cards,
             const SizedBox(height: 12),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -355,6 +370,99 @@ class DashboardScreen extends ConsumerWidget {
       _severityOrder[b.severity] ?? 3,
     );
     return bySeverity != 0 ? bySeverity : b.createdAt.compareTo(a.createdAt);
+  }
+}
+
+/// The four headline cards: in a row on the desktop, a 2×2 grid on phones.
+class _HeadlineCards extends StatelessWidget {
+  const _HeadlineCards(this.s, {required this.onOpenTrips});
+  final DashboardSummary s;
+  final VoidCallback onOpenTrips;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final fmt = context.fmt;
+    double? share(int part, int total) => total == 0 ? null : part / total;
+    final change = s.completedChangePercent;
+    final cards = [
+      KpiCard(
+        key: const Key('kpi-cabs'),
+        icon: Icons.local_taxi,
+        accent: TaxcyColors.blue600,
+        label: l.availableCabs,
+        value: fmt.number(s.cabsAvailable),
+        suffix: '/ ${fmt.number(s.cabsTotal)}',
+        pill: s.cabsTotal == 0
+            ? null
+            : l.percentReady(
+                percent: (s.cabsAvailable * 100 / s.cabsTotal).round(),
+              ),
+        progress: share(s.cabsAvailable, s.cabsTotal),
+        footer: l.cabsFooter(onTrip: s.cabsOnTrip, inactive: s.cabsInactive),
+        onTap: () => openScreen<void>(context, const VehiclesScreen()),
+      ),
+      KpiCard(
+        key: const Key('kpi-drivers'),
+        icon: Icons.badge_outlined,
+        accent: Colors.teal.shade600,
+        label: l.availableDrivers,
+        value: fmt.number(s.driversAvailable),
+        suffix: '/ ${fmt.number(s.driversTotal)}',
+        pill: s.driversAvailable > 0 ? l.standby : null,
+        progress: share(s.driversAvailable, s.driversTotal),
+        footer: l.driversFooter(
+          onTrip: s.driversOnTrip,
+          assigned: s.driversAssigned,
+        ),
+        onTap: () => openScreen<void>(context, const DriversScreen()),
+      ),
+      KpiCard(
+        key: const Key('kpi-unassigned'),
+        icon: Icons.warning_amber_rounded,
+        accent: Colors.amber.shade800,
+        label: l.tripsUnassigned,
+        value: fmt.number(s.unassigned),
+        suffix: l.pending,
+        pill: s.unassigned > 0 ? l.needsCab : null,
+        highlight: s.unassigned > 0,
+        link: s.unassigned > 0 ? l.resolveQueue : null,
+        onTap: () => openScreen<void>(
+          context,
+          const OwnerTripsScreen(initialStatus: 'created'),
+        ),
+      ),
+      KpiCard(
+        key: const Key('kpi-completed'),
+        icon: Icons.task_alt,
+        accent: Colors.green.shade700,
+        label: l.completedTrips,
+        value: fmt.number(s.completedCount),
+        suffix: l.runs,
+        pill: change == null ? null : '${change > 0 ? '+' : ''}$change%',
+        footer: l.grossFare(amount: fmt.inr(s.completedGrossPaise)),
+        onTap: onOpenTrips,
+      ),
+    ];
+    Widget row(List<Widget> items, double gap) => IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final (i, card) in items.indexed) ...[
+            if (i > 0) SizedBox(width: gap),
+            Expanded(child: card),
+          ],
+        ],
+      ),
+    );
+    if (isDesktop(context)) return row(cards, 16);
+    return Column(
+      children: [
+        row(cards.sublist(0, 2), 8),
+        const SizedBox(height: 8),
+        row(cards.sublist(2), 8),
+      ],
+    );
   }
 }
 

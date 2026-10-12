@@ -7,6 +7,7 @@ import '../../../core/api/owner_api.dart';
 import '../../common/format.dart';
 import '../owner_providers.dart';
 import '../owner_text.dart';
+import '../alerts_inbox.dart';
 import '../owner_widgets.dart';
 import 'create_trip_screen.dart';
 import 'owner_trip_detail_screen.dart';
@@ -22,14 +23,17 @@ const tripStatuses = [
 
 /// Every trip in the fleet, filtered by status, IST day, driver and vehicle.
 class OwnerTripsScreen extends ConsumerStatefulWidget {
-  const OwnerTripsScreen({super.key});
+  const OwnerTripsScreen({this.initialStatus, super.key});
+
+  /// Starts filtered to this status (the dashboard's "resolve queue").
+  final String? initialStatus;
 
   @override
   ConsumerState<OwnerTripsScreen> createState() => _OwnerTripsScreenState();
 }
 
 class _OwnerTripsScreenState extends ConsumerState<OwnerTripsScreen> {
-  String? _status;
+  late String? _status = widget.initialStatus;
   String? _date;
   String? _driverId;
   String? _vehicleId;
@@ -59,7 +63,7 @@ class _OwnerTripsScreenState extends ConsumerState<OwnerTripsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l.navTrips),
-        actions: action.headerActions(context),
+        actions: [const AlertsBell(), ...action.headerActions(context)],
       ),
       floatingActionButton: action.fab(context),
       body: RefreshPage(

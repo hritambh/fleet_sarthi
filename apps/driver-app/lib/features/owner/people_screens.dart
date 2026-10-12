@@ -10,8 +10,10 @@ import 'documents_screen.dart';
 import 'links.dart';
 import 'owner_providers.dart';
 import 'owner_text.dart';
+import 'alerts_inbox.dart';
 import 'owner_widgets.dart';
 import 'pay_rule_editor.dart';
+import 'vehicles_screen.dart';
 
 /// The fleet's drivers with their pay; invite by phone.
 class DriversScreen extends ConsumerWidget {
@@ -32,7 +34,7 @@ class DriversScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l.drivers),
-        actions: action.headerActions(context),
+        actions: [const AlertsBell(), ...action.headerActions(context)],
       ),
       floatingActionButton: action.fab(context),
       body: RefreshPage(
@@ -83,6 +85,7 @@ class DriversScreen extends ConsumerWidget {
                                 ),
                                 if (d.membershipStatus == 'invited')
                                   ToneChip(l.notSignedInYet, tone: Tone.brand),
+                                DocumentsDueChip(driverId: d.id),
                               ],
                             ),
                             onTap: () => openScreen<void>(
@@ -159,7 +162,9 @@ class _DriverCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 ToneChip(l.notSignedInYet, tone: Tone.brand),
               ],
-              const SizedBox(height: 14),
+              const SizedBox(height: 4),
+              DocumentsDueChip(driverId: d.id),
+              const SizedBox(height: 10),
               const Divider(height: 1),
               const SizedBox(height: 12),
               if (pay != null)
@@ -224,8 +229,17 @@ class _InviteDialogState extends ConsumerState<InviteDialog> {
   final _phone = TextEditingController();
   String? _nameError;
   String? _phoneError;
-  Set<String> _vehicleIds = {};
+
+  /// Null until the owner changes it: every active vehicle.
+  Set<String>? _vehicleIds;
   bool _busy = false;
+
+  Set<String> _chosenVehicles(List<Vehicle> vehicles) =>
+      _vehicleIds ??
+      {
+        for (final v in vehicles)
+          if (v.isActive) v.id,
+      };
 
   @override
   void dispose() {
@@ -253,7 +267,9 @@ class _InviteDialogState extends ConsumerState<InviteDialog> {
         await api.inviteDriver(
           name: name,
           phone: phone,
-          vehicleIds: _vehicleIds.toList(),
+          vehicleIds: _chosenVehicles(
+            ref.read(fleetVehiclesProvider).value ?? const [],
+          ).toList(),
         );
       }
       refreshAfter(ref, {OwnerArea.fleet});
@@ -309,7 +325,7 @@ class _InviteDialogState extends ConsumerState<InviteDialog> {
                 helper: l.vehiclesOptionalHint,
                 sheetTitle: l.vehicles,
                 options: vehicleOptions(l, vehicles),
-                value: _vehicleIds,
+                value: _chosenVehicles(vehicles),
                 emptyText: l.noVehiclesToLink,
                 onChanged: (ids) => setState(() => _vehicleIds = ids),
               ),
@@ -397,7 +413,13 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
       title: l.editVehicles,
       intro: l.editVehiclesIntro(name: driver.name),
       options: vehicleOptions(l, vehicles, keep: linked),
-      selected: linked,
+      // Nothing linked yet: start with every vehicle ticked.
+      selected: linked.isEmpty
+          ? {
+              for (final v in vehicles)
+                if (v.isActive) v.id,
+            }
+          : linked,
       emptyText: l.noVehiclesToLink,
       onSave: (ids) =>
           ref.read(ownerApiProvider).setDriverVehicles(driver.id, ids.toList()),
@@ -578,9 +600,10 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
   }
 }
 
-/// Everyone with access to the org. Owners invite and remove managers.
-class MembersScreen extends ConsumerWidget {
-  const MembersScreen({super.key});
+/// The fleet's managers, in Settings. Owners invite and remove them; managers
+/// see the list read-only.
+class ManagersSection extends ConsumerWidget {
+  const ManagersSection({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -588,118 +611,46 @@ class MembersScreen extends ConsumerWidget {
     final isOwner = ref.watch(isOwnerProvider);
     final me = ref.watch(authProvider).value?.userId;
     final members = ref.watch(membersProvider);
-    final action = PageAction(
-      key: const Key('invite-manager'),
-      icon: Icons.person_add,
-      label: l.inviteManager,
-      onPressed: () => _invite(context, ref, manager: true),
-    );
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l.members),
-        actions: isOwner ? action.headerActions(context) : const [],
-      ),
-      floatingActionButton: isOwner ? action.fab(context) : null,
-      body: RefreshPage(
-        onRefresh: () => ref.refresh(membersProvider.future),
-        children: [
-          Text(l.membersIntro, style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: 8),
-          AsyncView(
-            value: members,
-            onRetry: () => ref.invalidate(membersProvider),
-            builder: (list) => isDesktop(context)
-                ? DesktopTable(
-                    key: const Key('member-table'),
-                    columns: [
-                      TableColumn(l.name, flex: 4),
-                      TableColumn(l.mobileNumber, flex: 3),
-                      TableColumn(l.colRole, flex: 3),
-                      TableColumn(l.status),
-                      const TableColumn('', flex: 1, end: true),
-                    ],
-                    rows: [
-                      for (final m in list)
-                        TableRowData(
-                          key: ValueKey('member-${m.id}'),
-                          cells: [
-                            Row(
-                              children: [
-                                InitialsAvatar(
-                                  m.name ?? formatPhone(m.phone),
-                                  radius: 16,
-                                ),
-                                const SizedBox(width: 10),
-                                Flexible(
-                                  child: Text(
-                                    m.name ?? formatPhone(m.phone),
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              formatPhone(m.phone),
-                              style: const TextStyle(color: TaxcyColors.muted),
-                            ),
-                            Wrap(
-                              spacing: 4,
-                              runSpacing: 4,
-                              children: [
-                                for (final r in m.roles)
-                                  ToneChip(
-                                    roleLabel(l, r),
-                                    tone: r == 'owner'
-                                        ? Tone.brand
-                                        : Tone.neutral,
-                                  ),
-                              ],
-                            ),
-                            ToneChip(
-                              memberStatusLabel(l, m.status),
-                              tone: m.status == 'active'
-                                  ? Tone.success
-                                  : m.status == 'suspended'
-                                  ? Tone.danger
-                                  : Tone.warning,
-                            ),
-                            _removeManager(context, ref, m, isOwner, me) ??
-                                const SizedBox.shrink(),
-                          ],
-                        ),
-                    ],
-                  )
-                : Column(
-                    children: [
-                      for (final m in list)
-                        Card(
-                          margin: const EdgeInsets.symmetric(vertical: 4),
-                          child: ListTile(
-                            key: ValueKey('member-${m.id}'),
-                            title: Text(m.name ?? formatPhone(m.phone)),
-                            subtitle: Text(
-                              [
-                                formatPhone(m.phone),
-                                m.roles.map((r) => roleLabel(l, r)).join(', '),
-                                memberStatusLabel(l, m.status),
-                              ].join(' · '),
-                            ),
-                            trailing: _removeManager(
-                              context,
-                              ref,
-                              m,
-                              isOwner,
-                              me,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
+    return SectionCard(
+      key: const Key('managers-section'),
+      title: l.managersSection,
+      actions: [
+        if (isOwner)
+          TextButton.icon(
+            key: const Key('invite-manager'),
+            onPressed: () => _invite(context, ref, manager: true),
+            icon: const Icon(Icons.person_add),
+            label: Text(l.inviteManager),
           ),
-        ],
+      ],
+      child: AsyncView(
+        value: members,
+        onRetry: () => ref.invalidate(membersProvider),
+        builder: (list) {
+          final managers = list.where((m) => m.isManager).toList();
+          if (managers.isEmpty) return EmptyState(l.noManagersYet);
+          return Column(
+            children: [
+              for (final m in managers)
+                ListTile(
+                  key: ValueKey('member-${m.id}'),
+                  contentPadding: EdgeInsets.zero,
+                  leading: InitialsAvatar(
+                    m.name ?? formatPhone(m.phone),
+                    radius: 16,
+                  ),
+                  title: Text(m.name ?? formatPhone(m.phone)),
+                  subtitle: Text(
+                    [
+                      formatPhone(m.phone),
+                      memberStatusLabel(l, m.status),
+                    ].join(' · '),
+                  ),
+                  trailing: _removeManager(context, ref, m, isOwner, me),
+                ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -735,4 +686,43 @@ Widget? _removeManager(
       });
     },
   );
+}
+
+/// [DriverScreen] for a driver known only by id (from an alert or a document).
+class DriverByIdScreen extends ConsumerWidget {
+  const DriverByIdScreen({required this.driverId, super.key});
+  final String driverId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final drivers = ref.watch(driversProvider);
+    final driver = drivers.value?.where((d) => d.id == driverId).firstOrNull;
+    if (driver != null) return DriverScreen(driver: driver);
+    return Scaffold(
+      appBar: AppBar(title: Text(context.l10n.drivers)),
+      body: RefreshPage(
+        onRefresh: () => ref.refresh(driversProvider.future),
+        children: [
+          AsyncView(
+            value: drivers,
+            onRetry: () => ref.invalidate(driversProvider),
+            builder: (_) => EmptyState(context.l10n.noItems),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Opens the vehicle or driver a document belongs to, where its documents live.
+void openDocumentOwner(
+  BuildContext context, {
+  String? vehicleId,
+  String? driverId,
+}) {
+  if (vehicleId != null) {
+    openScreen<void>(context, VehicleDetailScreen(vehicleId: vehicleId));
+  } else if (driverId != null) {
+    openScreen<void>(context, DriverByIdScreen(driverId: driverId));
+  }
 }
