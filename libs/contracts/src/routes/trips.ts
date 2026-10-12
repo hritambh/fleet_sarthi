@@ -188,6 +188,13 @@ const TripDetails = z.object({
   includedKm: z.number().int().min(1).max(20_000).nullable().optional(),
 });
 
+/** A vehicle or driver booked on a trip whose window overlaps the asked range. */
+export const Busy = z.object({ id: Id, tripId: Id, from: DateTime, to: DateTime });
+export type Busy = z.infer<typeof Busy>;
+
+export const Availability = z.object({ vehicles: z.array(Busy), drivers: z.array(Busy) });
+export type Availability = z.infer<typeof Availability>;
+
 export const tripRoutes = {
   list: defineRoute({
     method: 'GET',
@@ -201,9 +208,30 @@ export const tripRoutes = {
       vehicleId: Id.optional(),
       from: DateTime.optional(),
       to: DateTime.optional(),
+      /**
+       * With from/to: match trips whose scheduled window overlaps [from, to)
+       * instead of those that start inside it (for calendars).
+       */
+      overlapping: z.stringbool().optional(),
       limit: z.coerce.number().int().min(1).max(200).default(50),
     }),
     response: z.array(Trip),
+  }),
+  availability: defineRoute({
+    method: 'GET',
+    path: '/availability',
+    summary:
+      'Vehicles and drivers already booked (assigned or started trips) during [from, to), ' +
+      'optionally ignoring one trip',
+    tag: 'trips',
+    access: access.staff,
+    query: z.object({
+      from: DateTime,
+      to: DateTime,
+      /** The trip being reassigned: its own booking never counts as a clash. */
+      excludeTripId: Id.optional(),
+    }),
+    response: Availability,
   }),
   create: defineRoute({
     method: 'POST',

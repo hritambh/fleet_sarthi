@@ -9,8 +9,10 @@ import '../account/account_security_screen.dart';
 import '../common/format.dart';
 import '../common/language_picker.dart';
 import 'owner_providers.dart';
+import 'alerts_inbox.dart';
 import 'owner_widgets.dart';
 import 'pay_rule_editor.dart';
+import 'people_screens.dart';
 
 /// Language, audit thresholds and the default driver pay. Only the owner can
 /// change the last two; managers see them read-only.
@@ -73,12 +75,13 @@ class SettingsScreen extends ConsumerWidget {
       ),
     );
     return Scaffold(
-      appBar: AppBar(title: Text(l.settings)),
+      appBar: AppBar(title: Text(l.settings), actions: const [AlertsBell()]),
       body: RefreshPage(
         onRefresh: () async {
           ref
             ..invalidate(auditSettingsProvider)
-            ..invalidate(defaultPayRuleProvider);
+            ..invalidate(defaultPayRuleProvider)
+            ..invalidate(membersProvider);
           await ref.read(auditSettingsProvider.future);
         },
         children: isDesktop(context)
@@ -91,13 +94,26 @@ class SettingsScreen extends ConsumerWidget {
                     Expanded(
                       flex: 2,
                       child: Column(
-                        children: [language, security, ?ownerOnly, payCard],
+                        children: [
+                          language,
+                          security,
+                          ?ownerOnly,
+                          payCard,
+                          const ManagersSection(),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ]
-            : [language, security, ?ownerOnly, thresholds, payCard],
+            : [
+                language,
+                security,
+                ?ownerOnly,
+                thresholds,
+                payCard,
+                const ManagersSection(),
+              ],
       ),
     );
   }

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { GeoPoint, Trip, TripType } from '@taxcy/contracts';
+import type { Availability, GeoPoint, Trip, TripType } from '@taxcy/contracts';
 import type { Prisma, TenantTx } from '@taxcy/db';
 import {
   chargePaidByDriver,
@@ -96,9 +96,24 @@ export class TripsService {
       vehicleId?: string | undefined;
       from?: Date | undefined;
       to?: Date | undefined;
+      overlapping?: boolean | undefined;
       limit: number;
     },
   ): Promise<Trip[]> {
+    // Overlapping: the scheduled window [start, end) meets [from, to).
+    const window = q.overlapping
+      ? {
+          ...(q.to ? { scheduledStartAt: { lt: q.to } } : {}),
+          ...(q.from ? { scheduledEndAt: { gt: q.from } } : {}),
+        }
+      : q.from || q.to
+        ? {
+            scheduledStartAt: {
+              ...(q.from ? { gte: q.from } : {}),
+              ...(q.to ? { lt: q.to } : {}),
+            },
+          }
+        : {};
     return this.db.tenant(auth.orgId, async (tx) => {
       const rows = await this.trips.findRows(
         tx,
@@ -106,18 +121,46 @@ export class TripsService {
           ...(q.status ? { status: q.status } : {}),
           ...(q.driverId ? { driverId: q.driverId } : {}),
           ...(q.vehicleId ? { vehicleId: q.vehicleId } : {}),
-          ...(q.from || q.to
-            ? {
-                scheduledStartAt: {
-                  ...(q.from ? { gte: q.from } : {}),
-                  ...(q.to ? { lt: q.to } : {}),
-                },
-              }
-            : {}),
+          ...window,
         },
         q.limit,
       );
       return this.trips.views(tx, rows);
+    });
+  }
+
+  /**
+   * Vehicles and drivers booked during [from, to): the same rule as the
+   * no-overlap constraints (assigned or started trips, half-open windows).
+   */
+  async availability(
+    auth: TenantAuth,
+    q: { from: Date; to: Date; excludeTripId?: string | undefined },
+  ): Promise<Availability> {
+    return this.db.tenant(auth.orgId, async (tx) => {
+      const rows = await tx.trip.findMany({
+        where: {
+          orgId: tx.orgId,
+          status: { in: ['assigned', 'started'] },
+          scheduledStartAt: { lt: q.to },
+          scheduledEndAt: { gt: q.from },
+          ...(q.excludeTripId ? { id: { not: q.excludeTripId } } : {}),
+        },
+        select: {
+          id: true,
+          vehicleId: true,
+          driverId: true,
+          scheduledStartAt: true,
+          scheduledEndAt: true,
+        },
+        orderBy: { scheduledStartAt: 'asc' },
+      });
+      const busy = (id: string | null, r: (typeof rows)[number]) =>
+        id ? [{ id, tripId: r.id, from: r.scheduledStartAt, to: r.scheduledEndAt }] : [];
+      return {
+        vehicles: rows.flatMap((r) => busy(r.vehicleId, r)),
+        drivers: rows.flatMap((r) => busy(r.driverId, r)),
+      };
     });
   }
 

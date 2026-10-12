@@ -2657,4 +2657,218 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get usualEfficiency => 'आम माइलेज';
+
+  @override
+  String get alertsInbox => 'अलर्ट और जाँच';
+
+  @override
+  String get documentsExpiredChip => 'दस्तावेज़ की मियाद ख़त्म';
+
+  @override
+  String get documentsDueChip => 'दस्तावेज़ जल्द ख़त्म';
+
+  @override
+  String get managersSection => 'मैनेजर';
+
+  @override
+  String get noManagersYet => 'अभी कोई मैनेजर नहीं।';
+
+  @override
+  String get shareTripHeading => 'ट्रिप की जानकारी';
+
+  @override
+  String get shareCustomer => 'ग्राहक';
+
+  @override
+  String get sharePickup => 'पिकअप';
+
+  @override
+  String get shareDrop => 'ड्रॉप';
+
+  @override
+  String get sharePickupTime => 'पिकअप का समय';
+
+  @override
+  String get shareCab => 'गाड़ी';
+
+  @override
+  String get shareDriver => 'ड्राइवर';
+
+  @override
+  String get shareFare => 'किराया';
+
+  @override
+  String shareFareWithKm({required String fare, required String km}) {
+    return '$fare ($km शामिल)';
+  }
+
+  @override
+  String get copyDetails => 'जानकारी कॉपी करें';
+
+  @override
+  String get detailsCopied => 'ट्रिप की जानकारी कॉपी हो गई';
+
+  @override
+  String get shareOnWhatsApp => 'व्हाट्सऐप पर भेजें';
+
+  @override
+  String get whatsAppUnavailable => 'व्हाट्सऐप नहीं खुल सका';
+
+  @override
+  String get analytics => 'विश्लेषण';
+
+  @override
+  String get analyticsIntro =>
+      'महीने भर का रोज़ का फ़्यूल, कमाई और किलोमीटर, हर गाड़ी के हिसाब से।';
+
+  @override
+  String get month => 'महीना';
+
+  @override
+  String get perTripAverages => 'हर ट्रिप का औसत';
+
+  @override
+  String get avgKmPerTrip => 'प्रति ट्रिप किलोमीटर';
+
+  @override
+  String get avgRevenuePerTrip => 'प्रति ट्रिप कमाई';
+
+  @override
+  String get avgFuelCostPerTrip => 'प्रति ट्रिप फ़्यूल ख़र्च (अनुमान)';
+
+  @override
+  String tripsInMonth({required int count}) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'इस महीने $count ट्रिप',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fuelBoughtPerDay => 'रोज़ भरा गया फ़्यूल';
+
+  @override
+  String get revenuePerDay => 'रोज़ की कमाई';
+
+  @override
+  String get kmPerDay => 'रोज़ चले किलोमीटर';
+
+  @override
+  String monthTotal({required String total}) {
+    return 'महीने का कुल: $total';
+  }
+
+  @override
+  String get fuelInRupeesNote =>
+      '₹ में दिखाया है, क्योंकि लीटर और किलो जोड़े नहीं जा सकते।';
+
+  @override
+  String get noActivityThisMonth => 'इस महीने कुछ नहीं।';
+
+  @override
+  String get customDay => 'तारीख़ चुनें';
+
+  @override
+  String tripsOnDay({required String date}) {
+    return '$date की ट्रिप';
+  }
+
+  @override
+  String get availableCabs => 'ख़ाली गाड़ियाँ';
+
+  @override
+  String get availableDrivers => 'ख़ाली ड्राइवर';
+
+  @override
+  String get tripsUnassigned => 'बिना गाड़ी की ट्रिप';
+
+  @override
+  String get completedTrips => 'पूरी हुई ट्रिप';
+
+  @override
+  String percentReady({required int percent}) {
+    return '$percent% तैयार';
+  }
+
+  @override
+  String cabsFooter({required int onTrip, required int inactive}) {
+    return '$onTrip ट्रिप पर · $inactive बंद';
+  }
+
+  @override
+  String driversFooter({required int onTrip, required int assigned}) {
+    return '$onTrip ट्रिप पर · $assigned को ट्रिप मिली';
+  }
+
+  @override
+  String get standby => 'तैयार';
+
+  @override
+  String get needsCab => 'गाड़ी चाहिए';
+
+  @override
+  String get pending => 'बाकी';
+
+  @override
+  String get resolveQueue => 'लाइन निपटाएँ';
+
+  @override
+  String get runs => 'ट्रिप';
+
+  @override
+  String grossFare({required String amount}) {
+    return 'कुल किराया $amount';
+  }
+
+  @override
+  String busyFromTo({required String from, required String to}) {
+    return 'व्यस्त $from – $to';
+  }
+
+  @override
+  String get busyPickCleared =>
+      'चुनी गई गाड़ी या ड्राइवर नए समय पर बुक है, इसलिए हटा दिया गया।';
+
+  @override
+  String get busyPickWarning => 'यह गाड़ी या ड्राइवर इस समय पहले से बुक है।';
+
+  @override
+  String get uploadFile => 'फ़ाइल अपलोड करें';
+
+  @override
+  String get chooseOtherFile => 'दूसरी फ़ाइल चुनें';
+
+  @override
+  String get uploadFileHint =>
+      'या PDF या फ़ोटो (JPG, PNG, WebP) अपलोड करें, 15 MB तक।';
+
+  @override
+  String get fileTooLarge => 'यह फ़ाइल 15 MB से बड़ी है।';
+
+  @override
+  String get pdfDocument => 'PDF दस्तावेज़';
+
+  @override
+  String get imageFile => 'फ़ोटो';
+
+  @override
+  String get viewDocument => 'दस्तावेज़ देखें';
+
+  @override
+  String get documentUnavailable =>
+      'दस्तावेज़ नहीं खुल सका। फिर से कोशिश करें।';
+
+  @override
+  String get schedule => 'शेड्यूल';
+
+  @override
+  String get noTripsThisDay => 'इस दिन कोई ट्रिप नहीं।';
+
+  @override
+  String get previousMonth => 'पिछला महीना';
+
+  @override
+  String get nextMonth => 'अगला महीना';
 }

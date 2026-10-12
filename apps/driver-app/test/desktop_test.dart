@@ -34,17 +34,18 @@ void main() {
     for (final section in [
       'dashboard',
       'trips',
-      'alerts',
-      'review',
       'vehicles',
       'drivers',
-      'documents',
-      'fuel',
+      'analytics',
       'settlements',
-      'members',
       'settings',
     ]) {
       expect(find.byKey(Key('side-$section')), findsOneWidget);
+    }
+    // Alerts and review sit behind the header bell; documents live on each
+    // vehicle and driver; managers are in settings.
+    for (final gone in ['alerts', 'review', 'documents', 'members', 'fuel']) {
+      expect(find.byKey(Key('side-$gone')), findsNothing);
     }
     // The fleet and who's signed in.
     expect(find.text('Sharma Travels'), findsWidgets);
@@ -56,7 +57,12 @@ void main() {
   ) async {
     await desktop(tester);
     expect(find.textContaining('Ramesh'), findsWidgets);
-    expect(find.byType(MetricCard), findsNWidgets(4));
+    expect(find.byType(KpiCard), findsNWidgets(4));
+    for (final card in ['cabs', 'drivers', 'unassigned', 'completed']) {
+      expect(find.byKey(Key('kpi-$card')), findsOneWidget);
+    }
+    expect(find.byKey(const Key('dashboard-day')), findsOneWidget);
+    expect(find.byKey(const Key('alerts-bell')), findsOneWidget);
     expect(find.byKey(const Key('dashboard-new-trip')), findsOneWidget);
   });
 
@@ -110,14 +116,10 @@ void main() {
     // Each section with what makes its desktop page: a table, a card grid, or
     // the wide form. A layout overflow anywhere fails the test.
     final pages = <String, Finder>{
-      'alerts': find.byType(Card),
-      'review': find.byKey(const Key('review-keep-typed')),
       'vehicles': find.byType(CardGrid),
       'drivers': find.byType(CardGrid),
-      'documents': find.byKey(const Key('document-table')),
-      'fuel': find.byType(CardGrid),
+      'analytics': find.byKey(const Key('chart-revenue')),
       'settlements': find.byKey(const Key('settlement-table')),
-      'members': find.byKey(const Key('member-table')),
       'settings': find.byKey(const Key('save-thresholds')),
     };
     for (final MapEntry(key: section, value: marker) in pages.entries) {
@@ -144,6 +146,22 @@ void main() {
       tester.getTopLeft(find.byKey(const Key('audit-min'))).dy,
       thresholds.dy,
     );
+  });
+
+  testWidgets('the header bell opens alerts and review, beside the sidebar', (
+    tester,
+  ) async {
+    await desktop(tester);
+    await tester.tap(find.byKey(const Key('alerts-bell')));
+    await settle(tester);
+    expect(find.byKey(const Key('alerts-inbox')), findsOneWidget);
+    expect(find.byKey(const Key('owner-sidebar')), findsOneWidget);
+    expect(find.byKey(const Key('alert-status-filter')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('tab-review')));
+    await settle(tester);
+    expect(find.byKey(const Key('review-keep-typed')), findsWidgets);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('a laptop just below the desktop width keeps the rail', (

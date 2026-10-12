@@ -180,11 +180,11 @@ void main() {
   });
 
   group('managers', () {
-    testWidgets('can see members but not invite or remove managers', (
+    testWidgets('can see managers in settings but not invite or remove them', (
       tester,
     ) async {
       final h = await owner(tester, roles: ['manager']);
-      await tester.pumpWidget(h.screen(const MembersScreen()));
+      await tester.pumpWidget(h.screen(const SettingsScreen()));
       await settle(tester);
       expect(find.text('Priya Sharma'), findsOneWidget);
       expect(find.byKey(const Key('invite-manager')), findsNothing);
@@ -534,9 +534,11 @@ void main() {
     },
   );
 
-  testWidgets('invite a manager, then remove their access', (tester) async {
+  testWidgets('invite a manager from settings, then remove their access', (
+    tester,
+  ) async {
     final h = await owner(tester);
-    await tester.pumpWidget(h.screen(const MembersScreen()));
+    await tester.pumpWidget(h.screen(const SettingsScreen()));
     await settle(tester);
     await tester.tap(find.byKey(const Key('invite-manager')));
     await tester.pumpAndSettle();

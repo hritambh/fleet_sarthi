@@ -2663,4 +2663,219 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get usualEfficiency => 'Usual efficiency';
+
+  @override
+  String get alertsInbox => 'Alerts & review';
+
+  @override
+  String get documentsExpiredChip => 'Document expired';
+
+  @override
+  String get documentsDueChip => 'Document due';
+
+  @override
+  String get managersSection => 'Managers';
+
+  @override
+  String get noManagersYet => 'No managers yet.';
+
+  @override
+  String get shareTripHeading => 'Trip details';
+
+  @override
+  String get shareCustomer => 'Customer';
+
+  @override
+  String get sharePickup => 'Pickup';
+
+  @override
+  String get shareDrop => 'Drop';
+
+  @override
+  String get sharePickupTime => 'Pickup time';
+
+  @override
+  String get shareCab => 'Cab';
+
+  @override
+  String get shareDriver => 'Driver';
+
+  @override
+  String get shareFare => 'Fare';
+
+  @override
+  String shareFareWithKm({required String fare, required String km}) {
+    return '$fare ($km included)';
+  }
+
+  @override
+  String get copyDetails => 'Copy details';
+
+  @override
+  String get detailsCopied => 'Trip details copied';
+
+  @override
+  String get shareOnWhatsApp => 'Send on WhatsApp';
+
+  @override
+  String get whatsAppUnavailable => 'Couldn\'t open WhatsApp';
+
+  @override
+  String get analytics => 'Analytics';
+
+  @override
+  String get analyticsIntro =>
+      'Daily fuel bought, revenue and km for the month, by vehicle.';
+
+  @override
+  String get month => 'Month';
+
+  @override
+  String get perTripAverages => 'Average per trip';
+
+  @override
+  String get avgKmPerTrip => 'Km per trip';
+
+  @override
+  String get avgRevenuePerTrip => 'Revenue per trip';
+
+  @override
+  String get avgFuelCostPerTrip => 'Fuel cost per trip (est.)';
+
+  @override
+  String tripsInMonth({required int count}) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count trips this month',
+      one: '1 trip this month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fuelBoughtPerDay => 'Fuel bought per day';
+
+  @override
+  String get revenuePerDay => 'Revenue per day';
+
+  @override
+  String get kmPerDay => 'Km driven per day';
+
+  @override
+  String monthTotal({required String total}) {
+    return 'Month total: $total';
+  }
+
+  @override
+  String get fuelInRupeesNote =>
+      'Shown in ₹, since litres and kg can\'t be added together.';
+
+  @override
+  String get noActivityThisMonth => 'Nothing this month.';
+
+  @override
+  String get customDay => 'Custom';
+
+  @override
+  String tripsOnDay({required String date}) {
+    return 'Trips on $date';
+  }
+
+  @override
+  String get availableCabs => 'Available cabs';
+
+  @override
+  String get availableDrivers => 'Available drivers';
+
+  @override
+  String get tripsUnassigned => 'Trips unassigned';
+
+  @override
+  String get completedTrips => 'Completed trips';
+
+  @override
+  String percentReady({required int percent}) {
+    return '$percent% ready';
+  }
+
+  @override
+  String cabsFooter({required int onTrip, required int inactive}) {
+    return '$onTrip on trip · $inactive inactive';
+  }
+
+  @override
+  String driversFooter({required int onTrip, required int assigned}) {
+    return '$onTrip on trip · $assigned assigned';
+  }
+
+  @override
+  String get standby => 'Standby';
+
+  @override
+  String get needsCab => 'Needs cab';
+
+  @override
+  String get pending => 'pending';
+
+  @override
+  String get resolveQueue => 'Resolve queue';
+
+  @override
+  String get runs => 'runs';
+
+  @override
+  String grossFare({required String amount}) {
+    return '$amount gross fare';
+  }
+
+  @override
+  String busyFromTo({required String from, required String to}) {
+    return 'Busy $from – $to';
+  }
+
+  @override
+  String get busyPickCleared =>
+      'The vehicle or driver you picked is booked at the new time, so it was cleared.';
+
+  @override
+  String get busyPickWarning =>
+      'This vehicle or driver is already booked at this time.';
+
+  @override
+  String get uploadFile => 'Upload file';
+
+  @override
+  String get chooseOtherFile => 'Choose another file';
+
+  @override
+  String get uploadFileHint =>
+      'Or upload a PDF or image (JPG, PNG, WebP), up to 15 MB.';
+
+  @override
+  String get fileTooLarge => 'That file is larger than 15 MB.';
+
+  @override
+  String get pdfDocument => 'PDF document';
+
+  @override
+  String get imageFile => 'Image';
+
+  @override
+  String get viewDocument => 'View document';
+
+  @override
+  String get documentUnavailable => 'Couldn\'t open the document. Try again.';
+
+  @override
+  String get schedule => 'Schedule';
+
+  @override
+  String get noTripsThisDay => 'No trips this day.';
+
+  @override
+  String get previousMonth => 'Previous month';
+
+  @override
+  String get nextMonth => 'Next month';
 }

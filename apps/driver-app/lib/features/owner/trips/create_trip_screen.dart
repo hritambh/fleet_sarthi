@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../../../app/providers.dart';
 import '../../../core/api/json.dart';
 import '../../../core/api/models.dart';
+import '../../../core/api/owner_models.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../common/format.dart';
 import '../links.dart';
@@ -137,6 +138,9 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
   String? _problem;
   bool _busy = false;
 
+  /// A picked vehicle or driver turned out busy at the new times and was cleared.
+  bool _cleared = false;
+
   static DateTime _nextHour(DateTime t) =>
       DateTime(t.year, t.month, t.day, t.hour + 1);
 
@@ -206,6 +210,28 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
     final l = context.l10n;
     final fmt = context.fmt;
     final local = _tripType == 'local_rental';
+    // Who is already booked in this window: shown greyed out in the pickers,
+    // and a pick that becomes busy when the times change is cleared.
+    final window = _end.isAfter(_start)
+        ? (from: _start, to: _end, excludeTripId: null)
+        : null;
+    final availability = window == null
+        ? Availability.none
+        : ref.watch(availabilityProvider(window)).value ?? Availability.none;
+    if (window != null) {
+      ref.listen(availabilityProvider(window), (_, next) {
+        final a = next.value;
+        if (a == null) return;
+        final vehicleBusy = a.vehicles.containsKey(_vehicleId);
+        final driverBusy = a.drivers.containsKey(_driverId);
+        if (!vehicleBusy && !driverBusy) return;
+        setState(() {
+          if (vehicleBusy) _vehicleId = null;
+          if (driverBusy) _driverId = null;
+          _cleared = true;
+        });
+      });
+    }
     return Scaffold(
       appBar: AppBar(title: Text(l.newTrip)),
       body: ListView(
@@ -354,7 +380,9 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
                   label: l.vehicleOptional,
                   noneLabel: l.assignLater,
                   driverId: _vehicleId == null ? _driverId : null,
+                  busy: availability.vehicles,
                   onChanged: (v) => setState(() {
+                    _cleared = false;
                     _vehicleId = v;
                     final driver = _driverId;
                     if (v != null &&
@@ -370,8 +398,20 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
                   label: l.driverOptional,
                   noneLabel: l.assignLater,
                   vehicleId: _vehicleId,
-                  onChanged: (v) => setState(() => _driverId = v),
+                  busy: availability.drivers,
+                  onChanged: (v) => setState(() {
+                    _cleared = false;
+                    _driverId = v;
+                  }),
                 ),
+                if (_cleared) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    l.busyPickCleared,
+                    key: const Key('busy-pick-cleared'),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
                 if (_problem != null) ...[
                   const SizedBox(height: 12),
                   Text(

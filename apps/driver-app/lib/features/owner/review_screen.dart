@@ -20,7 +20,10 @@ const reviewStatuses = [
 
 /// Items Fleet Sarthi isn't sure about: photo vs typed value; the owner decides.
 class ReviewScreen extends ConsumerStatefulWidget {
-  const ReviewScreen({super.key});
+  const ReviewScreen({this.embedded = false, super.key});
+
+  /// Inside [AlertsInboxScreen]'s tabs: no page header of its own.
+  final bool embedded;
 
   @override
   ConsumerState<ReviewScreen> createState() => _ReviewScreenState();
@@ -33,40 +36,42 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final items = ref.watch(reviewItemsProvider(_status));
+    final body = RefreshPage(
+      onRefresh: () => ref.refresh(reviewItemsProvider(_status).future),
+      children: [
+        Text(l.reviewIntro, style: Theme.of(context).textTheme.bodySmall),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: 240,
+          child: DropdownButtonFormField<String?>(
+            initialValue: _status,
+            isExpanded: true,
+            decoration: InputDecoration(labelText: l.status, isDense: true),
+            items: [
+              for (final s in reviewStatuses)
+                DropdownMenuItem<String?>(
+                  value: s,
+                  child: Text(reviewStatusLabel(l, s)),
+                ),
+              DropdownMenuItem<String?>(child: Text(l.all)),
+            ],
+            onChanged: (v) => setState(() => _status = v),
+          ),
+        ),
+        const SizedBox(height: 8),
+        AsyncView(
+          value: items,
+          onRetry: () => ref.invalidate(reviewItemsProvider(_status)),
+          builder: (list) => list.isEmpty
+              ? EmptyState(_status == 'open' ? l.nothingToReview : l.noItems)
+              : Column(children: [for (final i in list) ReviewCard(i)]),
+        ),
+      ],
+    );
+    if (widget.embedded) return body;
     return Scaffold(
       appBar: AppBar(title: Text(l.review)),
-      body: RefreshPage(
-        onRefresh: () => ref.refresh(reviewItemsProvider(_status).future),
-        children: [
-          Text(l.reviewIntro, style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: 240,
-            child: DropdownButtonFormField<String?>(
-              initialValue: _status,
-              isExpanded: true,
-              decoration: InputDecoration(labelText: l.status, isDense: true),
-              items: [
-                for (final s in reviewStatuses)
-                  DropdownMenuItem<String?>(
-                    value: s,
-                    child: Text(reviewStatusLabel(l, s)),
-                  ),
-                DropdownMenuItem<String?>(child: Text(l.all)),
-              ],
-              onChanged: (v) => setState(() => _status = v),
-            ),
-          ),
-          const SizedBox(height: 8),
-          AsyncView(
-            value: items,
-            onRetry: () => ref.invalidate(reviewItemsProvider(_status)),
-            builder: (list) => list.isEmpty
-                ? EmptyState(_status == 'open' ? l.nothingToReview : l.noItems)
-                : Column(children: [for (final i in list) ReviewCard(i)]),
-          ),
-        ],
-      ),
+      body: body,
     );
   }
 }

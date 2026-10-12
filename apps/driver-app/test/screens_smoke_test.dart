@@ -6,7 +6,10 @@ import 'package:taxcy_driver/features/common/consent_screen.dart';
 import 'package:taxcy_driver/features/fuel/fuel_fill_screen.dart';
 import 'package:taxcy_driver/features/account/account_security_screen.dart';
 import 'package:taxcy_driver/features/login/login_screen.dart';
+import 'package:taxcy_driver/features/owner/alerts_inbox.dart';
 import 'package:taxcy_driver/features/owner/alerts_screen.dart';
+import 'package:taxcy_driver/features/owner/analytics_screen.dart';
+import 'package:taxcy_driver/features/owner/dashboard_screen.dart';
 import 'package:taxcy_driver/features/owner/documents_screen.dart';
 import 'package:taxcy_driver/features/owner/fuel_screens.dart';
 import 'package:taxcy_driver/features/owner/owner_shell.dart';
@@ -17,6 +20,7 @@ import 'package:taxcy_driver/features/owner/settlements_screen.dart';
 import 'package:taxcy_driver/features/owner/trips/create_trip_screen.dart';
 import 'package:taxcy_driver/features/owner/trips/owner_trip_detail_screen.dart';
 import 'package:taxcy_driver/features/owner/trips/owner_trips_screen.dart';
+import 'package:taxcy_driver/features/owner/vehicle_schedule.dart';
 import 'package:taxcy_driver/features/owner/vehicles_screen.dart';
 import 'package:taxcy_driver/features/trips/new_trip_screen.dart';
 import 'package:taxcy_driver/features/trips/trip_detail_screen.dart';
@@ -64,13 +68,19 @@ void main() {
     'trips': const OwnerTripsScreen(),
     'create trip': const CreateTripScreen(),
     'trip detail': OwnerTripDetailScreen(tripId: busyTripId),
+    'dashboard': DashboardScreen(onOpenTrips: () {}),
     'alerts': const AlertsScreen(),
+    'alerts inbox': const AlertsInboxScreen(),
+    'alerts inbox (review)': const AlertsInboxScreen(initialTab: 1),
     'more': const MoreScreen(),
     'vehicles': const VehiclesScreen(),
     'vehicle form': VehicleFormScreen(vehicle: Vehicle.fromJson(vehicleJson())),
     'add vehicle': const VehicleFormScreen(),
     'vehicle detail': const VehicleDetailScreen(vehicleId: vehicleId),
-    'fuel': const FuelIndexScreen(),
+    'vehicle schedule': const Scaffold(
+      body: VehicleSchedule(vehicleId: vehicleId),
+    ),
+    'analytics': const AnalyticsScreen(),
     'vehicle fuel': const VehicleFuelScreen(vehicleId: vehicleId),
     'drivers': const DriversScreen(),
     'driver': DriverScreen(
@@ -78,8 +88,7 @@ void main() {
         driverJson(payRule: payRuleJson(kind: 'per_trip')),
       ),
     ),
-    'members': const MembersScreen(),
-    'documents': const DocumentsScreen(),
+    'driver by id': const DriverByIdScreen(driverId: driverId),
     'document form': const DocumentFormScreen(),
     'renew document': DocumentFormScreen(
       renewing: FleetDocument.fromJson(documentJson()),

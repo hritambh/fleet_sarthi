@@ -13,8 +13,10 @@ import 'fuel_screens.dart';
 import 'links.dart';
 import 'owner_providers.dart';
 import 'owner_text.dart';
+import 'alerts_inbox.dart';
 import 'owner_widgets.dart';
 import 'trips/owner_trips_screen.dart';
+import 'vehicle_schedule.dart';
 
 const fuelTypes = ['petrol', 'diesel', 'cng', 'petrol_cng'];
 
@@ -36,7 +38,7 @@ class VehiclesScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l.vehicles),
-        actions: action.headerActions(context),
+        actions: [const AlertsBell(), ...action.headerActions(context)],
       ),
       floatingActionButton: action.fab(context),
       body: RefreshPage(
@@ -63,14 +65,20 @@ class VehiclesScreen extends ConsumerWidget {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            subtitle: Text(
-                              [
-                                '${v.make} ${v.model}'.trim(),
-                                if (v.year != null) '${v.year}',
-                                fuelName(l, v.fuelType),
-                                if (v.lastOdometerKm != null)
-                                  fmt.km(v.lastOdometerKm!),
-                              ].join(' · '),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  [
+                                    '${v.make} ${v.model}'.trim(),
+                                    if (v.year != null) '${v.year}',
+                                    fuelName(l, v.fuelType),
+                                    if (v.lastOdometerKm != null)
+                                      fmt.km(v.lastOdometerKm!),
+                                  ].join(' · '),
+                                ),
+                                DocumentsDueChip(vehicleId: v.id),
+                              ],
                             ),
                             trailing: ToneChip(
                               v.isActive ? l.active : l.inactive,
@@ -128,6 +136,8 @@ class _VehicleCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   const Spacer(),
+                  DocumentsDueChip(vehicleId: v.id),
+                  const SizedBox(width: 6),
                   ToneChip(
                     v.isActive ? l.active : l.inactive,
                     tone: v.isActive ? Tone.success : Tone.neutral,
@@ -254,7 +264,15 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
   late String _status = widget.vehicle?.status ?? 'active';
 
   /// Drivers to link when adding; an existing vehicle's are edited on its page.
-  Set<String> _driverIds = {};
+  /// Null until the owner changes it: every active driver.
+  Set<String>? _driverIds;
+
+  Set<String> _chosenDrivers(List<Driver> drivers) =>
+      _driverIds ??
+      {
+        for (final d in drivers)
+          if (d.isActive) d.id,
+      };
   String? _problem;
   bool _busy = false;
 
@@ -285,9 +303,12 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
     final ok = await runAction(context, () async {
       final api = ref.read(ownerApiProvider);
       if (editing == null) {
+        final driverIds = _chosenDrivers(
+          ref.read(driversProvider).value ?? const [],
+        );
         await api.createVehicle({
           ...body,
-          if (_driverIds.isNotEmpty) 'driverIds': _driverIds.toList(),
+          if (driverIds.isNotEmpty) 'driverIds': driverIds.toList(),
         });
       } else {
         await api.updateVehicle(editing.id, body);
@@ -399,7 +420,7 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
                     helper: l.driversOptionalHint,
                     sheetTitle: l.drivers,
                     options: driverOptions(l, drivers),
-                    value: _driverIds,
+                    value: _chosenDrivers(drivers),
                     emptyText: l.noDriversToLink,
                     onChanged: (ids) => setState(() => _driverIds = ids),
                   ),
@@ -457,7 +478,7 @@ class VehicleDetailScreen extends ConsumerWidget {
     final vehicle = ref.watch(fleetVehicleProvider(vehicleId));
     final v = vehicle.value;
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           title: Text(
@@ -487,12 +508,21 @@ class VehicleDetailScreen extends ConsumerWidget {
             ],
           ],
           bottom: TabBar(
-            labelColor: Colors.white,
-            unselectedLabelColor: TaxcyColors.blue100,
-            indicatorColor: Colors.white,
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
+            // The desktop header is white (desktopContentTheme); phones keep
+            // the blue bar with white tabs.
+            labelColor: isDesktop(context) ? TaxcyColors.blue800 : Colors.white,
+            unselectedLabelColor: isDesktop(context)
+                ? TaxcyColors.ink
+                : TaxcyColors.blue100,
+            indicatorColor: isDesktop(context)
+                ? TaxcyColors.blue700
+                : Colors.white,
             tabs: [
               Tab(text: l.documents),
               Tab(text: l.fuel),
+              Tab(key: const Key('tab-schedule'), text: l.schedule),
               Tab(text: l.recentTrips),
             ],
           ),
@@ -531,6 +561,7 @@ class VehicleDetailScreen extends ConsumerWidget {
                   children: [
                     _VehicleDocuments(vehicleId),
                     VehicleFuelPanel(vehicleId: vehicleId),
+                    VehicleSchedule(vehicleId: vehicleId),
                     _VehicleTrips(vehicleId),
                   ],
                 ),
@@ -606,7 +637,13 @@ Future<void> editVehicleDrivers(
       vehicle: formatRegistration(vehicle.registrationNo),
     ),
     options: driverOptions(l, drivers, keep: linked),
-    selected: linked,
+    // Nothing linked yet: start with every driver ticked.
+    selected: linked.isEmpty
+        ? {
+            for (final d in drivers)
+              if (d.isActive) d.id,
+          }
+        : linked,
     emptyText: l.noDriversToLink,
     onSave: (ids) =>
         ref.read(ownerApiProvider).setVehicleDrivers(vehicle.id, ids.toList()),

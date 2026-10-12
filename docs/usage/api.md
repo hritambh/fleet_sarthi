@@ -180,6 +180,15 @@ Drivers are added with `POST /drivers`, which also creates their driver profile.
 | `POST /fuel-fills/{id}/void`     | owner, manager         |                 | Void a wrong fill; the vehicle audit is recomputed                               |
 | `GET /vehicles/{id}/fuel-cycles` | owner, manager         |                 | A vehicle's fuel cycles, baseline and verdicts                                   |
 
+### Analytics
+
+| Endpoint                                   | Who            | Idempotency-Key | What it does                                                                                                           |
+| ------------------------------------------ | -------------- | --------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `GET /analytics/daily?month=YYYY-MM`       | owner, manager |                 | Fuel bought (L and kg kept apart, plus ₹), revenue and km per vehicle per IST day, and per-trip averages for the month |
+| `GET /analytics/dashboard?date=YYYY-MM-DD` | owner, manager |                 | Cabs and drivers free right now, unassigned trips, and trips completed that day with their gross fare                  |
+
+Revenue is everything billed for a trip: the quoted fare (or the cancellation fare for a cancel-after-start) plus every non-voided charge, tolls and parking included. A trip counts on the IST day it ended (or was cancelled after starting), as in settlement, and its km is end minus start odometer. Fuel is what was bought that day, not what was burned; fuel cost per trip is an estimate (the vehicle's fuel spend per km that month times the trip's km).
+
 ### Telemetry
 
 | Endpoint                         | Who                    | Idempotency-Key | What it does                                                              |

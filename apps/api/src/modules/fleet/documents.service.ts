@@ -16,6 +16,13 @@ import { SettingsService } from './settings.service.js';
 type DocumentRow = Prisma.DocumentGetPayload<object>;
 
 const isoDate = (d: Date) => d.toISOString().slice(0, 10);
+
+const DOCUMENT_CONTENT_TYPES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'application/pdf',
+]);
 const dedupePrefix = (docId: string) => `doc:${docId}:`;
 
 export interface DocumentDetails {
@@ -61,7 +68,8 @@ export class DocumentsService {
       },
       orderBy: [{ expiresOn: 'asc' }],
     });
-    return rows.map((r) => this.toDocument(r, today, audit.docAlertDays));
+    const types = await this.contentTypes(tx, rows);
+    return rows.map((r) => this.toDocument(r, today, audit.docAlertDays, types));
   }
 
   async create(
@@ -192,17 +200,47 @@ export class DocumentsService {
     return d?.name ?? 'driver';
   }
 
+  /** A document's file: a photo or a PDF registered as a 'document' upload. */
   private async assertMedia(tx: TenantTx, mediaId: string | undefined): Promise<void> {
-    if (mediaId && !(await tx.mediaObject.count({ where: { id: mediaId, orgId: tx.orgId } })))
-      throw notFound('Media');
+    if (!mediaId) return;
+    const media = await tx.mediaObject.findFirst({
+      where: { id: mediaId, orgId: tx.orgId },
+      select: { kind: true, contentType: true },
+    });
+    if (!media) throw notFound('Media');
+    if (media.kind !== 'document' || !DOCUMENT_CONTENT_TYPES.has(media.contentType)) {
+      throw new AppError('VALIDATION_FAILED', 'A document must be a photo or a PDF upload', {
+        mediaId,
+      });
+    }
+  }
+
+  /** Content types of the documents' files, by media id. */
+  private async contentTypes(
+    tx: TenantTx,
+    rows: readonly DocumentRow[],
+  ): Promise<Map<string, string>> {
+    const ids = rows.flatMap((r) => (r.mediaId ? [r.mediaId] : []));
+    if (!ids.length) return new Map();
+    const media = await tx.mediaObject.findMany({
+      where: { id: { in: ids }, orgId: tx.orgId },
+      select: { id: true, contentType: true },
+    });
+    return new Map(media.map((m) => [m.id, m.contentType]));
   }
 
   private async present(tx: TenantTx, row: DocumentRow): Promise<Document> {
     const { audit } = await this.settings.get(tx);
-    return this.toDocument(row, istBusinessDate(new Date()), audit.docAlertDays);
+    const types = await this.contentTypes(tx, [row]);
+    return this.toDocument(row, istBusinessDate(new Date()), audit.docAlertDays, types);
   }
 
-  private toDocument(row: DocumentRow, today: string, alertDays: readonly number[]): Document {
+  private toDocument(
+    row: DocumentRow,
+    today: string,
+    alertDays: readonly number[],
+    contentTypes: ReadonlyMap<string, string>,
+  ): Document {
     const daysLeft = daysUntil(isoDate(row.expiresOn), today);
     const status = row.supersededBy
       ? 'superseded'
@@ -220,6 +258,7 @@ export class DocumentsService {
       validFrom: row.validFrom,
       expiresOn: row.expiresOn,
       mediaId: row.mediaId,
+      mediaContentType: row.mediaId ? (contentTypes.get(row.mediaId) ?? null) : null,
       supersededBy: row.supersededBy,
       daysLeft,
       status,

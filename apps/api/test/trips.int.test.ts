@@ -265,6 +265,66 @@ describe('assignment', () => {
   });
 });
 
+describe('availability', () => {
+  it('lists the vehicle and driver booked in an overlapping window, but not the trip itself', async () => {
+    const window = schedule();
+    const booked = await newTrip(true, window);
+    const start = Date.parse(window.scheduledStartAt);
+    const query = (from: number, to: number, excludeTripId?: string) =>
+      request(h.http)
+        .get('/v1/availability')
+        .query({
+          from: new Date(from).toISOString(),
+          to: new Date(to).toISOString(),
+          ...(excludeTripId ? { excludeTripId } : {}),
+        })
+        .set(...bearer(owner))
+        .expect(200);
+
+    // Overlaps the second hour of the four-hour booking.
+    const busy = (await query(start + 3_600_000, start + 7_200_000)).body as {
+      vehicles: { id: string; tripId: string }[];
+      drivers: { id: string; tripId: string }[];
+    };
+    expect(busy.vehicles).toContainEqual(
+      expect.objectContaining({ id: booked.vehicleId, tripId: booked.id }),
+    );
+    expect(busy.drivers).toContainEqual(
+      expect.objectContaining({ id: driver.driverId, tripId: booked.id }),
+    );
+
+    // Back to back (half-open windows) is free; so is the trip being reassigned.
+    const after = (await query(start + 4 * 3_600_000, start + 5 * 3_600_000)).body as {
+      vehicles: { tripId: string }[];
+    };
+    expect(after.vehicles.map((b) => b.tripId)).not.toContain(booked.id);
+    const self = (await query(start, start + 3_600_000, booked.id)).body as {
+      vehicles: { tripId: string }[];
+    };
+    expect(self.vehicles.map((b) => b.tripId)).not.toContain(booked.id);
+  });
+
+  it('lists trips overlapping a range when asked', async () => {
+    const window = schedule();
+    const trip = await newTrip(true, window);
+    const start = Date.parse(window.scheduledStartAt);
+    const list = (overlapping: boolean) =>
+      request(h.http)
+        .get('/v1/trips')
+        .query({
+          vehicleId: trip.vehicleId,
+          from: new Date(start + 3_600_000).toISOString(),
+          to: new Date(start + 86_400_000).toISOString(),
+          ...(overlapping ? { overlapping: 'true' } : {}),
+        })
+        .set(...bearer(owner))
+        .expect(200);
+    // It started an hour before the range, so only the overlap query finds it.
+    expect(((await list(false)).body as Trip[]).map((t) => t.id)).not.toContain(trip.id);
+    expect(((await list(true)).body as Trip[]).map((t) => t.id)).toContain(trip.id);
+  });
+});
+
 describe('offline conflicts (server wins)', () => {
   it('a start that arrives after the owner cancelled is rejected, and the photo is kept as evidence', async () => {
     const trip = await newTrip();
