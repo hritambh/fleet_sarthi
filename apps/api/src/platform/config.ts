@@ -43,6 +43,22 @@ const Env = z
     /** Sign-ups per client IP per hour (phones aren't verified at sign-up). */
     SIGNUP_IP_LIMIT_PER_HOUR: z.coerce.number().int().positive().default(20),
     SMS_PROVIDER: z.enum(['console']).default('console'),
+    /**
+     * Phone OTP: sign in without a password, verified sign-up, and password reset.
+     * `none` switches it off. `phone_email` uses phone.email (needs
+     * PHONE_EMAIL_CLIENT_ID). `stub` accepts tokens like `stub:+919876543210`, for
+     * development and tests only (refused in production).
+     */
+    PHONE_OTP_PROVIDER: z.enum(['none', 'phone_email', 'stub']).default('none'),
+    /** phone.email client id (Admin Dashboard → Profile Details). */
+    PHONE_EMAIL_CLIENT_ID: optional(z.string().min(1)),
+    /** phone.email's user lookup, overridable for tests. */
+    PHONE_EMAIL_USER_URL: z.url().default('https://eapi.phone.email/getuser'),
+    /** Sign-up must prove the number with an OTP (needs a PHONE_OTP_PROVIDER). */
+    SIGNUP_REQUIRES_VERIFIED_PHONE: z.preprocess(
+      (v) => (v === '' ? undefined : v),
+      z.stringbool().default(false),
+    ),
     OCR_PROVIDER: z.enum(['stub']).default('stub'),
 
     /**
@@ -77,6 +93,27 @@ const Env = z
         path: ['SMS_PROVIDER'],
         message:
           'console only logs password-reset codes; production needs a real SMS provider (or DEMO_MODE=true for a demo that reads codes from the logs)',
+      });
+    }
+    if (env.PHONE_OTP_PROVIDER === 'phone_email' && !env.PHONE_EMAIL_CLIENT_ID) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['PHONE_EMAIL_CLIENT_ID'],
+        message: 'required when PHONE_OTP_PROVIDER=phone_email',
+      });
+    }
+    if (env.NODE_ENV === 'production' && env.PHONE_OTP_PROVIDER === 'stub') {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['PHONE_OTP_PROVIDER'],
+        message: 'stub accepts any number without an OTP; production needs phone_email or none',
+      });
+    }
+    if (env.SIGNUP_REQUIRES_VERIFIED_PHONE && env.PHONE_OTP_PROVIDER === 'none') {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['SIGNUP_REQUIRES_VERIFIED_PHONE'],
+        message: 'needs a PHONE_OTP_PROVIDER to verify numbers with',
       });
     }
     if (env.NODE_ENV === 'production' && env.MASTER_PASSWORD && !env.DEMO_MODE) {

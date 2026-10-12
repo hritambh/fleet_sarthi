@@ -77,24 +77,25 @@ To build the Android APK or host a free demo (Render + Neon + Backblaze B2), see
 
 ## Documentation
 
-| Doc                                                             | What's in it                                                  |
-| --------------------------------------------------------------- | ------------------------------------------------------------- |
-| [Getting started](docs/getting-started.md)                      | Step-by-step: run the backend and the app locally             |
-| [Development guide](docs/development.md)                        | Local setup, env vars, scripts, testing, conventions          |
-| [Deployment](docs/deployment.md)                                | Build the Android APK; free hosting on Render, Neon and B2    |
-| [Architecture](docs/architecture.md)                            | Modules, layering, tenancy, jobs, idempotency, offline sync   |
-| [Database](docs/database.md)                                    | ERD, table reference, constraints, partitioning               |
-| [Domain: trips](docs/domain/trips.md)                           | State machine, events, odometer evidence, conflicts           |
-| [Domain: fuel audit](docs/domain/fuel-audit.md)                 | Full-tank cycles, baselines, flagging, worked examples        |
-| [Domain: GPS telemetry](docs/domain/telemetry.md)               | Ingest, filtering, odometer-vs-GPS check                      |
-| [Domain: collections and settlement](docs/domain/settlement.md) | Collections, daily settlement math                            |
-| [Evidence and anti-tampering](docs/domain/evidence.md)          | Photo capture, signed uploads, OCR, review queue              |
-| [Owner guide](docs/usage/owner-guide.md)                        | How a fleet owner uses the app's owner mode                   |
-| [Driver guide](docs/usage/driver-guide.md)                      | How a driver uses the mobile app                              |
-| [Demo data](docs/usage/demo-data.md)                            | The seeded demo fleet: logins, planted problems, walkthroughs |
-| [API usage](docs/usage/api.md)                                  | Auth flow, headers, idempotency, errors, generated client     |
-| [Decisions](docs/decisions.md)                                  | Open questions, accepted defaults, known risks                |
-| [Roadmap](docs/roadmap.md)                                      | Milestone checklist                                           |
+| Doc                                                             | What's in it                                                    |
+| --------------------------------------------------------------- | --------------------------------------------------------------- |
+| [Getting started](docs/getting-started.md)                      | Step-by-step: run the backend and the app locally               |
+| [Development guide](docs/development.md)                        | Local setup, env vars, scripts, testing, conventions            |
+| [Deployment](docs/deployment.md)                                | Build the Android APK; free hosting on Render, Neon and B2      |
+| [Phone OTP](docs/phone-otp.md)                                  | Optional OTP log-in, verified sign-up and reset via phone.email |
+| [Architecture](docs/architecture.md)                            | Modules, layering, tenancy, jobs, idempotency, offline sync     |
+| [Database](docs/database.md)                                    | ERD, table reference, constraints, partitioning                 |
+| [Domain: trips](docs/domain/trips.md)                           | State machine, events, odometer evidence, conflicts             |
+| [Domain: fuel audit](docs/domain/fuel-audit.md)                 | Full-tank cycles, baselines, flagging, worked examples          |
+| [Domain: GPS telemetry](docs/domain/telemetry.md)               | Ingest, filtering, odometer-vs-GPS check                        |
+| [Domain: collections and settlement](docs/domain/settlement.md) | Collections, daily settlement math                              |
+| [Evidence and anti-tampering](docs/domain/evidence.md)          | Photo capture, signed uploads, OCR, review queue                |
+| [Owner guide](docs/usage/owner-guide.md)                        | How a fleet owner uses the app's owner mode                     |
+| [Driver guide](docs/usage/driver-guide.md)                      | How a driver uses the mobile app                                |
+| [Demo data](docs/usage/demo-data.md)                            | The seeded demo fleet: logins, planted problems, walkthroughs   |
+| [API usage](docs/usage/api.md)                                  | Auth flow, headers, idempotency, errors, generated client       |
+| [Decisions](docs/decisions.md)                                  | Open questions, accepted defaults, known risks                  |
+| [Roadmap](docs/roadmap.md)                                      | Milestone checklist                                             |
 
 ## Conventions at a glance
 

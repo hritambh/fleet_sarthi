@@ -38,6 +38,57 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/auth/methods': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Which sign-in methods this server offers (phone OTP, verified sign-up) */
+    get: operations['getAuthMethods'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/auth/phone-otp/login': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Sign in with a phone verified by OTP (no password). NOT_FOUND when the number has no account; sign up instead */
+    post: operations['postAuthPhoneotpLogin'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/auth/password/reset-verified': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Set a new password for the number verified by OTP; signs out every other session */
+    post: operations['postAuthPasswordResetverified'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/auth/otp/request': {
     parameters: {
       query?: never;
@@ -1105,6 +1156,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -1184,6 +1239,300 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
+                | 'RATE_LIMITED'
+                | 'UPLOAD_NOT_FOUND'
+                | 'UPLOAD_MISMATCH'
+                | 'INTERNAL';
+              message: string;
+              details?: unknown;
+              requestId?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  getAuthMethods: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            phoneOtp: {
+              /** @enum {string} */
+              provider: 'phone_email' | 'stub';
+              clientId: string | null;
+            } | null;
+            signupRequiresVerifiedPhone: boolean;
+          };
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            error: {
+              /** @enum {string} */
+              code:
+                | 'VALIDATION_FAILED'
+                | 'UNAUTHENTICATED'
+                | 'TOKEN_EXPIRED'
+                | 'FORBIDDEN_ROLE'
+                | 'NO_ACTIVE_ORG'
+                | 'NOT_FOUND'
+                | 'ILLEGAL_TRANSITION'
+                | 'TRIP_CANCELLED'
+                | 'TRIP_REASSIGNED'
+                | 'VEHICLE_BUSY'
+                | 'DRIVER_BUSY'
+                | 'DRIVER_ON_TRIP'
+                | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
+                | 'CANCELLATION_PENDING'
+                | 'ALREADY_SETTLED'
+                | 'IDEMPOTENCY_CONFLICT'
+                | 'IDEMPOTENCY_KEY_REQUIRED'
+                | 'VERSION_CONFLICT'
+                | 'CONFLICT'
+                | 'FUEL_TYPE_MISMATCH'
+                | 'ODOMETER_BEFORE_START'
+                | 'OTP_INVALID'
+                | 'OTP_EXPIRED'
+                | 'INVALID_CREDENTIALS'
+                | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
+                | 'RATE_LIMITED'
+                | 'UPLOAD_NOT_FOUND'
+                | 'UPLOAD_MISMATCH'
+                | 'INTERNAL';
+              message: string;
+              details?: unknown;
+              requestId?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  postAuthPhoneotpLogin: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': {
+          verificationToken: string;
+          /** Format: uuid */
+          deviceId: string;
+          /** @enum {string} */
+          platform: 'android' | 'ios' | 'web';
+          appVersion?: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            accessToken: string;
+            /** Format: date-time */
+            accessTokenExpiresAt: string;
+            refreshToken: string;
+            /** Format: date-time */
+            refreshTokenExpiresAt: string;
+            user: {
+              /** Format: uuid */
+              id: string;
+              phone: string;
+              name: string | null;
+            };
+            activeOrgId: string | null;
+            memberships: {
+              /** Format: uuid */
+              orgId: string;
+              orgName: string;
+              /** @enum {string} */
+              orgKind: 'fleet' | 'dco';
+              roles: ('owner' | 'manager' | 'driver')[];
+            }[];
+          };
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            error: {
+              /** @enum {string} */
+              code:
+                | 'VALIDATION_FAILED'
+                | 'UNAUTHENTICATED'
+                | 'TOKEN_EXPIRED'
+                | 'FORBIDDEN_ROLE'
+                | 'NO_ACTIVE_ORG'
+                | 'NOT_FOUND'
+                | 'ILLEGAL_TRANSITION'
+                | 'TRIP_CANCELLED'
+                | 'TRIP_REASSIGNED'
+                | 'VEHICLE_BUSY'
+                | 'DRIVER_BUSY'
+                | 'DRIVER_ON_TRIP'
+                | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
+                | 'CANCELLATION_PENDING'
+                | 'ALREADY_SETTLED'
+                | 'IDEMPOTENCY_CONFLICT'
+                | 'IDEMPOTENCY_KEY_REQUIRED'
+                | 'VERSION_CONFLICT'
+                | 'CONFLICT'
+                | 'FUEL_TYPE_MISMATCH'
+                | 'ODOMETER_BEFORE_START'
+                | 'OTP_INVALID'
+                | 'OTP_EXPIRED'
+                | 'INVALID_CREDENTIALS'
+                | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
+                | 'RATE_LIMITED'
+                | 'UPLOAD_NOT_FOUND'
+                | 'UPLOAD_MISMATCH'
+                | 'INTERNAL';
+              message: string;
+              details?: unknown;
+              requestId?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  postAuthPasswordResetverified: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': {
+          verificationToken: string;
+          password: string;
+          /** Format: uuid */
+          deviceId: string;
+          /** @enum {string} */
+          platform: 'android' | 'ios' | 'web';
+          appVersion?: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            accessToken: string;
+            /** Format: date-time */
+            accessTokenExpiresAt: string;
+            refreshToken: string;
+            /** Format: date-time */
+            refreshTokenExpiresAt: string;
+            user: {
+              /** Format: uuid */
+              id: string;
+              phone: string;
+              name: string | null;
+            };
+            activeOrgId: string | null;
+            memberships: {
+              /** Format: uuid */
+              orgId: string;
+              orgName: string;
+              /** @enum {string} */
+              orgKind: 'fleet' | 'dco';
+              roles: ('owner' | 'manager' | 'driver')[];
+            }[];
+          };
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            error: {
+              /** @enum {string} */
+              code:
+                | 'VALIDATION_FAILED'
+                | 'UNAUTHENTICATED'
+                | 'TOKEN_EXPIRED'
+                | 'FORBIDDEN_ROLE'
+                | 'NO_ACTIVE_ORG'
+                | 'NOT_FOUND'
+                | 'ILLEGAL_TRANSITION'
+                | 'TRIP_CANCELLED'
+                | 'TRIP_REASSIGNED'
+                | 'VEHICLE_BUSY'
+                | 'DRIVER_BUSY'
+                | 'DRIVER_ON_TRIP'
+                | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
+                | 'CANCELLATION_PENDING'
+                | 'ALREADY_SETTLED'
+                | 'IDEMPOTENCY_CONFLICT'
+                | 'IDEMPOTENCY_KEY_REQUIRED'
+                | 'VERSION_CONFLICT'
+                | 'CONFLICT'
+                | 'FUEL_TYPE_MISMATCH'
+                | 'ODOMETER_BEFORE_START'
+                | 'OTP_INVALID'
+                | 'OTP_EXPIRED'
+                | 'INVALID_CREDENTIALS'
+                | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -1261,6 +1610,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -1287,6 +1640,7 @@ export interface operations {
           phone: string;
           password: string;
           name?: string;
+          verificationToken?: string;
           /** Format: uuid */
           deviceId: string;
           /** @enum {string} */
@@ -1364,6 +1718,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -1466,6 +1824,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -1569,6 +1931,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -1642,6 +2008,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -1738,6 +2108,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -1810,6 +2184,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -1908,6 +2286,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -1994,6 +2376,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -2073,6 +2459,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -2172,6 +2562,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -2252,6 +2646,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -2339,6 +2737,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -2421,6 +2823,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -2528,6 +2934,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -2609,6 +3019,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -2684,6 +3098,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -2774,6 +3192,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -2877,6 +3299,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -2967,6 +3393,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -3073,6 +3503,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -3169,6 +3603,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -3244,6 +3682,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -3367,6 +3809,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -3496,6 +3942,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -3619,6 +4069,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -3750,6 +4204,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -3879,6 +4337,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -4042,6 +4504,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -4133,6 +4599,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -4237,6 +4707,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -4337,6 +4811,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -4412,6 +4890,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -4498,6 +4980,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -4597,6 +5083,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -4731,6 +5221,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -4965,6 +5459,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -5229,6 +5727,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -5458,6 +5960,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -5718,6 +6224,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -5806,6 +6316,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -6046,6 +6560,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -6277,6 +6795,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -6524,6 +7046,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -6800,6 +7326,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -7037,6 +7567,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -7287,6 +7821,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -7526,6 +8064,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -7763,6 +8305,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -7994,6 +8540,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -8244,6 +8794,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -8474,6 +9028,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -8703,6 +9261,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -8812,6 +9374,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -8947,6 +9513,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -9057,6 +9627,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -9167,6 +9741,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -9258,6 +9836,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -9341,6 +9923,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -9424,6 +10010,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -9666,6 +10256,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -9755,6 +10349,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -9943,6 +10541,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -10133,6 +10735,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -10343,6 +10949,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -10418,6 +11028,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -10625,6 +11239,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -10726,6 +11344,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
@@ -10835,6 +11457,10 @@ export interface operations {
                 | 'OTP_EXPIRED'
                 | 'INVALID_CREDENTIALS'
                 | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'

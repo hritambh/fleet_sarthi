@@ -41,6 +41,18 @@ describe('sign-up and reset codes', () => {
   });
 });
 
+describe('phone OTP switched off (the default)', () => {
+  it('reports no OTP and refuses OTP sign-in', async () => {
+    const methods = await request(h.http).get('/v1/auth/methods').expect(200);
+    expect(methods.body).toEqual({ phoneOtp: null, signupRequiresVerifiedPhone: false });
+    const res = await request(h.http)
+      .post('/v1/auth/phone-otp/login')
+      .send({ verificationToken: 'stub:+919876543210', deviceId: randomUUID(), platform: 'web' })
+      .expect(403);
+    expect(res.body).toMatchObject({ error: { code: 'PHONE_OTP_DISABLED' } });
+  });
+});
+
 describe('orgs and memberships', () => {
   it('one account owns a fleet and drives in another, both ways (U1/U2)', async () => {
     const u1 = await ownerSession(h, 'fleet', 'U1 Cabs');

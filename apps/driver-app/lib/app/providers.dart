@@ -179,11 +179,33 @@ class AuthController extends AsyncNotifier<Session?> {
     required String phone,
     required String password,
     String? name,
+    String? verificationToken,
   }) async => _signedIn(
     await _api.signUp(
       phone: phone,
       password: password,
       name: name,
+      verificationToken: verificationToken,
+      device: await _device(),
+    ),
+  );
+
+  /// Signs in with a number verified by OTP (no password).
+  Future<void> phoneOtpLogin(String verificationToken) async => _signedIn(
+    await _api.phoneOtpLogin(
+      verificationToken: verificationToken,
+      device: await _device(),
+    ),
+  );
+
+  /// Sets a new password for the number verified by OTP, and signs in.
+  Future<void> resetPasswordVerified({
+    required String verificationToken,
+    required String password,
+  }) async => _signedIn(
+    await _api.resetPasswordVerified(
+      verificationToken: verificationToken,
+      password: password,
       device: await _device(),
     ),
   );

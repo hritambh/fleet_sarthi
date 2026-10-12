@@ -83,6 +83,8 @@ On the web the same app is served as a Flutter web build ([deployment](deploymen
 
 ## Authentication
 
+Passwords are the main way in. Optionally ([phone OTP](phone-otp.md)), phone.email verifies a number by OTP: the app gets a token from phone.email's sign-in page, and the API exchanges it with phone.email for the number (once per token) to sign in, sign up or reset a password.
+
 ```mermaid
 sequenceDiagram
   participant C as Client

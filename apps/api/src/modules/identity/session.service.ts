@@ -12,6 +12,7 @@ import { RateLimiter } from '../../platform/rate-limit.js';
 import { IdentityRepository, type AccountRow, type UserRow } from './identity.repository.js';
 import { MasterPassword } from './master-password.js';
 import { OtpService } from './otp.service.js';
+import { PhoneVerification } from './phone-verification.js';
 import { hashPassword, verifyPassword } from './passwords.js';
 
 const hashToken = (token: string): string => createHash('sha256').update(token).digest('hex');
@@ -62,6 +63,7 @@ export class SessionService {
     private readonly accessTokens: AccessTokens,
     private readonly limiter: RateLimiter,
     private readonly master: MasterPassword,
+    private readonly phones: PhoneVerification,
   ) {}
 
   /**
@@ -69,14 +71,16 @@ export class SessionService {
    * reset it. One without a password (an invited driver or manager) gets this
    * password and joins the fleets that invited it.
    *
-   * The phone isn't verified, so whoever signs up first with an invited number
-   * claims it. Fine for demos and pilots; add SMS verification before real use.
+   * With a verificationToken the number is proved by OTP (and must match);
+   * SIGNUP_REQUIRES_VERIFIED_PHONE makes that mandatory. Without it, whoever signs
+   * up first with an invited number claims it: fine for demos, not for real use.
    */
   async signup(
     input: {
       phone: string;
       password: string;
       name: string | undefined;
+      verificationToken: string | undefined;
       ip: string;
     } & DeviceInput,
   ): Promise<Session> {
@@ -87,6 +91,16 @@ export class SessionService {
         windowSeconds: 3_600,
       },
     ]);
+    if (input.verificationToken) {
+      const verified = await this.phones.verify(input.verificationToken);
+      if (verified !== input.phone) {
+        throw new AppError('PHONE_MISMATCH', 'The verified number is not the one you entered', {
+          verifiedPhone: verified,
+        });
+      }
+    } else if (this.config.SIGNUP_REQUIRES_VERIFIED_PHONE) {
+      throw new AppError('PHONE_VERIFICATION_REQUIRED', 'Verify your mobile number to sign up');
+    }
     const passwordHash = await hashPassword(input.password);
     return this.db.system(async (tx) => {
       const existing = await this.repo.findAccount(tx, { phoneE164: input.phone });
@@ -124,20 +138,49 @@ export class SessionService {
     return this.db.system((tx) => this.startSession(tx, account, input));
   }
 
+  /** Signs in the owner of a number verified by OTP; no password needed. */
+  async phoneOtpLogin(
+    input: { verificationToken: string; ip: string } & DeviceInput,
+  ): Promise<Session> {
+    await this.limiter.consume([
+      { key: `otp-login:ip:${input.ip}:1h`, max: 100, windowSeconds: 3_600 },
+    ]);
+    const phone = await this.phones.verify(input.verificationToken);
+    const account = await this.db.system((tx) => this.repo.findAccount(tx, { phoneE164: phone }));
+    if (!account) throw new AppError('NOT_FOUND', 'No account with this number; sign up instead');
+    return this.db.system((tx) => this.startSession(tx, account, input));
+  }
+
   /** Sets a new password with a reset code, and signs out every other session. */
   async resetPassword(
     input: { phone: string; code: string; password: string } & DeviceInput,
   ): Promise<Session> {
     await this.otp.verify(input.phone, input.code);
-    const passwordHash = await hashPassword(input.password);
+    return this.setPasswordAndSignIn(input.phone, input.password, input);
+  }
+
+  /** Sets a new password for the number verified by OTP (instead of a reset code). */
+  async resetPasswordVerified(
+    input: { verificationToken: string; password: string } & DeviceInput,
+  ): Promise<Session> {
+    const phone = await this.phones.verify(input.verificationToken);
+    return this.setPasswordAndSignIn(phone, input.password, input);
+  }
+
+  private async setPasswordAndSignIn(
+    phone: string,
+    password: string,
+    device: DeviceInput,
+  ): Promise<Session> {
+    const passwordHash = await hashPassword(password);
     return this.db.system(async (tx) => {
       // Resetting doesn't create accounts: an unknown number has to sign up. (Invited
       // people without a password can reset, which sets their first password.)
-      const user = await this.repo.findAccount(tx, { phoneE164: input.phone });
+      const user = await this.repo.findAccount(tx, { phoneE164: phone });
       if (!user) throw new AppError('NOT_FOUND', 'No account with this number; sign up instead');
       await this.repo.setPassword(tx, user.id, passwordHash);
       await this.repo.revokeAllForUser(tx, user.id);
-      return this.startSession(tx, user, input);
+      return this.startSession(tx, user, device);
     });
   }
 

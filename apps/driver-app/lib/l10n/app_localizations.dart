@@ -4645,6 +4645,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Usual efficiency'**
   String get usualEfficiency;
+
+  /// No description provided for @logInWithOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in with OTP'**
+  String get logInWithOtp;
+
+  /// No description provided for @noAccountForNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'No account with this number yet. Sign up instead.'**
+  String get noAccountForNumber;
+
+  /// No description provided for @signUpVerifyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll send an OTP to confirm the number is yours.'**
+  String get signUpVerifyHint;
+
+  /// No description provided for @verifyAndCreateAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify number & create account'**
+  String get verifyAndCreateAccount;
+
+  /// No description provided for @resetWithOtpIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your mobile number with an OTP, then choose a new password.'**
+  String get resetWithOtpIntro;
+
+  /// No description provided for @numberVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Number verified'**
+  String get numberVerified;
+
+  /// No description provided for @verifyWithOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify with OTP'**
+  String get verifyWithOtp;
+
+  /// No description provided for @phoneVerifyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your number'**
+  String get phoneVerifyTitle;
+
+  /// No description provided for @stubVerifyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Test mode: no SMS is sent. The number below counts as verified.'**
+  String get stubVerifyHint;
+
+  /// No description provided for @errorPhoneOtpDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'OTP sign-in isn\'t available right now.'**
+  String get errorPhoneOtpDisabled;
+
+  /// No description provided for @errorPhoneNotVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t verify your number. Try again.'**
+  String get errorPhoneNotVerified;
+
+  /// No description provided for @errorPhoneMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The number you verified isn\'t the one you entered.'**
+  String get errorPhoneMismatch;
+
+  /// No description provided for @errorPhoneVerificationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your mobile number to sign up. Use the Android or iOS app.'**
+  String get errorPhoneVerificationRequired;
+
+  /// No description provided for @verify.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify'**
+  String get verify;
 }
 
 class _AppLocalizationsDelegate

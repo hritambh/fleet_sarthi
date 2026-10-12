@@ -7,6 +7,7 @@ import { MembersController } from './members.controller.js';
 import { MembersService } from './members.service.js';
 import { OrgsService } from './orgs.service.js';
 import { OtpService } from './otp.service.js';
+import { PhoneVerification } from './phone-verification.js';
 import { SessionService } from './session.service.js';
 import { ConsoleSmsProvider, SMS_PROVIDER } from './sms.provider.js';
 
@@ -17,6 +18,7 @@ import { ConsoleSmsProvider, SMS_PROVIDER } from './sms.provider.js';
     RateLimiter,
     OtpService,
     MasterPassword,
+    PhoneVerification,
     IdentityRepository,
     SessionService,
     OrgsService,

@@ -9,6 +9,7 @@ import 'package:taxcy_driver/app/providers.dart';
 import 'package:taxcy_driver/core/api/models.dart';
 import 'package:taxcy_driver/core/auth/session_store.dart';
 import 'package:taxcy_driver/core/sync/sync_engine.dart';
+import 'package:taxcy_driver/features/login/phone_verification.dart';
 import 'package:taxcy_driver/features/owner/trips/route_map.dart';
 import 'package:taxcy_driver/l10n/app_localizations.dart';
 
@@ -39,6 +40,7 @@ class Harness {
   final db = memoryDb();
   final api = FakeApi();
   final auth = FakeAuthApi();
+  final phoneVerifier = FakePhoneVerifier();
   final owner = FakeOwnerApi();
   final InMemorySessionStore sessions;
   final SharedPreferences prefs;
@@ -57,6 +59,7 @@ class Harness {
       databaseProvider.overrideWithValue(db),
       apiProvider.overrideWithValue(api),
       authApiProvider.overrideWithValue(auth),
+      phoneVerifierProvider.overrideWithValue(phoneVerifier),
       ownerApiProvider.overrideWithValue(owner),
       mapTilesProvider.overrideWithValue(false),
       sessionStoreProvider.overrideWithValue(sessions),

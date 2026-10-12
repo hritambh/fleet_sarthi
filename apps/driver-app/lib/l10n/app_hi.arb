@@ -745,5 +745,19 @@
   "colRole": "भूमिका",
   "colBalance": "बाकी हिसाब",
   "colShortfall": "कमी",
-  "usualEfficiency": "आम माइलेज"
+  "usualEfficiency": "आम माइलेज",
+  "logInWithOtp": "OTP से लॉग इन करें",
+  "noAccountForNumber": "इस नंबर से अभी कोई अकाउंट नहीं है। साइन अप करें।",
+  "signUpVerifyHint": "नंबर आपका है, यह पक्का करने के लिए हम OTP भेजेंगे।",
+  "verifyAndCreateAccount": "नंबर सत्यापित करें और अकाउंट बनाएँ",
+  "resetWithOtpIntro": "OTP से अपना मोबाइल नंबर सत्यापित करें, फिर नया पासवर्ड चुनें।",
+  "numberVerified": "नंबर सत्यापित हो गया",
+  "verifyWithOtp": "OTP से सत्यापित करें",
+  "phoneVerifyTitle": "अपना नंबर सत्यापित करें",
+  "stubVerifyHint": "टेस्ट मोड: कोई SMS नहीं भेजा जाता। नीचे दिया नंबर सत्यापित माना जाएगा।",
+  "errorPhoneOtpDisabled": "OTP से साइन इन अभी उपलब्ध नहीं है।",
+  "errorPhoneNotVerified": "आपका नंबर सत्यापित नहीं हो सका। फिर से कोशिश करें।",
+  "errorPhoneMismatch": "आपने जो नंबर सत्यापित किया, वह लिखे गए नंबर से अलग है।",
+  "errorPhoneVerificationRequired": "साइन अप के लिए मोबाइल नंबर सत्यापित करें। Android या iOS ऐप इस्तेमाल करें।",
+  "verify": "सत्यापित करें"
 }

@@ -34,6 +34,14 @@ export const ErrorCode = z.enum([
   'INVALID_CREDENTIALS',
   /** Signing up a phone that already has a password: log in or reset it instead. */
   'ACCOUNT_EXISTS',
+  /** Phone OTP (PHONE_OTP_PROVIDER) is switched off on this server. */
+  'PHONE_OTP_DISABLED',
+  /** The phone verification token was rejected, expired or already used. */
+  'PHONE_NOT_VERIFIED',
+  /** The verified number isn't the one entered (details.verifiedPhone). */
+  'PHONE_MISMATCH',
+  /** Sign-up needs a verified number on this server (SIGNUP_REQUIRES_VERIFIED_PHONE). */
+  'PHONE_VERIFICATION_REQUIRED',
   'RATE_LIMITED',
   'UPLOAD_NOT_FOUND',
   'UPLOAD_MISMATCH',
