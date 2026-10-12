@@ -10,19 +10,19 @@ Passwords stay the main way in, and the password-reset code (`SMS_PROVIDER=conso
 
 ## How it works
 
-phone.email runs the whole OTP step (number entry, SMS, code check) on its own sign-in page. The app opens that page, and when the user has entered the right code, the page hands the app an **access token**. The app sends the token to our API, and **the API asks phone.email which number the token belongs to.** The app never tells the API which number was verified, so a modified app can't claim someone else's number.
+phone.email runs the whole OTP step (number entry, SMS, code check) on its own sign-in page. The app opens that page, and when the user has entered the right code, the page hands the app an **access token**. The app (Android, iOS or web) sends the token to our API, and **the API asks phone.email which number the token belongs to.** The app never tells the API which number was verified, so a modified app can't claim someone else's number.
 
 ```mermaid
 sequenceDiagram
   participant U as User
-  participant A as App (Android/iOS)
+  participant A as App (Android/iOS/web)
   participant P as phone.email
   participant API as Fleet Sarthi API
   A->>API: GET /v1/auth/methods
   API-->>A: {phoneOtp: {provider: phone_email, clientId}, signupRequiresVerifiedPhone}
-  A->>P: WebView: auth.phone.email/log-in?client_id&device&auth_type=5
+  A->>P: WebView (apps) or popup (web): phone.email sign-in page
   U->>P: number + OTP
-  P-->>A: JS handler sendTokenToApp({access_token, jwt, ...})
+  P-->>A: access token (JS handler in apps; redirect to phone-otp.html on the web)
   A->>API: POST /v1/auth/phone-otp/login {verificationToken: access_token}
   API->>P: POST eapi.phone.email/getuser (access_token, client_id)
   P-->>API: {country_code, phone_no, ...}
@@ -73,7 +73,10 @@ The sign-in card adapts to `GET /auth/methods`:
 
 ### Platforms
 
-phone.email's sign-in page runs in a native WebView, so OTP is offered in the **Android and iOS apps**. The **web app** doesn't show the OTP options: phone.email's Flutter integration supports Android and iOS only. Web users log in with passwords and reset with the code. If you set `SIGNUP_REQUIRES_VERIFIED_PHONE=true`, new users must sign up in the mobile app (the web sign-up then fails with "Verify your mobile number to sign up. Use the Android or iOS app."). Phones already signed up can use the web app as usual.
+- **Android and iOS apps:** phone.email's sign-in page opens in a native WebView (`PhoneEmailScreen`), which hands the token back through a JavaScript handler.
+- **Web app:** phone.email's website sign-in opens in a popup (`phone_email_popup_web.dart`), as in phone.email's website snippet: `https://www.phone.email/auth/log-in?client_id=…&redirect_url=<web app>/phone-otp.html`. After the OTP, phone.email sends the popup to `phone-otp.html?access_token=…` (`apps/driver-app/web/phone-otp.html`), which posts the token to the app window (same origin only) and closes. If the browser blocks the popup, the app says to allow pop-ups for the site.
+
+Both end with the same access token, which the API checks with phone.email in the same way. If phone.email asks you to register the sites that use your client id, add the web app's address (e.g. `https://taxcy-web.onrender.com`, and `http://localhost:5174` for local development).
 
 ## API
 
@@ -126,4 +129,3 @@ Locally, add `PHONE_OTP_PROVIDER=stub` to `.env`, restart `bun run dev`, and run
 
 - phone.email's documentation doesn't describe its `getuser` response beyond the fields its SDK reads (`status`, `country_code`, `phone_no`, `first_name`, `last_name`), so the success check is deliberately tolerant (see [Security](#security)). Before relying on OTP with real users, verify one real sign-in end to end.
 - The sign-in page's address and its `sendTokenToApp` callback come from phone.email's Flutter package (version 0.0.6). If phone.email changes them, update `PhoneEmailScreen` in `phone_verification.dart`.
-- The web app has no OTP (see [Platforms](#platforms)).

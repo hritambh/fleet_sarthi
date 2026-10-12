@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/providers.dart';
 import '../../core/api/auth_models.dart';
 import '../common/format.dart';
+import 'phone_email_popup.dart';
 
 /// Which sign-in methods the server offers. If it can't be asked (offline, an
 /// older API), the app sticks to passwords and reset codes.
@@ -19,7 +20,7 @@ final authMethodsProvider = FutureProvider<AuthMethods>((ref) async {
 });
 
 /// The phone OTP this device can use, or null (switched off on the server, or
-/// phone.email on the web, which its sign-in screen doesn't support).
+/// a platform phone.email has no sign-in for).
 PhoneOtpMethod? usablePhoneOtp(WidgetRef ref) {
   final otp = ref.watch(authMethodsProvider).value?.phoneOtp;
   if (otp == null) return null;
@@ -51,12 +52,14 @@ class AppPhoneVerifier implements PhoneVerifier {
   @override
   bool supports(PhoneOtpMethod otp) => switch (otp.provider) {
     'stub' => true,
-    // phone.email's sign-in screen runs in a native WebView (Android, iOS).
+    // A native WebView on Android and iOS, phone.email's website popup in
+    // the browser.
     'phone_email' =>
       otp.clientId != null &&
-          !kIsWeb &&
-          (defaultTargetPlatform == TargetPlatform.android ||
-              defaultTargetPlatform == TargetPlatform.iOS),
+          (kIsWeb
+              ? phoneEmailPopupSupported
+              : defaultTargetPlatform == TargetPlatform.android ||
+                    defaultTargetPlatform == TargetPlatform.iOS),
     _ => false,
   };
 
@@ -67,6 +70,7 @@ class AppPhoneVerifier implements PhoneVerifier {
     required String deviceId,
     String phoneHint = '',
   }) => switch (otp.provider) {
+    'phone_email' when kIsWeb => openPhoneEmailPopup(otp.clientId!),
     'phone_email' => Navigator.of(context).push<String>(
       MaterialPageRoute(
         fullscreenDialog: true,

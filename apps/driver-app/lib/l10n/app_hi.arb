@@ -820,6 +820,7 @@
   "errorPhoneOtpDisabled": "OTP से साइन इन अभी उपलब्ध नहीं है।",
   "errorPhoneNotVerified": "आपका नंबर सत्यापित नहीं हो सका। फिर से कोशिश करें।",
   "errorPhoneMismatch": "आपने जो नंबर सत्यापित किया, वह लिखे गए नंबर से अलग है।",
-  "errorPhoneVerificationRequired": "साइन अप के लिए मोबाइल नंबर सत्यापित करें। Android या iOS ऐप इस्तेमाल करें।",
-  "verify": "सत्यापित करें"
+  "errorPhoneVerificationRequired": "साइन अप के लिए अपना मोबाइल नंबर सत्यापित करें।",
+  "verify": "सत्यापित करें",
+  "allowPopups": "नंबर सत्यापित करने के लिए इस साइट के पॉप-अप चालू करें, फिर से कोशिश करें।"
 }

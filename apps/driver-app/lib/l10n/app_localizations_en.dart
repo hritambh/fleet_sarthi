@@ -2923,8 +2923,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorPhoneVerificationRequired =>
-      'Verify your mobile number to sign up. Use the Android or iOS app.';
+      'Verify your mobile number to sign up.';
 
   @override
   String get verify => 'Verify';
+
+  @override
+  String get allowPopups =>
+      'Allow pop-ups for this site to verify your number, then try again.';
 }

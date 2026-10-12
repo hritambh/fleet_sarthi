@@ -2458,8 +2458,10 @@
   "@errorPhoneNotVerified": {},
   "errorPhoneMismatch": "The number you verified isn't the one you entered.",
   "@errorPhoneMismatch": {},
-  "errorPhoneVerificationRequired": "Verify your mobile number to sign up. Use the Android or iOS app.",
+  "errorPhoneVerificationRequired": "Verify your mobile number to sign up.",
   "@errorPhoneVerificationRequired": {},
   "verify": "Verify",
-  "@verify": {}
+  "@verify": {},
+  "allowPopups": "Allow pop-ups for this site to verify your number, then try again.",
+  "@allowPopups": {}
 }
