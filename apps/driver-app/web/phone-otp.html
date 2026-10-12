@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fleet Sarthi</title>
+  </head>
+  <body style="font-family: sans-serif; text-align: center; padding-top: 3rem">
+    <p>Number verified. You can close this window.</p>
+    <script>
+      // phone.email returns here (redirect_url) with ?access_token=… after the
+      // OTP. Hand the token to the app window that opened this popup (same
+      // origin only), keep a copy in case the message is still in flight when
+      // the popup closes, and close. The app sends the token to the API, which
+      // checks it with phone.email; the token is single-use.
+      (function () {
+        var token = new URLSearchParams(location.search).get('access_token');
+        var result = { type: 'phone-otp', accessToken: token };
+        try {
+          localStorage.setItem('phone-otp-result', JSON.stringify(result));
+        } catch (e) {}
+        if (window.opener) window.opener.postMessage(result, location.origin);
+        history.replaceState(null, '', location.pathname);
+        window.close();
+      })();
+    </script>
+  </body>
+</html>

@@ -5093,7 +5093,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorPhoneVerificationRequired.
   ///
   /// In en, this message translates to:
-  /// **'Verify your mobile number to sign up. Use the Android or iOS app.'**
+  /// **'Verify your mobile number to sign up.'**
   String get errorPhoneVerificationRequired;
 
   /// No description provided for @verify.
@@ -5101,6 +5101,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Verify'**
   String get verify;
+
+  /// No description provided for @allowPopups.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow pop-ups for this site to verify your number, then try again.'**
+  String get allowPopups;
 }
 
 class _AppLocalizationsDelegate

@@ -30,7 +30,7 @@ void main() {
       expect(find.text('Send code'), findsOneWidget);
     });
 
-    testWidgets('neither is phone.email where it can’t run (the web)', (
+    testWidgets('nor where this platform has no phone.email sign-in', (
       tester,
     ) async {
       await signedOut(

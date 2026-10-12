@@ -10,6 +10,7 @@ import '../../core/api/auth_models.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/errors.dart';
 import '../common/format.dart';
+import 'phone_email_popup.dart';
 import 'phone_verification.dart';
 
 /// The API's password rule (libs/contracts Password).
@@ -252,9 +253,14 @@ mixin AuthFormState<T extends ConsumerStatefulWidget> on ConsumerState<T> {
       error = null;
       errorCode = null;
     });
-    return ref
-        .read(phoneVerifierProvider)
-        .verify(context, otp, deviceId: deviceId, phoneHint: hint.trim());
+    try {
+      return await ref
+          .read(phoneVerifierProvider)
+          .verify(context, otp, deviceId: deviceId, phoneHint: hint.trim());
+    } on PopupBlockedException {
+      if (mounted) showError(context.l10n.allowPopups);
+      return null;
+    }
   }
 
   void showError(String message) => setState(() {

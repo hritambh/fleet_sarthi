@@ -357,7 +357,7 @@ In a browser, driver mode works while the tab is open: GPS is recorded only whil
 
 Everyone signs in with **mobile number + password**. New users tap **Sign up** (number, password, optional name; no code). An invited driver or manager who has no password yet signs up with the invited number, which sets their password and joins them to the fleet.
 
-To add **log in with OTP**, verified sign-up and forgot password by OTP in the Android and iOS apps, set up [phone OTP](phone-otp.md) (phone.email): `PHONE_OTP_PROVIDER=phone_email` and `PHONE_EMAIL_CLIENT_ID` on `taxcy-api`. No app rebuild is needed.
+To add **log in with OTP**, verified sign-up and forgot password by OTP, set up [phone OTP](phone-otp.md) (phone.email; Android, iOS and the web app): `PHONE_OTP_PROVIDER=phone_email` and `PHONE_EMAIL_CLIENT_ID` on `taxcy-api`. No app rebuild is needed.
 
 ### Password-reset codes (demo mode)
 

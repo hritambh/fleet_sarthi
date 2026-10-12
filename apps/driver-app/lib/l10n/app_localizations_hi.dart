@@ -2916,8 +2916,12 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get errorPhoneVerificationRequired =>
-      'साइन अप के लिए मोबाइल नंबर सत्यापित करें। Android या iOS ऐप इस्तेमाल करें।';
+      'साइन अप के लिए अपना मोबाइल नंबर सत्यापित करें।';
 
   @override
   String get verify => 'सत्यापित करें';
+
+  @override
+  String get allowPopups =>
+      'नंबर सत्यापित करने के लिए इस साइट के पॉप-अप चालू करें, फिर से कोशिश करें।';
 }
