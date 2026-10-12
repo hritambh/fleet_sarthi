@@ -52,13 +52,16 @@ services:
       # Leave empty to switch it off.
       - key: MASTER_PASSWORD
         sync: false
-      # Phone OTP (docs/phone-otp.md): none, or phone_email with its client id.
+      # Phone OTP (docs/phone-otp.md): none, or phone_email with its client id;
+      # SIGNUP_REQUIRES_VERIFIED_PHONE true or false. Set in the dashboard
+      # (sync: false), so a Blueprint sync never switches OTP back off. Empty
+      # means none / false.
       - key: PHONE_OTP_PROVIDER
-        value: none
+        sync: false
       - key: PHONE_EMAIL_CLIENT_ID
         sync: false
       - key: SIGNUP_REQUIRES_VERIFIED_PHONE
-        value: 'false'
+        sync: false
       - key: OCR_PROVIDER
         value: stub
       # Load the demo fleet on start (skips once it exists). Set to true for a demo.

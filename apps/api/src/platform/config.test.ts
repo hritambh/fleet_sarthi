@@ -53,6 +53,10 @@ describe('loadConfig', () => {
 
   it('keeps phone OTP off by default and checks its settings', () => {
     expect(loadConfig(base).PHONE_OTP_PROVIDER).toBe('none');
+    // Render leaves an unfilled sync: false variable empty.
+    expect(
+      loadConfig({ ...base, PHONE_OTP_PROVIDER: '', SIGNUP_REQUIRES_VERIFIED_PHONE: '' }),
+    ).toMatchObject({ PHONE_OTP_PROVIDER: 'none', SIGNUP_REQUIRES_VERIFIED_PHONE: false });
     expect(() => loadConfig({ ...base, PHONE_OTP_PROVIDER: 'phone_email' })).toThrow(
       /PHONE_EMAIL_CLIENT_ID: required/,
     );

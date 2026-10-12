@@ -52,7 +52,10 @@ const Env = z
      * PHONE_EMAIL_CLIENT_ID). `stub` accepts tokens like `stub:+919876543210`, for
      * development and tests only (refused in production).
      */
-    PHONE_OTP_PROVIDER: z.enum(['none', 'phone_email', 'stub']).default('none'),
+    PHONE_OTP_PROVIDER: z.preprocess(
+      (v) => (v === '' ? undefined : v),
+      z.enum(['none', 'phone_email', 'stub']).default('none'),
+    ),
     /** phone.email client id (Admin Dashboard → Profile Details). */
     PHONE_EMAIL_CLIENT_ID: optional(z.string().min(1)),
     /** phone.email's user lookup, overridable for tests. */
