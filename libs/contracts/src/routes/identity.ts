@@ -72,6 +72,16 @@ export const identityRoutes = {
     access: access.public,
     response: AuthMethods,
   }),
+  phoneOtpCheck: defineRoute({
+    method: 'POST',
+    path: '/auth/phone-otp/check',
+    summary:
+      'Whether a number has an account (including invited people who have not signed up), before sending an OTP to log in',
+    tag: 'auth',
+    access: access.public,
+    body: z.object({ phone: PhoneE164 }),
+    response: z.object({ exists: z.boolean() }),
+  }),
   phoneOtpLogin: defineRoute({
     method: 'POST',
     path: '/auth/phone-otp/login',
@@ -79,7 +89,12 @@ export const identityRoutes = {
       'Sign in with a phone verified by OTP (no password). NOT_FOUND when the number has no account; sign up instead',
     tag: 'auth',
     access: access.public,
-    body: z.object({ verificationToken: VerificationToken, ...DeviceFields }),
+    body: z.object({
+      verificationToken: VerificationToken,
+      /** The number the user entered; the verified one must match (PHONE_MISMATCH). */
+      phone: PhoneE164.optional(),
+      ...DeviceFields,
+    }),
     response: Session,
   }),
   resetPasswordVerified: defineRoute({

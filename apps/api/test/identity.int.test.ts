@@ -51,6 +51,14 @@ describe('phone OTP switched off (the default)', () => {
       .expect(403);
     expect(res.body).toMatchObject({ error: { code: 'PHONE_OTP_DISABLED' } });
   });
+
+  it('refuses the account check too', async () => {
+    const res = await request(h.http)
+      .post('/v1/auth/phone-otp/check')
+      .send({ phone: '+919876543210' })
+      .expect(403);
+    expect(res.body).toMatchObject({ error: { code: 'PHONE_OTP_DISABLED' } });
+  });
 });
 
 describe('orgs and memberships', () => {

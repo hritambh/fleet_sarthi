@@ -83,12 +83,25 @@ class FakeAuthApi implements AuthApi {
     return authMethods;
   }
 
+  /// What POST /auth/phone-otp/check answers.
+  bool accountExists = true;
+
+  @override
+  Future<bool> phoneOtpCheck(String phone) async {
+    _record('phoneOtpCheck', {'phone': phone});
+    return accountExists;
+  }
+
   @override
   Future<Session> phoneOtpLogin({
     required String verificationToken,
     required DeviceInfo device,
+    String? phone,
   }) async {
-    _record('phoneOtpLogin', {'verificationToken': verificationToken});
+    _record('phoneOtpLogin', {
+      'verificationToken': verificationToken,
+      'phone': ?phone,
+    });
     return _session();
   }
 

@@ -30,11 +30,15 @@ abstract class AuthApi {
   /// Which sign-in methods the server offers.
   Future<AuthMethods> methods();
 
+  /// Whether [phone] has an account (checked before sending an OTP to log in).
+  Future<bool> phoneOtpCheck(String phone);
+
   /// Signs in the owner of the number an OTP verified; NOT_FOUND when it has
-  /// no account.
+  /// no account, PHONE_MISMATCH when it isn't [phone] (the number entered).
   Future<Session> phoneOtpLogin({
     required String verificationToken,
     required DeviceInfo device,
+    String? phone,
   });
 
   /// A new password for the number an OTP verified (instead of a reset code).
@@ -123,11 +127,20 @@ class HttpAuthApi implements AuthApi {
       AuthMethods.fromJson(await _public('GET', '/auth/methods'));
 
   @override
+  Future<bool> phoneOtpCheck(String phone) async =>
+      (await _public('POST', '/auth/phone-otp/check', {
+        'phone': phone,
+      }))['exists'] ==
+      true;
+
+  @override
   Future<Session> phoneOtpLogin({
     required String verificationToken,
     required DeviceInfo device,
+    String? phone,
   }) => _session('/auth/phone-otp/login', {
     'verificationToken': verificationToken,
+    'phone': ?phone,
     ..._device(device),
   });
 

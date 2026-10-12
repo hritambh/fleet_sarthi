@@ -46,16 +46,28 @@ void main() {
   });
 
   group('phone OTP switched on', () {
-    testWidgets('logs in with an OTP instead of a password', (tester) async {
+    testWidgets('checks the number has an account, then logs in by OTP', (
+      tester,
+    ) async {
       final h = await withOtp(tester);
       await type(tester, _phone, '9000000011');
       await tapKey(tester, const Key('otp-login'));
+      expect(h.auth.names, contains('phoneOtpCheck'));
       expect(h.phoneVerifier.hints, ['9000000011']);
       expect(h.auth.calls.last.name, 'phoneOtpLogin');
       expect(h.auth.calls.last.args, {
         'verificationToken': 'stub:+919000000011',
+        'phone': '+919000000011',
       });
       expect(trips, findsOneWidget);
+    });
+
+    testWidgets('asks for the number before anything else', (tester) async {
+      final h = await withOtp(tester);
+      await tapKey(tester, const Key('otp-login'));
+      expect(find.text('Enter your 10-digit mobile number'), findsOneWidget);
+      expect(h.auth.names, isNot(contains('phoneOtpCheck')));
+      expect(h.phoneVerifier.hints, isEmpty);
     });
 
     testWidgets('backing out of the OTP screen changes nothing', (
@@ -63,18 +75,22 @@ void main() {
     ) async {
       final h = await withOtp(tester);
       h.phoneVerifier.token = null;
+      await type(tester, _phone, '9000000011');
       await tapKey(tester, const Key('otp-login'));
       expect(h.auth.names, isNot(contains('phoneOtpLogin')));
       expect(find.byKey(_phone), findsOneWidget);
     });
 
-    testWidgets('a number with no account is offered sign-up', (tester) async {
+    testWidgets('a number with no account never reaches the OTP page', (
+      tester,
+    ) async {
       final h = await withOtp(tester);
-      h.auth.failNext(
-        'phoneOtpLogin',
-        FakeAuthApi.error('NOT_FOUND', status: 404),
-      );
+      h.auth.accountExists = false;
+      await type(tester, _phone, '9000000099');
       await tapKey(tester, const Key('otp-login'));
+      expect(h.auth.calls.last.args, {'phone': '+919000000099'});
+      expect(h.phoneVerifier.hints, isEmpty);
+      expect(h.auth.names, isNot(contains('phoneOtpLogin')));
       expect(
         find.text('No account with this number yet. Sign up instead.'),
         findsOneWidget,

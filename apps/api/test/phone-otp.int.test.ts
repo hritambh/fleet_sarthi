@@ -4,7 +4,15 @@ import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { TEST_PASSWORD, login, randomPhone, startHarness, type Harness } from './harness.js';
+import {
+  TEST_PASSWORD,
+  bearer,
+  login,
+  ownerSession,
+  randomPhone,
+  startHarness,
+  type Harness,
+} from './harness.js';
 
 // Each integration test file runs in its own process; these settings only apply here.
 const device = () => ({ deviceId: randomUUID(), platform: 'android' });
@@ -45,6 +53,36 @@ describe('phone OTP with the stub provider', () => {
       .send({ verificationToken: token, ...device() })
       .expect(401);
     expect(error(again)).toBe('PHONE_NOT_VERIFIED');
+  });
+
+  it('tells the app whether a number has an account before any OTP', async () => {
+    const user = await login(h);
+    const check = (phone: string) =>
+      request(h.http).post('/v1/auth/phone-otp/check').send({ phone }).expect(200);
+    expect((await check(user.user.phone)).body).toEqual({ exists: true });
+    expect((await check(randomPhone())).body).toEqual({ exists: false });
+
+    // An invited driver who hasn't signed up can log in by OTP, so counts.
+    const owner = await ownerSession(h);
+    const invited = randomPhone();
+    await request(h.http)
+      .post('/v1/drivers')
+      .set(...bearer(owner))
+      .send({ name: 'Invited', phone: invited })
+      .expect(201);
+    expect((await check(invited)).body).toEqual({ exists: true });
+  });
+
+  it('refuses an OTP for a different number than the one entered', async () => {
+    const user = await login(h);
+    const other = await login(h);
+    const res = await request(h.http)
+      .post('/v1/auth/phone-otp/login')
+      .send({ verificationToken: `stub:${other.user.phone}`, phone: user.user.phone, ...device() })
+      .expect(422);
+    expect(res.body).toMatchObject({
+      error: { code: 'PHONE_MISMATCH', details: { verifiedPhone: other.user.phone } },
+    });
   });
 
   it("doesn't create accounts on OTP sign-in", async () => {

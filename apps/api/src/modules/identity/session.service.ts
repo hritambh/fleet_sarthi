@@ -138,14 +138,36 @@ export class SessionService {
     return this.db.system((tx) => this.startSession(tx, account, input));
   }
 
+  /**
+   * Whether [phone] has an account, so the app only sends an OTP to log in when
+   * there's one. Invited people without a password count: they can log in by OTP.
+   * (Sign-up's ACCOUNT_EXISTS already tells numbers apart; this is rate-limited.)
+   */
+  async phoneOtpCheck(phone: string, ip: string): Promise<{ exists: boolean }> {
+    if (!this.phones.enabled) {
+      throw new AppError('PHONE_OTP_DISABLED', 'Phone OTP is switched off on this server');
+    }
+    await this.limiter.consume([
+      { key: `otp-check:ip:${ip}:1h`, max: 60, windowSeconds: 3_600 },
+      { key: `otp-check:phone:${phone}:1h`, max: 10, windowSeconds: 3_600 },
+    ]);
+    const account = await this.db.system((tx) => this.repo.findAccount(tx, { phoneE164: phone }));
+    return { exists: account !== null };
+  }
+
   /** Signs in the owner of a number verified by OTP; no password needed. */
   async phoneOtpLogin(
-    input: { verificationToken: string; ip: string } & DeviceInput,
+    input: { verificationToken: string; phone: string | undefined; ip: string } & DeviceInput,
   ): Promise<Session> {
     await this.limiter.consume([
       { key: `otp-login:ip:${input.ip}:1h`, max: 100, windowSeconds: 3_600 },
     ]);
     const phone = await this.phones.verify(input.verificationToken);
+    if (input.phone && phone !== input.phone) {
+      throw new AppError('PHONE_MISMATCH', 'The verified number is not the one you entered', {
+        verifiedPhone: phone,
+      });
+    }
     const account = await this.db.system((tx) => this.repo.findAccount(tx, { phoneE164: phone }));
     if (!account) throw new AppError('NOT_FOUND', 'No account with this number; sign up instead');
     return this.db.system((tx) => this.startSession(tx, account, input));

@@ -68,10 +68,26 @@ class _PasswordLoginFormState extends ConsumerState<PasswordLoginForm>
     );
   }
 
+  /// Checks the number has an account first; only then opens the OTP step,
+  /// with that number pre-filled (and fixed) on phone.email's page.
   Future<void> _otpLogin(PhoneOtpMethod otp) async {
+    final l = context.l10n;
+    final invalid = mobileError(l, widget.phone.text);
+    if (invalid != null) return showError(invalid);
+    final phone = indianE164(widget.phone.text);
+    bool? exists;
+    await run(() async => exists = await auth.phoneOtpCheck(phone));
+    if (!mounted || exists == null) return; // run() showed the error
+    if (exists == false) {
+      setState(() {
+        errorCode = 'NOT_FOUND';
+        error = l.noAccountForNumber;
+      });
+      return;
+    }
     final token = await verifyPhone(otp, hint: widget.phone.text);
     if (token == null) return;
-    await run(() => auth.phoneOtpLogin(token));
+    await run(() => auth.phoneOtpLogin(token, phone: phone));
   }
 
   @override

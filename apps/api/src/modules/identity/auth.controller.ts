@@ -33,6 +33,14 @@ export class AuthController {
     };
   }
 
+  @Route(r.phoneOtpCheck)
+  phoneOtpCheck(
+    @Input() { body }: RouteInput<typeof r.phoneOtpCheck>,
+    @Req() req: Request,
+  ): Promise<RouteOutput<typeof r.phoneOtpCheck>> {
+    return this.sessions.phoneOtpCheck(body.phone, req.ip ?? 'unknown');
+  }
+
   @Route(r.phoneOtpLogin)
   phoneOtpLogin(
     @Input() { body }: RouteInput<typeof r.phoneOtpLogin>,
@@ -40,6 +48,7 @@ export class AuthController {
   ): Promise<RouteOutput<typeof r.phoneOtpLogin>> {
     return this.sessions.phoneOtpLogin({
       verificationToken: body.verificationToken,
+      phone: body.phone,
       ip: req.ip ?? 'unknown',
       deviceId: body.deviceId,
       platform: body.platform,

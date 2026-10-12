@@ -197,13 +197,19 @@ class AuthController extends AsyncNotifier<Session?> {
     ),
   );
 
-  /// Signs in with a number verified by OTP (no password).
-  Future<void> phoneOtpLogin(String verificationToken) async => _signedIn(
-    await _api.phoneOtpLogin(
-      verificationToken: verificationToken,
-      device: await _device(),
-    ),
-  );
+  /// Whether [phone] has an account to log in to with an OTP.
+  Future<bool> phoneOtpCheck(String phone) => _api.phoneOtpCheck(phone);
+
+  /// Signs in with a number verified by OTP (no password); [phone] is the
+  /// number entered, which the verified one must match.
+  Future<void> phoneOtpLogin(String verificationToken, {String? phone}) async =>
+      _signedIn(
+        await _api.phoneOtpLogin(
+          verificationToken: verificationToken,
+          phone: phone,
+          device: await _device(),
+        ),
+      );
 
   /// Sets a new password for the number verified by OTP, and signs in.
   Future<void> resetPasswordVerified({

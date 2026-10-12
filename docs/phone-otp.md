@@ -61,11 +61,11 @@ The API validates these at startup, like the rest of its configuration (`apps/ap
 
 The sign-in card adapts to `GET /auth/methods`:
 
-| Screen          | OTP off (default)                             | OTP on                                                                                                              |
-| --------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Log in          | Number + password                             | Also **Log in with OTP**. A number with no account gets "No account with this number yet" and a **Sign up** button  |
-| Sign up         | Number, name, password → **Create account**   | **Verify number & create account**: the OTP screen opens first; the account is created only for the verified number |
-| Forgot password | Number → code from the API log → new password | **Verify with OTP** → new password → signed in                                                                      |
+| Screen          | OTP off (default)                             | OTP on                                                                                                                                                                                                                                                        |
+| --------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Log in          | Number + password                             | Also **Log in with OTP**: the number is required, and the app first checks it has an account. If not, "No account with this number yet" and a **Sign up** button, without opening phone.email. If so, phone.email opens with that number pre-filled and fixed |
+| Sign up         | Number, name, password → **Create account**   | **Verify number & create account**: the OTP screen opens first; the account is created only for the verified number                                                                                                                                           |
+| Forgot password | Number → code from the API log → new password | **Verify with OTP** → new password → signed in                                                                                                                                                                                                                |
 
 - OTP sign-in **doesn't create accounts**: a new number signs up (with its name and password) first.
 - An **invited driver or manager** who hasn't signed up can log in with OTP straight away (their invitation activates), or sign up to set a password.
@@ -82,18 +82,19 @@ Both end with the same access token, which the API checks with phone.email in th
 
 ## API
 
-| Endpoint                                | Body                                                               | Result                                                                                              |
-| --------------------------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
-| `GET /v1/auth/methods`                  | —                                                                  | `{phoneOtp: {provider, clientId} \| null, signupRequiresVerifiedPhone}`                             |
-| `POST /v1/auth/phone-otp/login`         | `{verificationToken, deviceId, platform}`                          | A session for the verified number; `NOT_FOUND` if it has no account                                 |
-| `POST /v1/auth/signup`                  | `{phone, password, name?, verificationToken?, deviceId, platform}` | As before; with a token, the verified number must equal `phone` (`PHONE_MISMATCH` otherwise)        |
-| `POST /v1/auth/password/reset-verified` | `{verificationToken, password, deviceId, platform}`                | Sets the password of the verified number's account, signs out its other sessions, returns a session |
+| Endpoint                                | Body                                                               | Result                                                                                                                                                                          |
+| --------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /v1/auth/methods`                  | —                                                                  | `{phoneOtp: {provider, clientId} \| null, signupRequiresVerifiedPhone}`                                                                                                         |
+| `POST /v1/auth/phone-otp/check`         | `{phone}`                                                          | `{exists}`: whether the number has an account (invited people count). The app calls it before opening phone.email to log in. Rate-limited: 60 per IP and 10 per number per hour |
+| `POST /v1/auth/phone-otp/login`         | `{verificationToken, phone?, deviceId, platform}`                  | A session for the verified number; `NOT_FOUND` if it has no account; `PHONE_MISMATCH` if `phone` is sent and differs                                                            |
+| `POST /v1/auth/signup`                  | `{phone, password, name?, verificationToken?, deviceId, platform}` | As before; with a token, the verified number must equal `phone` (`PHONE_MISMATCH` otherwise)                                                                                    |
+| `POST /v1/auth/password/reset-verified` | `{verificationToken, password, deviceId, platform}`                | Sets the password of the verified number's account, signs out its other sessions, returns a session                                                                             |
 
 | Error                         | Status | When                                                                                                     |
 | ----------------------------- | ------ | -------------------------------------------------------------------------------------------------------- |
 | `PHONE_OTP_DISABLED`          | 403    | `PHONE_OTP_PROVIDER=none`                                                                                |
 | `PHONE_NOT_VERIFIED`          | 401    | phone.email rejected the token, couldn't be reached, the number isn't +91, or the token was already used |
-| `PHONE_MISMATCH`              | 422    | Sign-up: the verified number (`details.verifiedPhone`) isn't the `phone` sent                            |
+| `PHONE_MISMATCH`              | 422    | The verified number (`details.verifiedPhone`) isn't the `phone` sent (sign-up, or OTP log-in)            |
 | `PHONE_VERIFICATION_REQUIRED` | 422    | Sign-up without a token while `SIGNUP_REQUIRES_VERIFIED_PHONE=true`                                      |
 
 OTP log-in is rate-limited to 100 per IP per hour; sign-up keeps its own limit.
