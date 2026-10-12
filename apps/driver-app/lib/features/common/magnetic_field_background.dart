@@ -8,10 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 // Tunables. Lengths in logical px, times in seconds.
-const _dotSize = 1.5; // resting dot diameter
-const _maxDotSize = 4.0; // dot diameter right at the pointer
-const _restOpacity = 0.24; // resting dot opacity
-const _accentOpacity = 0.7; // dot opacity at full accent
+const _dotSize = 1.9; // resting dot diameter
+const _maxDotSize = 4.4; // dot diameter right at the pointer
+const _restOpacity = 0.45; // resting dot opacity
+const _accentOpacity = 0.8; // dot opacity at full accent
 // The resting wave: a main wave and a slower cross swell, both travelling.
 // Each dot rises and falls with them and sways a little sideways, like water.
 const _waveHeight = 3.2; // how far a dot rises and falls with the main wave
@@ -30,15 +30,16 @@ const _tintIn = 0.05; // easing towards the accent (~150 ms)
 const _tintOut = 0.3; // easing back to neutral (~900 ms)
 const _glowRadius = 150.0; // the soft spotlight under the pointer
 const _glowOpacity = 0.1; // its strength at the centre
-// A tap's ripple is a travelling wave packet: dots on either side of its
-// front gather towards it, so the front is a dense, lit ring. It moves
-// the dots directly (not through their springs), so it keeps its shape.
-const _ringSpeed = 480.0; // ripple speed, px/s
-const _ringLife = 2.6; // ripple lifetime (it reaches ~1250 px)
-const _ringBand = 34.0; // half-width of the wave packet
-const _ringPush = 7.0; // how far it gathers dots, when new
-const _ringLight = 0.85; // how much its front lights dots, when new
-const _ringOpacity = 0.18; // the ripple's faint ring line, when new
+// A tap sends a ripple through the dots, like a stone dropped in water: a
+// short train of crests that travels outwards. It moves and lights the dots
+// directly (not through their springs), so it keeps its shape; no line is
+// drawn, the dots alone show it.
+const _ringSpeed = 420.0; // ripple speed, px/s
+const _ringLife = 2.8; // ripple lifetime (it reaches ~1200 px)
+const _ringWavelength = 46.0; // distance between its crests
+const _ringSpread = 70.0; // how far the crest train reaches either side
+const _ringPush = 5.0; // how far its crests move dots, when new
+const _ringLight = 0.9; // how much its crests light dots, when new
 const _maxRings = 3; // older ripples are dropped
 const _buckets = 8; // size/colour steps; one draw call each
 const _idleFrame = Duration(milliseconds: 33); // resting wave updates at 30 fps
@@ -449,9 +450,6 @@ class _FieldPainter extends CustomPainter {
                accent.withValues(alpha: 0),
              ]),
        ],
-       _ring = Paint()
-         ..style = PaintingStyle.stroke
-         ..strokeWidth = 1,
        super(repaint: repaint);
 
   final _FieldSimulation field;
@@ -459,7 +457,6 @@ class _FieldPainter extends CustomPainter {
   final Color accent;
   final List<Paint> _dots;
   final List<Paint> _glows;
-  final Paint _ring;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -484,8 +481,6 @@ class _FieldPainter extends CustomPainter {
       ringY[k] = f.rings[k * 3 + 1];
       ringFront[k] = f.rings[k * 3 + 2] * _ringSpeed;
       ringFade[k] = left * left;
-      _ring.color = accent.withValues(alpha: _ringOpacity * ringFade[k]);
-      canvas.drawCircle(Offset(ringX[k], ringY[k]), ringFront[k], _ring);
     }
     final points = f.points;
     final sizes = f.bucketSizes..fillRange(0, _buckets, 0);
@@ -518,15 +513,19 @@ class _FieldPainter extends CustomPainter {
         final dx = x - ringX[k];
         final dy = y - ringY[k];
         final d = math.sqrt(dx * dx + dy * dy);
-        // Position across the packet: 0 at the front, negative behind it.
-        final u = (d - ringFront[k]) / _ringBand;
-        if (u < -2.5 || u > 2.5 || d < 0.5) continue;
-        final g = math.exp(-u * u);
-        // Towards the front from both sides: -2u·e^(-u²), peak ±0.86.
-        final push = -2.33 * u * g * _ringPush * ringFade[k];
+        // Distance from the middle of the crest train.
+        final off = d - ringFront[k];
+        if (off.abs() > _ringSpread * 2.2 || d < 0.5) continue;
+        final u = off / _ringSpread;
+        final env = math.exp(-u * u) * ringFade[k];
+        final phase = 2 * math.pi * off / _ringWavelength;
+        // Dots bob outwards and back as each crest passes, and light up on
+        // the crests.
+        final push = math.sin(phase) * _ringPush * env;
         px += dx / d * push;
         py += dy / d * push;
-        t = math.max(t, g * _ringLight * ringFade[k]);
+        final crest = 0.5 + 0.5 * math.cos(phase);
+        t = math.max(t, crest * crest * _ringLight * env);
       }
       final b = (t * (_buckets - 1)).round();
       final at = b * region + sizes[b] * 2;
