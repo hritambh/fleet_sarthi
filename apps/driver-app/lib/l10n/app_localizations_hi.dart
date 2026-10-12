@@ -2924,4 +2924,79 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get allowPopups =>
       'नंबर सत्यापित करने के लिए इस साइट के पॉप-अप चालू करें, फिर से कोशिश करें।';
+
+  @override
+  String get tripInProgress => 'ट्रिप चल रही है';
+
+  @override
+  String get nextTrip => 'अगली ट्रिप';
+
+  @override
+  String startsIn({required String time}) {
+    return '$time में शुरू';
+  }
+
+  @override
+  String get startingNow => 'अभी शुरू';
+
+  @override
+  String runningLate({required String time}) {
+    return '$time देर';
+  }
+
+  @override
+  String get todayAtAGlance => 'आज एक नज़र में';
+
+  @override
+  String get lastSevenDays => 'पिछले 7 दिन';
+
+  @override
+  String get statTripsDone => 'पूरी ट्रिप';
+
+  @override
+  String get statKmDriven => 'चली दूरी';
+
+  @override
+  String get statCollected => 'वसूली';
+
+  @override
+  String ofTotal({required int done, required int total}) {
+    return '$total में से $done';
+  }
+
+  @override
+  String cashAmount({required String amount}) {
+    return 'नकद $amount';
+  }
+
+  @override
+  String get callCustomer => 'कॉल';
+
+  @override
+  String get directions => 'रास्ता';
+
+  @override
+  String kmSoFar({required String km}) {
+    return 'अब तक $km';
+  }
+
+  @override
+  String durationHm({required int h, required String m}) {
+    return '$h घं $m मि';
+  }
+
+  @override
+  String durationM({required int m}) {
+    return '$m मि';
+  }
+
+  @override
+  String get syncNow => 'अभी सिंक करें';
+
+  @override
+  String get noTripsAssigned => 'अभी कोई ट्रिप नहीं मिली';
+
+  @override
+  String get noTripsHint =>
+      'जब आपका फ़्लीट मालिक कोई ट्रिप देगा, वह यहाँ दिखेगी। रीफ़्रेश के लिए नीचे खींचें, या खुद नई ट्रिप शुरू करें।';
 }

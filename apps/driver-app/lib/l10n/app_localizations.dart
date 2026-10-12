@@ -5107,6 +5107,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Allow pop-ups for this site to verify your number, then try again.'**
   String get allowPopups;
+
+  /// No description provided for @tripInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip in progress'**
+  String get tripInProgress;
+
+  /// No description provided for @nextTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Next trip'**
+  String get nextTrip;
+
+  /// No description provided for @startsIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts in {time}'**
+  String startsIn({required String time});
+
+  /// No description provided for @startingNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting now'**
+  String get startingNow;
+
+  /// No description provided for @runningLate.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} late'**
+  String runningLate({required String time});
+
+  /// No description provided for @todayAtAGlance.
+  ///
+  /// In en, this message translates to:
+  /// **'Today at a glance'**
+  String get todayAtAGlance;
+
+  /// No description provided for @lastSevenDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get lastSevenDays;
+
+  /// No description provided for @statTripsDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips done'**
+  String get statTripsDone;
+
+  /// No description provided for @statKmDriven.
+  ///
+  /// In en, this message translates to:
+  /// **'Km driven'**
+  String get statKmDriven;
+
+  /// No description provided for @statCollected.
+  ///
+  /// In en, this message translates to:
+  /// **'Collected'**
+  String get statCollected;
+
+  /// No description provided for @ofTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total}'**
+  String ofTotal({required int done, required int total});
+
+  /// No description provided for @cashAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash {amount}'**
+  String cashAmount({required String amount});
+
+  /// No description provided for @callCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get callCustomer;
+
+  /// No description provided for @directions.
+  ///
+  /// In en, this message translates to:
+  /// **'Directions'**
+  String get directions;
+
+  /// No description provided for @kmSoFar.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} so far'**
+  String kmSoFar({required String km});
+
+  /// No description provided for @durationHm.
+  ///
+  /// In en, this message translates to:
+  /// **'{h} h {m} min'**
+  String durationHm({required int h, required String m});
+
+  /// No description provided for @durationM.
+  ///
+  /// In en, this message translates to:
+  /// **'{m} min'**
+  String durationM({required int m});
+
+  /// No description provided for @syncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get syncNow;
+
+  /// No description provided for @noTripsAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips assigned yet'**
+  String get noTripsAssigned;
+
+  /// No description provided for @noTripsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'When your fleet owner assigns a trip, it shows up here. Pull down to refresh, or start one yourself.'**
+  String get noTripsHint;
 }
 
 class _AppLocalizationsDelegate

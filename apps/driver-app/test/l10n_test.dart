@@ -232,6 +232,11 @@ void main() {
     });
 
     testWidgets('a driver sees their trips in Hindi', (tester) async {
+      // Tall enough for the home's cards and the trip list together.
+      tester.view
+        ..devicePixelRatio = 1
+        ..physicalSize = const Size(412, 2400);
+      addTearDown(tester.view.reset);
       final h = await Harness.create(
         language: 'hi',
         session: Session.fromJson(sessionJson()),
@@ -243,6 +248,9 @@ void main() {
       expect(find.text('मेरी ट्रिप'), findsOneWidget);
       // Section header and status chip.
       expect(find.text('रास्ते में'), findsNWidgets(2));
+      // The trip-in-progress card and today's numbers, in Hindi too.
+      expect(find.text('ट्रिप चल रही है'), findsOneWidget);
+      expect(find.text('आज एक नज़र में'), findsOneWidget);
     });
 
     testWidgets('switching language from the login screen is remembered', (

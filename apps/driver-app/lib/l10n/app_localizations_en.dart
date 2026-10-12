@@ -2931,4 +2931,79 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get allowPopups =>
       'Allow pop-ups for this site to verify your number, then try again.';
+
+  @override
+  String get tripInProgress => 'Trip in progress';
+
+  @override
+  String get nextTrip => 'Next trip';
+
+  @override
+  String startsIn({required String time}) {
+    return 'Starts in $time';
+  }
+
+  @override
+  String get startingNow => 'Starting now';
+
+  @override
+  String runningLate({required String time}) {
+    return '$time late';
+  }
+
+  @override
+  String get todayAtAGlance => 'Today at a glance';
+
+  @override
+  String get lastSevenDays => 'Last 7 days';
+
+  @override
+  String get statTripsDone => 'Trips done';
+
+  @override
+  String get statKmDriven => 'Km driven';
+
+  @override
+  String get statCollected => 'Collected';
+
+  @override
+  String ofTotal({required int done, required int total}) {
+    return '$done of $total';
+  }
+
+  @override
+  String cashAmount({required String amount}) {
+    return 'Cash $amount';
+  }
+
+  @override
+  String get callCustomer => 'Call';
+
+  @override
+  String get directions => 'Directions';
+
+  @override
+  String kmSoFar({required String km}) {
+    return '$km so far';
+  }
+
+  @override
+  String durationHm({required int h, required String m}) {
+    return '$h h $m min';
+  }
+
+  @override
+  String durationM({required int m}) {
+    return '$m min';
+  }
+
+  @override
+  String get syncNow => 'Sync now';
+
+  @override
+  String get noTripsAssigned => 'No trips assigned yet';
+
+  @override
+  String get noTripsHint =>
+      'When your fleet owner assigns a trip, it shows up here. Pull down to refresh, or start one yourself.';
 }
