@@ -11,14 +11,17 @@ const Env = z
     LOG_LEVEL: z
       .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
       .default('info'),
+    // Origins as the browser sends them: a bare host gets https://, and a trailing
+    // slash is dropped (both would otherwise never match).
     CORS_ORIGINS: z
       .string()
       .default('http://localhost:5174')
       .transform((v) =>
         v
           .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean),
+          .map((s) => s.trim().replace(/\/+$/, ''))
+          .filter(Boolean)
+          .map((s) => (/^https?:\/\//.test(s) ? s : `https://${s}`)),
       ),
 
     DATABASE_URL: z.url(),

@@ -73,6 +73,19 @@ describe('loadConfig', () => {
     ).toThrow(/PHONE_OTP_PROVIDER: stub/);
   });
 
+  it('normalises CORS origins to what browsers send', () => {
+    expect(
+      loadConfig({
+        ...base,
+        CORS_ORIGINS: 'taxcy-web.onrender.com, https://fleet.example.in/ ,http://localhost:5174',
+      }).CORS_ORIGINS,
+    ).toEqual([
+      'https://taxcy-web.onrender.com',
+      'https://fleet.example.in',
+      'http://localhost:5174',
+    ]);
+  });
+
   it('allows console SMS in development and tests', () => {
     expect(loadConfig({ ...base, NODE_ENV: 'test' }).SMS_PROVIDER).toBe('console');
   });
