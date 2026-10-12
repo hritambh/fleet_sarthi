@@ -7,59 +7,84 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-// Tunables. Lengths in logical px, times in seconds.
-const _dotSize = 1.9; // resting dot diameter
-const _maxDotSize = 4.4; // dot diameter right at the pointer
-const _restOpacity = 0.45; // resting dot opacity
-const _accentOpacity = 0.8; // dot opacity at full accent
-// The resting wave: a main wave and a slower cross swell, both travelling.
-// Each dot rises and falls with them and sways a little sideways, like water.
-const _waveHeight = 3.2; // how far a dot rises and falls with the main wave
-const _waveLength = 460.0; // distance between its crests
-const _wavePeriod = 5.0; // one cycle at a given dot
-const _swellHeight = 1.6;
-const _swellLength = 290.0;
-const _swellPeriod = 8.0;
-const _sway = 0.45; // sideways motion, as a share of the rise and fall
-const _waveLift = 0.26; // how much a crest brightens and grows dots
+// Tunables. Lengths in logical px (or shares of the field's width W and
+// height H), times in seconds.
+
+// The sheet: rows of dots forming a water surface seen in perspective. Its top
+// edge rises diagonally from the left (_edgeLeft·H down) to the right
+// (_edgeRight·H down), so it covers about 70% of the field; far rows (at the
+// edge) are tight and small, near rows (at the bottom) wide and bigger.
+const _edgeLeft = 0.62;
+const _edgeRight = 0.02;
+const _edgeRipple = 0.06; // how much the top edge undulates (share of H)
+const _edgePeriod = 9.0; // one undulation cycle
+const _depthCurve = 1.45; // >1 packs the far rows together
+const _rowsPerSpacing = 1.3; // rows per `spacing` of field height
+const _farGap = 0.45; // gap between dots in the far row, in `spacing`s
+const _nearGap = 1.1; // and in the nearest row
+const _swellHeight = 0.03; // the surface's own swell (share of H)
+const _swellLength = 0.5; // its wavelength (share of W)
+const _swellPeriod = 6.0;
+const _sheen = 0.12; // how much a raised swell lightens dots
+
+// Dot looks. A dot's level (0..1) sets its size and opacity: depth gives the
+// base, the pointer and waves lift it.
+const _minDot = 0.9; // diameter at level 0
+const _maxDot = 4.0; // at level 1
+const _minAlpha = 0.22;
+const _maxAlpha = 0.85;
+const _levels = 8; // size/opacity steps
+// Hues across the sheet, left to right (one draw call per hue and level).
+const _hues = [
+  Color(0xFF2563EB), // blue
+  Color(0xFF0EA5E9), // sky
+  Color(0xFF8B5CF6), // violet
+  Color(0xFFEC4899), // pink
+];
+
+// The pointer.
 const _maxShift = 12.0; // how far dots are pushed out of the pointer's way
 const _stiffness = 110.0; // spring pulling a dot back to its place
 const _damping = 15.0; // below 2*sqrt(stiffness) (~21) dots wobble a little
 const _drag = 7.0; // how strongly a moving pointer drags nearby dots along
-const _tintIn = 0.05; // easing towards the accent (~150 ms)
-const _tintOut = 0.3; // easing back to neutral (~900 ms)
+const _tintIn = 0.05; // easing towards highlighted (~150 ms)
+const _tintOut = 0.3; // easing back (~900 ms)
 const _glowRadius = 150.0; // the soft spotlight under the pointer
 const _glowOpacity = 0.1; // its strength at the centre
+
 // A tap sends a ripple through the dots, like a stone dropped in water: a
 // short train of crests that travels outwards. It moves and lights the dots
-// directly (not through their springs), so it keeps its shape; no line is
-// drawn, the dots alone show it.
+// directly (not through their springs), so it keeps its shape.
 const _ringSpeed = 420.0; // ripple speed, px/s
 const _ringLife = 2.8; // ripple lifetime (it reaches ~1200 px)
 const _ringWavelength = 46.0; // distance between its crests
 const _ringSpread = 70.0; // how far the crest train reaches either side
 const _ringPush = 5.0; // how far its crests move dots, when new
 const _ringLight = 0.9; // how much its crests light dots, when new
-// Without any input, a softer wave starts off-screen to the left every
-// second and sweeps across the whole field as a gently curved front.
-const _autoEvery = 1.0; // seconds between waves
-const _autoStrength = 0.7; // compared with a tap's ripple
-const _autoOffset = 320.0; // how far left of the field they start
-const _maxRings = 10; // older ripples are dropped
-const _ringFields = 5; // per ripple: x, y, age, life, strength
-const _buckets = 8; // size/colour steps; one draw call each
-const _idleFrame = Duration(milliseconds: 33); // resting wave updates at 30 fps
+
+// Without input, a broad swell rolls along the sheet's diagonal, lifting and
+// lighting the dots it passes. Only one runs at a time: the next starts a
+// moment after it (and any tap ripple) has finished. A tap fades it out.
+const _swellSpeed = 520.0; // px/s
+const _swellWidth = 140.0; // half-width of the swell band
+const _swellLift = 9.0; // how far it raises dots
+const _swellLight = 0.5; // how much it lights them
+const _swellGap = 0.8; // pause between swells
+const _swellCancel = 0.3; // fade-out when a tap interrupts it
+
+const _idleFrame = Duration(milliseconds: 33); // idle updates at 30 fps
 const _settled = 0.05; // px (and px/s / 10) below which the field is at rest
 
-/// A quiet, living background of fine dots. At rest they rise and fall with
-/// a slow travelling wave, crests catching a little more light, and every
-/// second a softer wave sweeps across them; near the pointer they swell, turn to the accent colour and part like
-/// a lens under a soft glow, get dragged along when the pointer sweeps past,
-/// and spring back with a slight wobble. A tap sends a ripple through them.
-/// It sits behind [child] without taking its taps or gestures.
+/// A living background: a sheet of fine dots like a water surface, rising
+/// diagonally across the field and gently swelling, with a broad wave
+/// rolling along it now and then. Near the pointer the dots swell, brighten
+/// and part like a lens under a soft glow, get dragged along when the
+/// pointer sweeps past, and spring back with a slight wobble. A tap sends a
+/// ripple through them. It sits behind [child] without taking its taps or
+/// gestures.
 ///
-/// With reduced motion (MediaQuery.disableAnimations) it draws the resting
-/// grid only, with a hover tint but no movement or ripples. Its animation
+/// With reduced motion (MediaQuery.disableAnimations) the sheet stands still,
+/// with a hover highlight but no movement, waves or ripples. Its animation
 /// pauses when hidden (TickerMode off) and drops to 30 fps while idle.
 class MagneticFieldBackground extends StatefulWidget {
   const MagneticFieldBackground({
@@ -74,10 +99,11 @@ class MagneticFieldBackground extends StatefulWidget {
   /// Content rendered above the field.
   final Widget? child;
 
-  /// Colour the dots turn near the pointer (default indigo).
+  /// Colour of the glow under the pointer (default indigo).
   final Color? accentColor;
 
-  /// Distance between dots.
+  /// Typical distance between dots (near rows are a little wider apart, far
+  /// rows tighter).
   final double spacing;
 
   /// How far from the pointer dots react.
@@ -92,9 +118,10 @@ class MagneticFieldBackground extends StatefulWidget {
 
 class _MagneticFieldBackgroundState extends State<MagneticFieldBackground>
     with SingleTickerProviderStateMixin {
-  // Two clocks: the ticker (every frame) while something is moving, and a
-  // slow timer for the resting wave. An idle field never asks for a frame
-  // per vsync, which on the web would cost a full composite each time.
+  // Two clocks: the ticker (every frame) while the pointer or a tap ripple is
+  // moving things, and a slower timer for the sheet's own motion. An idle
+  // field never asks for a frame per vsync, which on the web would cost a
+  // full composite each time.
   late final Ticker _ticker = createTicker(_tick);
   Timer? _breath;
   final _breathClock = Stopwatch();
@@ -113,7 +140,7 @@ class _MagneticFieldBackgroundState extends State<MagneticFieldBackground>
     _motion = !MediaQuery.disableAnimationsOf(context);
     // TickerMode also mutes the ticker; the breathing timer checks it here.
     _visible = TickerMode.of(context);
-    if (!_motion) _field.clearRings();
+    if (!_motion) _field.stopWaves();
     _wake();
   }
 
@@ -149,7 +176,7 @@ class _MagneticFieldBackgroundState extends State<MagneticFieldBackground>
     }
   }
 
-  /// While settled, only the slow wave moves: 30 updates a second do.
+  /// While settled, only the sheet and its swell move: 30 updates a second.
   void _scheduleBreath() {
     if (!_motion || !_visible) return;
     _breathClock
@@ -185,7 +212,7 @@ class _MagneticFieldBackgroundState extends State<MagneticFieldBackground>
     final tapped =
         down != null && (e.localPosition - down).distance < kTouchSlop;
     if (tapped && widget.enableRipples && _motion) {
-      _field.addRing(e.localPosition);
+      _field.tap(e.localPosition);
     }
     // A finger lifting takes the magnet with it; a mouse keeps hovering.
     _pointAt(e.kind == PointerDeviceKind.mouse ? e.localPosition : null);
@@ -247,7 +274,6 @@ class _MagneticFieldBackgroundState extends State<MagneticFieldBackground>
                         painter: _FieldPainter(
                           field: _field,
                           repaint: _repaint,
-                          neutral: scheme.onSurfaceVariant,
                           accent: accent,
                         ),
                       ),
@@ -269,30 +295,23 @@ class _Repaint extends ChangeNotifier {
   void ping() => notifyListeners();
 }
 
-/// Per-dot state in flat arrays (no per-dot objects), stepped once a frame:
-/// each dot is a damped spring pulled towards a target offset from its place.
+/// Per-dot state in flat arrays (no per-dot objects). Each step places every
+/// dot on the moving sheet, then runs a damped spring per dot towards the
+/// pointer's push, as an offset from that place.
 class _FieldSimulation {
+  Size size = Size.zero;
   int count = 0;
-  Float32List xs = Float32List(0); // resting position
-  Float32List ys = Float32List(0);
-  Float32List ox = Float32List(0); // offset from the resting position
+  Float32List xs = Float32List(0); // where on the sheet: x on screen
+  Float32List rows = Float32List(0); // and row, 0 (far edge) .. 1 (near)
+  Float32List depths = Float32List(0); // row eased by _depthCurve
+  Float32List bx = Float32List(0); // this step's place on the sheet
+  Float32List by = Float32List(0);
+  Float32List levels = Float32List(0); // this step's level before the pointer
+  Float32List ox = Float32List(0); // spring offset from that place
   Float32List oy = Float32List(0);
   Float32List vx = Float32List(0); // velocity of the offset
   Float32List vy = Float32List(0);
-  Float32List tints = Float32List(0); // 0 = neutral, 1 = full accent
-
-  /// Dot centres for drawRawPoints, one region of count * 2 per bucket.
-  Float32List points = Float32List(0);
-  final bucketSizes = Int32List(_buckets);
-
-  /// Ripples, oldest first, [_ringFields] floats each. Taps have strength 1;
-  /// the automatic waves less.
-  final rings = Float32List(_maxRings * _ringFields);
-  int ringCount = 0;
-
-  Size size = Size.zero;
-  final _random = math.Random();
-  double _untilAuto = 0;
+  Float32List tints = Float32List(0); // pointer highlight, 0..1
 
   Offset? magnet;
 
@@ -303,79 +322,85 @@ class _FieldSimulation {
 
   double time = 0;
 
-  /// Off with reduced motion: the wave then stands still.
+  /// Off with reduced motion: the sheet then stands still.
   bool motion = true;
+
+  // The tap ripple (one at a time).
+  bool rippling = false;
+  double rippleX = 0;
+  double rippleY = 0;
+  double rippleAge = 0;
+
+  // The rolling swell (one at a time).
+  bool swelling = false;
+  double swellAge = 0;
+  double swellLife = 0;
+  double swellFade = 1; // drops to 0 when a tap cancels it
+  bool swellCancelled = false;
+  double untilSwell = _swellGap;
 
   void layout(Size size, double spacing) {
     this.size = size;
-    final cols = (size.width / spacing).floor() + 1;
-    final rows = (size.height / spacing).floor() + 1;
-    final left = (size.width - (cols - 1) * spacing) / 2;
-    final top = (size.height - (rows - 1) * spacing) / 2;
-    count = cols * rows;
-    xs = Float32List(count);
-    ys = Float32List(count);
+    final w = size.width;
+    final rowCount = (size.height / spacing * _rowsPerSpacing).round().clamp(
+      12,
+      72,
+    );
+    final x = <double>[];
+    final row = <double>[];
+    for (var r = 0; r < rowCount; r++) {
+      final t = r / (rowCount - 1);
+      final gap = spacing * (_farGap + (_nearGap - _farGap) * t);
+      // Staggered rows, overscanning the sides so the swell can sway them in.
+      for (
+        var at = -0.1 * w + (r.isOdd ? gap / 2 : 0);
+        at < 1.1 * w;
+        at += gap
+      ) {
+        x.add(at);
+        row.add(t);
+      }
+    }
+    count = x.length;
+    xs = Float32List.fromList(x);
+    rows = Float32List.fromList(row);
+    depths = Float32List(count);
+    for (var i = 0; i < count; i++) {
+      depths[i] = math.pow(rows[i], _depthCurve).toDouble();
+    }
+    bx = Float32List(count);
+    by = Float32List(count);
+    levels = Float32List(count);
     ox = Float32List(count);
     oy = Float32List(count);
     vx = Float32List(count);
     vy = Float32List(count);
     tints = Float32List(count);
-    points = Float32List(count * 2 * _buckets);
-    var i = 0;
-    for (var r = 0; r < rows; r++) {
-      for (var c = 0; c < cols; c++, i++) {
-        xs[i] = left + c * spacing;
-        ys[i] = top + r * spacing;
-      }
-    }
+    _placeSheet();
   }
 
-  /// A tap's ripple.
-  void addRing(Offset at) => _addRing(at, _ringLife, 1);
-
-  /// An automatic wave from off-screen left, living until it has crossed the
-  /// field.
-  void _addAutoWave() {
-    final from = Offset(-_autoOffset, size.height * _random.nextDouble());
-    final far = math.max(
-      (Offset(size.width, 0) - from).distance,
-      (Offset(size.width, size.height) - from).distance,
-    );
-    _addRing(from, (far + _ringSpread * 2) / _ringSpeed, _autoStrength);
+  /// A tap: starts a ripple unless one is still running, and fades out a
+  /// rolling swell so the two don't pile up.
+  void tap(Offset at) {
+    if (rippling) return;
+    rippling = true;
+    rippleX = at.dx;
+    rippleY = at.dy;
+    rippleAge = 0;
+    if (swelling) swellCancelled = true;
   }
 
-  void _addRing(Offset at, double life, double strength) {
-    const n = _ringFields;
-    if (ringCount == _maxRings) {
-      rings.setRange(0, (_maxRings - 1) * n, rings, n); // drop the oldest
-      ringCount--;
-    }
-    final at0 = ringCount * n;
-    rings[at0] = at.dx;
-    rings[at0 + 1] = at.dy;
-    rings[at0 + 2] = 0;
-    rings[at0 + 3] = life;
-    rings[at0 + 4] = strength;
-    ringCount++;
+  void stopWaves() {
+    rippling = false;
+    swelling = false;
   }
-
-  /// Whether a tap's ripple is still running (the automatic waves alone
-  /// don't need a frame every vsync; the 30 fps idle updates carry them).
-  bool get _tapRippling {
-    for (var k = 0; k < ringCount; k++) {
-      if (rings[k * _ringFields + 4] >= 1) return true;
-    }
-    return false;
-  }
-
-  void clearRings() => ringCount = 0;
 
   /// A pointer sweeping by [delta] at [at] drags the dots under it along.
   void drag(Offset at, Offset delta, double radius) {
     final r2 = radius * radius;
     for (var i = 0; i < count; i++) {
-      final dx = xs[i] - at.dx;
-      final dy = ys[i] - at.dy;
+      final dx = bx[i] - at.dx;
+      final dy = by[i] - at.dy;
       final d2 = dx * dx + dy * dy;
       if (d2 >= r2) continue;
       final t = 1 - math.sqrt(d2) / radius;
@@ -385,20 +410,16 @@ class _FieldSimulation {
     }
   }
 
-  /// Advances the field by [dt] seconds. Returns whether anything is still
-  /// moving (springs, tints or ripples); a pointer resting over settled dots
-  /// isn't.
+  /// Advances the field by [dt] seconds. Returns whether the pointer's springs
+  /// or a tap ripple still need a frame every vsync; the sheet and its swell
+  /// alone don't (the 30 fps idle updates carry them).
   bool step(double dt, {required double radius, required bool motion}) {
     this.motion = motion;
-    if (motion) time += dt;
-    _ageRings(dt);
-    if (motion && !size.isEmpty) {
-      _untilAuto -= dt;
-      if (_untilAuto <= 0) {
-        _addAutoWave();
-        _untilAuto = _autoEvery;
-      }
+    if (motion) {
+      time += dt;
+      _advanceWaves(dt);
     }
+    _placeSheet();
     final tintIn = 1 - math.exp(-dt / _tintIn);
     final tintOut = 1 - math.exp(-dt / _tintOut);
     final m = magnet;
@@ -409,16 +430,14 @@ class _FieldSimulation {
     final glowTarget = m == null || !motion ? 0.0 : 1.0;
     glow += (glowTarget - glow) * (glowTarget > glow ? tintIn : tintOut);
     final r2 = radius * radius;
-    var busy = _tapRippling || (glow - glowTarget).abs() > 1e-3;
+    var busy = rippling || (glow - glowTarget).abs() > 1e-3;
     for (var i = 0; i < count; i++) {
-      final x = xs[i];
-      final y = ys[i];
       var tx = 0.0;
       var ty = 0.0;
       var tint = 0.0;
       if (m != null) {
-        final dx = x - m.dx;
-        final dy = y - m.dy;
+        final dx = bx[i] - m.dx;
+        final dy = by[i] - m.dy;
         final d2 = dx * dx + dy * dy;
         if (d2 < r2) {
           final d = math.sqrt(d2);
@@ -453,17 +472,96 @@ class _FieldSimulation {
     return busy;
   }
 
-  void _ageRings(double dt) {
-    var kept = 0;
-    const n = _ringFields;
-    for (var k = 0; k < ringCount; k++) {
-      final age = rings[k * n + 2] + dt;
-      if (age >= rings[k * n + 3]) continue;
-      if (kept != k) rings.setRange(kept * n, kept * n + n, rings, k * n);
-      rings[kept * n + 2] = age;
-      kept++;
+  void _advanceWaves(double dt) {
+    if (rippling) {
+      rippleAge += dt;
+      if (rippleAge >= _ringLife) rippling = false;
     }
-    ringCount = kept;
+    if (swelling) {
+      swellAge += dt;
+      if (swellCancelled) swellFade -= dt / _swellCancel;
+      if (swellAge >= swellLife || swellFade <= 0) {
+        swelling = false;
+        untilSwell = _swellGap;
+      }
+    } else if (!rippling && !size.isEmpty) {
+      // The next swell waits until nothing else is running.
+      untilSwell -= dt;
+      if (untilSwell <= 0) {
+        final (lo, hi) = _swellRange();
+        swelling = true;
+        swellCancelled = false;
+        swellFade = 1;
+        swellAge = 0;
+        swellLife = (hi - lo + 4 * _swellWidth) / _swellSpeed;
+      }
+    }
+  }
+
+  /// The swell runs along the sheet's rising diagonal.
+  (double, double) get _swellDirection {
+    final dx = size.width;
+    final dy = -(_edgeLeft - _edgeRight) * size.height;
+    final len = math.sqrt(dx * dx + dy * dy);
+    return (dx / len, dy / len);
+  }
+
+  /// The swell's position range over the field, along its direction.
+  (double, double) _swellRange() {
+    final (ux, uy) = _swellDirection;
+    final w = size.width;
+    final h = size.height;
+    final corners = [0.0, w * ux, h * uy, w * ux + h * uy];
+    return (corners.reduce(math.min), corners.reduce(math.max));
+  }
+
+  /// Puts every dot on the sheet as it is at [time], with its base level.
+  void _placeSheet() {
+    final w = size.width;
+    final h = size.height;
+    if (w <= 0 || h <= 0) return;
+    final edgePhase = 2 * math.pi * time / _edgePeriod;
+    final swellPhase = 2 * math.pi * time / _swellPeriod;
+    final edgeK = 2 * math.pi / (1.1 * w);
+    final swellK = 2 * math.pi / (_swellLength * w);
+    final bottom = h * 1.04;
+    final (ux, uy) = _swellDirection;
+    var front = 0.0;
+    var swell = 0.0;
+    if (swelling) {
+      final (lo, _) = _swellRange();
+      front = lo - 2 * _swellWidth + swellAge * _swellSpeed;
+      // Eases in and out so it never pops.
+      final p = swellAge / swellLife;
+      swell = math.min(1, math.min(p, 1 - p) * 6) * swellFade.clamp(0, 1);
+    }
+    for (var i = 0; i < count; i++) {
+      final x = xs[i];
+      final t = rows[i];
+      final edge =
+          h * (_edgeLeft - (_edgeLeft - _edgeRight) * x / w) +
+          h * _edgeRipple * math.sin(x * edgeK - edgePhase);
+      final base = edge + (bottom - edge) * depths[i];
+      final phase = (x * 0.78 - base * 0.62) * swellK - swellPhase + t * 2.2;
+      final s = math.sin(phase);
+      final amp = h * _swellHeight * (1 - 0.5 * t);
+      var y = base + amp * s;
+      final px = x + amp * 0.35 * math.cos(phase);
+      // Far rows fade in from nothing at the edge; near rows are bigger.
+      var level =
+          (0.24 + 0.36 * t) * math.min(1, t / 0.05) + _sheen * math.max(0, -s);
+      if (swell > 0) {
+        final u = (px * ux + y * uy - front) / _swellWidth;
+        if (u > -3 && u < 3) {
+          final g = math.exp(-u * u) * swell;
+          y -= _swellLift * g;
+          level += _swellLight * g;
+        }
+      }
+      bx[i] = px;
+      by[i] = y;
+      levels[i] = level;
+    }
   }
 }
 
@@ -471,19 +569,16 @@ class _FieldPainter extends CustomPainter {
   _FieldPainter({
     required this.field,
     required Listenable repaint,
-    required this.neutral,
     required this.accent,
   }) : _dots = [
-         for (var b = 0; b < _buckets; b++)
-           Paint()
-             ..strokeCap = StrokeCap.round
-             ..strokeWidth =
-                 _dotSize + (_maxDotSize - _dotSize) * b / (_buckets - 1)
-             ..color = Color.lerp(
-               neutral.withValues(alpha: neutral.a * _restOpacity),
-               accent.withValues(alpha: _accentOpacity),
-               b / (_buckets - 1),
-             )!,
+         for (final hue in _hues)
+           for (var l = 0; l < _levels; l++)
+             Paint()
+               ..strokeCap = StrokeCap.round
+               ..strokeWidth = _minDot + (_maxDot - _minDot) * l / (_levels - 1)
+               ..color = hue.withValues(
+                 alpha: _minAlpha + (_maxAlpha - _minAlpha) * l / (_levels - 1),
+               ),
        ],
        // The glow's gradient is drawn around the origin and moved with a
        // translate, so no shader is built per frame; its strength picks one
@@ -499,10 +594,17 @@ class _FieldPainter extends CustomPainter {
        super(repaint: repaint);
 
   final _FieldSimulation field;
-  final Color neutral;
   final Color accent;
   final List<Paint> _dots;
   final List<Paint> _glows;
+
+  // Reused between frames: each dot's bucket, then the points grouped by it.
+  Uint8List _bucketOf = Uint8List(0);
+  Float32List _xs = Float32List(0);
+  Float32List _ys = Float32List(0);
+  Float32List _points = Float32List(0);
+  final _bucketSizes = Int32List(_hues.length * _levels);
+  final _bucketStarts = Int32List(_hues.length * _levels);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -515,83 +617,75 @@ class _FieldPainter extends CustomPainter {
         ..drawCircle(Offset.zero, _glowRadius, _glows[g - 1])
         ..restore();
     }
-    // Each ripple's centre, front radius and strength (fading out smoothly).
-    final ringCount = f.ringCount;
-    final ringX = Float32List(ringCount);
-    final ringY = Float32List(ringCount);
-    final ringFront = Float32List(ringCount);
-    final ringFade = Float32List(ringCount);
-    const n = _ringFields;
-    for (var k = 0; k < ringCount; k++) {
-      final age = f.rings[k * n + 2];
-      final left = 1 - age / f.rings[k * n + 3];
-      final strength = f.rings[k * n + 4];
-      ringX[k] = f.rings[k * n];
-      ringY[k] = f.rings[k * n + 1];
-      ringFront[k] = age * _ringSpeed;
-      // A tap's ripple fades as it spreads; an automatic wave stays even
-      // until it nears the far edge.
-      ringFade[k] = strength >= 1
-          ? left * left
-          : strength * math.min(1, left * 4);
+    if (f.count == 0 || size.isEmpty) return;
+    if (_bucketOf.length != f.count) {
+      _bucketOf = Uint8List(f.count);
+      _xs = Float32List(f.count);
+      _ys = Float32List(f.count);
+      _points = Float32List(f.count * 2);
     }
-    final points = f.points;
-    final sizes = f.bucketSizes..fillRange(0, _buckets, 0);
-    final region = f.count * 2;
-    // The main wave runs down and to the right, the swell across it.
-    const k1 = 2 * math.pi / _waveLength;
-    const k2 = 2 * math.pi / _swellLength;
-    final t1 = 2 * math.pi * f.time / _wavePeriod;
-    final t2 = 2 * math.pi * f.time / _swellPeriod;
-    final move = f.motion ? 1.0 : 0.0;
+    final ripple = f.rippling;
+    final left = 1 - f.rippleAge / _ringLife;
+    final rippleFade = left * left;
+    final rippleFront = f.rippleAge * _ringSpeed;
+    final huesSpan = (_hues.length - 1) / size.width;
+    final sizes = _bucketSizes..fillRange(0, _bucketSizes.length, 0);
+    final xs = _xs;
+    final ys = _ys;
     for (var i = 0; i < f.count; i++) {
-      final x = f.xs[i];
-      final y = f.ys[i];
-      final p1 = (x * 0.8 + y * 0.6) * k1 - t1;
-      final p2 = (y * 0.87 - x * 0.5) * k2 - t2;
-      final s1 = math.sin(p1);
-      final s2 = math.sin(p2);
-      final rise = (s1 * _waveHeight + s2 * _swellHeight) * move;
-      final sway = math.cos(p1) * _waveHeight * _sway * move;
-      // Crests (0..1) catch the light; the pointer or a ripple lifts more.
-      final crest =
-          (s1 * _waveHeight + s2 * _swellHeight) /
-              (_waveHeight + _swellHeight) *
-              0.5 +
-          0.5;
-      var t = math.max(f.tints[i], crest * crest * _waveLift);
-      var px = x + f.ox[i] + sway * 0.8;
-      var py = y + f.oy[i] - rise + sway * 0.6;
-      for (var k = 0; k < ringCount; k++) {
-        final dx = x - ringX[k];
-        final dy = y - ringY[k];
+      var px = f.bx[i] + f.ox[i];
+      var py = f.by[i] + f.oy[i];
+      final tint = f.tints[i];
+      var level = f.levels[i] + tint * (1 - f.levels[i]) * 0.9;
+      if (ripple) {
+        final dx = f.bx[i] - f.rippleX;
+        final dy = f.by[i] - f.rippleY;
         final d = math.sqrt(dx * dx + dy * dy);
-        // Distance from the middle of the crest train.
-        final off = d - ringFront[k];
-        if (off.abs() > _ringSpread * 2.2 || d < 0.5) continue;
-        final u = off / _ringSpread;
-        final env = math.exp(-u * u) * ringFade[k];
-        final phase = 2 * math.pi * off / _ringWavelength;
-        // Dots bob outwards and back as each crest passes, and light up on
-        // the crests.
-        final push = math.sin(phase) * _ringPush * env;
-        px += dx / d * push;
-        py += dy / d * push;
-        final crest = 0.5 + 0.5 * math.cos(phase);
-        t = math.max(t, crest * crest * _ringLight * env);
+        final off = d - rippleFront;
+        if (off.abs() < _ringSpread * 2.2 && d > 0.5) {
+          final u = off / _ringSpread;
+          final env = math.exp(-u * u) * rippleFade;
+          final phase = 2 * math.pi * off / _ringWavelength;
+          // Dots bob outwards and back as each crest passes, and light up on
+          // the crests.
+          final push = math.sin(phase) * _ringPush * env;
+          px += dx / d * push;
+          py += dy / d * push;
+          final crest = 0.5 + 0.5 * math.cos(phase);
+          level += crest * crest * _ringLight * env;
+        }
       }
-      final b = (t * (_buckets - 1)).round();
-      final at = b * region + sizes[b] * 2;
-      points[at] = px;
-      points[at + 1] = py;
+      if (py < -4 || py > size.height + 4 || px < -4 || px > size.width + 4) {
+        _bucketOf[i] = 255; // off-screen
+        continue;
+      }
+      final hue = (px * huesSpan).round().clamp(0, _hues.length - 1);
+      final l = (level.clamp(0.0, 1.0) * (_levels - 1)).round();
+      final b = hue * _levels + l;
+      _bucketOf[i] = b;
       sizes[b]++;
+      xs[i] = px;
+      ys[i] = py;
     }
-    for (var b = 0; b < _buckets; b++) {
+    var start = 0;
+    for (var b = 0; b < sizes.length; b++) {
+      _bucketStarts[b] = start;
+      start += sizes[b];
+    }
+    final fill = Int32List.fromList(_bucketStarts);
+    for (var i = 0; i < f.count; i++) {
+      final b = _bucketOf[i];
+      if (b == 255) continue;
+      final at = fill[b]++ * 2;
+      _points[at] = xs[i];
+      _points[at + 1] = ys[i];
+    }
+    for (var b = 0; b < sizes.length; b++) {
       if (sizes[b] == 0) continue;
-      final start = b * region;
+      final from = _bucketStarts[b] * 2;
       canvas.drawRawPoints(
         ui.PointMode.points,
-        Float32List.sublistView(points, start, start + sizes[b] * 2),
+        Float32List.sublistView(_points, from, from + sizes[b] * 2),
         _dots[b],
       );
     }
@@ -599,5 +693,5 @@ class _FieldPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_FieldPainter old) =>
-      old.field != field || old.neutral != neutral || old.accent != accent;
+      old.field != field || old.accent != accent;
 }
