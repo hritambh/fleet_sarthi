@@ -30,11 +30,15 @@ const _tintIn = 0.05; // easing towards the accent (~150 ms)
 const _tintOut = 0.3; // easing back to neutral (~900 ms)
 const _glowRadius = 150.0; // the soft spotlight under the pointer
 const _glowOpacity = 0.1; // its strength at the centre
-const _ringSpeed = 420.0; // ripple speed, px/s
-const _ringLife = 1.5; // ripple lifetime
-const _ringBand = 38.0; // width of the band a ripple pushes and lights up
-const _ringPush = 10.0; // how far a passing ripple pushes dots outwards
-const _ringOpacity = 0.22; // the ripple's faint ring line, when new
+// A tap's ripple is a travelling wave packet: dots on either side of its
+// front gather towards it, so the front is a dense, lit ring. It moves
+// the dots directly (not through their springs), so it keeps its shape.
+const _ringSpeed = 480.0; // ripple speed, px/s
+const _ringLife = 2.6; // ripple lifetime (it reaches ~1250 px)
+const _ringBand = 34.0; // half-width of the wave packet
+const _ringPush = 7.0; // how far it gathers dots, when new
+const _ringLight = 0.85; // how much its front lights dots, when new
+const _ringOpacity = 0.18; // the ripple's faint ring line, when new
 const _maxRings = 3; // older ripples are dropped
 const _buckets = 8; // size/colour steps; one draw call each
 const _idleFrame = Duration(milliseconds: 33); // resting wave updates at 30 fps
@@ -382,21 +386,6 @@ class _FieldSimulation {
           }
         }
       }
-      for (var k = 0; k < ringCount; k++) {
-        final dx = x - rings[k * 3];
-        final dy = y - rings[k * 3 + 1];
-        final age = rings[k * 3 + 2];
-        final d = math.sqrt(dx * dx + dy * dy);
-        final off = (d - age * _ringSpeed).abs();
-        if (off < _ringBand) {
-          final f = (1 - off / _ringBand) * (1 - age / _ringLife);
-          tint = math.max(tint, f);
-          if (d > 0.5) {
-            tx += dx / d * _ringPush * f;
-            ty += dy / d * _ringPush * f;
-          }
-        }
-      }
       if (motion) {
         // Semi-implicit Euler on a damped spring towards the target offset.
         vx[i] += (_stiffness * (tx - ox[i]) - _damping * vx[i]) * dt;
@@ -460,13 +449,9 @@ class _FieldPainter extends CustomPainter {
                accent.withValues(alpha: 0),
              ]),
        ],
-       _rings = [
-         for (var r = 1; r <= 4; r++)
-           Paint()
-             ..style = PaintingStyle.stroke
-             ..strokeWidth = 1.5
-             ..color = accent.withValues(alpha: _ringOpacity * r / 4),
-       ],
+       _ring = Paint()
+         ..style = PaintingStyle.stroke
+         ..strokeWidth = 1,
        super(repaint: repaint);
 
   final _FieldSimulation field;
@@ -474,7 +459,7 @@ class _FieldPainter extends CustomPainter {
   final Color accent;
   final List<Paint> _dots;
   final List<Paint> _glows;
-  final List<Paint> _rings;
+  final Paint _ring;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -487,15 +472,20 @@ class _FieldPainter extends CustomPainter {
         ..drawCircle(Offset.zero, _glowRadius, _glows[g - 1])
         ..restore();
     }
-    for (var k = 0; k < f.ringCount; k++) {
-      final age = f.rings[k * 3 + 2];
-      final fade = ((1 - age / _ringLife) * _rings.length).ceil();
-      if (fade <= 0) continue;
-      canvas.drawCircle(
-        Offset(f.rings[k * 3], f.rings[k * 3 + 1]),
-        age * _ringSpeed,
-        _rings[fade - 1],
-      );
+    // Each ripple's centre, front radius and strength (fading out smoothly).
+    final ringCount = f.ringCount;
+    final ringX = Float32List(ringCount);
+    final ringY = Float32List(ringCount);
+    final ringFront = Float32List(ringCount);
+    final ringFade = Float32List(ringCount);
+    for (var k = 0; k < ringCount; k++) {
+      final left = 1 - f.rings[k * 3 + 2] / _ringLife;
+      ringX[k] = f.rings[k * 3];
+      ringY[k] = f.rings[k * 3 + 1];
+      ringFront[k] = f.rings[k * 3 + 2] * _ringSpeed;
+      ringFade[k] = left * left;
+      _ring.color = accent.withValues(alpha: _ringOpacity * ringFade[k]);
+      canvas.drawCircle(Offset(ringX[k], ringY[k]), ringFront[k], _ring);
     }
     final points = f.points;
     final sizes = f.bucketSizes..fillRange(0, _buckets, 0);
@@ -521,11 +511,27 @@ class _FieldPainter extends CustomPainter {
               (_waveHeight + _swellHeight) *
               0.5 +
           0.5;
-      final t = math.max(f.tints[i], crest * crest * _waveLift);
+      var t = math.max(f.tints[i], crest * crest * _waveLift);
+      var px = x + f.ox[i] + sway * 0.8;
+      var py = y + f.oy[i] - rise + sway * 0.6;
+      for (var k = 0; k < ringCount; k++) {
+        final dx = x - ringX[k];
+        final dy = y - ringY[k];
+        final d = math.sqrt(dx * dx + dy * dy);
+        // Position across the packet: 0 at the front, negative behind it.
+        final u = (d - ringFront[k]) / _ringBand;
+        if (u < -2.5 || u > 2.5 || d < 0.5) continue;
+        final g = math.exp(-u * u);
+        // Towards the front from both sides: -2u·e^(-u²), peak ±0.86.
+        final push = -2.33 * u * g * _ringPush * ringFade[k];
+        px += dx / d * push;
+        py += dy / d * push;
+        t = math.max(t, g * _ringLight * ringFade[k]);
+      }
       final b = (t * (_buckets - 1)).round();
       final at = b * region + sizes[b] * 2;
-      points[at] = x + f.ox[i] + sway * 0.8;
-      points[at + 1] = y + f.oy[i] - rise + sway * 0.6;
+      points[at] = px;
+      points[at + 1] = py;
       sizes[b]++;
     }
     for (var b = 0; b < _buckets; b++) {
