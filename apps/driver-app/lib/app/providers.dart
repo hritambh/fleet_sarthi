@@ -111,7 +111,7 @@ final photoCaptureProvider = Provider<PhotoCapture>((ref) {
 /// How documents are picked from files; tests replace it with a fake.
 final filePickProvider = Provider<FilePick>((ref) {
   final store = ref.watch(photoStoreProvider);
-  return (kind) => pickDocumentFile(store, kind);
+  return (kind) => pickDocumentFiles(store, kind);
 });
 
 /// Whether to run background sync and GPS (off in widget tests).

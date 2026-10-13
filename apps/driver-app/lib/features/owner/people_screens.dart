@@ -13,6 +13,7 @@ import 'owner_text.dart';
 import 'alerts_inbox.dart';
 import 'owner_widgets.dart';
 import 'pay_rule_editor.dart';
+import 'trip_schedule.dart';
 import 'vehicles_screen.dart';
 
 /// The fleet's drivers with their pay; invite by phone.
@@ -214,6 +215,12 @@ Future<void> _invite(
 }) => showDialog<void>(
   context: context,
   builder: (_) => InviteDialog(manager: manager),
+);
+
+/// Invites a driver (the dashboard's "+ Add Driver").
+Future<void> inviteDriver(BuildContext context) => showDialog<void>(
+  context: context,
+  builder: (_) => const InviteDialog(manager: false),
 );
 
 class InviteDialog extends ConsumerStatefulWidget {
@@ -444,157 +451,186 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
         d;
     final vehicles = ref.watch(fleetVehiclesProvider);
     final query = (vehicleId: null, driverId: d.id, expiringWithinDays: null);
-    return Scaffold(
-      appBar: AppBar(title: Text(d.name)),
-      body: ListView(
-        padding: const EdgeInsets.all(12),
-        children: [
-          PageWidth(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(d.name),
+          bottom: ownerTabBar(context, [
+            Tab(key: const Key('driver-tab-details'), text: l.detailsTab),
+            Tab(key: const Key('driver-tab-documents'), text: l.documents),
+            Tab(key: const Key('driver-tab-schedule'), text: l.schedule),
+          ]),
+        ),
+        body: TabBarView(
+          children: [
+            ListView(
+              padding: const EdgeInsets.all(12),
               children: [
-                SectionCard(
-                  child: Column(
-                    children: [
-                      TextField(
-                        controller: _name,
-                        decoration: InputDecoration(labelText: l.name),
-                      ),
-                      const SizedBox(height: 12),
-                      DropdownButtonFormField<String>(
-                        key: const Key('driver-status'),
-                        isExpanded: true,
-                        initialValue: _status,
-                        decoration: InputDecoration(labelText: l.status),
-                        items: [
-                          DropdownMenuItem(
-                            value: 'active',
-                            child: Text(l.active),
-                          ),
-                          DropdownMenuItem(
-                            value: 'inactive',
-                            child: Text(l.inactiveDriverOption),
-                          ),
-                        ],
-                        onChanged: (v) =>
-                            setState(() => _status = v ?? _status),
-                      ),
-                      const SizedBox(height: 8),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          formatPhone(d.phone),
-                          style: const TextStyle(color: TaxcyColors.muted),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SectionCard(
-                  key: const Key('driver-pay'),
-                  title: l.pay,
+                PageWidth(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      if (!isOwner)
-                        Text(
-                          l.onlyOwnerPay,
-                          key: const Key('only-owner-pay'),
-                          style: const TextStyle(color: TaxcyColors.muted),
-                        ),
-                      CheckboxListTile(
-                        key: const Key('pay-override'),
-                        contentPadding: EdgeInsets.zero,
-                        value: _override,
-                        title: Text(l.payDifferently),
-                        subtitle: defaultRule == null
-                            ? null
-                            : Text(
-                                l.payDefault(
-                                  rule: payRuleText(fmt, defaultRule),
+                      SectionCard(
+                        child: Column(
+                          children: [
+                            TextField(
+                              controller: _name,
+                              decoration: InputDecoration(labelText: l.name),
+                            ),
+                            const SizedBox(height: 12),
+                            DropdownButtonFormField<String>(
+                              key: const Key('driver-status'),
+                              isExpanded: true,
+                              initialValue: _status,
+                              decoration: InputDecoration(labelText: l.status),
+                              items: [
+                                DropdownMenuItem(
+                                  value: 'active',
+                                  child: Text(l.active),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'inactive',
+                                  child: Text(l.inactiveDriverOption),
+                                ),
+                              ],
+                              onChanged: (v) =>
+                                  setState(() => _status = v ?? _status),
+                            ),
+                            const SizedBox(height: 8),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                formatPhone(d.phone),
+                                style: const TextStyle(
+                                  color: TaxcyColors.muted,
                                 ),
                               ),
-                        onChanged: isOwner
-                            ? (v) => setState(() {
-                                _override = v ?? false;
-                                if (_override && _rule == null) {
-                                  _rule =
-                                      defaultRule ??
-                                      PayRule.defaultsFor(
-                                        'percent_of_fare',
-                                        allowanceToDriver: false,
-                                      );
-                                }
-                              })
-                            : null,
-                      ),
-                      if (_override && _rule != null)
-                        PayRuleEditor(
-                          value: _rule!,
-                          enabled: isOwner,
-                          onChanged: (r) => setState(() => _rule = r),
-                        ),
-                    ],
-                  ),
-                ),
-                if (_problem != null)
-                  Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Text(
-                      _problem!,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                  ),
-                FilledButton(
-                  key: const Key('driver-save'),
-                  onPressed: _busy ? null : _save,
-                  child: Text(l.save),
-                ),
-                const SizedBox(height: 12),
-                SectionCard(
-                  key: const Key('driver-vehicles'),
-                  title: l.vehicles,
-                  actions: [
-                    TextButton.icon(
-                      key: const Key('edit-driver-vehicles'),
-                      icon: const Icon(Icons.directions_car_outlined, size: 18),
-                      label: Text(l.editVehicles),
-                      onPressed: vehicles.isLoading
-                          ? null
-                          : () => _editVehicles(
-                              current,
-                              vehicles.value ?? const [],
                             ),
-                    ),
-                  ],
-                  child: LinkChips(
-                    labels: [
-                      for (final v in current.vehicles)
-                        formatRegistration(v.registrationNo),
-                    ],
-                    emptyText: l.noLinkedVehicles,
-                  ),
-                ),
-                SectionCard(
-                  title: l.documents,
-                  actions: [
-                    TextButton.icon(
-                      icon: const Icon(Icons.add),
-                      label: Text(l.addDocument),
-                      onPressed: () => openScreen<void>(
-                        context,
-                        DocumentFormScreen(driverId: d.id),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                  child: DocumentsList(query: query),
+                      SectionCard(
+                        key: const Key('driver-pay'),
+                        title: l.pay,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            if (!isOwner)
+                              Text(
+                                l.onlyOwnerPay,
+                                key: const Key('only-owner-pay'),
+                                style: const TextStyle(
+                                  color: TaxcyColors.muted,
+                                ),
+                              ),
+                            CheckboxListTile(
+                              key: const Key('pay-override'),
+                              contentPadding: EdgeInsets.zero,
+                              value: _override,
+                              title: Text(l.payDifferently),
+                              subtitle: defaultRule == null
+                                  ? null
+                                  : Text(
+                                      l.payDefault(
+                                        rule: payRuleText(fmt, defaultRule),
+                                      ),
+                                    ),
+                              onChanged: isOwner
+                                  ? (v) => setState(() {
+                                      _override = v ?? false;
+                                      if (_override && _rule == null) {
+                                        _rule =
+                                            defaultRule ??
+                                            PayRule.defaultsFor(
+                                              'percent_of_fare',
+                                              allowanceToDriver: false,
+                                            );
+                                      }
+                                    })
+                                  : null,
+                            ),
+                            if (_override && _rule != null)
+                              PayRuleEditor(
+                                value: _rule!,
+                                enabled: isOwner,
+                                onChanged: (r) => setState(() => _rule = r),
+                              ),
+                          ],
+                        ),
+                      ),
+                      if (_problem != null)
+                        Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Text(
+                            _problem!,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                          ),
+                        ),
+                      FilledButton(
+                        key: const Key('driver-save'),
+                        onPressed: _busy ? null : _save,
+                        child: Text(l.save),
+                      ),
+                      const SizedBox(height: 12),
+                      SectionCard(
+                        key: const Key('driver-vehicles'),
+                        title: l.vehicles,
+                        actions: [
+                          TextButton.icon(
+                            key: const Key('edit-driver-vehicles'),
+                            icon: const Icon(
+                              Icons.directions_car_outlined,
+                              size: 18,
+                            ),
+                            label: Text(l.editVehicles),
+                            onPressed: vehicles.isLoading
+                                ? null
+                                : () => _editVehicles(
+                                    current,
+                                    vehicles.value ?? const [],
+                                  ),
+                          ),
+                        ],
+                        child: LinkChips(
+                          labels: [
+                            for (final v in current.vehicles)
+                              formatRegistration(v.registrationNo),
+                          ],
+                          emptyText: l.noLinkedVehicles,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
+            ListView(
+              padding: const EdgeInsets.all(12),
+              children: [
+                PageWidth(
+                  child: SectionCard(
+                    title: l.documents,
+                    actions: [
+                      TextButton.icon(
+                        icon: const Icon(Icons.add),
+                        label: Text(l.addDocument),
+                        onPressed: () => openScreen<void>(
+                          context,
+                          DocumentFormScreen(driverId: d.id),
+                        ),
+                      ),
+                    ],
+                    child: DocumentsList(query: query),
+                  ),
+                ),
+              ],
+            ),
+            TripSchedule(driverId: d.id),
+          ],
+        ),
       ),
     );
   }

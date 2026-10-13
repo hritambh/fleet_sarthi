@@ -607,6 +607,21 @@ Future<bool> runAction(
   }
 }
 
+/// Tabs under a page header: dark on the desktop's white header
+/// (desktopContentTheme), white on the phone's blue bar. Scrollable, so long
+/// Hindi labels fit on a narrow phone.
+TabBar ownerTabBar(BuildContext context, List<Widget> tabs) {
+  final desktop = isDesktop(context);
+  return TabBar(
+    isScrollable: true,
+    tabAlignment: TabAlignment.start,
+    labelColor: desktop ? TaxcyColors.blue800 : Colors.white,
+    unselectedLabelColor: desktop ? TaxcyColors.ink : TaxcyColors.blue100,
+    indicatorColor: desktop ? TaxcyColors.blue700 : Colors.white,
+    tabs: tabs,
+  );
+}
+
 /// Pushes [screen] on the root navigator.
 Future<T?> openScreen<T>(BuildContext context, Widget screen) =>
     Navigator.of(context).push<T>(MaterialPageRoute(builder: (_) => screen));

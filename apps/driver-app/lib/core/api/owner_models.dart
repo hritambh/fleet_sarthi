@@ -263,21 +263,34 @@ class FleetDocument {
     this.validFrom,
     this.mediaId,
     this.mediaContentType,
+    this.files = const [],
   });
 
-  factory FleetDocument.fromJson(JsonMap json) => FleetDocument(
-    id: json.str('id'),
-    docType: json.str('docType'),
-    vehicleId: json.strOrNull('vehicleId'),
-    driverId: json.strOrNull('driverId'),
-    number: json.strOrNull('number'),
-    validFrom: json.strOrNull('validFrom'),
-    expiresOn: json.str('expiresOn'),
-    mediaId: json.strOrNull('mediaId'),
-    mediaContentType: json.strOrNull('mediaContentType'),
-    daysLeft: json.integer('daysLeft'),
-    status: json.str('status'),
-  );
+  factory FleetDocument.fromJson(JsonMap json) {
+    final mediaId = json.strOrNull('mediaId');
+    final contentType = json.strOrNull('mediaContentType');
+    final files = json
+        .objectsOrEmpty('files')
+        .map(DocumentFile.fromJson)
+        .toList();
+    return FleetDocument(
+      id: json.str('id'),
+      docType: json.str('docType'),
+      vehicleId: json.strOrNull('vehicleId'),
+      driverId: json.strOrNull('driverId'),
+      number: json.strOrNull('number'),
+      validFrom: json.strOrNull('validFrom'),
+      expiresOn: json.str('expiresOn'),
+      mediaId: mediaId,
+      mediaContentType: contentType,
+      // Older payloads only carry the single file.
+      files: files.isEmpty && mediaId != null && contentType != null
+          ? [DocumentFile(mediaId: mediaId, contentType: contentType)]
+          : files,
+      daysLeft: json.integer('daysLeft'),
+      status: json.str('status'),
+    );
+  }
 
   static const vehicleTypes = ['rc', 'insurance', 'permit', 'puc'];
   static const driverTypes = ['driving_licence'];
@@ -299,6 +312,9 @@ class FleetDocument {
   final String? mediaContentType;
 
   bool get isPdf => mediaContentType == 'application/pdf';
+
+  /// Every file (photos and PDFs), in the order they were added.
+  final List<DocumentFile> files;
 
   /// Days until expiry in IST; negative once expired.
   final int daysLeft;
@@ -1439,4 +1455,19 @@ class Availability {
 
   final Map<String, Busy> vehicles;
   final Map<String, Busy> drivers;
+}
+
+/// One of a document's files.
+class DocumentFile {
+  const DocumentFile({required this.mediaId, required this.contentType});
+
+  factory DocumentFile.fromJson(JsonMap json) => DocumentFile(
+    mediaId: json.str('mediaId'),
+    contentType: json.str('contentType'),
+  );
+
+  final String mediaId;
+  final String contentType;
+
+  bool get isPdf => contentType == 'application/pdf';
 }

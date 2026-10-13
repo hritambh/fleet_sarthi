@@ -2999,4 +2999,88 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get noTripsHint =>
       'जब आपका फ़्लीट मालिक कोई ट्रिप देगा, वह यहाँ दिखेगी। रीफ़्रेश के लिए नीचे खींचें, या खुद नई ट्रिप शुरू करें।';
+
+  @override
+  String get detailsTab => 'विवरण';
+
+  @override
+  String get documentFiles => 'फ़ाइलें (फ़ोटो या PDF)';
+
+  @override
+  String photoNumber({required int number}) {
+    return 'फ़ोटो $number';
+  }
+
+  @override
+  String tooManyFiles({required int count}) {
+    return 'एक दस्तावेज़ में ज़्यादा से ज़्यादा $count फ़ाइलें हो सकती हैं।';
+  }
+
+  @override
+  String fileTooLargeNamed({required String name}) {
+    return '$name 15 MB से बड़ी है।';
+  }
+
+  @override
+  String get uploadFiles => 'फ़ाइलें अपलोड करें';
+
+  @override
+  String viewFiles({required int count}) {
+    return 'फ़ाइलें देखें ($count)';
+  }
+
+  @override
+  String get open => 'खोलें';
+
+  @override
+  String get filters => 'फ़िल्टर';
+
+  @override
+  String filtersCount({required int count}) {
+    return 'फ़िल्टर ($count)';
+  }
+
+  @override
+  String get clearAll => 'सब हटाएँ';
+
+  @override
+  String get apply => 'लागू करें';
+
+  @override
+  String get severity => 'गंभीरता';
+
+  @override
+  String get alertKindTitle => 'प्रकार';
+
+  @override
+  String get quickOpsHub => 'त्वरित संचालन केंद्र';
+
+  @override
+  String get fastDispatch => 'फ़ास्ट-डिस्पैच';
+
+  @override
+  String get addTrip => 'ट्रिप जोड़ें';
+
+  @override
+  String get tagDriver => 'ड्राइवर टैग करें';
+
+  @override
+  String get addDriverQuick => '+ ड्राइवर जोड़ें';
+
+  @override
+  String get addCabQuick => '+ कैब जोड़ें';
+
+  @override
+  String get scheduledRides => 'निर्धारित सवारियाँ';
+
+  @override
+  String scheduledRidesOn({required String date}) {
+    return 'निर्धारित सवारियाँ · $date';
+  }
+
+  @override
+  String get noTripsWaiting => 'कोई ट्रिप ड्राइवर का इंतज़ार नहीं कर रही।';
+
+  @override
+  String get pickTripToAssign => 'असाइन करने के लिए ट्रिप चुनें';
 }

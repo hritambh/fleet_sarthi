@@ -4,10 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:taxcy_driver/core/api/json.dart';
 import 'package:taxcy_driver/core/api/models.dart';
+import 'package:taxcy_driver/core/api/owner_models.dart';
+import 'package:taxcy_driver/core/media/captured_photo.dart';
+import 'package:taxcy_driver/core/media/file_pick.dart';
 import 'package:taxcy_driver/features/owner/documents_screen.dart';
+import 'package:taxcy_driver/features/owner/people_screens.dart';
 import 'package:taxcy_driver/features/owner/trips/create_trip_screen.dart';
 import 'package:taxcy_driver/features/owner/trips/owner_trip_detail_screen.dart';
-import 'package:taxcy_driver/features/owner/vehicle_schedule.dart';
+import 'package:taxcy_driver/features/owner/trip_schedule.dart';
 
 import 'support/fakes.dart';
 import 'support/harness.dart';
@@ -94,18 +98,55 @@ void main() {
   });
 
   group('document files', () {
-    testWidgets('upload a PDF instead of a photo', (tester) async {
+    testWidgets('a photo and several files on one document, in order', (
+      tester,
+    ) async {
       final h = await owner(tester);
-      // The picked file's bytes, as the real picker would have stored them.
+      // The bytes, as the camera and the real picker would have stored them.
+      h.photoStore.photos['/photos/captured-document.jpg'] = Uint8List(1024);
       h.photoStore.photos['/photos/picked-document'] = Uint8List(2048);
+      h.photoStore.photos['/photos/back'] = Uint8List(2048);
+      h.pickFile = (kind) => [
+        PickedFile(
+          name: 'insurance.pdf',
+          file: CapturedPhoto(
+            id: 'picked-document',
+            kind: kind,
+            path: '/photos/picked-document',
+            sha256: 'b' * 64,
+            byteSize: 2048,
+            contentType: 'application/pdf',
+            capturedAt: DateTime.utc(2026, 10, 9, 3),
+          ),
+        ),
+        PickedFile(
+          name: 'rc-back.jpg',
+          file: CapturedPhoto(
+            id: 'back',
+            kind: kind,
+            path: '/photos/back',
+            sha256: 'c' * 64,
+            byteSize: 2048,
+            capturedAt: DateTime.utc(2026, 10, 9, 3),
+          ),
+        ),
+      ];
       await tester.pumpWidget(
         h.screen(const DocumentFormScreen(vehicleId: vehicleId)),
       );
       await settle(tester);
+      await tester.tap(find.byKey(const Key('document-take-photo')));
+      await settle(tester);
       await tester.tap(find.byKey(const Key('document-upload-file')));
       await settle(tester);
+      expect(find.text('Photo 1'), findsOneWidget);
       expect(find.text('insurance.pdf'), findsOneWidget);
-      expect(find.text('PDF document'), findsOneWidget);
+      expect(find.text('rc-back.jpg'), findsOneWidget);
+
+      // Remove the PDF; the photo and the back stay, in order.
+      await tester.tap(find.byKey(const ValueKey('document-file-remove-1')));
+      await tester.pump();
+      expect(find.text('insurance.pdf'), findsNothing);
 
       await tester.tap(find.byKey(const Key('document-expires')));
       await tester.pumpAndSettle();
@@ -113,8 +154,10 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('document-save')));
       await settle(tester);
-      expect(h.api.names, contains('registerMedia'));
-      expect(h.owner.last('createDocument').args['mediaId'], 'picked-document');
+      expect(h.owner.last('createDocument').args['mediaIds'], [
+        'captured-document',
+        'back',
+      ]);
     });
 
     testWidgets('a file over 15 MB is refused', (tester) async {
@@ -126,7 +169,52 @@ void main() {
       await settle(tester);
       await tester.tap(find.byKey(const Key('document-upload-file')));
       await settle(tester);
-      expect(find.text('That file is larger than 15 MB.'), findsOneWidget);
+      expect(find.text('big-scan.pdf is larger than 15 MB.'), findsOneWidget);
+    });
+
+    testWidgets('a document with several files lists them all', (tester) async {
+      final h = await owner(tester);
+      const photo = '0199c7a2-0000-7000-8000-0000000009ab';
+      const pdf = '0199c7a2-0000-7000-8000-0000000009ac';
+      h.owner
+        ..serveMediaUrls = true
+        ..documentList = [
+          {
+            ...documentJson(),
+            'mediaId': photo,
+            'mediaContentType': 'image/jpeg',
+            'files': [
+              {'mediaId': photo, 'contentType': 'image/jpeg'},
+              {'mediaId': pdf, 'contentType': 'application/pdf'},
+            ],
+          },
+        ];
+      await tester.pumpWidget(
+        h.screen(
+          const Scaffold(
+            body: DocumentsList(
+              query: (
+                vehicleId: vehicleId,
+                driverId: null,
+                expiringWithinDays: null,
+              ),
+            ),
+          ),
+        ),
+      );
+      await settle(tester);
+      await tester.tap(
+        find.byKey(
+          const ValueKey('document-menu-0199c7a2-0000-7000-8000-000000000d01'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('View files (2)'));
+      await settle(tester);
+      expect(find.byKey(const Key('document-files-dialog')), findsOneWidget);
+      await tester.tap(find.text('Open'));
+      await settle(tester);
+      expect(h.openedUrls.single.toString(), 'https://files.test/$pdf');
     });
 
     testWidgets('a PDF document opens outside the app', (tester) async {
@@ -170,6 +258,38 @@ void main() {
     });
   });
 
+  group('driver schedule', () {
+    testWidgets('the driver page has a Schedule tab with their trips', (
+      tester,
+    ) async {
+      final h = await owner(tester);
+      const tripId = '0199c7a2-0000-7000-8000-0000000008ab';
+      h.owner.tripsById
+        ..clear()
+        ..[tripId] = tripJson(
+          id: tripId,
+          status: 'assigned',
+          scheduledStartAt: DateTime.now().toUtc(),
+        );
+      await tester.pumpWidget(
+        h.screen(DriverScreen(driver: Driver.fromJson(driverJson()))),
+      );
+      await settle(tester);
+      // Details first: name, pay and save stay where they were.
+      expect(find.byKey(const Key('driver-save')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('driver-tab-schedule')));
+      await settle(tester);
+      final query = h.owner.last('trips').args;
+      expect(query['driverId'], driverId);
+      expect(query.containsKey('vehicleId'), isFalse);
+      expect(query['overlapping'], 'true');
+      expect(find.byKey(const Key('schedule-grid')), findsOneWidget);
+      // Today is booked, so its trip is listed.
+      expect(find.textContaining('Pune Station'), findsWidgets);
+    });
+  });
+
   group('vehicle schedule', () {
     testWidgets('marks booked days and lists the chosen day\'s trips', (
       tester,
@@ -187,7 +307,7 @@ void main() {
       await tester.pumpWidget(
         h.screen(
           Scaffold(
-            body: VehicleSchedule(vehicleId: vehicleId, now: now),
+            body: TripSchedule(vehicleId: vehicleId, now: now),
           ),
         ),
       );

@@ -537,11 +537,9 @@ class _RouteCard extends ConsumerWidget {
     final mismatchAlert = closed
         ? ref
               .watch(
-                alertsProvider((
-                  status: null,
-                  kind: 'odo_gps_mismatch',
-                  tripId: trip.id,
-                )),
+                alertsProvider(
+                  alertQuery(kinds: {'odo_gps_mismatch'}, tripId: trip.id),
+                ),
               )
               .value
               ?.firstOrNull

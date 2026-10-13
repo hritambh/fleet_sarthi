@@ -2503,5 +2503,89 @@
   "noTripsAssigned": "No trips assigned yet",
   "@noTripsAssigned": {},
   "noTripsHint": "When your fleet owner assigns a trip, it shows up here. Pull down to refresh, or start one yourself.",
-  "@noTripsHint": {}
+  "@noTripsHint": {},
+  "detailsTab": "Details",
+  "@detailsTab": {},
+  "documentFiles": "Files (photos or PDFs)",
+  "@documentFiles": {},
+  "photoNumber": "Photo {number}",
+  "@photoNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "tooManyFiles": "A document can have up to {count} files.",
+  "@tooManyFiles": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "fileTooLargeNamed": "{name} is larger than 15 MB.",
+  "@fileTooLargeNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "uploadFiles": "Upload files",
+  "@uploadFiles": {},
+  "viewFiles": "View files ({count})",
+  "@viewFiles": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "open": "Open",
+  "@open": {},
+  "filters": "Filters",
+  "@filters": {},
+  "filtersCount": "Filters ({count})",
+  "@filtersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "clearAll": "Clear all",
+  "@clearAll": {},
+  "apply": "Apply",
+  "@apply": {},
+  "severity": "Severity",
+  "@severity": {},
+  "alertKindTitle": "Type",
+  "@alertKindTitle": {},
+  "quickOpsHub": "Quick Operations Hub",
+  "@quickOpsHub": {},
+  "fastDispatch": "FAST-DISPATCH",
+  "@fastDispatch": {},
+  "addTrip": "Add Trip",
+  "@addTrip": {},
+  "tagDriver": "Tag Driver",
+  "@tagDriver": {},
+  "addDriverQuick": "+ Add Driver",
+  "@addDriverQuick": {},
+  "addCabQuick": "+ Add Cab",
+  "@addCabQuick": {},
+  "scheduledRides": "Scheduled rides",
+  "@scheduledRides": {},
+  "scheduledRidesOn": "Scheduled rides · {date}",
+  "@scheduledRidesOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "noTripsWaiting": "No trips waiting for a driver.",
+  "@noTripsWaiting": {},
+  "pickTripToAssign": "Pick a trip to assign",
+  "@pickTripToAssign": {}
 }

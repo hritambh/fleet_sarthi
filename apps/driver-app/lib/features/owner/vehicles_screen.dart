@@ -16,7 +16,7 @@ import 'owner_text.dart';
 import 'alerts_inbox.dart';
 import 'owner_widgets.dart';
 import 'trips/owner_trips_screen.dart';
-import 'vehicle_schedule.dart';
+import 'trip_schedule.dart';
 
 const fuelTypes = ['petrol', 'diesel', 'cng', 'petrol_cng'];
 
@@ -507,25 +507,12 @@ class VehicleDetailScreen extends ConsumerWidget {
               ),
             ],
           ],
-          bottom: TabBar(
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            // The desktop header is white (desktopContentTheme); phones keep
-            // the blue bar with white tabs.
-            labelColor: isDesktop(context) ? TaxcyColors.blue800 : Colors.white,
-            unselectedLabelColor: isDesktop(context)
-                ? TaxcyColors.ink
-                : TaxcyColors.blue100,
-            indicatorColor: isDesktop(context)
-                ? TaxcyColors.blue700
-                : Colors.white,
-            tabs: [
-              Tab(text: l.documents),
-              Tab(text: l.fuel),
-              Tab(key: const Key('tab-schedule'), text: l.schedule),
-              Tab(text: l.recentTrips),
-            ],
-          ),
+          bottom: ownerTabBar(context, [
+            Tab(text: l.documents),
+            Tab(text: l.fuel),
+            Tab(key: const Key('tab-schedule'), text: l.schedule),
+            Tab(text: l.recentTrips),
+          ]),
         ),
         body: AsyncView(
           value: vehicle,
@@ -561,7 +548,7 @@ class VehicleDetailScreen extends ConsumerWidget {
                   children: [
                     _VehicleDocuments(vehicleId),
                     VehicleFuelPanel(vehicleId: vehicleId),
-                    VehicleSchedule(vehicleId: vehicleId),
+                    TripSchedule(vehicleId: vehicleId),
                     _VehicleTrips(vehicleId),
                   ],
                 ),

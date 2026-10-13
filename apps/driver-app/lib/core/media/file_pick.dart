@@ -15,8 +15,8 @@ const _contentTypes = {
   'webp': 'image/webp',
 };
 
-/// A file the owner picked from the phone or computer, stored like a photo
-/// until it's uploaded.
+/// A file the owner picked from the phone or computer, or took with the
+/// camera, stored like a photo until it's uploaded.
 class PickedFile {
   const PickedFile({required this.file, required this.name});
   final CapturedPhoto file;
@@ -25,39 +25,49 @@ class PickedFile {
   bool get isPdf => file.contentType == 'application/pdf';
 }
 
-/// The picked file was larger than [maxUploadBytes].
+/// A picked file was larger than [maxUploadBytes]; nothing was picked.
 class FileTooLargeException implements Exception {
-  const FileTooLargeException();
+  const FileTooLargeException(this.name);
+  final String name;
 }
 
-/// Picks a PDF or image for [kind]; null when cancelled. Replaced in tests.
-typedef FilePick = Future<PickedFile?> Function(String kind);
+/// Picks PDFs and images for [kind]; empty when cancelled. Replaced in tests.
+typedef FilePick = Future<List<PickedFile>> Function(String kind);
 
-/// Production picking: the system file chooser, PDFs and images only.
-Future<PickedFile?> pickDocumentFile(PhotoStore store, String kind) async {
-  final picked = await FilePicker.pickFile(
+/// Production picking: the system file chooser, PDFs and images only, several
+/// at once.
+Future<List<PickedFile>> pickDocumentFiles(
+  PhotoStore store,
+  String kind,
+) async {
+  final picked = await FilePicker.pickFiles(
     type: FileType.custom,
     allowedExtensions: _contentTypes.keys.toList(),
   );
-  if (picked == null) return null;
-  final type = _contentTypes[picked.name.split('.').last.toLowerCase()];
-  if (type == null) return null;
-  if ((await picked.length() ?? 0) > maxUploadBytes) {
-    throw const FileTooLargeException();
+  final files = <PickedFile>[];
+  for (final p in picked) {
+    final type = _contentTypes[p.name.split('.').last.toLowerCase()];
+    if (type == null) continue;
+    if ((await p.length() ?? 0) > maxUploadBytes) {
+      throw FileTooLargeException(p.name);
+    }
+    final bytes = await p.readAsBytes();
+    if (bytes.length > maxUploadBytes) throw FileTooLargeException(p.name);
+    final id = const Uuid().v4();
+    files.add(
+      PickedFile(
+        name: p.name,
+        file: CapturedPhoto(
+          id: id,
+          kind: kind,
+          path: await store.save(id, bytes),
+          sha256: sha256Of(bytes),
+          byteSize: bytes.length,
+          contentType: type,
+          capturedAt: DateTime.now(),
+        ),
+      ),
+    );
   }
-  final bytes = await picked.readAsBytes();
-  if (bytes.length > maxUploadBytes) throw const FileTooLargeException();
-  final id = const Uuid().v4();
-  return PickedFile(
-    name: picked.name,
-    file: CapturedPhoto(
-      id: id,
-      kind: kind,
-      path: await store.save(id, bytes),
-      sha256: sha256Of(bytes),
-      byteSize: bytes.length,
-      contentType: type,
-      capturedAt: DateTime.now(),
-    ),
-  );
+  return files;
 }

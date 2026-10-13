@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { Document, DocType } from '@taxcy/contracts';
+import type { Document, DocumentFile, DocType } from '@taxcy/contracts';
 import type { Prisma, TenantTx } from '@taxcy/db';
 import {
   daysUntil,
@@ -30,7 +30,13 @@ export interface DocumentDetails {
   validFrom?: Date | undefined;
   expiresOn: Date;
   mediaId?: string | undefined;
+  mediaIds?: string[] | undefined;
 }
+
+/** The document's files in order, from mediaIds or the older single mediaId. */
+const fileIds = (input: DocumentDetails): string[] => [
+  ...new Set(input.mediaIds ?? (input.mediaId ? [input.mediaId] : [])),
+];
 
 @Injectable()
 export class DocumentsService {
@@ -68,8 +74,8 @@ export class DocumentsService {
       },
       orderBy: [{ expiresOn: 'asc' }],
     });
-    const types = await this.contentTypes(tx, rows);
-    return rows.map((r) => this.toDocument(r, today, audit.docAlertDays, types));
+    const files = await this.filesFor(tx, rows);
+    return rows.map((r) => this.toDocument(r, today, audit.docAlertDays, files));
   }
 
   async create(
@@ -104,7 +110,8 @@ export class DocumentsService {
     ) {
       throw notFound('Driver');
     }
-    await this.assertMedia(tx, input.mediaId);
+    const files = fileIds(input);
+    for (const mediaId of files) await this.assertMedia(tx, mediaId);
     const row = await tx.document.create({
       data: {
         id: newId(),
@@ -115,9 +122,10 @@ export class DocumentsService {
         number: input.number ?? null,
         validFrom: input.validFrom ?? null,
         expiresOn: input.expiresOn,
-        mediaId: input.mediaId ?? null,
+        mediaId: files[0] ?? null,
       },
     });
+    await this.saveFiles(tx, row.id, files);
     await this.evaluateAlerts(tx, row);
     return this.present(tx, row);
   }
@@ -127,7 +135,8 @@ export class DocumentsService {
     const old = await tx.document.findFirst({ where: { id, orgId: tx.orgId } });
     if (!old) throw notFound('Document');
     if (old.supersededBy) throw new AppError('CONFLICT', 'This document has already been renewed');
-    await this.assertMedia(tx, input.mediaId);
+    const files = fileIds(input);
+    for (const mediaId of files) await this.assertMedia(tx, mediaId);
     const row = await tx.document.create({
       data: {
         id: newId(),
@@ -138,9 +147,10 @@ export class DocumentsService {
         number: input.number ?? old.number,
         validFrom: input.validFrom ?? null,
         expiresOn: input.expiresOn,
-        mediaId: input.mediaId ?? null,
+        mediaId: files[0] ?? null,
       },
     });
+    await this.saveFiles(tx, row.id, files);
     await tx.document.update({ where: { id: old.id }, data: { supersededBy: row.id } });
     await this.alerts.autoResolvePrefix(tx, dedupePrefix(old.id));
     await this.evaluateAlerts(tx, row);
@@ -215,32 +225,65 @@ export class DocumentsService {
     }
   }
 
-  /** Content types of the documents' files, by media id. */
-  private async contentTypes(
+  private async saveFiles(tx: TenantTx, documentId: string, mediaIds: readonly string[]) {
+    if (!mediaIds.length) return;
+    await tx.documentFile.createMany({
+      data: mediaIds.map((mediaId, position) => ({
+        orgId: tx.orgId,
+        documentId,
+        mediaId,
+        position,
+      })),
+    });
+  }
+
+  /** Each document's files in order, with their content types, by document id. */
+  private async filesFor(
     tx: TenantTx,
     rows: readonly DocumentRow[],
-  ): Promise<Map<string, string>> {
-    const ids = rows.flatMap((r) => (r.mediaId ? [r.mediaId] : []));
-    if (!ids.length) return new Map();
+  ): Promise<Map<string, DocumentFile[]>> {
+    if (!rows.length) return new Map();
+    const links = await tx.documentFile.findMany({
+      where: { orgId: tx.orgId, documentId: { in: rows.map((r) => r.id) } },
+      orderBy: [{ documentId: 'asc' }, { position: 'asc' }],
+    });
+    // A document saved before files existed only has documents.media_id.
+    const linked = new Set(links.map((f) => f.documentId));
+    const all = [
+      ...links.map((f) => ({ documentId: f.documentId, mediaId: f.mediaId })),
+      ...rows.flatMap((r) =>
+        r.mediaId && !linked.has(r.id) ? [{ documentId: r.id, mediaId: r.mediaId }] : [],
+      ),
+    ];
     const media = await tx.mediaObject.findMany({
-      where: { id: { in: ids }, orgId: tx.orgId },
+      where: { orgId: tx.orgId, id: { in: all.map((f) => f.mediaId) } },
       select: { id: true, contentType: true },
     });
-    return new Map(media.map((m) => [m.id, m.contentType]));
+    const types = new Map(media.map((m) => [m.id, m.contentType]));
+    const byDocument = new Map<string, DocumentFile[]>();
+    for (const f of all) {
+      const contentType = types.get(f.mediaId);
+      if (!contentType) continue;
+      const list = byDocument.get(f.documentId) ?? [];
+      list.push({ mediaId: f.mediaId, contentType });
+      byDocument.set(f.documentId, list);
+    }
+    return byDocument;
   }
 
   private async present(tx: TenantTx, row: DocumentRow): Promise<Document> {
     const { audit } = await this.settings.get(tx);
-    const types = await this.contentTypes(tx, [row]);
-    return this.toDocument(row, istBusinessDate(new Date()), audit.docAlertDays, types);
+    const files = await this.filesFor(tx, [row]);
+    return this.toDocument(row, istBusinessDate(new Date()), audit.docAlertDays, files);
   }
 
   private toDocument(
     row: DocumentRow,
     today: string,
     alertDays: readonly number[],
-    contentTypes: ReadonlyMap<string, string>,
+    filesByDocument: ReadonlyMap<string, DocumentFile[]>,
   ): Document {
+    const files = filesByDocument.get(row.id) ?? [];
     const daysLeft = daysUntil(isoDate(row.expiresOn), today);
     const status = row.supersededBy
       ? 'superseded'
@@ -257,8 +300,9 @@ export class DocumentsService {
       number: row.number,
       validFrom: row.validFrom,
       expiresOn: row.expiresOn,
-      mediaId: row.mediaId,
-      mediaContentType: row.mediaId ? (contentTypes.get(row.mediaId) ?? null) : null,
+      mediaId: files[0]?.mediaId ?? row.mediaId,
+      mediaContentType: files[0]?.contentType ?? null,
+      files,
       supersededBy: row.supersededBy,
       daysLeft,
       status,

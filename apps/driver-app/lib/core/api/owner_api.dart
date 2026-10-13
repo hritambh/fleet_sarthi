@@ -149,11 +149,14 @@ abstract class OwnerApi {
   Future<DashboardSummary> dashboard(String date);
 
   // Alerts and review
+  /// Each filter is one value or a comma-separated list (any of them).
   Future<List<Alert>> alerts({
     String? status,
     String? kind,
-    String? tripId,
+    String? severity,
     String? vehicleId,
+    String? driverId,
+    String? tripId,
     int limit = 200,
   });
   Future<AlertSummary> alertSummary();
@@ -507,14 +510,18 @@ class HttpOwnerApi implements OwnerApi {
   Future<List<Alert>> alerts({
     String? status,
     String? kind,
-    String? tripId,
+    String? severity,
     String? vehicleId,
+    String? driverId,
+    String? tripId,
     int limit = 200,
   }) async => (await _list('/alerts', {
     'status': ?status,
     'kind': ?kind,
-    'tripId': ?tripId,
+    'severity': ?severity,
     'vehicleId': ?vehicleId,
+    'driverId': ?driverId,
+    'tripId': ?tripId,
     'limit': '$limit',
   })).map(Alert.fromJson).toList();
 

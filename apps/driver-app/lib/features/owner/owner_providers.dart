@@ -116,13 +116,49 @@ final dashboardSummaryProvider = FutureProvider.autoDispose
       (ref, date) => ref.watch(ownerApiProvider).dashboard(date),
     );
 
-typedef AlertQuery = ({String? status, String? kind, String? tripId});
+/// Alert filters; each is null or a sorted comma-separated list (see
+/// [alertQuery]), so equal filters share one provider.
+typedef AlertQuery = ({
+  String? status,
+  String? kind,
+  String? severity,
+  String? vehicleId,
+  String? driverId,
+  String? tripId,
+});
+
+AlertQuery alertQuery({
+  Set<String> statuses = const {},
+  Set<String> kinds = const {},
+  Set<String> severities = const {},
+  Set<String> vehicleIds = const {},
+  Set<String> driverIds = const {},
+  String? tripId,
+}) {
+  String? csv(Set<String> values) =>
+      values.isEmpty ? null : (values.toList()..sort()).join(',');
+  return (
+    status: csv(statuses),
+    kind: csv(kinds),
+    severity: csv(severities),
+    vehicleId: csv(vehicleIds),
+    driverId: csv(driverIds),
+    tripId: tripId,
+  );
+}
 
 final alertsProvider = FutureProvider.autoDispose
     .family<List<Alert>, AlertQuery>(
       (ref, q) => ref
           .watch(ownerApiProvider)
-          .alerts(status: q.status, kind: q.kind, tripId: q.tripId),
+          .alerts(
+            status: q.status,
+            kind: q.kind,
+            severity: q.severity,
+            vehicleId: q.vehicleId,
+            driverId: q.driverId,
+            tripId: q.tripId,
+          ),
     );
 
 final alertSummaryProvider = FutureProvider.autoDispose<AlertSummary>(

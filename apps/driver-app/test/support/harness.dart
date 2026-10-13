@@ -50,18 +50,20 @@ class Harness {
   final photoStore = MemoryPhotoStore();
 
   /// What "Upload file" picks: a PDF by default; null makes it too large.
-  PickedFile? Function(String kind)? pickFile = (kind) => PickedFile(
-    name: 'insurance.pdf',
-    file: CapturedPhoto(
-      id: 'picked-$kind',
-      kind: kind,
-      path: '/photos/picked-$kind',
-      sha256: 'b' * 64,
-      byteSize: 2048,
-      contentType: 'application/pdf',
-      capturedAt: DateTime.utc(2026, 10, 9, 3),
+  List<PickedFile> Function(String kind)? pickFile = (kind) => [
+    PickedFile(
+      name: 'insurance.pdf',
+      file: CapturedPhoto(
+        id: 'picked-$kind',
+        kind: kind,
+        path: '/photos/picked-$kind',
+        sha256: 'b' * 64,
+        byteSize: 2048,
+        contentType: 'application/pdf',
+        capturedAt: DateTime.utc(2026, 10, 9, 3),
+      ),
     ),
-  );
+  ];
 
   /// URLs the app asked to open outside itself (WhatsApp links), in order.
   final openedUrls = <Uri>[];
@@ -99,7 +101,7 @@ class Harness {
       ),
       filePickProvider.overrideWithValue((kind) async {
         final next = pickFile;
-        if (next == null) throw const FileTooLargeException();
+        if (next == null) throw const FileTooLargeException('big-scan.pdf');
         return next(kind);
       }),
     ],

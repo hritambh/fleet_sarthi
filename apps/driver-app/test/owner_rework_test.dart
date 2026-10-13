@@ -6,6 +6,7 @@ import 'package:taxcy_driver/core/api/models.dart';
 import 'package:taxcy_driver/features/owner/alerts_screen.dart';
 import 'package:taxcy_driver/features/owner/analytics_screen.dart';
 import 'package:taxcy_driver/features/owner/dashboard_screen.dart';
+import 'package:taxcy_driver/features/owner/trips/create_trip_screen.dart';
 import 'package:taxcy_driver/features/owner/trips/owner_trip_detail_screen.dart';
 import 'package:taxcy_driver/features/owner/trips/trip_share.dart';
 import 'package:taxcy_driver/features/owner/vehicles_screen.dart';
@@ -72,7 +73,7 @@ void main() {
       await tester.tap(find.byKey(const Key('alerts-bell')).hitTestable());
       await settle(tester);
       expect(find.byKey(const Key('alerts-inbox')), findsOneWidget);
-      expect(find.byKey(const Key('alert-status-filter')), findsOneWidget);
+      expect(find.byKey(const Key('alert-filters')), findsOneWidget);
 
       await tester.tap(find.byKey(const Key('tab-review')));
       await settle(tester);
@@ -115,6 +116,106 @@ void main() {
       await tester.tap(find.byKey(const Key('kpi-unassigned')));
       await settle(tester);
       expect(h.owner.last('trips').args['status'], 'created');
+    });
+
+    testWidgets('only the headline cards, hub, rides and open alerts', (
+      tester,
+    ) async {
+      final h = await owner(tester);
+      await tester.pumpWidget(
+        h.screen(DashboardScreen(onOpenTrips: () {}, now: now)),
+      );
+      await settle(tester);
+      expect(find.byKey(const Key('quick-ops')), findsOneWidget);
+      expect(find.text('Quick Operations Hub'), findsOneWidget);
+      for (final b in ['add-trip', 'tag-driver', 'add-driver', 'add-cab']) {
+        expect(find.byKey(Key('quick-$b')), findsOneWidget, reason: b);
+      }
+      expect(find.byKey(const Key('scheduled-rides')), findsOneWidget);
+      for (final gone in [
+        'Today’s trips',
+        'Needs your attention',
+        'Documents due soon',
+      ]) {
+        expect(find.text(gone), findsNothing, reason: gone);
+      }
+      // The hub sits right below the four headline cards.
+      expect(
+        tester.getTopLeft(find.byKey(const Key('quick-ops'))).dy,
+        greaterThan(
+          tester.getBottomLeft(find.byKey(const Key('kpi-completed'))).dy,
+        ),
+      );
+      expect(
+        tester.getTopLeft(find.byKey(const Key('quick-ops'))).dy,
+        lessThan(
+          tester.getTopLeft(find.byKey(const Key('scheduled-rides'))).dy,
+        ),
+      );
+    });
+
+    for (final (button, opens) in [
+      ('add-cab', find.byType(VehicleFormScreen)),
+      ('add-trip', find.byType(CreateTripScreen)),
+      ('add-driver', find.byKey(const Key('invite-phone'))),
+    ]) {
+      testWidgets('hub $button opens its form', (tester) async {
+        final h = await owner(tester);
+        await tester.pumpWidget(
+          h.screen(DashboardScreen(onOpenTrips: () {}, now: now)),
+        );
+        await settle(tester);
+        await tester.tap(find.byKey(Key('quick-$button')));
+        await settle(tester);
+        expect(opens, findsOneWidget);
+      });
+    }
+
+    testWidgets('rides of the day: cab and driver, or an Assign button', (
+      tester,
+    ) async {
+      final h = await owner(tester);
+      const assigned = '0199c7a2-0000-7000-8000-0000000006a1';
+      const cancelled = '0199c7a2-0000-7000-8000-0000000006a2';
+      const waiting = '0199c7a2-0000-7000-8000-000000000001';
+      h.owner.tripsById
+        ..[assigned] = tripJson(id: assigned)
+        ..[cancelled] = tripJson(id: cancelled, status: 'cancelled');
+      await tester.pumpWidget(
+        h.screen(DashboardScreen(onOpenTrips: () {}, now: now)),
+      );
+      await settle(tester);
+      for (final id in [assigned, cancelled, waiting]) {
+        expect(find.byKey(ValueKey('ride-$id')), findsOneWidget, reason: id);
+      }
+      expect(find.text('Innova Crysta · MH 12 AB 1234'), findsNWidgets(2));
+      final driver = tester.widget<Text>(
+        find.byKey(const ValueKey('ride-driver-$assigned')),
+      );
+      expect(driver.data, startsWith('Ramesh Kumar · '));
+      expect(driver.data, contains('00011'));
+      expect(find.byKey(const ValueKey('ride-assign-$assigned')), findsNothing);
+
+      await tester.tap(find.byKey(const ValueKey('ride-assign-$waiting')));
+      await settle(tester);
+      expect(find.byType(AssignDialog), findsOneWidget);
+    });
+
+    testWidgets('Tag Driver picks a waiting trip, then assigns it', (
+      tester,
+    ) async {
+      final h = await owner(tester);
+      const waiting = '0199c7a2-0000-7000-8000-000000000001';
+      await tester.pumpWidget(
+        h.screen(DashboardScreen(onOpenTrips: () {}, now: now)),
+      );
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('quick-tag-driver')));
+      await settle(tester);
+      expect(h.owner.last('trips').args['status'], 'created');
+      await tester.tap(find.byKey(const ValueKey('tag-trip-$waiting')));
+      await settle(tester);
+      expect(find.byType(AssignDialog), findsOneWidget);
     });
   });
 

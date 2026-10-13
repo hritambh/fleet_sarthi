@@ -3006,4 +3006,88 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get noTripsHint =>
       'When your fleet owner assigns a trip, it shows up here. Pull down to refresh, or start one yourself.';
+
+  @override
+  String get detailsTab => 'Details';
+
+  @override
+  String get documentFiles => 'Files (photos or PDFs)';
+
+  @override
+  String photoNumber({required int number}) {
+    return 'Photo $number';
+  }
+
+  @override
+  String tooManyFiles({required int count}) {
+    return 'A document can have up to $count files.';
+  }
+
+  @override
+  String fileTooLargeNamed({required String name}) {
+    return '$name is larger than 15 MB.';
+  }
+
+  @override
+  String get uploadFiles => 'Upload files';
+
+  @override
+  String viewFiles({required int count}) {
+    return 'View files ($count)';
+  }
+
+  @override
+  String get open => 'Open';
+
+  @override
+  String get filters => 'Filters';
+
+  @override
+  String filtersCount({required int count}) {
+    return 'Filters ($count)';
+  }
+
+  @override
+  String get clearAll => 'Clear all';
+
+  @override
+  String get apply => 'Apply';
+
+  @override
+  String get severity => 'Severity';
+
+  @override
+  String get alertKindTitle => 'Type';
+
+  @override
+  String get quickOpsHub => 'Quick Operations Hub';
+
+  @override
+  String get fastDispatch => 'FAST-DISPATCH';
+
+  @override
+  String get addTrip => 'Add Trip';
+
+  @override
+  String get tagDriver => 'Tag Driver';
+
+  @override
+  String get addDriverQuick => '+ Add Driver';
+
+  @override
+  String get addCabQuick => '+ Add Cab';
+
+  @override
+  String get scheduledRides => 'Scheduled rides';
+
+  @override
+  String scheduledRidesOn({required String date}) {
+    return 'Scheduled rides · $date';
+  }
+
+  @override
+  String get noTripsWaiting => 'No trips waiting for a driver.';
+
+  @override
+  String get pickTripToAssign => 'Pick a trip to assign';
 }

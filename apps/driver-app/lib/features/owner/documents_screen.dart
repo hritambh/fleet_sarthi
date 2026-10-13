@@ -4,11 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../core/api/owner_models.dart';
-import '../../core/media/captured_photo.dart';
 import '../../core/media/file_pick.dart';
 import '../../core/media/upload_now.dart';
 import '../common/format.dart';
-import '../common/widgets.dart';
 import 'owner_providers.dart';
 import 'owner_text.dart';
 import 'owner_widgets.dart';
@@ -123,18 +121,30 @@ class DocumentsList extends ConsumerWidget {
 
   Widget _menu(BuildContext context, WidgetRef ref, FleetDocument d) {
     final l = context.l10n;
+    final files = d.files;
     return PopupMenuButton<String>(
       key: ValueKey('document-menu-${d.id}'),
       onSelected: (action) => switch (action) {
-        'view' => d.isPdf ? _openPdf(context, ref, d) : _view(context, d),
+        'view' =>
+          files.length > 1
+              ? _viewAll(context, ref, d)
+              : files.single.isPdf
+              ? openDocumentFile(context, ref, files.single)
+              : _viewPhoto(context, d, files.single),
         _ => openScreen<void>(context, DocumentFormScreen(renewing: d)),
       },
       itemBuilder: (_) => [
-        if (d.mediaId != null)
+        if (files.isNotEmpty)
           PopupMenuItem(
             key: const Key('document-view'),
             value: 'view',
-            child: Text(d.isPdf ? l.viewDocument : l.viewPhoto),
+            child: Text(
+              files.length > 1
+                  ? l.viewFiles(count: files.length)
+                  : files.single.isPdf
+                  ? l.viewDocument
+                  : l.viewPhoto,
+            ),
           ),
         if (d.status != 'superseded')
           PopupMenuItem(value: 'renew', child: Text(l.renew)),
@@ -142,28 +152,18 @@ class DocumentsList extends ConsumerWidget {
     );
   }
 
-  /// PDFs open outside the app: a new browser tab, or the phone's PDF viewer.
-  Future<void> _openPdf(
+  Future<void> _viewPhoto(
     BuildContext context,
-    WidgetRef ref,
     FleetDocument d,
-  ) async {
-    final messenger = ScaffoldMessenger.of(context);
-    final unavailable = context.l10n.documentUnavailable;
-    try {
-      final media = await ref.read(mediaUrlProvider(d.mediaId!).future);
-      final opened = await ref.read(urlOpenerProvider)(Uri.parse(media.url));
-      if (!opened) throw StateError('not opened');
-    } on Object {
-      messenger.showSnackBar(SnackBar(content: Text(unavailable)));
-    }
-  }
-
-  Future<void> _view(BuildContext context, FleetDocument d) => showDialog<void>(
+    DocumentFile file,
+  ) => showDialog<void>(
     context: context,
     builder: (dialog) => AlertDialog(
       title: Text(docTypeLabel(dialog.l10n, d.docType)),
-      content: SizedBox(width: 480, child: MediaPhoto(d.mediaId!, height: 420)),
+      content: SizedBox(
+        width: 480,
+        child: MediaPhoto(file.mediaId, height: 420),
+      ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(dialog).pop(),
@@ -172,7 +172,75 @@ class DocumentsList extends ConsumerWidget {
       ],
     ),
   );
+
+  /// Every file of [d]: photos inline, PDFs as rows that open outside the app.
+  Future<void> _viewAll(BuildContext context, WidgetRef ref, FleetDocument d) =>
+      showDialog<void>(
+        context: context,
+        builder: (dialog) {
+          final l = dialog.l10n;
+          return AlertDialog(
+            key: const Key('document-files-dialog'),
+            title: Text(docTypeLabel(l, d.docType)),
+            content: SizedBox(
+              width: 520,
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  for (final (i, f) in d.files.indexed)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: f.isPdf
+                          ? ListTile(
+                              key: ValueKey('document-pdf-$i'),
+                              contentPadding: EdgeInsets.zero,
+                              leading: Icon(
+                                Icons.picture_as_pdf,
+                                color: Colors.red.shade700,
+                              ),
+                              title: Text(l.pdfDocument),
+                              trailing: TextButton(
+                                onPressed: () =>
+                                    openDocumentFile(dialog, ref, f),
+                                child: Text(l.open),
+                              ),
+                            )
+                          : MediaPhoto(f.mediaId, height: 300),
+                    ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialog).pop(),
+                child: Text(l.close),
+              ),
+            ],
+          );
+        },
+      );
 }
+
+/// Opens a document's PDF outside the app: a new browser tab, or the phone's
+/// PDF viewer.
+Future<void> openDocumentFile(
+  BuildContext context,
+  WidgetRef ref,
+  DocumentFile file,
+) async {
+  final messenger = ScaffoldMessenger.of(context);
+  final unavailable = context.l10n.documentUnavailable;
+  try {
+    final media = await ref.read(mediaUrlProvider(file.mediaId).future);
+    final opened = await ref.read(urlOpenerProvider)(Uri.parse(media.url));
+    if (!opened) throw StateError('not opened');
+  } on Object {
+    messenger.showSnackBar(SnackBar(content: Text(unavailable)));
+  }
+}
+
+/// Most files one document holds (MAX_DOCUMENT_FILES in libs/contracts).
+const maxDocumentFiles = 10;
 
 class DocumentStatusChip extends StatelessWidget {
   const DocumentStatusChip(this.doc, {super.key});
@@ -253,26 +321,45 @@ class _DocumentFormScreenState extends ConsumerState<DocumentFormScreen> {
   late String? _driverId = widget.driverId;
   String? _validFrom;
   String? _expiresOn;
-  CapturedPhoto? _photo;
 
-  /// A PDF or image picked from files, instead of a camera photo.
-  PickedFile? _file;
+  /// Photos taken and files picked, in order; uploaded on save.
+  final _files = <PickedFile>[];
   String? _problem;
   bool _busy = false;
 
   bool get _forDriver => _docType == 'driving_licence';
+  bool get _full => _files.length >= maxDocumentFiles;
 
-  Future<void> _pickFile() async {
+  void _add(Iterable<PickedFile> files) {
+    final room = maxDocumentFiles - _files.length;
+    setState(() {
+      _files.addAll(files.take(room));
+      _problem = files.length > room
+          ? context.l10n.tooManyFiles(count: maxDocumentFiles)
+          : null;
+    });
+  }
+
+  Future<void> _takePhoto() async {
+    final photo = await ref.read(photoCaptureProvider)(context, 'document');
+    if (photo == null || !mounted) return;
+    _add([
+      PickedFile(
+        file: photo,
+        name: context.l10n.photoNumber(number: _files.length + 1),
+      ),
+    ]);
+  }
+
+  Future<void> _pickFiles() async {
     try {
       final picked = await ref.read(filePickProvider)('document');
-      if (picked == null || !mounted) return;
-      setState(() {
-        _file = picked;
-        _photo = null;
-        _problem = null;
-      });
-    } on FileTooLargeException {
-      if (mounted) setState(() => _problem = context.l10n.fileTooLarge);
+      if (picked.isEmpty || !mounted) return;
+      _add(picked);
+    } on FileTooLargeException catch (e) {
+      if (mounted) {
+        setState(() => _problem = context.l10n.fileTooLargeNamed(name: e.name));
+      }
     }
   }
 
@@ -306,21 +393,21 @@ class _DocumentFormScreenState extends ConsumerState<DocumentFormScreen> {
     });
     final navigator = Navigator.of(context);
     final ok = await runAction(context, () async {
-      String? mediaId;
-      final photo = _file?.file ?? _photo;
-      if (photo != null) {
-        mediaId = await uploadPhotoNow(
-          ref.read(apiProvider),
-          photo,
-          readBytes: ref.read(photoStoreProvider).read,
-          deviceId: await ref.read(sessionStoreProvider).deviceId(),
-        );
-      }
+      final deviceId = await ref.read(sessionStoreProvider).deviceId();
+      final mediaIds = [
+        for (final f in _files)
+          await uploadPhotoNow(
+            ref.read(apiProvider),
+            f.file,
+            readBytes: ref.read(photoStoreProvider).read,
+            deviceId: deviceId,
+          ),
+      ];
       final details = {
         'expiresOn': _expiresOn,
         if (_number.text.trim().isNotEmpty) 'number': _number.text.trim(),
         'validFrom': ?_validFrom,
-        'mediaId': ?mediaId,
+        if (mediaIds.isNotEmpty) 'mediaIds': mediaIds,
       };
       final api = ref.read(ownerApiProvider);
       if (renewing != null) {
@@ -425,51 +512,49 @@ class _DocumentFormScreenState extends ConsumerState<DocumentFormScreen> {
                   },
                 ),
                 const SizedBox(height: 12),
-                if (_file == null)
-                  PhotoField(
-                    kind: 'document',
-                    label: l.documentPhotoOptional,
-                    photo: _photo,
-                    onChanged: (p) => setState(() {
-                      _photo = p;
-                      _file = null;
-                    }),
-                  )
-                else
+                Text(
+                  l.documentFiles,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                const SizedBox(height: 4),
+                for (final (i, f) in _files.indexed)
                   Card(
-                    margin: EdgeInsets.zero,
+                    margin: const EdgeInsets.only(bottom: 6),
                     child: ListTile(
-                      key: const Key('document-file'),
+                      key: ValueKey('document-file-$i'),
                       leading: Icon(
-                        _file!.isPdf
-                            ? Icons.picture_as_pdf
-                            : Icons.image_outlined,
-                        color: _file!.isPdf ? Colors.red.shade700 : null,
+                        f.isPdf ? Icons.picture_as_pdf : Icons.image_outlined,
+                        color: f.isPdf ? Colors.red.shade700 : null,
                       ),
-                      title: Text(_file!.name, overflow: TextOverflow.ellipsis),
-                      subtitle: Text(
-                        _file!.isPdf ? l.pdfDocument : l.imageFile,
-                      ),
+                      title: Text(f.name, overflow: TextOverflow.ellipsis),
+                      subtitle: Text(f.isPdf ? l.pdfDocument : l.imageFile),
                       trailing: IconButton(
-                        key: const Key('document-file-remove'),
+                        key: ValueKey('document-file-remove-$i'),
                         tooltip: l.remove,
                         icon: const Icon(Icons.close),
-                        onPressed: () => setState(() => _file = null),
+                        onPressed: () => setState(() => _files.removeAt(i)),
                       ),
                     ),
                   ),
-                const SizedBox(height: 8),
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: OutlinedButton.icon(
-                    key: const Key('document-upload-file'),
-                    onPressed: _busy ? null : _pickFile,
-                    icon: const Icon(Icons.upload_file),
-                    label: Text(
-                      _file == null ? l.uploadFile : l.chooseOtherFile,
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    OutlinedButton.icon(
+                      key: const Key('document-take-photo'),
+                      onPressed: _busy || _full ? null : _takePhoto,
+                      icon: const Icon(Icons.photo_camera_outlined),
+                      label: Text(l.takePhoto),
                     ),
-                  ),
+                    OutlinedButton.icon(
+                      key: const Key('document-upload-file'),
+                      onPressed: _busy || _full ? null : _pickFiles,
+                      icon: const Icon(Icons.upload_file),
+                      label: Text(l.uploadFiles),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 4),
                 Text(
                   l.uploadFileHint,
                   style: Theme.of(context).textTheme.bodySmall,
