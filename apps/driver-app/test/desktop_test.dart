@@ -104,6 +104,17 @@ void main() {
     expect(find.byKey(const ValueKey('vehicle-$vehicleId')), findsOneWidget);
   });
 
+  testWidgets('the logo and name go back to the dashboard', (tester) async {
+    await desktop(tester);
+    await tester.tap(find.byKey(const Key('side-vehicles')));
+    await settle(tester);
+    expect(find.byKey(const Key('kpi-cabs')), findsNothing);
+
+    await tester.tap(find.text('Fleet Sarthi'));
+    await settle(tester);
+    expect(find.byKey(const Key('kpi-cabs')), findsOneWidget);
+  });
+
   testWidgets('trips are a table with the new-trip button in the header', (
     tester,
   ) async {
