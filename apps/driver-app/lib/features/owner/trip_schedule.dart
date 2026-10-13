@@ -11,20 +11,24 @@ import 'owner_text.dart';
 import 'owner_widgets.dart';
 import 'trips/owner_trips_screen.dart';
 
-/// A vehicle's trips on a month calendar: days with bookings are marked,
-/// tapping a day lists its trips. Days are IST calendar days.
-class VehicleSchedule extends ConsumerStatefulWidget {
-  const VehicleSchedule({required this.vehicleId, this.now, super.key});
-  final String vehicleId;
+/// A vehicle's or a driver's trips on a month calendar: booked (unavailable)
+/// days are red, tapping a day lists its trips. Days are IST calendar days.
+class TripSchedule extends ConsumerStatefulWidget {
+  const TripSchedule({this.vehicleId, this.driverId, this.now, super.key})
+    : assert((vehicleId == null) != (driverId == null));
+
+  /// Exactly one of the two.
+  final String? vehicleId;
+  final String? driverId;
 
   /// Today, for tests; defaults to the clock.
   final DateTime? now;
 
   @override
-  ConsumerState<VehicleSchedule> createState() => _VehicleScheduleState();
+  ConsumerState<TripSchedule> createState() => _TripScheduleState();
 }
 
-class _VehicleScheduleState extends ConsumerState<VehicleSchedule> {
+class _TripScheduleState extends ConsumerState<TripSchedule> {
   late final String _today = istToday(widget.now);
   late DateTime _month = _firstOf(DateTime.parse(_today));
   late String _selected = _today;
@@ -39,6 +43,7 @@ class _VehicleScheduleState extends ConsumerState<VehicleSchedule> {
   /// Trips overlapping the month, IST bounds.
   TripFilter get _filter => TripFilter(
     vehicleId: widget.vehicleId,
+    driverId: widget.driverId,
     from: istDayRange(_iso(_month)).$1,
     to: istDayRange(_iso(DateTime(_month.year, _month.month + 1))).$1,
     overlapping: true,
@@ -189,11 +194,11 @@ class _MonthGrid extends StatelessWidget {
       for (var d = 1; d <= days; d++)
         _DayCell(
           day: d,
-          iso: _VehicleScheduleState._iso(DateTime(month.year, month.month, d)),
+          iso: _TripScheduleState._iso(DateTime(month.year, month.month, d)),
           today: today,
           selected: selected,
           trips:
-              byDay[_VehicleScheduleState._iso(
+              byDay[_TripScheduleState._iso(
                 DateTime(month.year, month.month, d),
               )] ??
               const [],

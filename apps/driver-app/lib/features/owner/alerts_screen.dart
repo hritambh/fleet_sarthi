@@ -25,16 +25,70 @@ class AlertsScreen extends ConsumerStatefulWidget {
 }
 
 class _AlertsScreenState extends ConsumerState<AlertsScreen> {
-  String? _status = 'open';
-  String? _kind;
+  var _filters = const AlertFilters(statuses: {'open'});
 
-  AlertQuery get _query => (status: _status, kind: _kind, tripId: null);
+  AlertQuery get _query => alertQuery(
+    statuses: _filters.statuses,
+    kinds: _filters.kinds,
+    severities: _filters.severities,
+    vehicleIds: _filters.vehicleIds,
+    driverIds: _filters.driverIds,
+  );
+
+  Future<void> _edit() async {
+    final picked = await showAlertFilters(context, _filters);
+    if (picked != null) setState(() => _filters = picked);
+  }
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final alerts = ref.watch(alertsProvider(_query));
-    Widget box(Widget child) => SizedBox(width: 220, child: child);
+    final vehicles = ref.watch(fleetVehiclesProvider).value ?? const [];
+    final drivers = ref.watch(driversProvider).value ?? const [];
+    String vehicleName(String id) =>
+        vehicles
+            .where((v) => v.id == id)
+            .map((v) => formatRegistration(v.registrationNo))
+            .firstOrNull ??
+        l.vehicle;
+    String driverName(String id) =>
+        drivers.where((d) => d.id == id).map((d) => d.name).firstOrNull ??
+        l.driver;
+    final f = _filters;
+    // Each applied filter as a removable chip.
+    final chips = [
+      for (final s in f.statuses)
+        (
+          'status-$s',
+          alertStatusLabel(l, s),
+          () => f.copyWith(statuses: {...f.statuses}..remove(s)),
+        ),
+      for (final k in f.kinds)
+        (
+          'kind-$k',
+          alertKindLabel(l, k),
+          () => f.copyWith(kinds: {...f.kinds}..remove(k)),
+        ),
+      for (final s in f.severities)
+        (
+          'severity-$s',
+          severityLabel(l, s),
+          () => f.copyWith(severities: {...f.severities}..remove(s)),
+        ),
+      for (final id in f.vehicleIds)
+        (
+          'vehicle-$id',
+          vehicleName(id),
+          () => f.copyWith(vehicleIds: {...f.vehicleIds}..remove(id)),
+        ),
+      for (final id in f.driverIds)
+        (
+          'driver-$id',
+          driverName(id),
+          () => f.copyWith(driverIds: {...f.driverIds}..remove(id)),
+        ),
+    ];
     final body = RefreshPage(
       onRefresh: () => ref.refresh(alertsProvider(_query).future),
       children: [
@@ -43,51 +97,29 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            box(
-              DropdownButtonFormField<String?>(
-                key: const Key('alert-status-filter'),
-                initialValue: _status,
-                isExpanded: true,
-                decoration: InputDecoration(labelText: l.status, isDense: true),
-                items: [
-                  for (final s in const [
-                    'open',
-                    'acknowledged',
-                    'resolved',
-                    'dismissed',
-                  ])
-                    DropdownMenuItem<String?>(
-                      value: s,
-                      child: Text(alertStatusLabel(l, s)),
-                    ),
-                  DropdownMenuItem<String?>(child: Text(l.all)),
-                ],
-                onChanged: (v) => setState(() => _status = v),
+            FilledButton.tonalIcon(
+              key: const Key('alert-filters'),
+              onPressed: _edit,
+              icon: const Icon(Icons.filter_list),
+              label: Text(
+                chips.isEmpty ? l.filters : l.filtersCount(count: chips.length),
               ),
             ),
-            box(
-              DropdownButtonFormField<String?>(
-                initialValue: _kind,
-                isExpanded: true,
-                decoration: InputDecoration(
-                  labelText: l.allKinds,
-                  isDense: true,
-                ),
-                items: [
-                  DropdownMenuItem<String?>(child: Text(l.allKinds)),
-                  for (final k in Alert.kinds)
-                    DropdownMenuItem<String?>(
-                      value: k,
-                      child: Text(
-                        alertKindLabel(l, k),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                ],
-                onChanged: (v) => setState(() => _kind = v),
+            for (final (key, label, without) in chips)
+              InputChip(
+                key: ValueKey('filter-chip-$key'),
+                label: Text(label),
+                onDeleted: () => setState(() => _filters = without()),
               ),
-            ),
+            if (chips.isNotEmpty)
+              TextButton(
+                key: const Key('alert-filters-clear'),
+                onPressed: () =>
+                    setState(() => _filters = const AlertFilters()),
+                child: Text(l.clearAll),
+              ),
           ],
         ),
         const SizedBox(height: 8),
@@ -95,7 +127,11 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
           value: alerts,
           onRetry: () => ref.invalidate(alertsProvider(_query)),
           builder: (list) => list.isEmpty
-              ? EmptyState(_status == 'open' ? l.allClear : l.noAlertsMatch)
+              ? EmptyState(
+                  f == const AlertFilters(statuses: {'open'})
+                      ? l.allClear
+                      : l.noAlertsMatch,
+                )
               : Column(children: [for (final a in list) AlertCard(a)]),
         ),
       ],
@@ -104,6 +140,224 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(l.navAlerts)),
       body: body,
+    );
+  }
+}
+
+/// The alerts list's filters; each set means "any of these", empty means all.
+@immutable
+class AlertFilters {
+  const AlertFilters({
+    this.statuses = const {},
+    this.kinds = const {},
+    this.severities = const {},
+    this.vehicleIds = const {},
+    this.driverIds = const {},
+  });
+
+  final Set<String> statuses;
+  final Set<String> kinds;
+  final Set<String> severities;
+  final Set<String> vehicleIds;
+  final Set<String> driverIds;
+
+  AlertFilters copyWith({
+    Set<String>? statuses,
+    Set<String>? kinds,
+    Set<String>? severities,
+    Set<String>? vehicleIds,
+    Set<String>? driverIds,
+  }) => AlertFilters(
+    statuses: statuses ?? this.statuses,
+    kinds: kinds ?? this.kinds,
+    severities: severities ?? this.severities,
+    vehicleIds: vehicleIds ?? this.vehicleIds,
+    driverIds: driverIds ?? this.driverIds,
+  );
+
+  static bool _same(Set<String> a, Set<String> b) =>
+      a.length == b.length && a.containsAll(b);
+
+  @override
+  bool operator ==(Object other) =>
+      other is AlertFilters &&
+      _same(statuses, other.statuses) &&
+      _same(kinds, other.kinds) &&
+      _same(severities, other.severities) &&
+      _same(vehicleIds, other.vehicleIds) &&
+      _same(driverIds, other.driverIds);
+
+  @override
+  int get hashCode => Object.hash(
+    statuses.length,
+    kinds.length,
+    severities.length,
+    vehicleIds.length,
+    driverIds.length,
+  );
+}
+
+/// Opens the filter picker (a sheet on phones, a dialog on the desktop) and
+/// returns the new filters, or null when cancelled.
+Future<AlertFilters?> showAlertFilters(
+  BuildContext context,
+  AlertFilters current,
+) {
+  final sheet = _AlertFilterSheet(initial: current);
+  if (isDesktop(context)) {
+    return showDialog<AlertFilters>(
+      context: context,
+      builder: (_) =>
+          Dialog(child: SizedBox(width: 560, height: 640, child: sheet)),
+    );
+  }
+  return showModalBottomSheet<AlertFilters>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    builder: (_) => FractionallySizedBox(heightFactor: 0.85, child: sheet),
+  );
+}
+
+class _AlertFilterSheet extends ConsumerStatefulWidget {
+  const _AlertFilterSheet({required this.initial});
+  final AlertFilters initial;
+
+  @override
+  ConsumerState<_AlertFilterSheet> createState() => _AlertFilterSheetState();
+}
+
+class _AlertFilterSheetState extends ConsumerState<_AlertFilterSheet> {
+  late final _statuses = {...widget.initial.statuses};
+  late final _kinds = {...widget.initial.kinds};
+  late final _severities = {...widget.initial.severities};
+  late final _vehicles = {...widget.initial.vehicleIds};
+  late final _drivers = {...widget.initial.driverIds};
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final vehicles = ref.watch(fleetVehiclesProvider).value ?? const [];
+    final drivers = ref.watch(driversProvider).value ?? const [];
+    Widget group(
+      String key,
+      String title,
+      Set<String> chosen,
+      List<(String, String)> options,
+    ) => Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: Text(title, style: Theme.of(context).textTheme.titleSmall),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final (value, label) in options)
+                FilterChip(
+                  key: ValueKey('filter-$key-$value'),
+                  label: Text(label),
+                  selected: chosen.contains(value),
+                  onSelected: (on) => setState(
+                    () => on ? chosen.add(value) : chosen.remove(value),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 8, 0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l.filters,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+              TextButton(
+                key: const Key('alert-filters-reset'),
+                onPressed: () => setState(() {
+                  for (final s in [
+                    _statuses,
+                    _kinds,
+                    _severities,
+                    _vehicles,
+                    _drivers,
+                  ]) {
+                    s.clear();
+                  }
+                }),
+                child: Text(l.clearAll),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ListView(
+            children: [
+              group('status', l.status, _statuses, [
+                for (final s in const [
+                  'open',
+                  'acknowledged',
+                  'resolved',
+                  'dismissed',
+                ])
+                  (s, alertStatusLabel(l, s)),
+              ]),
+              group('severity', l.severity, _severities, [
+                for (final s in const ['critical', 'warning', 'info'])
+                  (s, severityLabel(l, s)),
+              ]),
+              group('kind', l.alertKindTitle, _kinds, [
+                for (final k in Alert.kinds) (k, alertKindLabel(l, k)),
+              ]),
+              group('vehicle', l.vehicles, _vehicles, [
+                for (final v in vehicles)
+                  (v.id, formatRegistration(v.registrationNo)),
+              ]),
+              group('driver', l.drivers, _drivers, [
+                for (final d in drivers) (d.id, d.name),
+              ]),
+              const SizedBox(height: 12),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(l.cancel),
+              ),
+              const SizedBox(width: 8),
+              FilledButton(
+                key: const Key('alert-filters-apply'),
+                onPressed: () => Navigator.of(context).pop(
+                  AlertFilters(
+                    statuses: _statuses,
+                    kinds: _kinds,
+                    severities: _severities,
+                    vehicleIds: _vehicles,
+                    driverIds: _drivers,
+                  ),
+                ),
+                child: Text(l.apply),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

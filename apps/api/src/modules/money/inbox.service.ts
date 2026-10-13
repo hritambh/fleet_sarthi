@@ -45,6 +45,10 @@ function toReview(row: Prisma.ReviewItemGetPayload<object>): ReviewItem {
   };
 }
 
+const SEVERITIES = ['info', 'warning', 'critical'] as const;
+const isSeverity = (s: string): s is (typeof SEVERITIES)[number] =>
+  (SEVERITIES as readonly string[]).includes(s);
+
 @Injectable()
 export class InboxService {
   constructor(private readonly db: Db) {}
@@ -52,20 +56,28 @@ export class InboxService {
   async alerts(
     auth: TenantAuth,
     q: {
-      status?: string | undefined;
-      kind?: string | undefined;
-      vehicleId?: string | undefined;
+      status?: readonly string[] | undefined;
+      kind?: readonly string[] | undefined;
+      severity?: readonly string[] | undefined;
+      vehicleId?: readonly string[] | undefined;
+      driverId?: readonly string[] | undefined;
       tripId?: string | undefined;
       limit: number;
     },
   ): Promise<Alert[]> {
+    // Vehicles and drivers together: alerts about any of the chosen ones.
+    const subjects = [
+      ...(q.vehicleId ? [{ vehicleId: { in: [...q.vehicleId] } }] : []),
+      ...(q.driverId ? [{ driverId: { in: [...q.driverId] } }] : []),
+    ];
     return this.db.tenant(auth.orgId, async (tx) => {
       const rows = await tx.alert.findMany({
         where: {
           orgId: tx.orgId,
-          ...(q.status ? { status: q.status } : {}),
-          ...(q.kind ? { kind: q.kind } : {}),
-          ...(q.vehicleId ? { vehicleId: q.vehicleId } : {}),
+          ...(q.status ? { status: { in: [...q.status] } } : {}),
+          ...(q.kind ? { kind: { in: [...q.kind] } } : {}),
+          ...(q.severity ? { severity: { in: q.severity.filter(isSeverity) } } : {}),
+          ...(subjects.length ? { OR: subjects } : {}),
           ...(q.tripId ? { tripId: q.tripId } : {}),
         },
         orderBy: { createdAt: 'desc' },

@@ -96,7 +96,7 @@ void main() {
         await tester.pumpWidget(h.wrap(const TaxcyDriverApp()));
         await settle(tester);
         expect(find.byKey(const Key('owner-nav')), findsOneWidget);
-        expect(find.text('Today’s trips'), findsOneWidget);
+        expect(find.text('Scheduled rides'), findsOneWidget);
         expect(find.text('My trips'), findsNothing);
       });
     }
@@ -168,7 +168,7 @@ void main() {
       await tester.pumpWidget(h.wrap(const TaxcyDriverApp()));
       await settle(tester);
       expect(find.text('डैशबोर्ड'), findsWidgets);
-      expect(find.text('आज की ट्रिप'), findsOneWidget);
+      expect(find.text('निर्धारित सवारियाँ'), findsOneWidget);
       // The open fuel alert, worded from its message code.
       expect(
         find.text(

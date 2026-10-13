@@ -200,11 +200,25 @@ export const AlertMessage = z.discriminatedUnion('key', [
 export type AlertMessage = z.infer<typeof AlertMessage>;
 
 export const AlertStatus = z.enum(['open', 'acknowledged', 'resolved', 'dismissed']);
+export const AlertSeverity = z.enum(['info', 'warning', 'critical']);
+
+/** A query value that is one item or a comma-separated list of them. */
+const csv = (item: z.ZodType<string>) =>
+  z.preprocess(
+    (v) =>
+      typeof v === 'string'
+        ? v
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : v,
+    z.array(item).min(1).max(50),
+  );
 
 export const Alert = z.object({
   id: Id,
   kind: AlertKind,
-  severity: z.enum(['info', 'warning', 'critical']),
+  severity: AlertSeverity,
   /** English fallback; prefer `message`. */
   title: z.string(),
   explanation: z.string(),
@@ -262,10 +276,15 @@ export const alertRoutes = {
     summary: 'Alerts inbox, newest first',
     tag: 'alerts',
     access: access.staff,
+    // Each filter takes one value or a comma-separated list ("open,acknowledged").
+    // Lists within a filter are ORed; filters are ANDed, except that vehicles and
+    // drivers together match alerts about any of them.
     query: z.object({
-      status: AlertStatus.optional(),
-      kind: AlertKind.optional(),
-      vehicleId: Id.optional(),
+      status: csv(AlertStatus).optional(),
+      kind: csv(AlertKind).optional(),
+      severity: csv(AlertSeverity).optional(),
+      vehicleId: csv(Id).optional(),
+      driverId: csv(Id).optional(),
       tripId: Id.optional(),
       limit: z.coerce.number().int().min(1).max(500).default(100),
     }),

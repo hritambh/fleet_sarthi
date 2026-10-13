@@ -64,6 +64,14 @@ void main() {
     expect(find.byKey(const Key('dashboard-day')), findsOneWidget);
     expect(find.byKey(const Key('alerts-bell')), findsOneWidget);
     expect(find.byKey(const Key('dashboard-new-trip')), findsOneWidget);
+    // The hub sits beside the scheduled rides, under the cards.
+    final hub = tester.getTopLeft(find.byKey(const Key('quick-ops')));
+    final rides = tester.getTopLeft(find.byKey(const Key('scheduled-rides')));
+    expect(hub.dx, greaterThan(rides.dx));
+    expect(
+      hub.dy,
+      greaterThan(tester.getBottomLeft(find.byKey(const Key('kpi-cabs'))).dy),
+    );
   });
 
   testWidgets('pages open inside the content area, beside the sidebar', (
@@ -156,7 +164,7 @@ void main() {
     await settle(tester);
     expect(find.byKey(const Key('alerts-inbox')), findsOneWidget);
     expect(find.byKey(const Key('owner-sidebar')), findsOneWidget);
-    expect(find.byKey(const Key('alert-status-filter')), findsOneWidget);
+    expect(find.byKey(const Key('alert-filters')), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('tab-review')));
     await settle(tester);

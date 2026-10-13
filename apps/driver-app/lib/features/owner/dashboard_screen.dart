@@ -3,18 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
 import '../../app/theme.dart';
+import '../../core/api/models.dart';
 import '../../core/api/owner_api.dart';
 import '../../core/api/owner_models.dart';
+import '../../l10n/app_localizations.dart';
 import '../common/format.dart';
 import '../common/magnetic_field_background.dart';
+import '../common/widgets.dart';
 import 'alerts_inbox.dart';
 import 'alerts_screen.dart';
-import 'documents_screen.dart';
 import 'owner_providers.dart';
 import 'owner_text.dart';
 import 'owner_widgets.dart';
 import 'people_screens.dart';
 import 'trips/create_trip_screen.dart';
+import 'trips/owner_trip_detail_screen.dart';
 import 'trips/owner_trips_screen.dart';
 import 'vehicles_screen.dart';
 
@@ -23,9 +26,10 @@ const _severityOrder = {'critical': 0, 'warning': 1, 'info': 2};
 enum _Day { today, yesterday, custom }
 
 /// A day at a glance: headline cards (cabs and drivers free right now, the
-/// unassigned queue, completed trips and gross fare), that day's trips, what
-/// needs attention, documents due and the most urgent open alerts. The date
-/// switch picks the day. On a desktop-sized screen: a greeting and two columns.
+/// unassigned queue, completed trips and gross fare), the quick operations hub
+/// (add a trip, driver or cab; assign a waiting trip), that day's scheduled
+/// rides and the most urgent open alerts. The date switch picks the day. On a
+/// desktop-sized screen: a greeting and two columns.
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({required this.onOpenTrips, this.now, super.key});
 
@@ -47,8 +51,7 @@ class DashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
-  static const _openAlerts = (status: 'open', kind: null, tripId: null);
-  static const _dueDocuments = DocumentsDueChip.dueQuery;
+  static final _openAlerts = alertQuery(statuses: {'open'});
 
   var _day = _Day.today;
   String? _custom;
@@ -85,22 +88,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final date = _date;
     final filter = DashboardScreen.dayFilter(date);
     final trips = ref.watch(ownerTripsProvider(filter));
-    final summary = ref.watch(alertSummaryProvider);
     final headline = ref.watch(dashboardSummaryProvider(date));
     final alerts = ref.watch(alertsProvider(_openAlerts));
-    final documents = ref.watch(documentsProvider(_dueDocuments));
     final desktop = isDesktop(context);
-    // Count tiles share a row evenly on the desktop; on phones they wrap.
-    Widget tiles(List<Widget> children) => desktop
-        ? Row(
-            children: [
-              for (var i = 0; i < children.length; i++) ...[
-                if (i > 0) const SizedBox(width: 8),
-                Expanded(child: children[i]),
-              ],
-            ],
-          )
-        : Wrap(spacing: 8, runSpacing: 8, children: children);
 
     final daySwitch = SegmentedButton<_Day>(
       key: const Key('dashboard-day'),
@@ -126,105 +116,34 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       builder: (s) => _HeadlineCards(s, onOpenTrips: widget.onOpenTrips),
     );
 
-    final todaysTrips = SectionCard(
+    const hub = _QuickOpsHub();
+
+    // Every trip of the day, cancelled ones too, in start order.
+    final rides = SectionCard(
+      key: const Key('scheduled-rides'),
       title: _day == _Day.today
-          ? l.todaysTrips
-          : l.tripsOnDay(date: fmt.calendarDate(date)),
+          ? l.scheduledRides
+          : l.scheduledRidesOn(date: fmt.calendarDate(date)),
       actions: [
         TextButton(onPressed: widget.onOpenTrips, child: Text(l.seeAll)),
       ],
       child: AsyncView(
         value: trips,
         onRetry: () => ref.invalidate(ownerTripsProvider(filter)),
-        builder: (list) => Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            tiles([
-              for (final s in tripStatuses)
-                _CountTile(
-                  key: ValueKey('today-$s'),
-                  count: list.where((t) => t.status == s).length,
-                  label: statusLabel(l, s),
-                  width: desktop ? null : 104,
-                ),
-            ]),
-            const SizedBox(height: 8),
-            if (list.isEmpty)
-              EmptyState(l.noTripsToday)
-            else
+        builder: (list) {
+          if (list.isEmpty) {
+            return EmptyState(
+              _day == _Day.today ? l.noTripsToday : l.noTripsThisDay,
+            );
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
               for (final t
                   in [...list]..sort(
                     (a, b) => a.scheduledStartAt.compareTo(b.scheduledStartAt),
                   ))
-                OwnerTripTile(t),
-          ],
-        ),
-      ),
-    );
-    final attention = SectionCard(
-      title: l.needsAttention,
-      child: AsyncView(
-        value: summary,
-        onRetry: () => ref.invalidate(alertSummaryProvider),
-        builder: (s) => tiles([
-          _CountTile(
-            key: const Key('critical-count'),
-            count: s.critical,
-            label: l.criticalAlerts,
-            color: Colors.red.shade700,
-            onTap: () => openAlertsInbox(context),
-            width: desktop ? null : 104,
-          ),
-          _CountTile(
-            count: s.warning,
-            label: l.severityWarning,
-            color: Colors.amber.shade900,
-            onTap: () => openAlertsInbox(context),
-            width: desktop ? null : 104,
-          ),
-          _CountTile(
-            count: s.info,
-            label: l.severityInfo,
-            onTap: () => openAlertsInbox(context),
-            width: desktop ? null : 104,
-          ),
-          _CountTile(
-            key: const Key('review-count'),
-            count: s.openReviewItems,
-            label: l.toReview,
-            onTap: () => openAlertsInbox(context, 1),
-            width: desktop ? null : 104,
-          ),
-        ]),
-      ),
-    );
-    final documentsDue = SectionCard(
-      title: l.documentsDueSoon,
-      child: AsyncView(
-        value: documents,
-        onRetry: () => ref.invalidate(documentsProvider(_dueDocuments)),
-        builder: (docs) {
-          final soon = docs
-              .where((d) => d.status == 'expiring' || d.status == 'expired')
-              .take(6)
-              .toList();
-          if (soon.isEmpty) return EmptyState(l.nothingExpiring);
-          return Column(
-            children: [
-              for (final d in soon)
-                ListTile(
-                  key: ValueKey('due-${d.id}'),
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(docTypeLabel(l, d.docType)),
-                  subtitle: Text(fmt.calendarDate(d.expiresOn)),
-                  trailing: DocumentStatusChip(d),
-                  onTap: () => openDocumentOwner(
-                    context,
-                    vehicleId: d.vehicleId,
-                    driverId: d.driverId,
-                  ),
-                ),
+                _RideTile(t),
             ],
           );
         },
@@ -255,10 +174,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     Future<void> refresh() async {
       ref
-        ..invalidate(alertSummaryProvider)
         ..invalidate(dashboardSummaryProvider(date))
         ..invalidate(alertsProvider(_openAlerts))
-        ..invalidate(documentsProvider(_dueDocuments))
+        ..invalidate(driversProvider)
         ..invalidate(ownerTripsProvider(filter));
       await ref.read(ownerTripsProvider(filter).future);
     }
@@ -284,9 +202,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             const SizedBox(height: 8),
             cards,
             const SizedBox(height: 8),
-            todaysTrips,
-            attention,
-            documentsDue,
+            hub,
+            rides,
             openAlerts,
           ],
         ),
@@ -357,13 +274,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 children: [
                   Expanded(
                     flex: 3,
-                    child: Column(children: [todaysTrips, openAlerts]),
+                    child: Column(children: [rides, openAlerts]),
                   ),
                   const SizedBox(width: 16),
-                  Expanded(
-                    flex: 2,
-                    child: Column(children: [attention, documentsDue]),
-                  ),
+                  const Expanded(flex: 2, child: hub),
                 ],
               ),
             ],
@@ -474,55 +388,354 @@ class _HeadlineCards extends StatelessWidget {
   }
 }
 
-class _CountTile extends StatelessWidget {
-  const _CountTile({
-    required this.count,
-    required this.label,
-    this.color,
-    this.onTap,
-    this.width,
-    super.key,
-  });
+const _hubOrange = Color(0xFFF7931E);
 
-  final int count;
-  final String label;
-  final Color? color;
-  final VoidCallback? onTap;
-
-  /// Fixed on phones (tiles wrap); null fills a desktop row's share.
-  final double? width;
+/// The dark "Quick Operations Hub": add a trip, assign a waiting trip, invite
+/// a driver, add a cab.
+class _QuickOpsHub extends StatelessWidget {
+  const _QuickOpsHub();
 
   @override
-  Widget build(BuildContext context) => InkWell(
-    onTap: onTap,
-    borderRadius: BorderRadius.circular(10),
-    child: Container(
-      width: width,
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    Widget row(Widget a, Widget b) => IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(child: a),
+          const SizedBox(width: 8),
+          Expanded(child: b),
+        ],
+      ),
+    );
+    return Container(
+      key: const Key('quick-ops'),
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        // See-through, so the desktop's dot field shows behind it too.
-        color: TaxcyColors.blue50.withValues(alpha: 0.55),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: TaxcyColors.blue100),
+        color: TaxcyColors.ink,
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            context.fmt.number(count),
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: color ?? TaxcyColors.blue800,
+          Row(
+            children: [
+              const Icon(Icons.touch_app_outlined, color: _hubOrange),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  l.quickOpsHub,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Text(
+                l.fastDispatch,
+                style: const TextStyle(
+                  color: Color(0xFF94A3B8),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          row(
+            _HubButton(
+              key: const Key('quick-add-trip'),
+              icon: Icons.add_circle_outline,
+              label: l.addTrip,
+              background: _hubOrange,
+              foreground: const Color(0xFF4A2600),
+              onTap: () => openScreen<void>(context, const CreateTripScreen()),
+            ),
+            _HubButton(
+              key: const Key('quick-tag-driver'),
+              icon: Icons.link,
+              iconColor: TaxcyColors.blue600,
+              label: l.tagDriver,
+              background: Colors.white,
+              foreground: TaxcyColors.ink,
+              onTap: () => showTagDriver(context),
             ),
           ),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            style: const TextStyle(fontSize: 12, color: TaxcyColors.muted),
+          const SizedBox(height: 8),
+          row(
+            _HubButton(
+              key: const Key('quick-add-driver'),
+              icon: Icons.person_add_alt,
+              iconColor: TaxcyColors.muted,
+              label: l.addDriverQuick,
+              background: TaxcyColors.blue100,
+              foreground: TaxcyColors.ink,
+              onTap: () => inviteDriver(context),
+            ),
+            _HubButton(
+              key: const Key('quick-add-cab'),
+              icon: Icons.directions_car_outlined,
+              iconColor: TaxcyColors.muted,
+              label: l.addCabQuick,
+              background: TaxcyColors.blue100,
+              foreground: TaxcyColors.ink,
+              onTap: () => openScreen<void>(context, const VehicleFormScreen()),
+            ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _HubButton extends StatelessWidget {
+  const _HubButton({
+    required this.icon,
+    required this.label,
+    required this.background,
+    required this.foreground,
+    required this.onTap,
+    this.iconColor,
+    super.key,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color background;
+  final Color foreground;
+  final Color? iconColor;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: background,
+    borderRadius: BorderRadius.circular(10),
+    child: InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: iconColor ?? foreground, size: 22),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: foreground,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     ),
   );
+}
+
+String _route(AppLocalizations l, Trip t) =>
+    t.toText == null ? l.localTrip(from: t.fromText) : t.routeLabel;
+
+/// A ride on the dashboard: route, time, status, the cab (model and number)
+/// and driver with their phone, or an Assign button while it has neither.
+class _RideTile extends ConsumerWidget {
+  const _RideTile(this.trip);
+  final Trip trip;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final fmt = context.fmt;
+    final t = trip;
+    final v = t.vehicle;
+    final phone = (ref.watch(driversProvider).value ?? const [])
+        .where((d) => d.id == t.driverId)
+        .firstOrNull
+        ?.phone;
+    final canAssign =
+        (v == null || t.driverId == null) &&
+        t.allowedCommands.contains('assign');
+    const muted = TextStyle(color: TaxcyColors.muted);
+    Widget line(IconData icon, String text, {Key? key}) => Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: TaxcyColors.muted),
+          const SizedBox(width: 6),
+          Expanded(child: Text(text, key: key)),
+        ],
+      ),
+    );
+    return Card(
+      key: ValueKey('ride-${t.id}'),
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: TaxcyColors.border),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () =>
+            openScreen<void>(context, OwnerTripDetailScreen(tripId: t.id)),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _route(l, t),
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  StatusChip(t.status),
+                ],
+              ),
+              const SizedBox(height: 2),
+              Text(
+                [
+                  '${fmt.time(t.scheduledStartAt)} – '
+                      '${fmt.time(t.scheduledEndAt)}',
+                  ?t.customerName,
+                ].join(' · '),
+                style: muted,
+              ),
+              line(
+                Icons.local_taxi_outlined,
+                v == null
+                    ? l.unassigned
+                    : [
+                        if (v.model.isNotEmpty) v.model,
+                        formatRegistration(v.registrationNo),
+                      ].join(' · '),
+                key: ValueKey('ride-vehicle-${t.id}'),
+              ),
+              if (t.driverName != null)
+                line(
+                  Icons.person_outline,
+                  [
+                    t.driverName!,
+                    if (phone != null) formatPhone(phone),
+                  ].join(' · '),
+                  key: ValueKey('ride-driver-${t.id}'),
+                ),
+              if (canAssign)
+                Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: FilledButton.icon(
+                      key: ValueKey('ride-assign-${t.id}'),
+                      icon: const Icon(Icons.person_add_alt),
+                      label: Text(l.assign),
+                      onPressed: () => showDialog<void>(
+                        context: context,
+                        builder: (_) => AssignDialog(trip: t),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// "Tag Driver": pick a trip still waiting for a cab and driver, then assign
+/// one with the usual dialog.
+Future<void> showTagDriver(BuildContext context) async {
+  final picked = isDesktop(context)
+      ? showDialog<Trip>(
+          context: context,
+          builder: (_) => const Dialog(
+            child: SizedBox(width: 480, child: _TagDriverPicker()),
+          ),
+        )
+      : showModalBottomSheet<Trip>(
+          context: context,
+          isScrollControlled: true,
+          useSafeArea: true,
+          builder: (_) => const _TagDriverPicker(),
+        );
+  final trip = await picked;
+  if (trip == null || !context.mounted) return;
+  await showDialog<void>(
+    context: context,
+    builder: (_) => AssignDialog(trip: trip),
+  );
+}
+
+class _TagDriverPicker extends ConsumerWidget {
+  const _TagDriverPicker();
+
+  static const _waiting = TripFilter(status: 'created');
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final fmt = context.fmt;
+    final trips = ref.watch(ownerTripsProvider(_waiting));
+    return Padding(
+      key: const Key('tag-driver'),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            l.pickTripToAssign,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          Flexible(
+            child: AsyncView(
+              value: trips,
+              onRetry: () => ref.invalidate(ownerTripsProvider(_waiting)),
+              builder: (list) {
+                if (list.isEmpty) return EmptyState(l.noTripsWaiting);
+                final sorted = [...list]
+                  ..sort(
+                    (a, b) => a.scheduledStartAt.compareTo(b.scheduledStartAt),
+                  );
+                return ListView(
+                  shrinkWrap: true,
+                  children: [
+                    for (final t in sorted)
+                      ListTile(
+                        key: ValueKey('tag-trip-${t.id}'),
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.route),
+                        title: Text(_route(l, t)),
+                        subtitle: Text(
+                          [
+                            fmt.dayTime(t.scheduledStartAt),
+                            ?t.customerName,
+                          ].join(' · '),
+                        ),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => Navigator.of(context).pop(t),
+                      ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

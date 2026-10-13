@@ -5227,6 +5227,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'When your fleet owner assigns a trip, it shows up here. Pull down to refresh, or start one yourself.'**
   String get noTripsHint;
+
+  /// No description provided for @detailsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get detailsTab;
+
+  /// No description provided for @documentFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Files (photos or PDFs)'**
+  String get documentFiles;
+
+  /// No description provided for @photoNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo {number}'**
+  String photoNumber({required int number});
+
+  /// No description provided for @tooManyFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'A document can have up to {count} files.'**
+  String tooManyFiles({required int count});
+
+  /// No description provided for @fileTooLargeNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is larger than 15 MB.'**
+  String fileTooLargeNamed({required String name});
+
+  /// No description provided for @uploadFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload files'**
+  String get uploadFiles;
+
+  /// No description provided for @viewFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'View files ({count})'**
+  String viewFiles({required int count});
+
+  /// No description provided for @open.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get open;
+
+  /// No description provided for @filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get filters;
+
+  /// No description provided for @filtersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters ({count})'**
+  String filtersCount({required int count});
+
+  /// No description provided for @clearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get clearAll;
+
+  /// No description provided for @apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get apply;
+
+  /// No description provided for @severity.
+  ///
+  /// In en, this message translates to:
+  /// **'Severity'**
+  String get severity;
+
+  /// No description provided for @alertKindTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get alertKindTitle;
+
+  /// No description provided for @quickOpsHub.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Operations Hub'**
+  String get quickOpsHub;
+
+  /// No description provided for @fastDispatch.
+  ///
+  /// In en, this message translates to:
+  /// **'FAST-DISPATCH'**
+  String get fastDispatch;
+
+  /// No description provided for @addTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Trip'**
+  String get addTrip;
+
+  /// No description provided for @tagDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag Driver'**
+  String get tagDriver;
+
+  /// No description provided for @addDriverQuick.
+  ///
+  /// In en, this message translates to:
+  /// **'+ Add Driver'**
+  String get addDriverQuick;
+
+  /// No description provided for @addCabQuick.
+  ///
+  /// In en, this message translates to:
+  /// **'+ Add Cab'**
+  String get addCabQuick;
+
+  /// No description provided for @scheduledRides.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled rides'**
+  String get scheduledRides;
+
+  /// No description provided for @scheduledRidesOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled rides · {date}'**
+  String scheduledRidesOn({required String date});
+
+  /// No description provided for @noTripsWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips waiting for a driver.'**
+  String get noTripsWaiting;
+
+  /// No description provided for @pickTripToAssign.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a trip to assign'**
+  String get pickTripToAssign;
 }
 
 class _AppLocalizationsDelegate

@@ -912,14 +912,33 @@ class FakeOwnerApi implements OwnerApi {
   Future<List<Alert>> alerts({
     String? status,
     String? kind,
-    String? tripId,
+    String? severity,
     String? vehicleId,
+    String? driverId,
+    String? tripId,
     int limit = 200,
   }) async {
-    _record('alerts', {'status': status, 'kind': kind, 'tripId': tripId});
+    _record('alerts', {
+      'status': status,
+      'kind': kind,
+      'severity': severity,
+      'vehicleId': vehicleId,
+      'driverId': driverId,
+      'tripId': tripId,
+    });
+    bool any(String? list, Object? value) =>
+        list == null || list.split(',').contains(value);
+    final subjects = {...?vehicleId?.split(','), ...?driverId?.split(',')};
     return alertList
-        .where((a) => status == null || a['status'] == status)
-        .where((a) => kind == null || a['kind'] == kind)
+        .where((a) => any(status, a['status']))
+        .where((a) => any(kind, a['kind']))
+        .where((a) => any(severity, a['severity']))
+        .where(
+          (a) =>
+              subjects.isEmpty ||
+              subjects.contains(a['vehicleId']) ||
+              subjects.contains(a['driverId']),
+        )
         .where((a) => tripId == null || a['tripId'] == tripId)
         .map(Alert.fromJson)
         .toList();

@@ -203,6 +203,42 @@ describe('document files', () => {
     expect(res.body).toMatchObject({ mediaId: ticket.id, mediaContentType: 'application/pdf' });
   });
 
+  it('keeps several files in order', async () => {
+    async function uploaded(contentType: string, label: string): Promise<string> {
+      const bytes = Buffer.from(`${label} ${randomUUID()}`);
+      const ticket = await register(bytes, { kind: 'document', contentType });
+      await putTo(ticket, bytes);
+      await request(h.http)
+        .post(`/v1/media/${ticket.id}/complete`)
+        .set(...bearer(owner))
+        .expect(200);
+      return ticket.id;
+    }
+    const front = await uploaded('image/jpeg', 'rc-front');
+    const back = await uploaded('image/jpeg', 'rc-back');
+    const pdf = await uploaded('application/pdf', '%PDF rc');
+
+    const res = await request(h.http)
+      .post('/v1/documents')
+      .set(...bearer(owner))
+      .send({
+        docType: 'rc',
+        vehicleId: await newVehicle('MH12PD0003'),
+        expiresOn: '2030-01-31',
+        mediaIds: [front, back, pdf],
+      })
+      .expect(201);
+    expect(res.body).toMatchObject({
+      mediaId: front,
+      mediaContentType: 'image/jpeg',
+      files: [
+        { mediaId: front, contentType: 'image/jpeg' },
+        { mediaId: back, contentType: 'image/jpeg' },
+        { mediaId: pdf, contentType: 'application/pdf' },
+      ],
+    });
+  });
+
   it('refuses an odometer photo as a document file', async () => {
     const ticket = await register(photo('not-a-document'));
     const res = await request(h.http)

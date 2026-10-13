@@ -20,7 +20,7 @@ import 'package:taxcy_driver/features/owner/settlements_screen.dart';
 import 'package:taxcy_driver/features/owner/trips/create_trip_screen.dart';
 import 'package:taxcy_driver/features/owner/trips/owner_trip_detail_screen.dart';
 import 'package:taxcy_driver/features/owner/trips/owner_trips_screen.dart';
-import 'package:taxcy_driver/features/owner/vehicle_schedule.dart';
+import 'package:taxcy_driver/features/owner/trip_schedule.dart';
 import 'package:taxcy_driver/features/owner/vehicles_screen.dart';
 import 'package:taxcy_driver/features/trips/new_trip_screen.dart';
 import 'package:taxcy_driver/features/trips/trip_detail_screen.dart';
@@ -78,7 +78,7 @@ void main() {
     'add vehicle': const VehicleFormScreen(),
     'vehicle detail': const VehicleDetailScreen(vehicleId: vehicleId),
     'vehicle schedule': const Scaffold(
-      body: VehicleSchedule(vehicleId: vehicleId),
+      body: TripSchedule(vehicleId: vehicleId),
     ),
     'analytics': const AnalyticsScreen(),
     'vehicle fuel': const VehicleFuelScreen(vehicleId: vehicleId),
@@ -88,6 +88,7 @@ void main() {
         driverJson(payRule: payRuleJson(kind: 'per_trip')),
       ),
     ),
+    'driver schedule': const Scaffold(body: TripSchedule(driverId: driverId)),
     'driver by id': const DriverByIdScreen(driverId: driverId),
     'document form': const DocumentFormScreen(),
     'renew document': DocumentFormScreen(
