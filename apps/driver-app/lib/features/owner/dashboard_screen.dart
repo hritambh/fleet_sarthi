@@ -746,7 +746,8 @@ class _TagDriverPicker extends ConsumerWidget {
 }
 
 /// On the desktop dashboard the cards are see-through over the dot field;
-/// the one under the pointer fades to solid so it reads cleanly.
+/// the one under the pointer fades to solid and lifts a little, with a soft
+/// shadow under it.
 class _SolidOnHover extends StatefulWidget {
   const _SolidOnHover({required this.child});
   final Widget child;
@@ -756,6 +757,7 @@ class _SolidOnHover extends StatefulWidget {
 }
 
 class _SolidOnHoverState extends State<_SolidOnHover> {
+  static const _duration = Duration(milliseconds: 150);
   bool _hovered = false;
 
   @override
@@ -764,14 +766,48 @@ class _SolidOnHoverState extends State<_SolidOnHover> {
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
-      child: AnimatedTheme(
-        duration: const Duration(milliseconds: 150),
-        data: _hovered
-            ? theme.copyWith(
-                cardTheme: theme.cardTheme.copyWith(color: Colors.white),
-              )
-            : theme,
-        child: widget.child,
+      child: AnimatedContainer(
+        duration: _duration,
+        curve: Curves.easeOut,
+        transform: Matrix4.translationValues(0, _hovered ? -4 : 0, 0),
+        child: Stack(
+          // Keeps the row's stretch, so the headline cards stay equal height.
+          fit: StackFit.passthrough,
+          children: [
+            // The shadow sits exactly under the card (inside its margin). It
+            // is drawn here, not through the card theme, so cards nested in
+            // this one don't each get a shadow too.
+            Positioned.fill(
+              child: Padding(
+                padding: theme.cardTheme.margin ?? EdgeInsets.zero,
+                child: AnimatedContainer(
+                  duration: _duration,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: TaxcyColors.blue950.withValues(
+                          alpha: _hovered ? 0.12 : 0,
+                        ),
+                        blurRadius: 24,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            AnimatedTheme(
+              duration: _duration,
+              data: _hovered
+                  ? theme.copyWith(
+                      cardTheme: theme.cardTheme.copyWith(color: Colors.white),
+                    )
+                  : theme,
+              child: widget.child,
+            ),
+          ],
+        ),
       ),
     );
   }
