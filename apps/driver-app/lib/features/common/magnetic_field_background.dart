@@ -49,8 +49,6 @@ const _damping = 15.0; // below 2*sqrt(stiffness) (~21) dots wobble a little
 const _drag = 7.0; // how strongly a moving pointer drags nearby dots along
 const _tintIn = 0.05; // easing towards highlighted (~150 ms)
 const _tintOut = 0.3; // easing back (~900 ms)
-const _glowRadius = 150.0; // the soft spotlight under the pointer
-const _glowOpacity = 0.1; // its strength at the centre
 
 // A tap sends a ripple through the dots, like a stone dropped in water: a
 // short train of crests that travels outwards. It moves and lights the dots
@@ -78,7 +76,7 @@ const _settled = 0.05; // px (and px/s / 10) below which the field is at rest
 /// A living background: a sheet of fine dots like a water surface, rising
 /// diagonally across the field and gently swelling, with a broad wave
 /// rolling along it now and then. Near the pointer the dots swell, brighten
-/// and part like a lens under a soft glow, get dragged along when the
+/// and part like a lens, get dragged along when the
 /// pointer sweeps past, and spring back with a slight wobble. A tap sends a
 /// ripple through them. It sits behind [child] without taking its taps or
 /// gestures.
@@ -90,7 +88,6 @@ class MagneticFieldBackground extends StatefulWidget {
   const MagneticFieldBackground({
     super.key,
     this.child,
-    this.accentColor,
     this.spacing = 16,
     this.influenceRadius = 180,
     this.enableRipples = true,
@@ -98,9 +95,6 @@ class MagneticFieldBackground extends StatefulWidget {
 
   /// Content rendered above the field.
   final Widget? child;
-
-  /// Colour of the glow under the pointer (default indigo).
-  final Color? accentColor;
 
   /// Typical distance between dots (near rows are a little wider apart, far
   /// rows tighter).
@@ -226,7 +220,6 @@ class _MagneticFieldBackgroundState extends State<MagneticFieldBackground>
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final accent = widget.accentColor ?? const Color(0xFF6366F1);
     return LayoutBuilder(
       builder: (context, constraints) {
         final size = constraints.biggest;
@@ -274,7 +267,6 @@ class _MagneticFieldBackgroundState extends State<MagneticFieldBackground>
                         painter: _FieldPainter(
                           field: _field,
                           repaint: _repaint,
-                          accent: accent,
                         ),
                       ),
                     ),
@@ -314,11 +306,6 @@ class _FieldSimulation {
   Float32List tints = Float32List(0); // pointer highlight, 0..1
 
   Offset? magnet;
-
-  /// Where the glow is drawn and how strong it is (it fades in and out).
-  double glowX = 0;
-  double glowY = 0;
-  double glow = 0;
 
   double time = 0;
 
@@ -423,14 +410,8 @@ class _FieldSimulation {
     final tintIn = 1 - math.exp(-dt / _tintIn);
     final tintOut = 1 - math.exp(-dt / _tintOut);
     final m = magnet;
-    if (m != null) {
-      glowX = m.dx;
-      glowY = m.dy;
-    }
-    final glowTarget = m == null || !motion ? 0.0 : 1.0;
-    glow += (glowTarget - glow) * (glowTarget > glow ? tintIn : tintOut);
     final r2 = radius * radius;
-    var busy = rippling || (glow - glowTarget).abs() > 1e-3;
+    var busy = rippling;
     for (var i = 0; i < count; i++) {
       var tx = 0.0;
       var ty = 0.0;
@@ -566,37 +547,21 @@ class _FieldSimulation {
 }
 
 class _FieldPainter extends CustomPainter {
-  _FieldPainter({
-    required this.field,
-    required Listenable repaint,
-    required this.accent,
-  }) : _dots = [
-         for (final hue in _hues)
-           for (var l = 0; l < _levels; l++)
-             Paint()
-               ..strokeCap = StrokeCap.round
-               ..strokeWidth = _minDot + (_maxDot - _minDot) * l / (_levels - 1)
-               ..color = hue.withValues(
-                 alpha: _minAlpha + (_maxAlpha - _minAlpha) * l / (_levels - 1),
-               ),
-       ],
-       // The glow's gradient is drawn around the origin and moved with a
-       // translate, so no shader is built per frame; its strength picks one
-       // of a few ready-made paints.
-       _glows = [
-         for (var g = 1; g <= 4; g++)
-           Paint()
-             ..shader = ui.Gradient.radial(Offset.zero, _glowRadius, [
-               accent.withValues(alpha: _glowOpacity * g / 4),
-               accent.withValues(alpha: 0),
-             ]),
-       ],
-       super(repaint: repaint);
+  _FieldPainter({required this.field, required Listenable repaint})
+    : _dots = [
+        for (final hue in _hues)
+          for (var l = 0; l < _levels; l++)
+            Paint()
+              ..strokeCap = StrokeCap.round
+              ..strokeWidth = _minDot + (_maxDot - _minDot) * l / (_levels - 1)
+              ..color = hue.withValues(
+                alpha: _minAlpha + (_maxAlpha - _minAlpha) * l / (_levels - 1),
+              ),
+      ],
+      super(repaint: repaint);
 
   final _FieldSimulation field;
-  final Color accent;
   final List<Paint> _dots;
-  final List<Paint> _glows;
 
   // Reused between frames: each dot's bucket, then the points grouped by it.
   Uint8List _bucketOf = Uint8List(0);
@@ -609,14 +574,6 @@ class _FieldPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final f = field;
-    final g = (f.glow * _glows.length).round();
-    if (g > 0) {
-      canvas
-        ..save()
-        ..translate(f.glowX, f.glowY)
-        ..drawCircle(Offset.zero, _glowRadius, _glows[g - 1])
-        ..restore();
-    }
     if (f.count == 0 || size.isEmpty) return;
     if (_bucketOf.length != f.count) {
       _bucketOf = Uint8List(f.count);
@@ -692,6 +649,5 @@ class _FieldPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_FieldPainter old) =>
-      old.field != field || old.accent != accent;
+  bool shouldRepaint(_FieldPainter old) => old.field != field;
 }

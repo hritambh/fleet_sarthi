@@ -216,9 +216,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       appBar: appBar,
       // A field of fine dots across the whole page, waves passing through it
       // and reacting to the pointer (desktop only; still when reduced motion
-      // is on). The cards are slightly see-through so it shows behind them.
+      // is on). The cards are slightly see-through so it shows behind them,
+      // and turn solid under the pointer.
       body: MagneticFieldBackground(
-        accentColor: TaxcyColors.blue600,
         child: Theme(
           data: Theme.of(context).copyWith(
             cardTheme: Theme.of(
@@ -274,7 +274,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 children: [
                   Expanded(
                     flex: 3,
-                    child: Column(children: [rides, openAlerts]),
+                    child: Column(
+                      children: [
+                        _SolidOnHover(child: rides),
+                        _SolidOnHover(child: openAlerts),
+                      ],
+                    ),
                   ),
                   const SizedBox(width: 16),
                   const Expanded(flex: 2, child: hub),
@@ -372,7 +377,7 @@ class _HeadlineCards extends StatelessWidget {
         children: [
           for (final (i, card) in items.indexed) ...[
             if (i > 0) SizedBox(width: gap),
-            Expanded(child: card),
+            Expanded(child: _SolidOnHover(child: card)),
           ],
         ],
       ),
@@ -735,6 +740,38 @@ class _TagDriverPicker extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// On the desktop dashboard the cards are see-through over the dot field;
+/// the one under the pointer fades to solid so it reads cleanly.
+class _SolidOnHover extends StatefulWidget {
+  const _SolidOnHover({required this.child});
+  final Widget child;
+
+  @override
+  State<_SolidOnHover> createState() => _SolidOnHoverState();
+}
+
+class _SolidOnHoverState extends State<_SolidOnHover> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: AnimatedTheme(
+        duration: const Duration(milliseconds: 150),
+        data: _hovered
+            ? theme.copyWith(
+                cardTheme: theme.cardTheme.copyWith(color: Colors.white),
+              )
+            : theme,
+        child: widget.child,
       ),
     );
   }
