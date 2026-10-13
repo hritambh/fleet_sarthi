@@ -63,7 +63,8 @@ void main() {
     }
     expect(find.byKey(const Key('dashboard-day')), findsOneWidget);
     expect(find.byKey(const Key('alerts-bell')), findsOneWidget);
-    expect(find.byKey(const Key('dashboard-new-trip')), findsOneWidget);
+    // New trips start from the hub's "Add trip", not a header button.
+    expect(find.byKey(const Key('dashboard-new-trip')), findsNothing);
     // The hub sits beside the scheduled rides, under the cards.
     final hub = tester.getTopLeft(find.byKey(const Key('quick-ops')));
     final rides = tester.getTopLeft(find.byKey(const Key('scheduled-rides')));

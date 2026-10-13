@@ -171,6 +171,12 @@ class Driver {
     required this.createdAt,
     this.payRule,
     this.vehicles = const [],
+    this.photoMediaId,
+    this.dateOfBirth,
+    this.email,
+    this.address,
+    this.emergencyContactName,
+    this.emergencyContactPhone,
   });
 
   factory Driver.fromJson(JsonMap json) {
@@ -187,6 +193,12 @@ class Driver {
           .objectsOrEmpty('vehicles')
           .map(LinkedVehicle.fromJson)
           .toList(),
+      photoMediaId: json.strOrNull('photoMediaId'),
+      dateOfBirth: json.strOrNull('dateOfBirth'),
+      email: json.strOrNull('email'),
+      address: json.strOrNull('address'),
+      emergencyContactName: json.strOrNull('emergencyContactName'),
+      emergencyContactPhone: json.strOrNull('emergencyContactPhone'),
       createdAt: json.date('createdAt'),
     );
   }
@@ -207,6 +219,15 @@ class Driver {
 
   /// The vehicles they may drive.
   final List<LinkedVehicle> vehicles;
+
+  /// Profile (the driver and the owner can edit). The photo is an uploaded
+  /// image; the date of birth is YYYY-MM-DD; the emergency phone is E.164.
+  final String? photoMediaId;
+  final String? dateOfBirth;
+  final String? email;
+  final String? address;
+  final String? emergencyContactName;
+  final String? emergencyContactPhone;
   final DateTime createdAt;
 
   bool get isActive => status == 'active';
@@ -264,6 +285,10 @@ class FleetDocument {
     this.mediaId,
     this.mediaContentType,
     this.files = const [],
+    this.reviewStatus = 'approved',
+    this.reviewNote,
+    this.submittedByDriver = false,
+    this.replacesId,
   });
 
   factory FleetDocument.fromJson(JsonMap json) {
@@ -280,24 +305,42 @@ class FleetDocument {
       driverId: json.strOrNull('driverId'),
       number: json.strOrNull('number'),
       validFrom: json.strOrNull('validFrom'),
-      expiresOn: json.str('expiresOn'),
+      expiresOn: json.strOrNull('expiresOn'),
       mediaId: mediaId,
       mediaContentType: contentType,
       // Older payloads only carry the single file.
       files: files.isEmpty && mediaId != null && contentType != null
           ? [DocumentFile(mediaId: mediaId, contentType: contentType)]
           : files,
-      daysLeft: json.integer('daysLeft'),
+      daysLeft: json.intOrNull('daysLeft'),
       status: json.str('status'),
+      // Absent before drivers could upload their own documents.
+      reviewStatus: json.strOrNull('reviewStatus') ?? 'approved',
+      reviewNote: json.strOrNull('reviewNote'),
+      submittedByDriver: json['submittedByDriver'] == true,
+      replacesId: json.strOrNull('replacesId'),
     );
   }
 
   static const vehicleTypes = ['rc', 'insurance', 'permit', 'puc'];
-  static const driverTypes = ['driving_licence'];
+  static const driverTypes = [
+    'driving_licence',
+    'aadhaar',
+    'pan',
+    'police_verification',
+    'badge',
+    'photo',
+  ];
+
+  /// Types with no expiry date (Aadhaar, PAN, a photo).
+  static const nonExpiringTypes = ['aadhaar', 'pan', 'photo'];
+
+  static bool expiryRequired(String docType) =>
+      !nonExpiringTypes.contains(docType);
 
   final String id;
 
-  /// rc, insurance, permit, puc or driving_licence.
+  /// rc, insurance, permit, puc (vehicles) or a [driverTypes] type.
   final String docType;
   final String? vehicleId;
   final String? driverId;
@@ -305,7 +348,9 @@ class FleetDocument {
 
   /// IST calendar dates, YYYY-MM-DD.
   final String? validFrom;
-  final String expiresOn;
+
+  /// Null for documents that don't expire.
+  final String? expiresOn;
   final String? mediaId;
 
   /// The file's type, e.g. image/jpeg or application/pdf.
@@ -316,11 +361,26 @@ class FleetDocument {
   /// Every file (photos and PDFs), in the order they were added.
   final List<DocumentFile> files;
 
-  /// Days until expiry in IST; negative once expired.
-  final int daysLeft;
+  /// Days until expiry in IST; negative once expired; null without an expiry.
+  final int? daysLeft;
 
   /// valid, expiring, expired or superseded.
   final String status;
+
+  /// pending (a driver's upload waiting for the owner), approved or rejected.
+  final String reviewStatus;
+
+  /// Why the owner rejected it.
+  final String? reviewNote;
+
+  /// Uploaded by the driver from their app.
+  final bool submittedByDriver;
+
+  /// A pending renewal: the document it replaces once approved.
+  final String? replacesId;
+
+  bool get isPending => reviewStatus == 'pending';
+  bool get isRejected => reviewStatus == 'rejected';
 }
 
 class AuditSettings {
@@ -681,6 +741,7 @@ sealed class AlertMessage {
         expired: true,
       ),
       'cancellation_requested' => CancellationRequestedMessage.fromJson(params),
+      'document_submitted' => DocumentSubmittedMessage.fromJson(params),
       _ => null,
     };
   }
@@ -843,6 +904,26 @@ class DocumentExpiryMessage extends AlertMessage {
   final int daysLeft;
 }
 
+/// A driver added or renewed one of their documents; the owner approves it.
+class DocumentSubmittedMessage extends AlertMessage {
+  const DocumentSubmittedMessage({
+    required this.docType,
+    required this.driverName,
+    required this.renewal,
+  });
+
+  factory DocumentSubmittedMessage.fromJson(JsonMap json) =>
+      DocumentSubmittedMessage(
+        docType: json.str('docType'),
+        driverName: json.str('driverName'),
+        renewal: json.boolean('renewal'),
+      );
+
+  final String docType;
+  final String driverName;
+  final bool renewal;
+}
+
 class CancellationRequestedMessage extends AlertMessage {
   const CancellationRequestedMessage({
     required this.from,
@@ -911,6 +992,7 @@ class Alert {
     'document_expired',
     'cancellation_requested',
     'gps_coverage_low',
+    'document_submitted',
   ];
 
   final String id;

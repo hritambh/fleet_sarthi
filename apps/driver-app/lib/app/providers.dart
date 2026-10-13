@@ -5,7 +5,9 @@ import '../core/api/api.dart';
 import '../core/api/auth_api.dart';
 import '../core/api/auth_models.dart';
 import '../core/api/http_api.dart';
+import '../core/api/json.dart';
 import '../core/api/models.dart';
+import '../core/api/me_api.dart';
 import '../core/api/owner_api.dart';
 import '../core/auth/session_store.dart';
 import '../core/db/database.dart';
@@ -67,6 +69,12 @@ final accountProvider = FutureProvider.autoDispose<Account>(
 /// The owner/manager endpoints (owner mode); tests replace it with a fake.
 final ownerApiProvider = Provider<OwnerApi>(
   (ref) => HttpOwnerApi(ref.watch(httpApiProvider)),
+);
+
+/// The signed-in driver's own profile, documents and trip history; tests
+/// replace it with a fake.
+final meApiProvider = Provider<MeApi>(
+  (ref) => HttpMeApi(ref.watch(httpApiProvider)),
 );
 
 final syncEngineProvider = Provider<SyncEngine>((ref) {
@@ -294,6 +302,24 @@ class AuthController extends AsyncNotifier<Session?> {
     if (left > 0) throw UnsyncedWorkException(left);
     await ref.read(gpsRecorderProvider).stop();
     await db.clearAll();
+  }
+
+  /// Saves the driver's own profile and keeps the session's name in step, so
+  /// the app shows it straight away.
+  Future<void> saveProfile(JsonMap body) async {
+    final driver = await ref.read(meApiProvider).updateProfile(body);
+    final session = await ref.read(sessionStoreProvider).load();
+    if (session != null && session.name != driver.name) {
+      await _signedIn(session.withName(driver.name));
+    }
+  }
+
+  /// Moves the account to [phone] with the code sent to it, and keeps the
+  /// session in step.
+  Future<void> changePhone(String phone, String code) async {
+    final changed = await ref.read(meApiProvider).changePhone(phone, code);
+    final session = await ref.read(sessionStoreProvider).load();
+    if (session != null) await _signedIn(session.withPhone(changed));
   }
 
   Future<void> signOut() async {

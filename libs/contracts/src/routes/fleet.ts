@@ -79,11 +79,39 @@ export const Driver = z.object({
   payRule: PayRule.nullable(),
   /** Vehicles this driver may drive. */
   vehicles: z.array(z.object({ id: Id, registrationNo: z.string() })),
+  /** Profile, editable by the driver and the owner. The photo is an uploaded image. */
+  photoMediaId: Id.nullable(),
+  dateOfBirth: CalendarDate.nullable(),
+  email: z.string().nullable(),
+  address: z.string().nullable(),
+  emergencyContactName: z.string().nullable(),
+  emergencyContactPhone: z.string().nullable(),
   createdAt: DateTime,
 });
 export type Driver = z.infer<typeof Driver>;
 
-export const DocType = z.enum(['rc', 'insurance', 'permit', 'puc', 'driving_licence']);
+/** A driver's profile changes; null clears a field. */
+export const DriverProfile = z.object({
+  name: z.string().trim().min(1).max(100).optional(),
+  photoMediaId: Id.nullable().optional(),
+  dateOfBirth: CalendarDate.nullable().optional(),
+  email: z.email().max(200).nullable().optional(),
+  address: z.string().trim().max(300).nullable().optional(),
+  emergencyContactName: z.string().trim().max(100).nullable().optional(),
+  emergencyContactPhone: PhoneE164.nullable().optional(),
+});
+export type DriverProfile = z.infer<typeof DriverProfile>;
+
+export const VehicleDocType = z.enum(['rc', 'insurance', 'permit', 'puc']);
+export const DriverDocType = z.enum([
+  'driving_licence',
+  'aadhaar',
+  'pan',
+  'police_verification',
+  'badge',
+  'photo',
+]);
+export const DocType = z.enum([...VehicleDocType.options, ...DriverDocType.options]);
 export type DocType = z.infer<typeof DocType>;
 
 /** Most files one document holds. */
@@ -99,7 +127,8 @@ export const Document = z.object({
   driverId: Id.nullable(),
   number: z.string().nullable(),
   validFrom: CalendarDate.nullable(),
-  expiresOn: CalendarDate,
+  /** Null for documents that don't expire (Aadhaar, PAN, photo). */
+  expiresOn: CalendarDate.nullable(),
   /** The first file (older clients); every file is in `files`. */
   mediaId: Id.nullable(),
   /** The first file's type ("image/jpeg", "application/pdf", …). */
@@ -107,9 +136,17 @@ export const Document = z.object({
   /** Every file (photos and PDFs), in the order they were added. */
   files: z.array(DocumentFile),
   supersededBy: Id.nullable(),
-  /** Days until expiry in IST; negative once expired. */
-  daysLeft: z.number().int(),
+  /** Days until expiry in IST; negative once expired; null without an expiry. */
+  daysLeft: z.number().int().nullable(),
   status: z.enum(['valid', 'expiring', 'expired', 'superseded']),
+  /** A driver's upload is 'pending' until the owner approves or rejects it. */
+  reviewStatus: z.enum(['pending', 'approved', 'rejected']),
+  /** Why the owner rejected it. */
+  reviewNote: z.string().nullable(),
+  /** Uploaded by the driver from their app (rather than by the owner or a manager). */
+  submittedByDriver: z.boolean(),
+  /** A pending renewal: the document it replaces once approved. */
+  replacesId: Id.nullable(),
   createdAt: DateTime,
 });
 export type Document = z.infer<typeof Document>;
@@ -117,7 +154,8 @@ export type Document = z.infer<typeof Document>;
 const DocumentDetails = z.object({
   number: z.string().trim().max(50).optional(),
   validFrom: CalendarDate.optional(),
-  expiresOn: CalendarDate,
+  /** Required except for types that don't expire (Aadhaar, PAN, photo). */
+  expiresOn: CalendarDate.optional(),
   /** One file (older clients). Use mediaIds for several. */
   mediaId: Id.optional(),
   /** The document's files in order: uploaded photos or PDFs (kind "document"). */
@@ -235,10 +273,7 @@ export const fleetRoutes = {
     tag: 'fleet',
     access: access.staff,
     params: IdParam,
-    body: z.object({
-      name: z.string().trim().min(1).max(100).optional(),
-      status: ActiveStatus.optional(),
-    }),
+    body: DriverProfile.extend({ status: ActiveStatus.optional() }),
     response: Driver,
   }),
   setDriverVehicles: defineRoute({
@@ -296,6 +331,71 @@ export const fleetRoutes = {
     summary: 'Replace a document with its renewed copy (keeps history, clears its alerts)',
     tag: 'fleet',
     access: access.staff,
+    status: 201,
+    params: IdParam,
+    body: DocumentDetails,
+    response: Document,
+  }),
+  approveDocument: defineRoute({
+    method: 'POST',
+    path: '/documents/{id}/approve',
+    summary: "Approve a driver's upload (a renewal then replaces the old copy)",
+    tag: 'fleet',
+    access: access.staff,
+    params: IdParam,
+    response: Document,
+  }),
+  rejectDocument: defineRoute({
+    method: 'POST',
+    path: '/documents/{id}/reject',
+    summary: "Reject a driver's upload, with the reason they'll see",
+    tag: 'fleet',
+    access: access.staff,
+    params: IdParam,
+    body: z.object({ note: z.string().trim().min(1).max(300) }),
+    response: Document,
+  }),
+  myDriver: defineRoute({
+    method: 'GET',
+    path: '/me/driver',
+    summary: "The signed-in driver's own profile in this fleet",
+    tag: 'fleet',
+    access: access.roles('driver'),
+    response: Driver,
+  }),
+  updateMyDriver: defineRoute({
+    method: 'PATCH',
+    path: '/me/driver',
+    summary: 'Update your own driver profile (name, photo, date of birth, contact details)',
+    tag: 'fleet',
+    access: access.roles('driver'),
+    body: DriverProfile,
+    response: Driver,
+  }),
+  myDocuments: defineRoute({
+    method: 'GET',
+    path: '/me/documents',
+    summary: "The signed-in driver's current documents, including ones waiting for approval",
+    tag: 'fleet',
+    access: access.roles('driver'),
+    response: z.array(Document),
+  }),
+  submitMyDocument: defineRoute({
+    method: 'POST',
+    path: '/me/documents',
+    summary: 'Add one of your documents; the owner approves it before it counts',
+    tag: 'fleet',
+    access: access.roles('driver'),
+    status: 201,
+    body: DocumentDetails.extend({ docType: DriverDocType }),
+    response: Document,
+  }),
+  renewMyDocument: defineRoute({
+    method: 'POST',
+    path: '/me/documents/{id}/renew',
+    summary: 'Upload a renewed copy of one of your documents; it replaces the old one once approved',
+    tag: 'fleet',
+    access: access.roles('driver'),
     status: 201,
     params: IdParam,
     body: DocumentDetails,

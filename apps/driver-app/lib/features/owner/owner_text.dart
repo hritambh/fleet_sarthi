@@ -22,6 +22,7 @@ String alertKindLabel(AppLocalizations l, String kind) => switch (kind) {
   'document_expired' => l.kindDocExpired,
   'cancellation_requested' => l.kindCancellationRequested,
   'gps_coverage_low' => l.kindGpsCoverageLow,
+  'document_submitted' => l.kindDocSubmitted,
   _ => kind,
 };
 
@@ -64,17 +65,26 @@ String docTypeLabel(AppLocalizations l, String docType) => switch (docType) {
   'permit' => l.docPermit,
   'puc' => l.docPuc,
   'driving_licence' => l.docLicence,
+  'aadhaar' => l.docAadhaar,
+  'pan' => l.docPan,
+  'police_verification' => l.docPoliceVerification,
+  'badge' => l.docBadge,
+  'photo' => l.docPhoto,
   _ => docType,
 };
 
-/// "Expires in 5 days", "Expired", "Renewed", "Valid".
-String documentStatusText(AppLocalizations l, FleetDocument d) =>
-    switch (d.status) {
-      'superseded' => l.docSuperseded,
-      'expired' => l.docExpired,
-      'expiring' => l.docExpiresIn(count: d.daysLeft),
-      _ => l.docValid,
-    };
+/// "Waiting for approval", "Rejected", "Expires in 5 days", "Expired",
+/// "Renewed", "Valid".
+String documentStatusText(AppLocalizations l, FleetDocument d) => d.isPending
+    ? l.docPendingApproval
+    : d.isRejected
+    ? l.docRejected
+    : switch (d.status) {
+        'superseded' => l.docSuperseded,
+        'expired' => l.docExpired,
+        'expiring' => l.docExpiresIn(count: d.daysLeft ?? 0),
+        _ => l.docValid,
+      };
 
 String requestStatusLabel(AppLocalizations l, String status) =>
     switch (status) {
@@ -314,6 +324,16 @@ String alertTitle(Fmt f, Alert alert) {
     final CancellationRequestedMessage m => l.alertCancellationTitle(
       from: m.from,
     ),
+    final DocumentSubmittedMessage m =>
+      m.renewal
+          ? l.alertDocRenewedTitle(
+              driver: m.driverName,
+              doc: docTypeLabel(l, m.docType),
+            )
+          : l.alertDocSubmittedTitle(
+              driver: m.driverName,
+              doc: docTypeLabel(l, m.docType),
+            ),
   };
 }
 
@@ -362,6 +382,7 @@ String alertBody(Fmt f, Alert alert) {
       reason: m.reason,
       km: f.number(m.endKm),
     ),
+    DocumentSubmittedMessage() => l.alertDocSubmittedBody,
   };
 }
 

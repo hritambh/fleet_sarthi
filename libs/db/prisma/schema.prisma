@@ -92,6 +92,11 @@ enum DocType {
   permit
   puc
   driving_licence
+  aadhaar
+  pan
+  police_verification
+  badge
+  photo
 
   @@map("doc_type")
 }
@@ -307,14 +312,21 @@ model Vehicle {
 }
 
 model Driver {
-  id           String   @id @db.Uuid
-  orgId        String   @map("org_id") @db.Uuid
-  membershipId String   @unique @map("membership_id") @db.Uuid
-  userId       String   @map("user_id") @db.Uuid
-  name         String
-  payRule      Json?    @map("pay_rule")
-  status       String   @default("active")
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  id                    String    @id @db.Uuid
+  orgId                 String    @map("org_id") @db.Uuid
+  membershipId          String    @unique @map("membership_id") @db.Uuid
+  userId                String    @map("user_id") @db.Uuid
+  name                  String
+  payRule               Json?     @map("pay_rule")
+  status                String    @default("active")
+  /// Profile (the driver and the owner can edit): photo is an uploaded image.
+  photoMediaId          String?   @map("photo_media_id") @db.Uuid
+  dateOfBirth           DateTime? @map("date_of_birth") @db.Date
+  email                 String?
+  address               String?
+  emergencyContactName  String?   @map("emergency_contact_name")
+  emergencyContactPhone String?   @map("emergency_contact_phone")
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
   membership  Membership       @relation(fields: [membershipId], references: [id])
   trips       Trip[]
@@ -351,10 +363,20 @@ model Document {
   driverId     String?   @map("driver_id") @db.Uuid
   number       String?
   validFrom    DateTime? @map("valid_from") @db.Date
-  expiresOn    DateTime  @map("expires_on") @db.Date
+  /// Null for documents that don't expire (Aadhaar, PAN, photo).
+  expiresOn    DateTime? @map("expires_on") @db.Date
   /// The first file, kept for older clients; every file is in DocumentFile.
   mediaId      String?   @map("media_id") @db.Uuid
   supersededBy String?   @map("superseded_by") @db.Uuid
+  /// 'pending' (a driver's upload, until the owner reviews it), 'approved' or 'rejected'.
+  reviewStatus String    @default("approved") @map("review_status")
+  /// The user who uploaded it, for a driver's own upload.
+  submittedBy  String?   @map("submitted_by") @db.Uuid
+  /// A pending renewal: the document it supersedes once approved.
+  replacesId   String?   @map("replaces_id") @db.Uuid
+  /// Why the owner rejected it.
+  reviewNote   String?   @map("review_note")
+  reviewedAt   DateTime? @map("reviewed_at") @db.Timestamptz
   createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
   files DocumentFile[]

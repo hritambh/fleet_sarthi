@@ -1306,7 +1306,7 @@
   "@expiresOnHint": {},
   "saveRenewal": "Save renewal",
   "@saveRenewal": {},
-  "noDocuments": "No documents. Add RC, insurance, permit and PUC for vehicles, and licences for drivers.",
+  "noDocuments": "No documents yet.",
   "@noDocuments": {},
   "docRc": "Registration (RC)",
   "@docRc": {},
@@ -2587,5 +2587,220 @@
   "noTripsWaiting": "No trips waiting for a driver.",
   "@noTripsWaiting": {},
   "pickTripToAssign": "Pick a trip to assign",
-  "@pickTripToAssign": {}
+  "@pickTripToAssign": {},
+  "docAadhaar": "Aadhaar card",
+  "@docAadhaar": {},
+  "docPan": "PAN card",
+  "@docPan": {},
+  "docPoliceVerification": "Police verification",
+  "@docPoliceVerification": {},
+  "docBadge": "Badge / PSV licence",
+  "@docBadge": {},
+  "docPhoto": "Photo",
+  "@docPhoto": {},
+  "noExpiry": "No expiry",
+  "@noExpiry": {},
+  "docPendingApproval": "Waiting for approval",
+  "@docPendingApproval": {},
+  "docRejected": "Rejected",
+  "@docRejected": {},
+  "docRejectedBecause": "Rejected: {note}",
+  "@docRejectedBecause": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "addedByDriver": "Added by driver",
+  "@addedByDriver": {},
+  "renewalOf": "Renewal",
+  "@renewalOf": {},
+  "approveDocument": "Approve",
+  "@approveDocument": {},
+  "rejectDocument": "Reject",
+  "@rejectDocument": {},
+  "rejectDocumentTitle": "Reject this document?",
+  "@rejectDocumentTitle": {},
+  "rejectReasonLabel": "Reason (the driver sees this)",
+  "@rejectReasonLabel": {},
+  "documentApproved": "Document approved",
+  "@documentApproved": {},
+  "kindDocSubmitted": "Document to approve",
+  "@kindDocSubmitted": {},
+  "alertDocSubmittedTitle": "{driver} added their {doc}",
+  "@alertDocSubmittedTitle": {
+    "placeholders": {
+      "driver": {
+        "type": "String"
+      },
+      "doc": {
+        "type": "String"
+      }
+    }
+  },
+  "alertDocRenewedTitle": "{driver} uploaded a renewed {doc}",
+  "@alertDocRenewedTitle": {
+    "placeholders": {
+      "driver": {
+        "type": "String"
+      },
+      "doc": {
+        "type": "String"
+      }
+    }
+  },
+  "alertDocSubmittedBody": "Check it and approve or reject it on their Documents tab.",
+  "@alertDocSubmittedBody": {},
+  "navHome": "Home",
+  "@navHome": {},
+  "navMyDocuments": "Documents",
+  "@navMyDocuments": {},
+  "navProfile": "Profile",
+  "@navProfile": {},
+  "assignedTab": "Assigned",
+  "@assignedTab": {},
+  "pastTab": "Past",
+  "@pastTab": {},
+  "noAssignedTrips": "No trips assigned to you right now.",
+  "@noAssignedTrips": {},
+  "noPastTrips": "No trips this month.",
+  "@noPastTrips": {},
+  "myDocumentsIntro": "Add your licence, Aadhaar and other papers. Your fleet owner checks each one before it counts.",
+  "@myDocumentsIntro": {},
+  "profileTitle": "Profile",
+  "@profileTitle": {},
+  "editName": "Edit name",
+  "@editName": {},
+  "yourName": "Your name",
+  "@yourName": {},
+  "nameSaved": "Name saved",
+  "@nameSaved": {},
+  "fleetLabel": "Fleet",
+  "@fleetLabel": {},
+  "phoneNumberLabel": "Mobile number",
+  "@phoneNumberLabel": {},
+  "cabsYouDrive": "Cabs you can drive",
+  "@cabsYouDrive": {},
+  "noCabsLinked": "No cabs linked yet. Ask your fleet owner.",
+  "@noCabsLinked": {},
+  "driverSince": "Driver since {date}",
+  "@driverSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "when": "When",
+  "@when": {},
+  "confirmUpload": "Confirm upload ({count})",
+  "@confirmUpload": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "fileReadyToUpload": "Selected · not uploaded yet",
+  "@fileReadyToUpload": {},
+  "fileUploading": "Uploading…",
+  "@fileUploading": {},
+  "fileUploaded": "Uploaded",
+  "@fileUploaded": {},
+  "fileUploadFailed": "Upload failed · try again",
+  "@fileUploadFailed": {},
+  "uploadFilesFirst": "Tap Confirm upload to upload the selected files first.",
+  "@uploadFilesFirst": {},
+  "filesUploadedCount": "{count} files uploaded",
+  "@filesUploadedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "colFiles": "Files",
+  "@colFiles": {},
+  "noFiles": "No files",
+  "@noFiles": {},
+  "fixHighlighted": "Fill in the highlighted fields.",
+  "@fixHighlighted": {},
+  "documentSentForApproval": "Document added. Your fleet owner will approve it.",
+  "@documentSentForApproval": {},
+  "documentSaved": "Document saved",
+  "@documentSaved": {},
+  "uploadAndSave": "Upload {count} files & save",
+  "@uploadAndSave": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "photoMustBeImage": "Pick a photo (JPG, PNG or WebP).",
+  "@photoMustBeImage": {},
+  "invalidEmail": "Enter a valid email address",
+  "@invalidEmail": {},
+  "invalidMobile": "Enter a 10-digit mobile number",
+  "@invalidMobile": {},
+  "dateOfBirth": "Date of birth",
+  "@dateOfBirth": {},
+  "emailLabel": "Email",
+  "@emailLabel": {},
+  "addressLabel": "Address",
+  "@addressLabel": {},
+  "emergencyContact": "Emergency contact",
+  "@emergencyContact": {},
+  "contactName": "Contact name",
+  "@contactName": {},
+  "contactPhone": "Contact mobile number",
+  "@contactPhone": {},
+  "editProfile": "Edit profile",
+  "@editProfile": {},
+  "editDetails": "Edit details",
+  "@editDetails": {},
+  "choosePhoto": "Choose photo",
+  "@choosePhoto": {},
+  "changePhone": "Change mobile number",
+  "@changePhone": {},
+  "changePhoneIntro": "Your mobile number is how you log in. We’ll send a code to the new number to check it’s yours.",
+  "@changePhoneIntro": {},
+  "codeSentTo": "Enter the 6-digit code sent to {phone}",
+  "@codeSentTo": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "verifyAndChange": "Verify & change",
+  "@verifyAndChange": {},
+  "phoneChanged": "Mobile number changed",
+  "@phoneChanged": {},
+  "profileSaved": "Profile saved",
+  "@profileSaved": {},
+  "personalDetails": "Personal details",
+  "@personalDetails": {},
+  "discardDocumentTitle": "Discard this document?",
+  "@discardDocumentTitle": {},
+  "discardDocumentBody": "It hasn’t been saved. The files and details you added will be lost.",
+  "@discardDocumentBody": {},
+  "keepEditing": "Keep editing",
+  "@keepEditing": {},
+  "discard": "Discard",
+  "@discard": {},
+  "uploadingStep": "Uploading {n} of {count}…",
+  "@uploadingStep": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "savingStep": "Saving…",
+  "@savingStep": {}
 }

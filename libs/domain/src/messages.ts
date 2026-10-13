@@ -13,7 +13,14 @@ export type AlertMessage =
   | { key: 'odo_gps_mismatch'; params: OdoGpsParams }
   | { key: 'document_expiring'; params: DocumentExpiryParams }
   | { key: 'document_expired'; params: DocumentExpiryParams }
-  | { key: 'cancellation_requested'; params: CancellationRequestedParams };
+  | { key: 'cancellation_requested'; params: CancellationRequestedParams }
+  | { key: 'document_submitted'; params: DocumentSubmittedParams };
+
+export interface DocumentSubmittedParams {
+  docType: DocType;
+  driverName: string;
+  renewal: boolean;
+}
 
 export interface VehicleRef {
   registrationNo: string;

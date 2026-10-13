@@ -222,6 +222,29 @@ export const identityRoutes = {
     body: z.object({ name: z.string().trim().min(1).max(100) }),
     response: z.object({ id: Id, phone: PhoneE164, name: z.string().nullable() }),
   }),
+  requestPhoneChange: defineRoute({
+    method: 'POST',
+    path: '/me/phone/otp',
+    summary:
+      'Send a code to a new number before changing yours to it (printed in the API log in development)',
+    tag: 'auth',
+    access: access.user,
+    status: 202,
+    body: z.object({ phone: PhoneE164 }),
+    response: z.object({
+      expiresInSeconds: z.number().int(),
+      resendAfterSeconds: z.number().int(),
+    }),
+  }),
+  changePhone: defineRoute({
+    method: 'POST',
+    path: '/me/phone',
+    summary: 'Change your number (your login) to one you proved with the code; CONFLICT if taken',
+    tag: 'auth',
+    access: access.user,
+    body: z.object({ phone: PhoneE164, code: OtpCode }),
+    response: z.object({ phone: PhoneE164 }),
+  }),
   createOrg: defineRoute({
     method: 'POST',
     path: '/orgs',

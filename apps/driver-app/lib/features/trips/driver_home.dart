@@ -585,9 +585,11 @@ class TripSectionHeader extends StatelessWidget {
 }
 
 /// The trip-list row: time on the left, route, car, customer and fare.
+/// Tapping opens the trip, or runs [onTap] (a trip that isn't on the phone).
 class DriverTripTile extends StatelessWidget {
-  const DriverTripTile(this.view, {super.key});
+  const DriverTripTile(this.view, {this.onTap, super.key});
   final TripView view;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -599,7 +601,8 @@ class DriverTripTile extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => _openTrip(context, view),
+        key: ValueKey('driver-trip-${t.id}'),
+        onTap: onTap ?? () => _openTrip(context, view),
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(

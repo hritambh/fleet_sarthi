@@ -152,12 +152,43 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
+
+      // Selected, not uploaded until saving; a photo can be looked at first.
+      expect(find.text('Selected · not uploaded yet'), findsNWidgets(2));
+      expect(find.text('Upload 2 files & save'), findsOneWidget);
+      await tester.tap(find.text('Photo 1'));
+      await settle(tester);
+      expect(find.byKey(const Key('document-file-preview')), findsOneWidget);
+      await tester.tap(find.text('Close'));
+      await settle(tester);
+
+      // One step: uploads both files, then saves the document with them.
       await tester.tap(find.byKey(const Key('document-save')));
       await settle(tester);
+      expect(h.api.calls.where((c) => c.name == 'registerMedia').length, 2);
       expect(h.owner.last('createDocument').args['mediaIds'], [
         'captured-document',
         'back',
       ]);
+    });
+
+    testWidgets('a missing expiry is marked and nothing is uploaded', (
+      tester,
+    ) async {
+      final h = await owner(tester);
+      h.photoStore.photos['/photos/captured-document.jpg'] = Uint8List(1024);
+      await tester.pumpWidget(
+        h.screen(const DocumentFormScreen(vehicleId: vehicleId)),
+      );
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('document-take-photo')));
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('document-save')));
+      await settle(tester);
+      expect(find.text('Required'), findsOneWidget);
+      expect(find.text('Fill in the highlighted fields.'), findsOneWidget);
+      expect(h.api.calls.where((c) => c.name == 'registerMedia'), isEmpty);
+      expect(h.owner.calls.where((c) => c.name == 'createDocument'), isEmpty);
     });
 
     testWidgets('a file over 15 MB is refused', (tester) async {
@@ -203,6 +234,23 @@ void main() {
         ),
       );
       await settle(tester);
+      // The files show in the list itself; tapping them opens the same viewer.
+      const strip = ValueKey(
+        'document-files-0199c7a2-0000-7000-8000-000000000d01',
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(strip),
+          matching: find.byIcon(Icons.picture_as_pdf),
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(find.byKey(strip));
+      await settle(tester);
+      expect(find.byKey(const Key('document-files-dialog')), findsOneWidget);
+      await tester.tap(find.text('Close'));
+      await settle(tester);
+
       await tester.tap(
         find.byKey(
           const ValueKey('document-menu-0199c7a2-0000-7000-8000-000000000d01'),

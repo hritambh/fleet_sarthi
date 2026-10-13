@@ -6,6 +6,7 @@ import '../../app/theme.dart';
 import '../../core/api/models.dart';
 import '../../core/api/owner_models.dart';
 import '../common/format.dart';
+import '../driver/driver_profile_form.dart';
 import 'documents_screen.dart';
 import 'links.dart';
 import 'owner_providers.dart';
@@ -60,7 +61,10 @@ class DriversScreen extends ConsumerWidget {
                           margin: const EdgeInsets.symmetric(vertical: 4),
                           child: ListTile(
                             key: ValueKey('driver-${d.id}'),
-                            leading: const Icon(Icons.person),
+                            leading: InitialsAvatar(
+                              d.name,
+                              photoMediaId: d.photoMediaId,
+                            ),
                             title: Text(d.name),
                             subtitle: Text(
                               [
@@ -134,7 +138,11 @@ class _DriverCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  InitialsAvatar(d.name, radius: 22),
+                  InitialsAvatar(
+                    d.name,
+                    radius: 22,
+                    photoMediaId: d.photoMediaId,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -357,8 +365,11 @@ class _InviteDialogState extends ConsumerState<InviteDialog> {
 
 /// One driver: name and status, pay (owner only), and their documents.
 class DriverScreen extends ConsumerStatefulWidget {
-  const DriverScreen({required this.driver, super.key});
+  const DriverScreen({required this.driver, this.initialTab = 0, super.key});
   final Driver driver;
+
+  /// 0 details, 1 documents, 2 schedule.
+  final int initialTab;
 
   @override
   ConsumerState<DriverScreen> createState() => _DriverScreenState();
@@ -453,6 +464,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
     final query = (vehicleId: null, driverId: d.id, expiringWithinDays: null);
     return DefaultTabController(
       length: 3,
+      initialIndex: widget.initialTab,
       child: Scaffold(
         appBar: AppBar(
           title: Text(d.name),
@@ -509,6 +521,30 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
                             ),
                           ],
                         ),
+                      ),
+                      SectionCard(
+                        key: const Key('driver-personal'),
+                        title: l.personalDetails,
+                        actions: [
+                          TextButton.icon(
+                            key: const Key('driver-edit-details'),
+                            onPressed: () => openScreen<bool>(
+                              context,
+                              DriverProfileFormScreen(
+                                driver: current,
+                                onSave: (body) async {
+                                  await ref
+                                      .read(ownerApiProvider)
+                                      .updateDriverProfile(d.id, body);
+                                  refreshAfter(ref, {OwnerArea.fleet});
+                                },
+                              ),
+                            ),
+                            icon: const Icon(Icons.edit_outlined, size: 18),
+                            label: Text(l.editDetails),
+                          ),
+                        ],
+                        child: DriverPersonalDetails(current),
                       ),
                       SectionCard(
                         key: const Key('driver-pay'),
@@ -615,6 +651,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
                     title: l.documents,
                     actions: [
                       TextButton.icon(
+                        key: const Key('driver-add-document'),
                         icon: const Icon(Icons.add),
                         label: Text(l.addDocument),
                         onPressed: () => openScreen<void>(
@@ -726,14 +763,23 @@ Widget? _removeManager(
 
 /// [DriverScreen] for a driver known only by id (from an alert or a document).
 class DriverByIdScreen extends ConsumerWidget {
-  const DriverByIdScreen({required this.driverId, super.key});
+  const DriverByIdScreen({
+    required this.driverId,
+    this.initialTab = 0,
+    super.key,
+  });
   final String driverId;
+
+  /// See [DriverScreen.initialTab].
+  final int initialTab;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final drivers = ref.watch(driversProvider);
     final driver = drivers.value?.where((d) => d.id == driverId).firstOrNull;
-    if (driver != null) return DriverScreen(driver: driver);
+    if (driver != null) {
+      return DriverScreen(driver: driver, initialTab: initialTab);
+    }
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.drivers)),
       body: RefreshPage(
@@ -759,6 +805,10 @@ void openDocumentOwner(
   if (vehicleId != null) {
     openScreen<void>(context, VehicleDetailScreen(vehicleId: vehicleId));
   } else if (driverId != null) {
-    openScreen<void>(context, DriverByIdScreen(driverId: driverId));
+    // Straight to their Documents tab.
+    openScreen<void>(
+      context,
+      DriverByIdScreen(driverId: driverId, initialTab: 1),
+    );
   }
 }

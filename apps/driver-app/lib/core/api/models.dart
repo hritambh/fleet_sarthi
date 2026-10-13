@@ -90,6 +90,18 @@ class Session {
     'memberships': memberships.map((m) => m.toJson()).toList(),
   });
 
+  /// The same session after the user moved to a new number.
+  Session withPhone(String phone) => Session.fromJson({
+    ...toJson(),
+    'user': {'id': userId, 'phone': phone, 'name': name},
+  });
+
+  /// The same session after the user renamed themselves.
+  Session withName(String name) => Session.fromJson({
+    ...toJson(),
+    'user': {'id': userId, 'phone': phone, 'name': name},
+  });
+
   JsonMap toJson() => {
     'accessToken': accessToken,
     'accessTokenExpiresAt': accessTokenExpiresAt.toUtc().toIso8601String(),
