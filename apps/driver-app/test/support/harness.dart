@@ -33,6 +33,8 @@ class Harness {
   }) async {
     SharedPreferences.setMockInitialValues({
       'locale_v1': language,
+      // Signed-out tests start on the login card; welcome_test opts back in.
+      'welcome_seen_v1': true,
       ...preferences,
     });
     return Harness._(

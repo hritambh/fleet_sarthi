@@ -3341,4 +3341,281 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get savingStep => 'Saving…';
+
+  @override
+  String get welcomeSignIn => 'Sign in';
+
+  @override
+  String get welcomeGetStarted => 'Get started';
+
+  @override
+  String get welcomeHaveAccount => 'I have an account';
+
+  @override
+  String get welcomeAbout => 'What is Fleet Sarthi?';
+
+  @override
+  String get welcomeEyebrow => 'For owner-drivers and fleets of 2–15 cars';
+
+  @override
+  String get welcomeHeadlineLead => 'Know what your cars';
+
+  @override
+  String get welcomeHeadlineAccent => 'really did today.';
+
+  @override
+  String get welcomeSubhead =>
+      'Photo-proof trips, fuel checked against each car\'s own mileage, GPS distance checks and a daily cash settlement for every driver. One app for you and your drivers.';
+
+  @override
+  String get welcomeTrustOffline => 'Works offline';
+
+  @override
+  String get welcomeTrustPlatforms => 'Android & web';
+
+  @override
+  String get welcomeTrustLanguages => 'English & हिन्दी';
+
+  @override
+  String get welcomeTrustNoCard => 'No card needed';
+
+  @override
+  String get welcomeMockToday => 'Today';
+
+  @override
+  String get welcomeMockLive => 'Live';
+
+  @override
+  String get welcomeMockTrips => 'Trips';
+
+  @override
+  String get welcomeMockKm => 'Km driven';
+
+  @override
+  String get welcomeMockCash => 'Cash due';
+
+  @override
+  String get welcomeMockMileage => 'Mileage, last 8 fills';
+
+  @override
+  String get welcomeMockFuelTitle => 'Fuel check';
+
+  @override
+  String get welcomeMockFuelBody =>
+      'MH 12 AB 4521 gave 9.1 km/l, 22% below its usual 11.7';
+
+  @override
+  String get welcomeMockGpsTitle => 'Distance verified';
+
+  @override
+  String get welcomeMockGpsBody => 'Pune → Mumbai: GPS 148 km, odometer 151 km';
+
+  @override
+  String get welcomeMockSettleTitle => 'Ramesh · settle today';
+
+  @override
+  String get welcomeMockSettleBody => 'Fare ₹4,200 − expenses ₹640';
+
+  @override
+  String get welcomeMockSynced => '2 offline trips synced';
+
+  @override
+  String get welcomeBuiltFor => 'Made for';
+
+  @override
+  String get welcomeForDco => 'Owner-drivers (DCOs)';
+
+  @override
+  String get welcomeForSmallFleets => 'Fleets of 2–15 cars';
+
+  @override
+  String get welcomeForIntercity => 'Intercity & outstation';
+
+  @override
+  String get welcomeForLocal => 'Local & airport runs';
+
+  @override
+  String get welcomeLeaksKicker => 'The problem';
+
+  @override
+  String get welcomeLeaksTitle => 'Small leaks add up to a big monthly loss';
+
+  @override
+  String get welcomeLeaksSubtitle =>
+      'When you\'re not in the car, you\'re trusting a notebook and WhatsApp messages. Fleet Sarthi checks the numbers for you.';
+
+  @override
+  String get welcomeLeakFuelTitle => 'Fuel that doesn\'t add up';
+
+  @override
+  String get welcomeLeakFuelBody =>
+      'Every fill is compared with that car\'s own mileage, cycle by cycle, not a brochure number. A drop is flagged in plain words.';
+
+  @override
+  String get welcomeLeakKmTitle => 'Kilometres that grow';
+
+  @override
+  String get welcomeLeakKmBody =>
+      'Odometer photos at the start and end, read automatically and checked against the GPS route. Mismatches land in your review queue.';
+
+  @override
+  String get welcomeLeakCashTitle => 'Cash that goes missing';
+
+  @override
+  String get welcomeLeakCashBody =>
+      'Drivers log cash, UPI, card, tolls and parking as they go. You see one net-payable amount per driver, every day.';
+
+  @override
+  String get welcomeFeaturesKicker => 'Everything in one app';
+
+  @override
+  String get welcomeFeaturesTitle =>
+      'Built for the way Indian cab fleets really run';
+
+  @override
+  String get welcomeFeatureFuelTitle => 'Fuel audit';
+
+  @override
+  String get welcomeFeatureFuelBody =>
+      'Mileage per car against its own baseline, or cost per km for petrol + CNG cars.';
+
+  @override
+  String get welcomeFeatureTripsTitle => 'Trips with proof';
+
+  @override
+  String get welcomeFeatureTripsBody =>
+      'Create and assign trips, then see odometer photos and the GPS route on a map.';
+
+  @override
+  String get welcomeFeatureSettleTitle => 'Daily settlement';
+
+  @override
+  String get welcomeFeatureSettleBody =>
+      'Fare, cash, online payments, expenses and your pay rules, worked out to one net amount.';
+
+  @override
+  String get welcomeFeatureDocsTitle => 'Document reminders';
+
+  @override
+  String get welcomeFeatureDocsBody =>
+      'RC, insurance, permit, PUC and licence: alerts 30, 7 and 1 day before they expire.';
+
+  @override
+  String get welcomeFeatureOfflineTitle => 'Works without signal';
+
+  @override
+  String get welcomeFeatureOfflineBody =>
+      'The driver app keeps recording on ghat roads and highways, and syncs when the network returns.';
+
+  @override
+  String get welcomeFeatureDcoTitle => 'Own and drive';
+
+  @override
+  String get welcomeFeatureDcoBody =>
+      'Run your fleet and drive in someone else\'s from the same account. Switch in one tap.';
+
+  @override
+  String get welcomeStepsKicker => 'How it works';
+
+  @override
+  String get welcomeStepsTitle => 'Up and running before your next trip';
+
+  @override
+  String get welcomeStep1Title => 'Add your cars and drivers';
+
+  @override
+  String get welcomeStep1Body =>
+      'Sign up with your mobile number, add vehicles and add drivers by their number.';
+
+  @override
+  String get welcomeStep2Title => 'Drivers record from their phone';
+
+  @override
+  String get welcomeStep2Body =>
+      'Start and end trips with a meter photo, log fuel with the receipt, add tolls and cash.';
+
+  @override
+  String get welcomeStep3Title => 'You see the truth, daily';
+
+  @override
+  String get welcomeStep3Body =>
+      'Alerts when something looks off, and a settlement for each driver at the end of the day.';
+
+  @override
+  String get welcomeOwnersTitle => 'For owners';
+
+  @override
+  String get welcomeOwners1 => 'Every car and driver on one dashboard';
+
+  @override
+  String get welcomeOwners2 => 'Approve cancellations and review flagged trips';
+
+  @override
+  String get welcomeOwners3 => 'Set pay rules once; settlements follow them';
+
+  @override
+  String get welcomeOwners4 => 'Use it on your phone or a laptop';
+
+  @override
+  String get welcomeDriversTitle => 'For drivers';
+
+  @override
+  String get welcomeDrivers1 => 'Simple screens in Hindi or English';
+
+  @override
+  String get welcomeDrivers2 => 'Today\'s trips in order, one tap to start';
+
+  @override
+  String get welcomeDrivers3 => 'Nothing lost when the network drops';
+
+  @override
+  String get welcomeDrivers4 => 'Licence and documents kept up to date';
+
+  @override
+  String get welcomeFaqTitle => 'Questions owners ask';
+
+  @override
+  String get welcomeFaqOfflineQ => 'Do my drivers need internet all the time?';
+
+  @override
+  String get welcomeFaqOfflineA =>
+      'No. The driver app saves everything on the phone and sends it in order when the network is back.';
+
+  @override
+  String get welcomeFaqDcoQ => 'Can I use it if I drive my own car?';
+
+  @override
+  String get welcomeFaqDcoA =>
+      'Yes. Owner-drivers get both the owner screens and the driver screens, and switch between them.';
+
+  @override
+  String get welcomeFaqPrivacyQ => 'Is my fleet\'s data private?';
+
+  @override
+  String get welcomeFaqPrivacyA =>
+      'Yes. Each fleet\'s data is kept separate, right down to the database, and only the people you add can see it.';
+
+  @override
+  String get welcomeFaqPhoneQ => 'What phone does a driver need?';
+
+  @override
+  String get welcomeFaqPhoneA =>
+      'Any Android phone with a camera. Owners can also use Fleet Sarthi in a web browser.';
+
+  @override
+  String get welcomeFaqLanguageQ => 'Is it available in Hindi?';
+
+  @override
+  String get welcomeFaqLanguageA =>
+      'Yes. Every screen is in Hindi and English; change the language any time from the top of the screen.';
+
+  @override
+  String get welcomeFinalTitle => 'Stop guessing. Start knowing.';
+
+  @override
+  String get welcomeFinalBody =>
+      'Set up your fleet in a few minutes with just your mobile number.';
+
+  @override
+  String get welcomeFooter => 'Made in India, for India\'s cab fleets.';
 }
