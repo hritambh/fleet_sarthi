@@ -1,5 +1,5 @@
 ---
-name: plan-feature
+name: fs-plan-feature
 description: Brainstorm, research, and produce a design and step-by-step implementation plan for a Fleet Sarthi feature or change, before any code is written. Use when the user says "plan", "design", "brainstorm", "how should we build", "research how to", "spec out", or describes a feature idea and wants options. Ends with a plan document and a stop for approval — it does not implement.
 argument-hint: <feature idea or problem, in a sentence or two>
 ---
