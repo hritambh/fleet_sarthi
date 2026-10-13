@@ -3,8 +3,11 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../common/format.dart';
 import '../common/language_picker.dart';
+
+part 'welcome_showcase.dart';
 
 /// The page a signed-out visitor sees first: what Fleet Sarthi does and who it
 /// is for, then sign up ([onGetStarted]) or log in ([onSignIn]). A dark hero
@@ -30,7 +33,7 @@ class WelcomeScreen extends StatelessWidget {
         children: [
           _Hero(onGetStarted: onGetStarted, onSignIn: onSignIn),
           const _MadeFor(),
-          const _Leaks(),
+          const _Showcase(),
           const _Features(),
           const _Steps(),
           const _Audiences(),
@@ -306,7 +309,7 @@ class _Hero extends StatelessWidget {
     final l = context.l10n;
     final wide = _isWide(context);
     final copy = _HeroCopy(onGetStarted: onGetStarted, onSignIn: onSignIn);
-    const preview = _Reveal(delay: 0.25, child: _ProductPreview());
+    const preview = _Reveal(delay: 0.25, child: _HeroCarousel());
     return Stack(
       children: [
         const Positioned.fill(child: _NightSky()),
@@ -585,180 +588,87 @@ class _DotGridPainter extends CustomPainter {
   bool shouldRepaint(_DotGridPainter oldDelegate) => false;
 }
 
-/// A glass-framed preview of an owner's day: the numbers, a mileage chart
-/// with a dip, and the three kinds of things Fleet Sarthi flags.
-class _ProductPreview extends StatelessWidget {
-  const _ProductPreview();
+/// The owner's day at a glance: the numbers, a mileage chart with a dip, and
+/// the three kinds of things Fleet Sarthi flags.
+class _TodayMock extends StatelessWidget {
+  const _TodayMock();
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    return Stack(
-      clipBehavior: Clip.none,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.06),
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
-            boxShadow: [
-              BoxShadow(
-                color: _violet.withValues(alpha: 0.35),
-                blurRadius: 80,
-                offset: const Offset(0, 30),
-              ),
-            ],
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(22),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        l.welcomeMockToday,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color: TaxcyColors.blue950,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _green.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.circle, size: 8, color: _green),
-                          const SizedBox(width: 6),
-                          Text(
-                            l.welcomeMockLive,
-                            style: const TextStyle(
-                              color: Color(0xFF047857),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  children: [
-                    Expanded(child: _Stat('12', l.welcomeMockTrips)),
-                    const SizedBox(width: 8),
-                    Expanded(child: _Stat('1,486', l.welcomeMockKm)),
-                    const SizedBox(width: 8),
-                    Expanded(child: _Stat('₹18,400', l.welcomeMockCash)),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                Container(
-                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
-                  decoration: BoxDecoration(
-                    color: TaxcyColors.background,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l.welcomeMockMileage,
-                        style: const TextStyle(
-                          color: TaxcyColors.muted,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      const SizedBox(
-                        height: 58,
-                        width: double.infinity,
-                        child: CustomPaint(painter: _MileagePainter()),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _Event(
-                  icon: Icons.local_gas_station_rounded,
-                  color: _amber,
-                  title: l.welcomeMockFuelTitle,
-                  body: l.welcomeMockFuelBody,
-                ),
-                _Event(
-                  icon: Icons.route_rounded,
-                  color: _green,
-                  title: l.welcomeMockGpsTitle,
-                  body: l.welcomeMockGpsBody,
-                ),
-                _Event(
-                  icon: Icons.account_balance_wallet_rounded,
-                  color: TaxcyColors.blue600,
-                  title: l.welcomeMockSettleTitle,
-                  body: l.welcomeMockSettleBody,
-                  trailing: '₹3,560',
-                ),
-              ],
-            ),
-          ),
+        _MockHeader(
+          title: l.welcomeMockToday,
+          trailing: _Tag(l.welcomeMockLive, _green),
         ),
-        Positioned(
-          top: -16,
-          right: 12,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              gradient: _brand,
-              borderRadius: BorderRadius.circular(999),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.cloud_done_rounded,
-                  size: 16,
-                  color: Colors.white,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  l.welcomeMockSynced,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-          ),
+        Row(
+          children: [
+            Expanded(child: _Stat('12', l.welcomeMockTrips)),
+            const SizedBox(width: 8),
+            Expanded(child: _Stat('1,486', l.welcomeMockKm)),
+            const SizedBox(width: 8),
+            Expanded(child: _Stat('₹18,400', l.welcomeMockCash)),
+          ],
+        ),
+        const SizedBox(height: 14),
+        const _MileageChart(),
+        const SizedBox(height: 12),
+        _Event(
+          icon: Icons.local_gas_station_rounded,
+          color: _amber,
+          title: l.welcomeMockFuelTitle,
+          body: l.welcomeMockFuelBody,
+        ),
+        _Event(
+          icon: Icons.route_rounded,
+          color: _green,
+          title: l.welcomeMockGpsTitle,
+          body: l.welcomeMockGpsBody,
+        ),
+        _Event(
+          icon: Icons.account_balance_wallet_rounded,
+          color: TaxcyColors.blue600,
+          title: l.welcomeMockSettleTitle,
+          body: l.welcomeMockSettleBody,
+          trailing: '₹3,560',
         ),
       ],
     );
   }
+}
+
+class _MileageChart extends StatelessWidget {
+  const _MileageChart();
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
+    decoration: BoxDecoration(
+      color: TaxcyColors.background,
+      borderRadius: BorderRadius.circular(14),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          context.l10n.welcomeMockMileage,
+          style: const TextStyle(
+            color: TaxcyColors.muted,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 6),
+        const SizedBox(
+          height: 58,
+          width: double.infinity,
+          child: CustomPaint(painter: _MileagePainter()),
+        ),
+      ],
+    ),
+  );
 }
 
 class _Stat extends StatelessWidget {
@@ -1112,50 +1022,6 @@ class _IconCard extends StatelessWidget {
       ],
     ),
   );
-}
-
-class _Leaks extends StatelessWidget {
-  const _Leaks();
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    return _Content(
-      child: Column(
-        children: [
-          _SectionHeader(
-            kicker: l.welcomeLeaksKicker,
-            title: l.welcomeLeaksTitle,
-            subtitle: l.welcomeLeaksSubtitle,
-          ),
-          const SizedBox(height: 44),
-          _Grid(
-            columns: 3,
-            children: [
-              _IconCard(
-                icon: Icons.local_gas_station_rounded,
-                color: _amber,
-                title: l.welcomeLeakFuelTitle,
-                body: l.welcomeLeakFuelBody,
-              ),
-              _IconCard(
-                icon: Icons.speed_rounded,
-                color: _rose,
-                title: l.welcomeLeakKmTitle,
-                body: l.welcomeLeakKmBody,
-              ),
-              _IconCard(
-                icon: Icons.payments_rounded,
-                color: _green,
-                title: l.welcomeLeakCashTitle,
-                body: l.welcomeLeakCashBody,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _Features extends StatelessWidget {

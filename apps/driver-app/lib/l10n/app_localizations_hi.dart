@@ -3411,9 +3411,6 @@ class AppLocalizationsHi extends AppLocalizations {
   String get welcomeMockSettleBody => 'किराया ₹4,200 − ख़र्च ₹640';
 
   @override
-  String get welcomeMockSynced => 'बिना इंटरनेट की 2 ट्रिप सिंक हुईं';
-
-  @override
   String get welcomeBuiltFor => 'किसके लिए बना';
 
   @override
@@ -3427,38 +3424,6 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get welcomeForLocal => 'लोकल और एयरपोर्ट ट्रिप';
-
-  @override
-  String get welcomeLeaksKicker => 'समस्या';
-
-  @override
-  String get welcomeLeaksTitle =>
-      'छोटी-छोटी चूक, महीने के आख़िर में बड़ा नुकसान';
-
-  @override
-  String get welcomeLeaksSubtitle =>
-      'जब आप गाड़ी में नहीं होते, तो सब कुछ डायरी और WhatsApp मैसेज के भरोसे होता है। फ़्लीट सारथी आपके लिए हिसाब जाँचता है।';
-
-  @override
-  String get welcomeLeakFuelTitle => 'ईंधन का हिसाब नहीं बैठता';
-
-  @override
-  String get welcomeLeakFuelBody =>
-      'हर फ़िल को उसी गाड़ी के अपने माइलेज से मिलाया जाता है, कंपनी के बताए आँकड़े से नहीं। गिरावट होने पर साफ़ शब्दों में अलर्ट मिलता है।';
-
-  @override
-  String get welcomeLeakKmTitle => 'बढ़े हुए किलोमीटर';
-
-  @override
-  String get welcomeLeakKmBody =>
-      'शुरू और अंत में मीटर की फ़ोटो, अपने आप पढ़ी जाती है और GPS रूट से मिलाई जाती है। गड़बड़ी आपकी जाँच सूची में आती है।';
-
-  @override
-  String get welcomeLeakCashTitle => 'कैश जो गुम हो जाता है';
-
-  @override
-  String get welcomeLeakCashBody =>
-      'ड्राइवर कैश, UPI, कार्ड, टोल और पार्किंग उसी समय दर्ज करते हैं। आपको हर ड्राइवर का रोज़ का एक ही बकाया आँकड़ा दिखता है।';
 
   @override
   String get welcomeFeaturesKicker => 'सब कुछ एक ऐप में';
@@ -3614,4 +3579,193 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get welcomeFooter => 'भारत में बना, भारत के कैब फ़्लीट के लिए।';
+
+  @override
+  String get welcomeShowcaseKicker => 'काम करते हुए देखें';
+
+  @override
+  String get welcomeShowcaseTitle => 'रोज़ की परेशानियों का एक ही हल';
+
+  @override
+  String get welcomeShowcaseSubtitle =>
+      'जब आप गाड़ी में नहीं होते, तो सब कुछ डायरी और WhatsApp मैसेज के भरोसे होता है। देखिए क्या बदलता है।';
+
+  @override
+  String get welcomeTabFuel => 'ईंधन';
+
+  @override
+  String get welcomeTabSettlement => 'हिसाब';
+
+  @override
+  String get welcomeTabDocuments => 'डॉक्यूमेंट';
+
+  @override
+  String get welcomeTabOffline => 'ऑफ़लाइन';
+
+  @override
+  String get welcomeUcFuelTitle => 'पंप पर खड़े हुए बिना ईंधन की चोरी पकड़ें';
+
+  @override
+  String get welcomeUcFuelBody =>
+      'ड्राइवर रसीद की फ़ोटो लेते हैं और फ़ुल टैंक फ़िल पर निशान लगाते हैं। फ़्लीट सारथी हर गाड़ी का अपना माइलेज हर बार निकालता है और गिरते ही आपको बताता है।';
+
+  @override
+  String get welcomeUcFuelPoint1 =>
+      'हर गाड़ी का अपना औसत, कंपनी का आँकड़ा नहीं';
+
+  @override
+  String get welcomeUcFuelPoint2 =>
+      'पेट्रोल + CNG गाड़ियों के लिए प्रति km ख़र्च';
+
+  @override
+  String get welcomeUcFuelPoint3 => 'साफ़ शब्दों में अलर्ट, उलझे चार्ट नहीं';
+
+  @override
+  String get welcomeUcFuelThisCycle => 'इस बार';
+
+  @override
+  String get welcomeUcFuelUsual => 'इसका औसत';
+
+  @override
+  String get welcomeUcTripsTitle => 'हर किलोमीटर के पीछे फ़ोटो और GPS';
+
+  @override
+  String get welcomeUcTripsBody =>
+      'ड्राइवर हर ट्रिप मीटर की फ़ोटो के साथ शुरू और ख़त्म करते हैं। रीडिंग को फ़ोटो और GPS रूट से मिलाया जाता है, और जो मेल न खाए वह आपकी जाँच के लिए रुकता है।';
+
+  @override
+  String get welcomeUcTripsPoint1 => 'शुरू और अंत में मीटर की फ़ोटो';
+
+  @override
+  String get welcomeUcTripsPoint2 => 'हर ट्रिप का रूट नक़्शे पर';
+
+  @override
+  String get welcomeUcTripsPoint3 => 'गड़बड़ी आपकी जाँच सूची में';
+
+  @override
+  String get welcomeUcTripStart => 'शुरू';
+
+  @override
+  String get welcomeUcTripEnd => 'अंत';
+
+  @override
+  String get welcomeUcTripRoute => 'पुणे → मुंबई';
+
+  @override
+  String get welcomeUcTripDriver => 'रमेश · MH 12 AB 4521';
+
+  @override
+  String get welcomeUcTripCheck => 'GPS 148 km · मीटर 151 km';
+
+  @override
+  String get welcomeUcSettleTitle => 'हर ड्राइवर का दिन, एक आँकड़े में';
+
+  @override
+  String get welcomeUcSettleBody =>
+      'किराया, कैश, UPI और कार्ड, टोल और पार्किंग, और आपका पेमेंट नियम, सब मिलकर एक रक़म बनती है: ड्राइवर आपको कितना देगा, या आप उसे कितना देंगे।';
+
+  @override
+  String get welcomeUcSettlePoint1 => 'हर ड्राइवर का पेमेंट नियम एक बार तय';
+
+  @override
+  String get welcomeUcSettlePoint2 => 'कैश और ऑनलाइन पैसा अलग-अलग';
+
+  @override
+  String get welcomeUcSettlePoint3 => 'टोल और पार्किंग रसीद के साथ';
+
+  @override
+  String get welcomeUcSettleHeader => 'रमेश · आज';
+
+  @override
+  String get welcomeUcSettleFare => 'किराया';
+
+  @override
+  String get welcomeUcSettleCash => 'कैश में मिला';
+
+  @override
+  String get welcomeUcSettleOnline => 'ऑनलाइन मिला (UPI, कार्ड)';
+
+  @override
+  String get welcomeUcSettleExpenses => 'टोल और पार्किंग का ख़र्च';
+
+  @override
+  String get welcomeUcSettlePay => 'ड्राइवर का हिस्सा (किराये का 30%)';
+
+  @override
+  String get welcomeUcSettleNet => 'रमेश जमा करेगा';
+
+  @override
+  String get welcomeUcDocsTitle => 'एक्सपायर्ड परमिट के साथ कभी न पकड़े जाएँ';
+
+  @override
+  String get welcomeUcDocsBody =>
+      'हर गाड़ी और ड्राइवर के RC, बीमा, परमिट, PUC और ड्राइविंग लाइसेंस एक जगह, और हर एक के ख़त्म होने से 30, 7 और 1 दिन पहले रिमाइंडर।';
+
+  @override
+  String get welcomeUcDocsPoint1 => 'हर गाड़ी और हर ड्राइवर';
+
+  @override
+  String get welcomeUcDocsPoint2 => 'फ़ोटो या PDF अपलोड करें';
+
+  @override
+  String get welcomeUcDocsPoint3 => 'डेडलाइन से पहले याद, बाद में नहीं';
+
+  @override
+  String get welcomeUcDocsHeader => 'जल्द ख़त्म हो रहे';
+
+  @override
+  String get welcomeUcDocsRow1 => 'MH 12 AB 4521 · बीमा';
+
+  @override
+  String get welcomeUcDocsDue1 => '7 दिन में';
+
+  @override
+  String get welcomeUcDocsRow2 => 'सुरेश · ड्राइविंग लाइसेंस';
+
+  @override
+  String get welcomeUcDocsDue2 => 'कल';
+
+  @override
+  String get welcomeUcDocsRow3 => 'MH 14 CD 7788 · परमिट';
+
+  @override
+  String get welcomeUcDocsDue3 => '30 दिन में';
+
+  @override
+  String get welcomeUcDocsRow4 => 'MH 12 AB 4521 · PUC';
+
+  @override
+  String get welcomeUcDocsDue4 => 'मान्य';
+
+  @override
+  String get welcomeUcOfflineTitle => 'हाईवे और घाट के रास्तों के लिए बना';
+
+  @override
+  String get welcomeUcOfflineBody =>
+      'नेटवर्क नहीं? ड्राइवर ऐप ट्रिप, ईंधन और पेमेंट फ़ोन में दर्ज करता रहता है और नेटवर्क लौटते ही क्रम से भेज देता है। न कुछ खोता है, न कुछ दो बार गिना जाता है।';
+
+  @override
+  String get welcomeUcOfflinePoint1 => 'बिल्कुल बिना नेटवर्क के भी चले';
+
+  @override
+  String get welcomeUcOfflinePoint2 => 'अपने आप, क्रम से सिंक';
+
+  @override
+  String get welcomeUcOfflinePoint3 => 'दोबारा भेजने पर भी दोहराव नहीं';
+
+  @override
+  String get welcomeUcOfflineBanner =>
+      'नेटवर्क नहीं · इसी फ़ोन में सेव हो रहा है';
+
+  @override
+  String get welcomeUcOfflineTrip => 'ट्रिप चल रही है · पुणे → लोनावला';
+
+  @override
+  String get welcomeUcOfflineFuel => 'ईंधन फ़िल सेव · ₹2,150';
+
+  @override
+  String get welcomeUcOfflineCash => 'कैश मिला · ₹1,200';
+
+  @override
+  String get welcomeUcOfflineWaiting => '3 बदलाव सिंक होने बाकी';
 }

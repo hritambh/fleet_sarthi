@@ -3417,9 +3417,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeMockSettleBody => 'Fare ₹4,200 − expenses ₹640';
 
   @override
-  String get welcomeMockSynced => '2 offline trips synced';
-
-  @override
   String get welcomeBuiltFor => 'Made for';
 
   @override
@@ -3433,37 +3430,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get welcomeForLocal => 'Local & airport runs';
-
-  @override
-  String get welcomeLeaksKicker => 'The problem';
-
-  @override
-  String get welcomeLeaksTitle => 'Small leaks add up to a big monthly loss';
-
-  @override
-  String get welcomeLeaksSubtitle =>
-      'When you\'re not in the car, you\'re trusting a notebook and WhatsApp messages. Fleet Sarthi checks the numbers for you.';
-
-  @override
-  String get welcomeLeakFuelTitle => 'Fuel that doesn\'t add up';
-
-  @override
-  String get welcomeLeakFuelBody =>
-      'Every fill is compared with that car\'s own mileage, cycle by cycle, not a brochure number. A drop is flagged in plain words.';
-
-  @override
-  String get welcomeLeakKmTitle => 'Kilometres that grow';
-
-  @override
-  String get welcomeLeakKmBody =>
-      'Odometer photos at the start and end, read automatically and checked against the GPS route. Mismatches land in your review queue.';
-
-  @override
-  String get welcomeLeakCashTitle => 'Cash that goes missing';
-
-  @override
-  String get welcomeLeakCashBody =>
-      'Drivers log cash, UPI, card, tolls and parking as they go. You see one net-payable amount per driver, every day.';
 
   @override
   String get welcomeFeaturesKicker => 'Everything in one app';
@@ -3618,4 +3584,194 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get welcomeFooter => 'Made in India, for India\'s cab fleets.';
+
+  @override
+  String get welcomeShowcaseKicker => 'See it in action';
+
+  @override
+  String get welcomeShowcaseTitle =>
+      'One app for the problems you deal with every day';
+
+  @override
+  String get welcomeShowcaseSubtitle =>
+      'When you\'re not in the car, you\'re trusting a notebook and WhatsApp messages. Here\'s what changes.';
+
+  @override
+  String get welcomeTabFuel => 'Fuel';
+
+  @override
+  String get welcomeTabSettlement => 'Settlement';
+
+  @override
+  String get welcomeTabDocuments => 'Documents';
+
+  @override
+  String get welcomeTabOffline => 'Offline';
+
+  @override
+  String get welcomeUcFuelTitle =>
+      'Catch fuel theft without standing at the pump';
+
+  @override
+  String get welcomeUcFuelBody =>
+      'Drivers photograph the receipt and mark full-tank fills. Fleet Sarthi works out each car\'s own mileage, cycle by cycle, and tells you the moment one drops.';
+
+  @override
+  String get welcomeUcFuelPoint1 =>
+      'A baseline for each car, not a brochure figure';
+
+  @override
+  String get welcomeUcFuelPoint2 => 'Cost per km for petrol + CNG cars';
+
+  @override
+  String get welcomeUcFuelPoint3 =>
+      'Alerts in plain words, not charts to decode';
+
+  @override
+  String get welcomeUcFuelThisCycle => 'This cycle';
+
+  @override
+  String get welcomeUcFuelUsual => 'Its usual';
+
+  @override
+  String get welcomeUcTripsTitle => 'Every kilometre backed by a photo and GPS';
+
+  @override
+  String get welcomeUcTripsBody =>
+      'Drivers start and end each trip with an odometer photo. The reading is checked against the photo and the GPS route, and anything that doesn\'t match waits for your review.';
+
+  @override
+  String get welcomeUcTripsPoint1 => 'Meter photos at the start and end';
+
+  @override
+  String get welcomeUcTripsPoint2 => 'The route on a map for every trip';
+
+  @override
+  String get welcomeUcTripsPoint3 => 'Mismatches go to your review queue';
+
+  @override
+  String get welcomeUcTripStart => 'Start';
+
+  @override
+  String get welcomeUcTripEnd => 'End';
+
+  @override
+  String get welcomeUcTripRoute => 'Pune → Mumbai';
+
+  @override
+  String get welcomeUcTripDriver => 'Ramesh · MH 12 AB 4521';
+
+  @override
+  String get welcomeUcTripCheck => 'GPS 148 km · odometer 151 km';
+
+  @override
+  String get welcomeUcSettleTitle => 'Settle each driver\'s day in one number';
+
+  @override
+  String get welcomeUcSettleBody =>
+      'Fares, cash, UPI and card collections, tolls and parking, and your pay rule come together into one amount: what the driver hands over, or what you owe them.';
+
+  @override
+  String get welcomeUcSettlePoint1 => 'Pay rules set once per driver';
+
+  @override
+  String get welcomeUcSettlePoint2 => 'Cash and online money kept apart';
+
+  @override
+  String get welcomeUcSettlePoint3 => 'Tolls and parking with receipts';
+
+  @override
+  String get welcomeUcSettleHeader => 'Ramesh · today';
+
+  @override
+  String get welcomeUcSettleFare => 'Fare';
+
+  @override
+  String get welcomeUcSettleCash => 'Collected in cash';
+
+  @override
+  String get welcomeUcSettleOnline => 'Collected online (UPI, card)';
+
+  @override
+  String get welcomeUcSettleExpenses => 'Tolls & parking paid';
+
+  @override
+  String get welcomeUcSettlePay => 'Driver pay (30% of fare)';
+
+  @override
+  String get welcomeUcSettleNet => 'Ramesh hands over';
+
+  @override
+  String get welcomeUcDocsTitle => 'Never get caught with an expired permit';
+
+  @override
+  String get welcomeUcDocsBody =>
+      'RC, insurance, permit, PUC and driving licences for every car and driver in one place, with reminders 30, 7 and 1 day before each expires.';
+
+  @override
+  String get welcomeUcDocsPoint1 => 'Every car and every driver';
+
+  @override
+  String get welcomeUcDocsPoint2 => 'Upload a photo or a PDF';
+
+  @override
+  String get welcomeUcDocsPoint3 => 'Reminded before the deadline, not after';
+
+  @override
+  String get welcomeUcDocsHeader => 'Expiring soon';
+
+  @override
+  String get welcomeUcDocsRow1 => 'MH 12 AB 4521 · Insurance';
+
+  @override
+  String get welcomeUcDocsDue1 => 'in 7 days';
+
+  @override
+  String get welcomeUcDocsRow2 => 'Suresh · Driving licence';
+
+  @override
+  String get welcomeUcDocsDue2 => 'tomorrow';
+
+  @override
+  String get welcomeUcDocsRow3 => 'MH 14 CD 7788 · Permit';
+
+  @override
+  String get welcomeUcDocsDue3 => 'in 30 days';
+
+  @override
+  String get welcomeUcDocsRow4 => 'MH 12 AB 4521 · PUC';
+
+  @override
+  String get welcomeUcDocsDue4 => 'valid';
+
+  @override
+  String get welcomeUcOfflineTitle => 'Built for highways and ghat roads';
+
+  @override
+  String get welcomeUcOfflineBody =>
+      'No signal? The driver app keeps recording trips, fuel and payments on the phone and sends them in order when the network returns. Nothing is lost, and nothing is counted twice.';
+
+  @override
+  String get welcomeUcOfflinePoint1 => 'Works with no network at all';
+
+  @override
+  String get welcomeUcOfflinePoint2 => 'Syncs in order, on its own';
+
+  @override
+  String get welcomeUcOfflinePoint3 => 'Safe to retry, never duplicated';
+
+  @override
+  String get welcomeUcOfflineBanner => 'No network · saving on this phone';
+
+  @override
+  String get welcomeUcOfflineTrip => 'Trip running · Pune → Lonavala';
+
+  @override
+  String get welcomeUcOfflineFuel => 'Fuel fill saved · ₹2,150';
+
+  @override
+  String get welcomeUcOfflineCash => 'Cash collected · ₹1,200';
+
+  @override
+  String get welcomeUcOfflineWaiting => '3 changes waiting to sync';
 }

@@ -93,11 +93,51 @@ void main() {
       ),
     );
     await tester.tap(find.text(question));
-    await tester.pumpAndSettle();
+    // The carousel keeps animating, so pump past the expansion instead of
+    // waiting to settle.
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
     expect(
       find.textContaining('saves everything on the phone'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('the hero carousel moves on by itself and by tab', (
+    tester,
+  ) async {
+    await firstVisit(tester);
+    expect(find.text('Km driven'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('Km driven'), findsNothing);
+    expect(find.text('45,361'), findsWidgets);
+    await tester.tap(find.byKey(const Key('welcome-slide-3')));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('Expiring soon'), findsWidgets);
+  });
+
+  testWidgets('scrolling walks through every use case', (tester) async {
+    await firstVisit(tester);
+    for (final useCase in [
+      'fuel',
+      'trips',
+      'settlement',
+      'documents',
+      'offline',
+    ]) {
+      await tester.scrollUntilVisible(
+        find.byKey(Key('welcome-usecase-$useCase')),
+        300,
+        scrollable: find.descendant(
+          of: find.byKey(_scroll),
+          matching: find.byType(Scrollable),
+        ),
+      );
+    }
+    expect(find.text('Built for highways and ghat roads'), findsOneWidget);
+    expect(find.text('Ramesh hands over'), findsWidgets);
   });
 
   // Every section is built (the page is one column), so any overflow at these
