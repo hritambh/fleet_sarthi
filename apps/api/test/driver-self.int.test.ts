@@ -120,7 +120,10 @@ describe('driver documents', () => {
       .set(...bearer(owner))
       .send({ note: 'Photo is blurry' })
       .expect(200);
-    expect(rejected.body).toMatchObject({ reviewStatus: 'rejected', reviewNote: 'Photo is blurry' });
+    expect(rejected.body).toMatchObject({
+      reviewStatus: 'rejected',
+      reviewNote: 'Photo is blurry',
+    });
     // Only a pending document can be reviewed.
     await request(h.http)
       .post(`/v1/documents/${(res.body as Doc).id}/approve`)
@@ -250,7 +253,7 @@ describe('changing your mobile number', () => {
       .post('/v1/me/phone')
       .set(...bearer(other.session))
       .send({ phone: next, code: lastOtp(h, next) === '000000' ? '111111' : '000000' })
-      .expect(400);
+      .expect(401); // OTP_INVALID, like a wrong password-reset code
     const res = await request(h.http)
       .post('/v1/me/phone')
       .set(...bearer(other.session))

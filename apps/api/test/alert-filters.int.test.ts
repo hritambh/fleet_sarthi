@@ -64,6 +64,9 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  // The database is shared with the other test files (run one after another):
+  // leave no open alerts behind for them to count.
+  await h.owner.alert.deleteMany({ where: { orgId: owner.activeOrgId ?? '' } });
   await h.close();
 });
 

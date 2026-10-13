@@ -393,7 +393,8 @@ export const fleetRoutes = {
   renewMyDocument: defineRoute({
     method: 'POST',
     path: '/me/documents/{id}/renew',
-    summary: 'Upload a renewed copy of one of your documents; it replaces the old one once approved',
+    summary:
+      'Upload a renewed copy of one of your documents; it replaces the old one once approved',
     tag: 'fleet',
     access: access.roles('driver'),
     status: 201,

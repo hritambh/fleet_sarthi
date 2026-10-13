@@ -163,12 +163,7 @@ export class DocumentsService {
    * The renewed copy replaces the old one; the old one's alerts are resolved.
    * A driver's renewal ([by]) waits for approval and replaces it only then.
    */
-  async renew(
-    tx: TenantTx,
-    id: string,
-    input: DocumentDetails,
-    by?: Submitter,
-  ): Promise<Document> {
+  async renew(tx: TenantTx, id: string, input: DocumentDetails, by?: Submitter): Promise<Document> {
     const old = await tx.document.findFirst({
       where: { id, orgId: tx.orgId, ...(by ? { driverId: by.driverId } : {}) },
     });
@@ -199,9 +194,7 @@ export class DocumentsService {
         validFrom: input.validFrom ?? null,
         expiresOn: input.expiresOn ?? null,
         mediaId: files[0] ?? null,
-        ...(by
-          ? { reviewStatus: 'pending', submittedBy: by.userId, replacesId: old.id }
-          : {}),
+        ...(by ? { reviewStatus: 'pending', submittedBy: by.userId, replacesId: old.id } : {}),
       },
     });
     await this.saveFiles(tx, row.id, files);

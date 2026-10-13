@@ -192,9 +192,7 @@ export class FleetController {
     // Their own name is their account's name too.
     if (body.name) {
       const name = body.name;
-      await this.db.system((tx) =>
-        tx.user.update({ where: { id: a.userId }, data: { name } }),
-      );
+      await this.db.system((tx) => tx.user.update({ where: { id: a.userId }, data: { name } }));
     }
     return driver;
   }
