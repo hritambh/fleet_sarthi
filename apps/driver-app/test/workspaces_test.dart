@@ -85,9 +85,9 @@ void main() {
     expect(h.prefs.getString('app_mode_v1'), 'driver');
 
     // And back to managing their own fleet.
-    await tester.tap(find.byKey(const Key('driver-menu')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('switch-workspace')));
+    await tester.tap(find.byKey(const Key('driver-nav-profile')));
+    await settle(tester);
+    await tester.tap(find.byKey(const Key('profile-workspace')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('workspace-owner-$fleetA')));
     await settle(tester);

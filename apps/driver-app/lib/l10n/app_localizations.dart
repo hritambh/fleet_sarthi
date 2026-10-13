@@ -2887,7 +2887,7 @@ abstract class AppLocalizations {
   /// No description provided for @noDocuments.
   ///
   /// In en, this message translates to:
-  /// **'No documents. Add RC, insurance, permit and PUC for vehicles, and licences for drivers.'**
+  /// **'No documents yet.'**
   String get noDocuments;
 
   /// No description provided for @docRc.
@@ -5371,6 +5371,462 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick a trip to assign'**
   String get pickTripToAssign;
+
+  /// No description provided for @docAadhaar.
+  ///
+  /// In en, this message translates to:
+  /// **'Aadhaar card'**
+  String get docAadhaar;
+
+  /// No description provided for @docPan.
+  ///
+  /// In en, this message translates to:
+  /// **'PAN card'**
+  String get docPan;
+
+  /// No description provided for @docPoliceVerification.
+  ///
+  /// In en, this message translates to:
+  /// **'Police verification'**
+  String get docPoliceVerification;
+
+  /// No description provided for @docBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Badge / PSV licence'**
+  String get docBadge;
+
+  /// No description provided for @docPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get docPhoto;
+
+  /// No description provided for @noExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'No expiry'**
+  String get noExpiry;
+
+  /// No description provided for @docPendingApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for approval'**
+  String get docPendingApproval;
+
+  /// No description provided for @docRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get docRejected;
+
+  /// No description provided for @docRejectedBecause.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected: {note}'**
+  String docRejectedBecause({required String note});
+
+  /// No description provided for @addedByDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by driver'**
+  String get addedByDriver;
+
+  /// No description provided for @renewalOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Renewal'**
+  String get renewalOf;
+
+  /// No description provided for @approveDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get approveDocument;
+
+  /// No description provided for @rejectDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get rejectDocument;
+
+  /// No description provided for @rejectDocumentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject this document?'**
+  String get rejectDocumentTitle;
+
+  /// No description provided for @rejectReasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason (the driver sees this)'**
+  String get rejectReasonLabel;
+
+  /// No description provided for @documentApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Document approved'**
+  String get documentApproved;
+
+  /// No description provided for @kindDocSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Document to approve'**
+  String get kindDocSubmitted;
+
+  /// No description provided for @alertDocSubmittedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{driver} added their {doc}'**
+  String alertDocSubmittedTitle({required String driver, required String doc});
+
+  /// No description provided for @alertDocRenewedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{driver} uploaded a renewed {doc}'**
+  String alertDocRenewedTitle({required String driver, required String doc});
+
+  /// No description provided for @alertDocSubmittedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Check it and approve or reject it on their Documents tab.'**
+  String get alertDocSubmittedBody;
+
+  /// No description provided for @navHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// No description provided for @navMyDocuments.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents'**
+  String get navMyDocuments;
+
+  /// No description provided for @navProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navProfile;
+
+  /// No description provided for @assignedTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned'**
+  String get assignedTab;
+
+  /// No description provided for @pastTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Past'**
+  String get pastTab;
+
+  /// No description provided for @noAssignedTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips assigned to you right now.'**
+  String get noAssignedTrips;
+
+  /// No description provided for @noPastTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips this month.'**
+  String get noPastTrips;
+
+  /// No description provided for @myDocumentsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your licence, Aadhaar and other papers. Your fleet owner checks each one before it counts.'**
+  String get myDocumentsIntro;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileTitle;
+
+  /// No description provided for @editName.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit name'**
+  String get editName;
+
+  /// No description provided for @yourName.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get yourName;
+
+  /// No description provided for @nameSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Name saved'**
+  String get nameSaved;
+
+  /// No description provided for @fleetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fleet'**
+  String get fleetLabel;
+
+  /// No description provided for @phoneNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number'**
+  String get phoneNumberLabel;
+
+  /// No description provided for @cabsYouDrive.
+  ///
+  /// In en, this message translates to:
+  /// **'Cabs you can drive'**
+  String get cabsYouDrive;
+
+  /// No description provided for @noCabsLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'No cabs linked yet. Ask your fleet owner.'**
+  String get noCabsLinked;
+
+  /// No description provided for @driverSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver since {date}'**
+  String driverSince({required String date});
+
+  /// No description provided for @when.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get when;
+
+  /// No description provided for @confirmUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm upload ({count})'**
+  String confirmUpload({required int count});
+
+  /// No description provided for @fileReadyToUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected · not uploaded yet'**
+  String get fileReadyToUpload;
+
+  /// No description provided for @fileUploading.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading…'**
+  String get fileUploading;
+
+  /// No description provided for @fileUploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploaded'**
+  String get fileUploaded;
+
+  /// No description provided for @fileUploadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload failed · try again'**
+  String get fileUploadFailed;
+
+  /// No description provided for @uploadFilesFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap Confirm upload to upload the selected files first.'**
+  String get uploadFilesFirst;
+
+  /// No description provided for @filesUploadedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} files uploaded'**
+  String filesUploadedCount({required int count});
+
+  /// No description provided for @colFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Files'**
+  String get colFiles;
+
+  /// No description provided for @noFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'No files'**
+  String get noFiles;
+
+  /// No description provided for @fixHighlighted.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in the highlighted fields.'**
+  String get fixHighlighted;
+
+  /// No description provided for @documentSentForApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Document added. Your fleet owner will approve it.'**
+  String get documentSentForApproval;
+
+  /// No description provided for @documentSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Document saved'**
+  String get documentSaved;
+
+  /// No description provided for @uploadAndSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload {count} files & save'**
+  String uploadAndSave({required int count});
+
+  /// No description provided for @photoMustBeImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a photo (JPG, PNG or WebP).'**
+  String get photoMustBeImage;
+
+  /// No description provided for @invalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address'**
+  String get invalidEmail;
+
+  /// No description provided for @invalidMobile.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a 10-digit mobile number'**
+  String get invalidMobile;
+
+  /// No description provided for @dateOfBirth.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of birth'**
+  String get dateOfBirth;
+
+  /// No description provided for @emailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get emailLabel;
+
+  /// No description provided for @addressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get addressLabel;
+
+  /// No description provided for @emergencyContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency contact'**
+  String get emergencyContact;
+
+  /// No description provided for @contactName.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact name'**
+  String get contactName;
+
+  /// No description provided for @contactPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact mobile number'**
+  String get contactPhone;
+
+  /// No description provided for @editProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get editProfile;
+
+  /// No description provided for @editDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit details'**
+  String get editDetails;
+
+  /// No description provided for @choosePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose photo'**
+  String get choosePhoto;
+
+  /// No description provided for @changePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Change mobile number'**
+  String get changePhone;
+
+  /// No description provided for @changePhoneIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Your mobile number is how you log in. We’ll send a code to the new number to check it’s yours.'**
+  String get changePhoneIntro;
+
+  /// No description provided for @codeSentTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 6-digit code sent to {phone}'**
+  String codeSentTo({required String phone});
+
+  /// No description provided for @verifyAndChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify & change'**
+  String get verifyAndChange;
+
+  /// No description provided for @phoneChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number changed'**
+  String get phoneChanged;
+
+  /// No description provided for @profileSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile saved'**
+  String get profileSaved;
+
+  /// No description provided for @personalDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal details'**
+  String get personalDetails;
+
+  /// No description provided for @discardDocumentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this document?'**
+  String get discardDocumentTitle;
+
+  /// No description provided for @discardDocumentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It hasn’t been saved. The files and details you added will be lost.'**
+  String get discardDocumentBody;
+
+  /// No description provided for @keepEditing.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep editing'**
+  String get keepEditing;
+
+  /// No description provided for @discard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get discard;
+
+  /// No description provided for @uploadingStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading {n} of {count}…'**
+  String uploadingStep({required int n, required int count});
+
+  /// No description provided for @savingStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get savingStep;
 }
 
 class _AppLocalizationsDelegate

@@ -416,4 +416,15 @@ export const tripRoutes = {
     query: z.object({ since: DateTime.optional() }),
     response: z.array(Trip),
   }),
+  myTripsBetween: defineRoute({
+    method: 'GET',
+    path: '/me/trips/range',
+    summary:
+      "The signed-in driver's trips whose scheduled window overlaps [from, to), any status " +
+      '(past trips and the schedule calendar; at most 62 days)',
+    tag: 'trips',
+    access: access.roles('driver'),
+    query: z.object({ from: DateTime, to: DateTime }),
+    response: z.array(Trip),
+  }),
 };

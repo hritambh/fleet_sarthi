@@ -189,6 +189,31 @@ export class TripsService {
     });
   }
 
+  /**
+   * The driver's trips whose scheduled window overlaps [from, to), any status
+   * (past trips and the schedule calendar in the driver app).
+   */
+  async myTripsBetween(auth: TenantAuth, from: Date, to: Date): Promise<Trip[]> {
+    if (to <= from || to.getTime() - from.getTime() > 62 * 86_400_000) {
+      throw new AppError('VALIDATION_FAILED', 'Pick a range of at most 62 days', {
+        field: 'to',
+      });
+    }
+    return this.db.tenant(auth.orgId, async (tx) => {
+      const driver = await tx.driver.findFirst({
+        where: { orgId: tx.orgId, userId: auth.userId },
+        select: { id: true },
+      });
+      if (!driver) return [];
+      const rows = await this.trips.findRows(
+        tx,
+        { driverId: driver.id, scheduledStartAt: { lt: to }, scheduledEndAt: { gt: from } },
+        500,
+      );
+      return this.trips.views(tx, rows);
+    });
+  }
+
   async events(auth: TenantAuth, id: string) {
     return this.db.tenant(auth.orgId, async (tx) => {
       const row = await this.trips.findRow(tx, id);

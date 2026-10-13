@@ -77,6 +77,23 @@ export class AuthController {
     return this.otp.request(body.phone, req.ip ?? 'unknown');
   }
 
+  @Route(r.requestPhoneChange)
+  requestPhoneChange(
+    @Input() { body }: RouteInput<typeof r.requestPhoneChange>,
+    @Req() req: Request,
+  ): Promise<RouteOutput<typeof r.requestPhoneChange>> {
+    return this.otp.request(body.phone, req.ip ?? 'unknown');
+  }
+
+  @Route(r.changePhone)
+  async changePhone(
+    @Auth() auth: AuthContext,
+    @Input() { body }: RouteInput<typeof r.changePhone>,
+  ): Promise<RouteOutput<typeof r.changePhone>> {
+    await this.otp.verify(body.phone, body.code);
+    return { phone: await this.sessions.changePhone(auth, body.phone) };
+  }
+
   @Route(r.signup)
   signup(
     @Input() { body }: RouteInput<typeof r.signup>,

@@ -70,9 +70,9 @@ void main() {
       await settle(tester);
       expect(find.text('My trips'), findsOneWidget);
       expect(find.byKey(const Key('owner-nav')), findsNothing);
-      await tester.tap(find.byKey(const Key('driver-menu')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('switch-workspace')));
+      await tester.tap(find.byKey(const Key('driver-nav-profile')));
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('profile-workspace')));
       await tester.pumpAndSettle();
       expect(
         find.byKey(
@@ -123,9 +123,9 @@ void main() {
       expect(find.text('My trips'), findsOneWidget);
       expect(h.prefs.getString('app_mode_v1'), 'driver');
 
-      await tester.tap(find.byKey(const Key('driver-menu')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('switch-workspace')));
+      await tester.tap(find.byKey(const Key('driver-nav-profile')));
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('profile-workspace')));
       await tester.pumpAndSettle();
       await tester.tap(
         find.byKey(

@@ -54,6 +54,12 @@ function toDriver(row: DriverRow): Driver {
         : 'active',
     payRule: row.payRule === null ? null : PayRule.parse(row.payRule),
     vehicles: row.vehicles.map((link) => link.vehicle),
+    photoMediaId: row.photoMediaId,
+    dateOfBirth: row.dateOfBirth,
+    email: row.email,
+    address: row.address,
+    emergencyContactName: row.emergencyContactName,
+    emergencyContactPhone: row.emergencyContactPhone,
     createdAt: row.createdAt,
   };
 }

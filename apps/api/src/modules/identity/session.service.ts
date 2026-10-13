@@ -309,6 +309,22 @@ export class SessionService {
     return this.db.system((tx) => this.repo.updateUserName(tx, auth.userId, name));
   }
 
+  /** Moves the user to a number they proved with an OTP; CONFLICT when someone has it. */
+  async changePhone(auth: AuthContext, phone: string): Promise<string> {
+    return this.db.system(async (tx) => {
+      const taken = await tx.user.findUnique({ where: { phoneE164: phone }, select: { id: true } });
+      if (taken && taken.id !== auth.userId) {
+        throw new AppError('CONFLICT', 'Another account already uses this number');
+      }
+      const user = await tx.user.update({
+        where: { id: auth.userId },
+        data: { phoneE164: phone },
+        select: { phoneE164: true },
+      });
+      return user.phoneE164;
+    });
+  }
+
   /** Rotates `refreshToken` into a new session for `orgId` (used after creating an org). */
   async rotateInto(auth: AuthContext, refreshToken: string, orgId: string): Promise<Session> {
     return this.switchOrg(auth, refreshToken, orgId);

@@ -4,16 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/providers.dart';
 import '../../core/repositories/trips_repository.dart';
 import '../../l10n/app_localizations.dart';
-import '../account/account_security_screen.dart';
 import '../common/errors.dart';
 import '../common/format.dart';
-import '../common/language_picker.dart';
 import '../common/widgets.dart';
 import '../fuel/fuel_fill_screen.dart';
 import 'driver_home.dart';
 import 'driver_summary.dart';
 import 'new_trip_screen.dart';
-import '../workspaces/workspace_switcher.dart';
 
 enum TripGroup { onTheRoad, today, upcoming, recent }
 
@@ -79,34 +76,7 @@ class TripsScreen extends ConsumerWidget {
               MaterialPageRoute<void>(builder: (_) => const FuelFillScreen()),
             ),
           ),
-          PopupMenuButton<String>(
-            key: const Key('driver-menu'),
-            onSelected: (value) => switch (value) {
-              'workspace' => showWorkspaceSwitcher(context, ref),
-              'language' => showLanguagePicker(context, ref),
-              'security' => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const AccountSecurityScreen(),
-                ),
-              ),
-              'signout' => ref.read(authProvider.notifier).signOut(),
-              _ => null,
-            },
-            itemBuilder: (_) => [
-              PopupMenuItem(
-                key: const Key('switch-workspace'),
-                value: 'workspace',
-                child: Text(l.switchWorkspace),
-              ),
-              PopupMenuItem(value: 'language', child: Text(l.language)),
-              PopupMenuItem(
-                key: const Key('driver-account-security'),
-                value: 'security',
-                child: Text(l.accountSecurity),
-              ),
-              PopupMenuItem(value: 'signout', child: Text(l.signOut)),
-            ],
-          ),
+          // Fleet, language, security and sign out are on the Profile tab.
         ],
       ),
       body: Column(

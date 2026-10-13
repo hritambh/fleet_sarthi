@@ -2,6 +2,7 @@ import { Controller } from '@nestjs/common';
 import { fleetRoutes as r, type RouteInput, type RouteOutput } from '@taxcy/contracts';
 import { hasRole, type TenantAuth } from '../../platform/auth/auth-context.js';
 import { Input, Route, Tenant } from '../../platform/http/route.js';
+import { notFound } from '../../platform/errors.js';
 import { Db } from '../../platform/prisma.service.js';
 import { DocumentsService } from './documents.service.js';
 import { FleetRepository } from './fleet.repository.js';
@@ -151,6 +152,85 @@ export class FleetController {
     @Input() { params, body }: RouteInput<typeof r.renewDocument>,
   ): Promise<RouteOutput<typeof r.renewDocument>> {
     return this.db.tenant(a.orgId, (tx) => this.documents.renew(tx, params.id, body));
+  }
+
+  @Route(r.approveDocument)
+  approveDocument(
+    @Tenant() a: TenantAuth,
+    @Input() { params }: RouteInput<typeof r.approveDocument>,
+  ): Promise<RouteOutput<typeof r.approveDocument>> {
+    return this.db.tenant(a.orgId, (tx) => this.documents.approve(tx, params.id));
+  }
+
+  @Route(r.rejectDocument)
+  rejectDocument(
+    @Tenant() a: TenantAuth,
+    @Input() { params, body }: RouteInput<typeof r.rejectDocument>,
+  ): Promise<RouteOutput<typeof r.rejectDocument>> {
+    return this.db.tenant(a.orgId, (tx) => this.documents.reject(tx, params.id, body.note));
+  }
+
+  @Route(r.myDriver)
+  myDriver(@Tenant() a: TenantAuth): Promise<RouteOutput<typeof r.myDriver>> {
+    return this.db.tenant(a.orgId, async (tx) => {
+      const me = await this.repo.findDriverByUser(tx, a.userId);
+      if (!me) throw notFound('Driver');
+      return me;
+    });
+  }
+
+  @Route(r.updateMyDriver)
+  async updateMyDriver(
+    @Tenant() a: TenantAuth,
+    @Input() { body }: RouteInput<typeof r.updateMyDriver>,
+  ): Promise<RouteOutput<typeof r.updateMyDriver>> {
+    const driver = await this.db.tenant(a.orgId, async (tx) => {
+      const me = await this.repo.findDriverByUser(tx, a.userId);
+      if (!me) throw notFound('Driver');
+      return this.fleet.updateDriver(tx, me.id, body);
+    });
+    // Their own name is their account's name too.
+    if (body.name) {
+      const name = body.name;
+      await this.db.system((tx) => tx.user.update({ where: { id: a.userId }, data: { name } }));
+    }
+    return driver;
+  }
+
+  @Route(r.myDocuments)
+  myDocuments(@Tenant() a: TenantAuth): Promise<RouteOutput<typeof r.myDocuments>> {
+    return this.db.tenant(a.orgId, async (tx) => {
+      const me = await this.repo.findDriverByUser(tx, a.userId);
+      return me ? this.documents.list(tx, { driverId: me.id }) : [];
+    });
+  }
+
+  @Route(r.submitMyDocument)
+  submitMyDocument(
+    @Tenant() a: TenantAuth,
+    @Input() { body }: RouteInput<typeof r.submitMyDocument>,
+  ): Promise<RouteOutput<typeof r.submitMyDocument>> {
+    return this.db.tenant(a.orgId, async (tx) => {
+      const me = await this.repo.findDriverByUser(tx, a.userId);
+      if (!me) throw notFound('Driver');
+      return this.documents.create(
+        tx,
+        { ...body, driverId: me.id },
+        { userId: a.userId, driverId: me.id },
+      );
+    });
+  }
+
+  @Route(r.renewMyDocument)
+  renewMyDocument(
+    @Tenant() a: TenantAuth,
+    @Input() { params, body }: RouteInput<typeof r.renewMyDocument>,
+  ): Promise<RouteOutput<typeof r.renewMyDocument>> {
+    return this.db.tenant(a.orgId, async (tx) => {
+      const me = await this.repo.findDriverByUser(tx, a.userId);
+      if (!me) throw notFound('Driver');
+      return this.documents.renew(tx, params.id, body, { userId: a.userId, driverId: me.id });
+    });
   }
 
   @Route(r.getAuditSettings)

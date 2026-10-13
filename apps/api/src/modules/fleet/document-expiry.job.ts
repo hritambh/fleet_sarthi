@@ -28,7 +28,12 @@ export class DocumentExpiryJob {
           Date.parse(`${today}T00:00:00Z`) + Math.max(...audit.docAlertDays) * 86_400_000,
         );
         const docs = await tx.document.findMany({
-          where: { orgId: org.id, supersededBy: null, expiresOn: { lte: horizon } },
+          where: {
+            orgId: org.id,
+            supersededBy: null,
+            reviewStatus: 'approved',
+            expiresOn: { lte: horizon },
+          },
         });
         for (const doc of docs) await this.documents.evaluateAlerts(tx, doc, today);
         return docs.length;

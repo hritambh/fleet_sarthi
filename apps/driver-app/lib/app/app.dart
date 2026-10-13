@@ -6,7 +6,7 @@ import '../core/api/models.dart';
 import '../features/common/widgets.dart';
 import '../features/login/login_screen.dart';
 import '../features/owner/owner_shell.dart';
-import '../features/trips/trips_screen.dart';
+import '../features/driver/driver_shell.dart';
 import '../features/workspaces/get_started_screen.dart';
 import '../l10n/app_localizations.dart';
 import 'preferences.dart';
@@ -106,7 +106,7 @@ class _DriverHomeState extends ConsumerState<_DriverHome> {
       );
     }
     return const SyncCoordinator(
-      child: SyncNoticeListener(child: TripsScreen()),
+      child: SyncNoticeListener(child: DriverShell()),
     );
   }
 }

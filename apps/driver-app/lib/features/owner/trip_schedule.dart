@@ -6,6 +6,7 @@ import '../../app/theme.dart';
 import '../../core/api/models.dart';
 import '../../core/api/owner_api.dart';
 import '../common/format.dart';
+import '../driver/driver_providers.dart';
 import 'owner_providers.dart';
 import 'owner_text.dart';
 import 'owner_widgets.dart';
@@ -13,13 +14,26 @@ import 'trips/owner_trips_screen.dart';
 
 /// A vehicle's or a driver's trips on a month calendar: booked (unavailable)
 /// days are red, tapping a day lists its trips. Days are IST calendar days.
+///
+/// [TripSchedule.mine] is the signed-in driver's own calendar in the driver
+/// app, with [tripTile] for each trip of the chosen day.
 class TripSchedule extends ConsumerStatefulWidget {
   const TripSchedule({this.vehicleId, this.driverId, this.now, super.key})
-    : assert((vehicleId == null) != (driverId == null));
+    : assert((vehicleId == null) != (driverId == null)),
+      mine = false,
+      tripTile = null;
 
-  /// Exactly one of the two.
+  const TripSchedule.mine({required this.tripTile, this.now, super.key})
+    : vehicleId = null,
+      driverId = null,
+      mine = true;
+
+  /// Exactly one of the two (owner mode).
   final String? vehicleId;
   final String? driverId;
+
+  final bool mine;
+  final Widget Function(Trip trip)? tripTile;
 
   /// Today, for tests; defaults to the clock.
   final DateTime? now;
@@ -49,6 +63,16 @@ class _TripScheduleState extends ConsumerState<TripSchedule> {
     overlapping: true,
   );
 
+  TripRange get _range => (from: _filter.from!, to: _filter.to!);
+
+  AsyncValue<List<Trip>> _watch() => widget.mine
+      ? ref.watch(myTripsBetweenProvider(_range))
+      : ref.watch(ownerTripsProvider(_filter));
+
+  Future<List<Trip>> _refresh() => widget.mine
+      ? ref.refresh(myTripsBetweenProvider(_range).future)
+      : ref.refresh(ownerTripsProvider(_filter).future);
+
   void _goTo(DateTime month) => setState(() {
     _month = _firstOf(month);
     final today = DateTime.parse(_today);
@@ -73,9 +97,9 @@ class _TripScheduleState extends ConsumerState<TripSchedule> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final fmt = context.fmt;
-    final trips = ref.watch(ownerTripsProvider(_filter));
+    final trips = _watch();
     return RefreshPage(
-      onRefresh: () => ref.refresh(ownerTripsProvider(_filter).future),
+      onRefresh: _refresh,
       children: [
         _CalendarWidth(
           child: Row(
@@ -110,7 +134,7 @@ class _TripScheduleState extends ConsumerState<TripSchedule> {
         ),
         AsyncView(
           value: trips,
-          onRetry: () => ref.invalidate(ownerTripsProvider(_filter)),
+          onRetry: _refresh,
           builder: (list) {
             final booked = list.where((t) => t.status != 'cancelled').toList();
             final byDay = <String, List<Trip>>{};
@@ -143,7 +167,8 @@ class _TripScheduleState extends ConsumerState<TripSchedule> {
                 if (dayTrips.isEmpty)
                   EmptyState(l.noTripsThisDay)
                 else
-                  for (final t in dayTrips) OwnerTripTile(t),
+                  for (final t in dayTrips)
+                    widget.tripTile?.call(t) ?? OwnerTripTile(t),
               ],
             );
           },

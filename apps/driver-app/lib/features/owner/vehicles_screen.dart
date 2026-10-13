@@ -655,6 +655,7 @@ class _VehicleDocuments extends ConsumerWidget {
         Align(
           alignment: Alignment.centerRight,
           child: TextButton.icon(
+            key: const Key('vehicle-add-document'),
             icon: const Icon(Icons.add),
             label: Text(context.l10n.addDocument),
             onPressed: () => openScreen<void>(
