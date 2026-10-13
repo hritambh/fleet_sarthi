@@ -40,6 +40,7 @@ export type ReviewItem = Get<'/review-items'>[number];
 export type SettlementSummary = Get<'/settlements'>[number];
 export type SettlementDetail = Get<'/settlements/{date}/drivers/{driverId}'>;
 export type SettlementLine = SettlementDetail['lines'][number];
+export type MonthlyAnalytics = Get<'/analytics/monthly'>;
 export type AuditSettings = Get<'/settings/audit'>;
 export type PayRule = Get<'/settings/driver-pay'>;
 export type TripStatus = Trip['status'];

@@ -16,6 +16,7 @@ export const keys = {
   alerts: ['alerts'] as const,
   review: ['review-items'] as const,
   settlements: ['settlements'] as const,
+  analytics: ['analytics'] as const,
   settings: ['settings'] as const,
   media: (id: string) => ['media', id] as const,
   me: ['me'] as const,
@@ -24,6 +25,16 @@ export const keys = {
 /** The signed-in user (with hasPassword) and their memberships. */
 export function useMe() {
   return useQuery({ queryKey: keys.me, queryFn: () => call(api.GET('/me')) });
+}
+
+/** A month of daily fuel, revenue, distance and per-trip averages (IST days). */
+export function useMonthlyAnalytics(period: { year: number; month: number }) {
+  return useQuery({
+    queryKey: [...keys.analytics, period],
+    queryFn: () =>
+      call(api.GET('/analytics/monthly', { params: { query: period } })),
+    placeholderData: keepPreviousData,
+  });
 }
 
 export function useVehicles(status?: 'active' | 'inactive') {

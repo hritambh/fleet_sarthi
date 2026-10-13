@@ -343,47 +343,43 @@ function VehicleFuelSummary({ vehicleId }: { vehicleId: string }) {
   );
 }
 
-export function FuelIndexPage() {
+/** Every vehicle with its latest fuel verdict; each row opens that vehicle's fuel history. */
+export function VehicleFuelList() {
   const { t } = useTranslation();
   const vehicles = useVehicles();
   return (
-    <>
-      <PageHeader title={t('nav.fuel')} description={t('fleet.fuel.description')} />
-      <Card>
-        <QueryState query={vehicles}>
-          {(list) =>
-            list.length === 0 ? (
-              <EmptyState title={t('fleet.fuel.noVehicles')}>
-                <Link className="text-brand-700 hover:underline" to="/vehicles">
-                  {t('fleet.fuel.addVehicle')}
+    <QueryState query={vehicles}>
+      {(list) =>
+        list.length === 0 ? (
+          <EmptyState title={t('fleet.fuel.noVehicles')}>
+            <Link className="text-brand-700 hover:underline" to="/vehicles">
+              {t('fleet.fuel.addVehicle')}
+            </Link>
+          </EmptyState>
+        ) : (
+          <ul className="divide-y divide-slate-100">
+            {list.map((v) => (
+              <li key={v.id}>
+                <Link
+                  to={`/fuel/${v.id}`}
+                  className="flex flex-wrap items-center justify-between gap-3 px-1 py-3 hover:bg-slate-50"
+                >
+                  <span>
+                    <span className="font-medium text-slate-900">
+                      {fmtRegistration(v.registrationNo)}
+                    </span>
+                    <span className="ml-2 text-sm text-slate-600">
+                      {v.make} {v.model} · {t(`enums.fuelType.${v.fuelType}`)}
+                    </span>
+                  </span>
+                  <VehicleFuelSummary vehicleId={v.id} />
                 </Link>
-              </EmptyState>
-            ) : (
-              <ul className="divide-y divide-slate-100">
-                {list.map((v) => (
-                  <li key={v.id}>
-                    <Link
-                      to={`/fuel/${v.id}`}
-                      className="flex flex-wrap items-center justify-between gap-3 px-1 py-3 hover:bg-slate-50"
-                    >
-                      <span>
-                        <span className="font-medium text-slate-900">
-                          {fmtRegistration(v.registrationNo)}
-                        </span>
-                        <span className="ml-2 text-sm text-slate-600">
-                          {v.make} {v.model} · {t(`enums.fuelType.${v.fuelType}`)}
-                        </span>
-                      </span>
-                      <VehicleFuelSummary vehicleId={v.id} />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )
-          }
-        </QueryState>
-      </Card>
-    </>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </QueryState>
   );
 }
 
@@ -399,7 +395,7 @@ export function VehicleFuelPage() {
             ? t('fleet.fuel.vehicleTitle', {
                 registrationNo: fmtRegistration(vehicle.data.registrationNo),
               })
-            : t('nav.fuel')
+            : t('fleet.fuel.fills')
         }
         description={vehicle.data ? `${vehicle.data.make} ${vehicle.data.model}` : undefined}
         actions={

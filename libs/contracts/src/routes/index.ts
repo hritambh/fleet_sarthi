@@ -1,4 +1,5 @@
 import type { RouteDef } from '../http.js';
+import { analyticsRoutes } from './analytics.js';
 import { fleetRoutes } from './fleet.js';
 import { fuelRoutes } from './fuel.js';
 import { healthRoutes } from './health.js';
@@ -8,6 +9,7 @@ import { alertRoutes, moneyRoutes } from './money.js';
 import { telemetryRoutes } from './telemetry.js';
 import { tripRoutes } from './trips.js';
 
+export * from './analytics.js';
 export * from './fleet.js';
 export * from './fuel.js';
 export { healthRoutes } from './health.js';
@@ -28,6 +30,7 @@ const groups: readonly Record<string, RouteDef>[] = [
   telemetryRoutes,
   moneyRoutes,
   alertRoutes,
+  analyticsRoutes,
 ];
 
 /** Every API route. The API asserts at startup that each has exactly one handler. */

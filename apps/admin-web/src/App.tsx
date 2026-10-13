@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Route, Routes } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router';
 import { useAuth } from './auth/context.js';
 import { LoginPage } from './auth/LoginPage.js';
 import { CreateOrgPage, NotStaffPage } from './auth/OnboardingPages.js';
@@ -26,8 +26,8 @@ const VehiclesPage = lazy(async () => ({
 const VehicleDetailPage = lazy(async () => ({
   default: (await import('./pages/VehicleDetailPage.js')).VehicleDetailPage,
 }));
-const FuelIndexPage = lazy(async () => ({
-  default: (await import('./pages/FuelPages.js')).FuelIndexPage,
+const AnalyticsPage = lazy(async () => ({
+  default: (await import('./pages/AnalyticsPage.js')).AnalyticsPage,
 }));
 const VehicleFuelPage = lazy(async () => ({
   default: (await import('./pages/FuelPages.js')).VehicleFuelPage,
@@ -52,7 +52,8 @@ export function App() {
           <Route path="vehicles/:id" element={<VehicleDetailPage />} />
           <Route path="drivers" element={<DriversPage />} />
           <Route path="documents" element={<DocumentsPage />} />
-          <Route path="fuel" element={<FuelIndexPage />} />
+          <Route path="analytics" element={<AnalyticsPage />} />
+          <Route path="fuel" element={<Navigate to="/analytics" replace />} />
           <Route path="fuel/:vehicleId" element={<VehicleFuelPage />} />
           <Route path="alerts" element={<AlertsPage />} />
           <Route path="review" element={<ReviewPage />} />

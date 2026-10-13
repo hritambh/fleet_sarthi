@@ -1,4 +1,5 @@
 import { AlertsModule } from './modules/alerts/alerts.module.js';
+import { AnalyticsModule } from './modules/analytics/analytics.module.js';
 import { FleetModule } from './modules/fleet/fleet.module.js';
 import { FuelModule } from './modules/fuel/fuel.module.js';
 import { HealthModule } from './modules/health/health.module.js';
@@ -11,6 +12,7 @@ import { TripsModule } from './modules/trips/trips.module.js';
 /** Business modules, shared by the HTTP app and the workers process. */
 export const DOMAIN_MODULES = [
   AlertsModule,
+  AnalyticsModule,
   HealthModule,
   IdentityModule,
   MediaModule,

@@ -1035,6 +1035,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/analytics/monthly': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Daily fuel, revenue, distance and per-trip averages for one IST month */
+    get: operations['getAnalyticsMonthly'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -10795,6 +10812,118 @@ export interface operations {
             /** Format: date-time */
             createdAt: string;
             resolvedAt: string | null;
+          };
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            error: {
+              /** @enum {string} */
+              code:
+                | 'VALIDATION_FAILED'
+                | 'UNAUTHENTICATED'
+                | 'TOKEN_EXPIRED'
+                | 'FORBIDDEN_ROLE'
+                | 'NO_ACTIVE_ORG'
+                | 'NOT_FOUND'
+                | 'ILLEGAL_TRANSITION'
+                | 'TRIP_CANCELLED'
+                | 'TRIP_REASSIGNED'
+                | 'VEHICLE_BUSY'
+                | 'DRIVER_BUSY'
+                | 'DRIVER_ON_TRIP'
+                | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
+                | 'CANCELLATION_PENDING'
+                | 'ALREADY_SETTLED'
+                | 'IDEMPOTENCY_CONFLICT'
+                | 'IDEMPOTENCY_KEY_REQUIRED'
+                | 'VERSION_CONFLICT'
+                | 'CONFLICT'
+                | 'FUEL_TYPE_MISMATCH'
+                | 'ODOMETER_BEFORE_START'
+                | 'OTP_INVALID'
+                | 'OTP_EXPIRED'
+                | 'INVALID_CREDENTIALS'
+                | 'ACCOUNT_EXISTS'
+                | 'RATE_LIMITED'
+                | 'UPLOAD_NOT_FOUND'
+                | 'UPLOAD_MISMATCH'
+                | 'INTERNAL';
+              message: string;
+              details?: unknown;
+              requestId?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  getAnalyticsMonthly: {
+    parameters: {
+      query: {
+        year: number;
+        month: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            year: number;
+            month: number;
+            days: string[];
+            vehicles: {
+              /** Format: uuid */
+              id: string;
+              registrationNo: string;
+              make: string;
+              model: string;
+              /** @enum {string} */
+              fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng';
+            }[];
+            fuel: {
+              /** Format: uuid */
+              vehicleId: string;
+              /** @enum {string} */
+              unit: 'L' | 'kg';
+              quantity: number[];
+              costPaise: number[];
+            }[];
+            revenue: {
+              /** Format: uuid */
+              vehicleId: string;
+              billedPaise: number[];
+              collectedPaise: number[];
+            }[];
+            distance: {
+              /** Format: uuid */
+              vehicleId: string;
+              km: number[];
+            }[];
+            distanceTotalKm: number[];
+            perTrip: {
+              trips: number[];
+              activeVehicles: number[];
+              revenuePerTripPaise: (number | null)[];
+              kmPerTrip: (number | null)[];
+              fuelCostPerTripPaise: (number | null)[];
+              tripsPerVehicle: (number | null)[];
+            };
           };
         };
       };

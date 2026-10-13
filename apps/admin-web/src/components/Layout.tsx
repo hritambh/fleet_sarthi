@@ -2,10 +2,10 @@ import { cn } from '@taxcy/ui';
 import {
   AlertTriangle,
   Banknote,
+  ChartLine,
   Car,
   ClipboardCheck,
   FileText,
-  Fuel,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -32,7 +32,7 @@ interface NavItem {
     | 'vehicles'
     | 'drivers'
     | 'documents'
-    | 'fuel'
+    | 'analytics'
     | 'alerts'
     | 'review'
     | 'settlements'
@@ -47,7 +47,7 @@ const NAV: NavItem[] = [
   { to: '/vehicles', label: 'vehicles', icon: Car },
   { to: '/drivers', label: 'drivers', icon: Users },
   { to: '/documents', label: 'documents', icon: FileText },
-  { to: '/fuel', label: 'fuel', icon: Fuel },
+  { to: '/analytics', label: 'analytics', icon: ChartLine },
   { to: '/alerts', label: 'alerts', icon: AlertTriangle, badge: 'alerts' },
   { to: '/review', label: 'review', icon: ClipboardCheck, badge: 'review' },
   { to: '/settlements', label: 'settlements', icon: Banknote },
