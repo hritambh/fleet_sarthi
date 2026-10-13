@@ -31,7 +31,7 @@ class TaxcyDriverApp extends ConsumerWidget {
   );
 }
 
-/// Signed out → the welcome page on a first visit, else login. Signed in: owners and managers get owner mode, drivers
+/// Signed out → the welcome page, which leads to sign up or login. Signed in: owners and managers get owner mode, drivers
 /// their trips (after the first-run location consent). An owner-driver (DCO)
 /// switches between the two; the choice is remembered. Someone in no fleet yet
 /// gets the get-started screen (drive for an owner, or set up a fleet).
@@ -62,21 +62,21 @@ class _Root extends ConsumerWidget {
   }
 }
 
-/// The welcome page until the visitor picks "Get started" (sign up) or
-/// "Sign in"; then the login card, which can go back to the welcome page.
-class _SignedOut extends ConsumerStatefulWidget {
+/// The welcome page, every time someone opens the app (or signs out), until
+/// they pick "Get started" (sign up) or "Sign in"; then the login card, which
+/// can go back to the welcome page.
+class _SignedOut extends StatefulWidget {
   const _SignedOut();
 
   @override
-  ConsumerState<_SignedOut> createState() => _SignedOutState();
+  State<_SignedOut> createState() => _SignedOutState();
 }
 
-class _SignedOutState extends ConsumerState<_SignedOut> {
-  late bool _welcome = !ref.read(welcomeSeenProvider);
+class _SignedOutState extends State<_SignedOut> {
+  var _welcome = true;
   LoginFlow _flow = LoginFlow.password;
 
   void _login(LoginFlow flow) {
-    ref.read(welcomeSeenProvider.notifier).markSeen();
     setState(() {
       _welcome = false;
       _flow = flow;

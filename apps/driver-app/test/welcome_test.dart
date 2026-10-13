@@ -6,21 +6,17 @@ import 'support/harness.dart';
 
 const _scroll = Key('welcome-scroll');
 
-/// The app signed out on a device that has never been past the welcome page.
+/// The app, signed out.
 Future<Harness> firstVisit(
   WidgetTester tester, {
   String language = 'en',
   Size size = const Size(420, 2000),
-  bool seen = false,
 }) async {
   tester.view
     ..devicePixelRatio = 1
     ..physicalSize = size;
   addTearDown(tester.view.reset);
-  final h = await Harness.create(
-    language: language,
-    preferences: {'welcome_seen_v1': seen},
-  );
+  final h = await Harness.create(language: language);
   addTearDown(h.dispose);
   await tester.pumpWidget(h.wrap(const TaxcyDriverApp()));
   await settle(tester);
@@ -41,19 +37,18 @@ Future<void> tapVisible(WidgetTester tester, Key key) async {
 }
 
 void main() {
-  testWidgets('a first visit opens on the welcome page', (tester) async {
+  testWidgets('signed out, the app opens on the welcome page', (tester) async {
     await firstVisit(tester);
     expect(find.text('Know what your cars'), findsOneWidget);
     expect(find.text('really did today.'), findsOneWidget);
     expect(find.byKey(const Key('password-field')), findsNothing);
   });
 
-  testWidgets('get started opens sign up, and is remembered', (tester) async {
-    final h = await firstVisit(tester);
+  testWidgets('get started opens sign up', (tester) async {
+    await firstVisit(tester);
     await tapVisible(tester, const Key('welcome-get-started'));
     expect(find.text('Create your account'), findsOneWidget);
     expect(find.byKey(const Key('new-password-field')), findsOneWidget);
-    expect(h.prefs.getBool('welcome_seen_v1'), isTrue);
   });
 
   testWidgets('the final call to action opens sign up too', (tester) async {
@@ -71,14 +66,6 @@ void main() {
     await tester.tap(find.byKey(const Key('login-about')));
     await settle(tester);
     expect(find.text('Know what your cars'), findsOneWidget);
-  });
-
-  testWidgets('a returning visitor goes straight to the login card', (
-    tester,
-  ) async {
-    await firstVisit(tester, seen: true);
-    expect(find.byKey(const Key('password-field')), findsOneWidget);
-    expect(find.text('What is Fleet Sarthi?'), findsOneWidget);
   });
 
   testWidgets('the FAQ opens an answer', (tester) async {

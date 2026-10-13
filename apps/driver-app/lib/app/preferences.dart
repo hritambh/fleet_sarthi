@@ -8,7 +8,6 @@ import '../l10n/app_localizations.dart';
 
 const _localeKey = 'locale_v1';
 const _modeKey = 'app_mode_v1';
-const _welcomeKey = 'welcome_seen_v1';
 
 /// Preferences read once at startup (main() overrides this); null in tests,
 /// which then start from the defaults.
@@ -78,24 +77,5 @@ class AppModeController extends Notifier<AppMode?> {
   void set(AppMode mode) {
     state = mode;
     unawaited(_write((prefs) => prefs.setString(_modeKey, mode.name)));
-  }
-}
-
-/// Whether this device has gone past the welcome page once. A first visit
-/// (and a shared link) opens on it; after that, signing out goes straight to
-/// the login card.
-final welcomeSeenProvider = NotifierProvider<WelcomeSeenController, bool>(
-  WelcomeSeenController.new,
-);
-
-class WelcomeSeenController extends Notifier<bool> {
-  @override
-  bool build() =>
-      ref.watch(startupPreferencesProvider)?.getBool(_welcomeKey) ?? false;
-
-  void markSeen() {
-    if (state) return;
-    state = true;
-    unawaited(_write((prefs) => prefs.setBool(_welcomeKey, true)));
   }
 }

@@ -222,6 +222,9 @@ void main() {
       addTearDown(h.dispose);
       await tester.pumpWidget(h.wrap(const TaxcyDriverApp()));
       await settle(tester);
+      expect(find.text('जानिए आपकी गाड़ियों ने'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('welcome-sign-in')));
+      await settle(tester);
       expect(find.text('मोबाइल नंबर'), findsOneWidget);
       expect(find.text('पासवर्ड'), findsOneWidget);
       expect(find.text('लॉग इन करें'), findsOneWidget);
@@ -259,6 +262,8 @@ void main() {
       final h = await Harness.create();
       addTearDown(h.dispose);
       await tester.pumpWidget(h.wrap(const TaxcyDriverApp()));
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('welcome-sign-in')));
       await settle(tester);
       expect(find.text('Log in'), findsOneWidget);
 

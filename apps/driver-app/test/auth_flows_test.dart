@@ -16,7 +16,8 @@ const _newPassword = Key('new-password-field');
 const _confirm = Key('confirm-password-field');
 const _submit = Key('login-submit');
 
-/// The app, signed out, on a tall phone (so the whole login card fits).
+/// The app, signed out, on a tall phone (so the whole login card fits), past
+/// the welcome page.
 Future<Harness> signedOut(
   WidgetTester tester, {
   String language = 'en',
@@ -32,6 +33,7 @@ Future<Harness> signedOut(
   setUp?.call(h);
   await tester.pumpWidget(h.wrap(const TaxcyDriverApp()));
   await settle(tester);
+  await tapKey(tester, const Key('welcome-sign-in'));
   return h;
 }
 
@@ -346,6 +348,8 @@ void main() {
     await settle(tester);
     expect(h.auth.names, contains('logout'));
     expect(await h.sessions.load(), isNull);
+    expect(find.byKey(const Key('welcome-get-started')), findsOneWidget);
+    await tapKey(tester, const Key('welcome-sign-in'));
     expect(find.byKey(_password), findsOneWidget);
   });
 
