@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { Driver, FuelType, PayRule, Vehicle } from '@taxcy/contracts';
+import type { Driver, DriverProfile, FuelType, PayRule, Vehicle } from '@taxcy/contracts';
 import { Prisma, type TenantTx } from '@taxcy/db';
 import { AppError, notFound } from '../../platform/errors.js';
 import { definedOnly, type Patch } from '../../platform/patch.js';
@@ -203,11 +203,24 @@ export class FleetService {
   async updateDriver(
     tx: TenantTx,
     id: string,
-    patch: Patch<{ name: string; status: 'active' | 'inactive' }>,
+    patch: Patch<DriverProfile & { status: 'active' | 'inactive' }>,
   ): Promise<Driver> {
     await this.requireDriver(tx, id);
+    if (patch.photoMediaId) await this.assertPhoto(tx, patch.photoMediaId);
     await this.repo.updateDriver(tx, id, definedOnly(patch));
     return this.requireDriver(tx, id);
+  }
+
+  /** A profile photo: an uploaded image (kind "other"). */
+  private async assertPhoto(tx: TenantTx, mediaId: string): Promise<void> {
+    const media = await tx.mediaObject.findFirst({
+      where: { id: mediaId, orgId: tx.orgId },
+      select: { contentType: true },
+    });
+    if (!media) throw notFound('Media');
+    if (!media.contentType.startsWith('image/')) {
+      throw new AppError('VALIDATION_FAILED', 'A profile photo must be an image', { mediaId });
+    }
   }
 
   async setDriverPayRule(tx: TenantTx, id: string, payRule: PayRule | null): Promise<Driver> {

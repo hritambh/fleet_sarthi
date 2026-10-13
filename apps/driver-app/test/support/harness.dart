@@ -18,6 +18,7 @@ import 'package:taxcy_driver/l10n/app_localizations.dart';
 
 import 'auth_fakes.dart';
 import 'fakes.dart';
+import 'me_fakes.dart';
 import 'owner_fakes.dart';
 
 /// Everything a widget test needs: in-memory database, fake API, a session and
@@ -45,6 +46,7 @@ class Harness {
   final auth = FakeAuthApi();
   final phoneVerifier = FakePhoneVerifier();
   final owner = FakeOwnerApi();
+  final me = FakeMeApi();
 
   /// Photo and file bytes kept on the "device".
   final photoStore = MemoryPhotoStore();
@@ -86,6 +88,7 @@ class Harness {
       authApiProvider.overrideWithValue(auth),
       phoneVerifierProvider.overrideWithValue(phoneVerifier),
       ownerApiProvider.overrideWithValue(owner),
+      meApiProvider.overrideWithValue(me),
       mapTilesProvider.overrideWithValue(false),
       urlOpenerProvider.overrideWithValue((uri) async {
         openedUrls.add(uri);

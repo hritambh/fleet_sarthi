@@ -849,6 +849,12 @@ class FakeOwnerApi implements OwnerApi {
   }
 
   @override
+  Future<Driver> updateDriverProfile(String id, JsonMap body) async {
+    _record('updateDriverProfile', {'id': id, ...body});
+    return Driver.fromJson({...driverJson(id: id), ...body});
+  }
+
+  @override
   Future<Driver> setDriverPayRule(String id, PayRule? payRule) async {
     _record('setDriverPayRule', {'id': id, 'payRule': payRule?.toJson()});
     return Driver.fromJson(driverJson(id: id, payRule: payRule?.toJson()));
@@ -893,20 +899,66 @@ class FakeOwnerApi implements OwnerApi {
     String? driverId,
     int? expiringWithinDays,
   }) async {
-    _record('documents', {'expiringWithinDays': expiringWithinDays});
-    return documentList.map(FleetDocument.fromJson).toList();
+    _record('documents', {
+      'vehicleId': vehicleId,
+      'driverId': driverId,
+      'expiringWithinDays': expiringWithinDays,
+    });
+    return documentList
+        .where(
+          (d) =>
+              (vehicleId == null || d['vehicleId'] == vehicleId) &&
+              (driverId == null || d['driverId'] == driverId),
+        )
+        .map(FleetDocument.fromJson)
+        .toList();
   }
 
   @override
   Future<FleetDocument> createDocument(JsonMap body) async {
     _record('createDocument', body);
-    return FleetDocument.fromJson(documentJson());
+    // Kept, so lists that reload show it.
+    final mediaIds = (body['mediaIds'] as List<Object?>?) ?? const [];
+    final doc = {
+      ...documentJson(
+        id: '0199c7a2-0000-7000-8000-00000000dd${documentList.length.toString().padLeft(2, '0')}',
+        docType: body['docType']! as String,
+        status: 'valid',
+        daysLeft: 365,
+      ),
+      'vehicleId': body['vehicleId'],
+      'driverId': body['driverId'],
+      'files': [
+        for (final id in mediaIds) {'mediaId': id, 'contentType': 'image/jpeg'},
+      ],
+    };
+    documentList = [...documentList, doc];
+    return FleetDocument.fromJson(doc);
   }
 
   @override
   Future<FleetDocument> renewDocument(String id, JsonMap body) async {
     _record('renewDocument', {'id': id, ...body});
     return FleetDocument.fromJson(documentJson(status: 'valid', daysLeft: 365));
+  }
+
+  @override
+  Future<FleetDocument> approveDocument(String id) async {
+    _record('approveDocument', {'id': id});
+    return FleetDocument.fromJson({
+      ...documentList.firstWhere((d) => d['id'] == id),
+      'reviewStatus': 'approved',
+    });
+  }
+
+  @override
+  Future<FleetDocument> rejectDocument(String id, String note) async {
+    _record('rejectDocument', {'id': id, 'note': note});
+    return FleetDocument.fromJson({
+      ...documentList.firstWhere((d) => d['id'] == id),
+      'reviewStatus': 'rejected',
+      'reviewNote': note,
+    });
   }
 
   @override

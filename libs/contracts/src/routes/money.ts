@@ -128,6 +128,7 @@ export const AlertKind = z.enum([
   'document_expired',
   'cancellation_requested',
   'gps_coverage_low',
+  'document_submitted',
 ]);
 const IsoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const FuelCycleParams = z.object({
@@ -187,6 +188,10 @@ export const AlertMessage = z.discriminatedUnion('key', [
   }),
   z.object({ key: z.literal('document_expiring'), params: DocumentExpiryParams }),
   z.object({ key: z.literal('document_expired'), params: DocumentExpiryParams }),
+  z.object({
+    key: z.literal('document_submitted'),
+    params: z.object({ docType: DocType, driverName: z.string(), renewal: z.boolean() }),
+  }),
   z.object({
     key: z.literal('cancellation_requested'),
     params: z.object({

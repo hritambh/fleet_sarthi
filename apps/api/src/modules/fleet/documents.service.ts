@@ -4,9 +4,12 @@ import type { Prisma, TenantTx } from '@taxcy/db';
 import {
   daysUntil,
   expiryBucket,
+  expiryRequired,
   expirySeverity,
   explainExpiry,
+  explainSubmission,
   istBusinessDate,
+  isVehicleDocType,
 } from '@taxcy/domain';
 import { AppError, notFound } from '../../platform/errors.js';
 import { newId } from '../../platform/ids.js';
@@ -24,19 +27,35 @@ const DOCUMENT_CONTENT_TYPES = new Set([
   'application/pdf',
 ]);
 const dedupePrefix = (docId: string) => `doc:${docId}:`;
+/** The "driver uploaded a document" alert for one pending document. */
+const submissionKey = (docId: string) => `docsub:${docId}`;
 
 export interface DocumentDetails {
   number?: string | undefined;
   validFrom?: Date | undefined;
-  expiresOn: Date;
+  expiresOn?: Date | undefined;
   mediaId?: string | undefined;
   mediaIds?: string[] | undefined;
+}
+
+/** A driver's own upload: it waits for the owner's approval. */
+export interface Submitter {
+  userId: string;
+  driverId: string;
 }
 
 /** The document's files in order, from mediaIds or the older single mediaId. */
 const fileIds = (input: DocumentDetails): string[] => [
   ...new Set(input.mediaIds ?? (input.mediaId ? [input.mediaId] : [])),
 ];
+
+const assertExpiry = (docType: DocType, expiresOn: Date | undefined) => {
+  if (!expiresOn && expiryRequired(docType)) {
+    throw new AppError('VALIDATION_FAILED', 'This document needs an expiry date', {
+      field: 'expiresOn',
+    });
+  }
+};
 
 @Injectable()
 export class DocumentsService {
@@ -62,9 +81,11 @@ export class DocumentsService {
         ...(filter.vehicleId ? { vehicleId: filter.vehicleId } : {}),
         ...(filter.driverId ? { driverId: filter.driverId } : {}),
         ...(filter.includeSuperseded ? {} : { supersededBy: null }),
+        // What's due only counts documents the owner has approved.
         ...(filter.expiringWithinDays === undefined
           ? {}
           : {
+              reviewStatus: 'approved',
               expiresOn: {
                 lte: new Date(
                   Date.parse(`${today}T00:00:00Z`) + filter.expiringWithinDays * 86_400_000,
@@ -72,12 +93,16 @@ export class DocumentsService {
               },
             }),
       },
-      orderBy: [{ expiresOn: 'asc' }],
+      orderBy: [{ expiresOn: { sort: 'asc', nulls: 'last' } }, { createdAt: 'asc' }],
     });
     const files = await this.filesFor(tx, rows);
     return rows.map((r) => this.toDocument(r, today, audit.docAlertDays, files));
   }
 
+  /**
+   * Adds a document. With [by] (a driver's own upload) it's pending until the
+   * owner approves it, and the owner gets an alert.
+   */
   async create(
     tx: TenantTx,
     input: DocumentDetails & {
@@ -85,6 +110,7 @@ export class DocumentsService {
       vehicleId?: string | undefined;
       driverId?: string | undefined;
     },
+    by?: Submitter,
   ): Promise<Document> {
     if (Boolean(input.vehicleId) === Boolean(input.driverId)) {
       throw new AppError(
@@ -92,12 +118,13 @@ export class DocumentsService {
         'A document belongs to exactly one vehicle or one driver',
       );
     }
-    if ((input.docType === 'driving_licence') !== Boolean(input.driverId)) {
+    if (isVehicleDocType(input.docType) !== Boolean(input.vehicleId)) {
       throw new AppError(
         'VALIDATION_FAILED',
-        'Driving licences belong to drivers; RC, insurance, permit and PUC to vehicles',
+        'RC, insurance, permit and PUC belong to vehicles; licences, IDs and photos to drivers',
       );
     }
+    assertExpiry(input.docType, input.expiresOn);
     if (
       input.vehicleId &&
       !(await tx.vehicle.count({ where: { id: input.vehicleId, orgId: tx.orgId } }))
@@ -121,20 +148,39 @@ export class DocumentsService {
         driverId: input.driverId ?? null,
         number: input.number ?? null,
         validFrom: input.validFrom ?? null,
-        expiresOn: input.expiresOn,
+        expiresOn: input.expiresOn ?? null,
         mediaId: files[0] ?? null,
+        ...(by ? { reviewStatus: 'pending', submittedBy: by.userId } : {}),
       },
     });
     await this.saveFiles(tx, row.id, files);
-    await this.evaluateAlerts(tx, row);
+    if (by) await this.raiseSubmitted(tx, row);
+    else await this.evaluateAlerts(tx, row);
     return this.present(tx, row);
   }
 
-  /** The renewed copy replaces the old one; the old one's alerts are resolved. */
-  async renew(tx: TenantTx, id: string, input: DocumentDetails): Promise<Document> {
-    const old = await tx.document.findFirst({ where: { id, orgId: tx.orgId } });
+  /**
+   * The renewed copy replaces the old one; the old one's alerts are resolved.
+   * A driver's renewal ([by]) waits for approval and replaces it only then.
+   */
+  async renew(tx: TenantTx, id: string, input: DocumentDetails, by?: Submitter): Promise<Document> {
+    const old = await tx.document.findFirst({
+      where: { id, orgId: tx.orgId, ...(by ? { driverId: by.driverId } : {}) },
+    });
     if (!old) throw notFound('Document');
     if (old.supersededBy) throw new AppError('CONFLICT', 'This document has already been renewed');
+    if (by && old.reviewStatus !== 'approved') {
+      throw new AppError('CONFLICT', 'Only an approved document can be renewed');
+    }
+    if (
+      by &&
+      (await tx.document.count({
+        where: { orgId: tx.orgId, replacesId: old.id, reviewStatus: 'pending' },
+      }))
+    ) {
+      throw new AppError('CONFLICT', 'A renewal of this document is already waiting for approval');
+    }
+    assertExpiry(old.docType, input.expiresOn);
     const files = fileIds(input);
     for (const mediaId of files) await this.assertMedia(tx, mediaId);
     const row = await tx.document.create({
@@ -146,20 +192,50 @@ export class DocumentsService {
         driverId: old.driverId,
         number: input.number ?? old.number,
         validFrom: input.validFrom ?? null,
-        expiresOn: input.expiresOn,
+        expiresOn: input.expiresOn ?? null,
         mediaId: files[0] ?? null,
+        ...(by ? { reviewStatus: 'pending', submittedBy: by.userId, replacesId: old.id } : {}),
       },
     });
     await this.saveFiles(tx, row.id, files);
-    await tx.document.update({ where: { id: old.id }, data: { supersededBy: row.id } });
-    await this.alerts.autoResolvePrefix(tx, dedupePrefix(old.id));
+    if (by) {
+      await this.raiseSubmitted(tx, row);
+    } else {
+      await this.supersede(tx, old.id, row.id);
+      await this.evaluateAlerts(tx, row);
+    }
+    return this.present(tx, row);
+  }
+
+  /** Approves a driver's upload; a renewal then replaces the old copy. */
+  async approve(tx: TenantTx, id: string): Promise<Document> {
+    const doc = await this.requirePending(tx, id);
+    const row = await tx.document.update({
+      where: { id: doc.id },
+      data: { reviewStatus: 'approved', reviewNote: null, reviewedAt: new Date() },
+    });
+    if (doc.replacesId) await this.supersede(tx, doc.replacesId, doc.id);
+    await this.alerts.autoResolvePrefix(tx, submissionKey(doc.id));
     await this.evaluateAlerts(tx, row);
+    return this.present(tx, row);
+  }
+
+  /** Rejects a driver's upload with the reason they'll see in their app. */
+  async reject(tx: TenantTx, id: string, note: string): Promise<Document> {
+    const doc = await this.requirePending(tx, id);
+    const row = await tx.document.update({
+      where: { id: doc.id },
+      data: { reviewStatus: 'rejected', reviewNote: note, reviewedAt: new Date() },
+    });
+    await this.alerts.autoResolvePrefix(tx, submissionKey(doc.id));
     return this.present(tx, row);
   }
 
   /**
    * Raises the alert for the document's current expiry bucket (30/7/1 days ahead, or
    * expired) and resolves alerts for earlier buckets, so only the latest shows.
+   * Documents waiting for approval, rejected ones and ones without an expiry
+   * never raise one.
    */
   async evaluateAlerts(
     tx: TenantTx,
@@ -167,6 +243,10 @@ export class DocumentsService {
     today = istBusinessDate(new Date()),
   ): Promise<void> {
     if (doc.supersededBy) return;
+    if (doc.reviewStatus !== 'approved' || !doc.expiresOn) {
+      await this.alerts.autoResolvePrefix(tx, dedupePrefix(doc.id));
+      return;
+    }
     const { audit } = await this.settings.get(tx);
     const expiresOn = isoDate(doc.expiresOn);
     const bucket = expiryBucket(expiresOn, today, audit.docAlertDays);
@@ -194,6 +274,38 @@ export class DocumentsService {
       dedupeKey,
     });
     await this.alerts.autoResolvePrefix(tx, dedupePrefix(doc.id), dedupeKey);
+  }
+
+  private async requirePending(tx: TenantTx, id: string): Promise<DocumentRow> {
+    const doc = await tx.document.findFirst({ where: { id, orgId: tx.orgId } });
+    if (!doc) throw notFound('Document');
+    if (doc.reviewStatus !== 'pending') {
+      throw new AppError('CONFLICT', 'This document is not waiting for approval');
+    }
+    return doc;
+  }
+
+  private async supersede(tx: TenantTx, oldId: string, newId: string): Promise<void> {
+    await tx.document.update({ where: { id: oldId }, data: { supersededBy: newId } });
+    await this.alerts.autoResolvePrefix(tx, dedupePrefix(oldId));
+  }
+
+  private async raiseSubmitted(tx: TenantTx, doc: DocumentRow): Promise<void> {
+    const driverName = await this.subjectLabel(tx, doc);
+    await this.alerts.raise(tx, {
+      kind: 'document_submitted',
+      severity: 'info',
+      ...explainSubmission({
+        docType: doc.docType,
+        driverName,
+        renewal: doc.replacesId !== null,
+      }),
+      subjectType: 'document',
+      subjectId: doc.id,
+      driverId: doc.driverId,
+      data: { docType: doc.docType },
+      dedupeKey: submissionKey(doc.id),
+    });
   }
 
   private async subjectLabel(tx: TenantTx, doc: DocumentRow): Promise<string> {
@@ -284,14 +396,16 @@ export class DocumentsService {
     filesByDocument: ReadonlyMap<string, DocumentFile[]>,
   ): Document {
     const files = filesByDocument.get(row.id) ?? [];
-    const daysLeft = daysUntil(isoDate(row.expiresOn), today);
+    const daysLeft = row.expiresOn ? daysUntil(isoDate(row.expiresOn), today) : null;
     const status = row.supersededBy
       ? 'superseded'
-      : daysLeft < 0
-        ? 'expired'
-        : daysLeft <= Math.max(...alertDays)
-          ? 'expiring'
-          : 'valid';
+      : daysLeft === null
+        ? 'valid'
+        : daysLeft < 0
+          ? 'expired'
+          : daysLeft <= Math.max(...alertDays)
+            ? 'expiring'
+            : 'valid';
     return {
       id: row.id,
       docType: row.docType,
@@ -306,7 +420,15 @@ export class DocumentsService {
       supersededBy: row.supersededBy,
       daysLeft,
       status,
+      reviewStatus: reviewStatusOf(row.reviewStatus),
+      reviewNote: row.reviewNote,
+      submittedByDriver: row.submittedBy !== null,
+      replacesId: row.replacesId,
       createdAt: row.createdAt,
     };
   }
 }
+
+const REVIEW_STATUSES = ['pending', 'approved', 'rejected'] as const;
+const reviewStatusOf = (s: string): Document['reviewStatus'] =>
+  REVIEW_STATUSES.find((r) => r === s) ?? 'approved';

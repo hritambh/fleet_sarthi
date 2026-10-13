@@ -157,4 +157,12 @@ export class TripsController {
   ): Out<typeof r.myTrips> {
     return this.trips.myTrips(a, query.since);
   }
+
+  @Route(r.myTripsBetween)
+  myTripsBetween(
+    @Tenant() a: TenantAuth,
+    @Input() { query }: RouteInput<typeof r.myTripsBetween>,
+  ): Out<typeof r.myTripsBetween> {
+    return this.trips.myTripsBetween(a, query.from, query.to);
+  }
 }

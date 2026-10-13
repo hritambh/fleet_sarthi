@@ -63,7 +63,8 @@ void main() {
     }
     expect(find.byKey(const Key('dashboard-day')), findsOneWidget);
     expect(find.byKey(const Key('alerts-bell')), findsOneWidget);
-    expect(find.byKey(const Key('dashboard-new-trip')), findsOneWidget);
+    // New trips start from the hub's "Add trip", not a header button.
+    expect(find.byKey(const Key('dashboard-new-trip')), findsNothing);
     // The hub sits beside the scheduled rides, under the cards.
     final hub = tester.getTopLeft(find.byKey(const Key('quick-ops')));
     final rides = tester.getTopLeft(find.byKey(const Key('scheduled-rides')));
@@ -102,6 +103,17 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(BackButton), findsNothing);
     expect(find.byKey(const ValueKey('vehicle-$vehicleId')), findsOneWidget);
+  });
+
+  testWidgets('the logo and name go back to the dashboard', (tester) async {
+    await desktop(tester);
+    await tester.tap(find.byKey(const Key('side-vehicles')));
+    await settle(tester);
+    expect(find.byKey(const Key('kpi-cabs')), findsNothing);
+
+    await tester.tap(find.text('Fleet Sarthi'));
+    await settle(tester);
+    expect(find.byKey(const Key('kpi-cabs')), findsOneWidget);
   });
 
   testWidgets('trips are a table with the new-trip button in the header', (

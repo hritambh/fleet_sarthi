@@ -6,6 +6,10 @@ import 'package:taxcy_driver/features/common/consent_screen.dart';
 import 'package:taxcy_driver/features/fuel/fuel_fill_screen.dart';
 import 'package:taxcy_driver/features/account/account_security_screen.dart';
 import 'package:taxcy_driver/features/login/login_screen.dart';
+import 'package:taxcy_driver/features/driver/driver_documents_screen.dart';
+import 'package:taxcy_driver/features/driver/driver_profile_screen.dart';
+import 'package:taxcy_driver/features/driver/driver_shell.dart';
+import 'package:taxcy_driver/features/driver/driver_trips_screen.dart';
 import 'package:taxcy_driver/features/owner/alerts_inbox.dart';
 import 'package:taxcy_driver/features/owner/alerts_screen.dart';
 import 'package:taxcy_driver/features/owner/analytics_screen.dart';
@@ -150,6 +154,11 @@ void main() {
     'new trip': const NewTripScreen(),
     'log fuel': const FuelFillScreen(),
     'account security': const AccountSecurityScreen(),
+    'driver app': const DriverShell(),
+    'driver trips': const DriverTripsScreen(),
+    'my documents': const DriverDocumentsScreen(),
+    'add my document': const DocumentFormScreen(mine: true),
+    'profile': const DriverProfileScreen(),
   };
   for (final language in ['en', 'hi']) {
     for (final entry in driverScreens.entries) {

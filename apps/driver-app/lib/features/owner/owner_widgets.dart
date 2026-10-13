@@ -1131,21 +1131,36 @@ String initials(String name) {
 }
 
 /// A round avatar with someone's initials.
-class InitialsAvatar extends StatelessWidget {
-  const InitialsAvatar(this.name, {this.radius = 20, super.key});
+/// Someone's profile photo ([photoMediaId]) in a circle, or their initials.
+class InitialsAvatar extends ConsumerWidget {
+  const InitialsAvatar(
+    this.name, {
+    this.radius = 20,
+    this.photoMediaId,
+    super.key,
+  });
   final String name;
   final double radius;
+  final String? photoMediaId;
 
   @override
-  Widget build(BuildContext context) => CircleAvatar(
-    radius: radius,
-    backgroundColor: TaxcyColors.blue100,
-    foregroundColor: TaxcyColors.blue800,
-    child: Text(
-      initials(name),
-      style: TextStyle(fontWeight: FontWeight.w700, fontSize: radius * 0.7),
-    ),
-  );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final photo = photoMediaId;
+    final url = photo == null
+        ? null
+        : ref.watch(mediaUrlProvider(photo)).value?.url;
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: TaxcyColors.blue100,
+      foregroundColor: TaxcyColors.blue800,
+      foregroundImage: url == null ? null : NetworkImage(url),
+      onForegroundImageError: url == null ? null : (_, _) {},
+      child: Text(
+        initials(name),
+        style: TextStyle(fontWeight: FontWeight.w700, fontSize: radius * 0.7),
+      ),
+    );
+  }
 }
 
 /// A registration number as a yellow commercial plate, like on a cab.

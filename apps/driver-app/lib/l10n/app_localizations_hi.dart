@@ -1585,8 +1585,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get saveRenewal => 'रिन्यूअल सेव करें';
 
   @override
-  String get noDocuments =>
-      'कोई दस्तावेज़ नहीं। गाड़ियों के लिए RC, बीमा, परमिट और PUC, और ड्राइवरों के लाइसेंस जोड़ें।';
+  String get noDocuments => 'अभी कोई दस्तावेज़ नहीं।';
 
   @override
   String get docRc => 'रजिस्ट्रेशन (RC)';
@@ -3088,4 +3087,256 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get pickTripToAssign => 'असाइन करने के लिए ट्रिप चुनें';
+
+  @override
+  String get docAadhaar => 'आधार कार्ड';
+
+  @override
+  String get docPan => 'पैन कार्ड';
+
+  @override
+  String get docPoliceVerification => 'पुलिस सत्यापन';
+
+  @override
+  String get docBadge => 'बैज / PSV लाइसेंस';
+
+  @override
+  String get docPhoto => 'फ़ोटो';
+
+  @override
+  String get noExpiry => 'कोई समाप्ति नहीं';
+
+  @override
+  String get docPendingApproval => 'मंज़ूरी का इंतज़ार';
+
+  @override
+  String get docRejected => 'अस्वीकृत';
+
+  @override
+  String docRejectedBecause({required String note}) {
+    return 'अस्वीकृत: $note';
+  }
+
+  @override
+  String get addedByDriver => 'ड्राइवर ने जोड़ा';
+
+  @override
+  String get renewalOf => 'नवीनीकरण';
+
+  @override
+  String get approveDocument => 'मंज़ूर करें';
+
+  @override
+  String get rejectDocument => 'अस्वीकार करें';
+
+  @override
+  String get rejectDocumentTitle => 'यह दस्तावेज़ अस्वीकार करें?';
+
+  @override
+  String get rejectReasonLabel => 'कारण (ड्राइवर को दिखेगा)';
+
+  @override
+  String get documentApproved => 'दस्तावेज़ मंज़ूर हुआ';
+
+  @override
+  String get kindDocSubmitted => 'मंज़ूरी के लिए दस्तावेज़';
+
+  @override
+  String alertDocSubmittedTitle({required String driver, required String doc}) {
+    return '$driver ने अपना $doc जोड़ा';
+  }
+
+  @override
+  String alertDocRenewedTitle({required String driver, required String doc}) {
+    return '$driver ने नया $doc अपलोड किया';
+  }
+
+  @override
+  String get alertDocSubmittedBody =>
+      'इसे देखें और उनके दस्तावेज़ टैब पर मंज़ूर या अस्वीकार करें।';
+
+  @override
+  String get navHome => 'होम';
+
+  @override
+  String get navMyDocuments => 'दस्तावेज़';
+
+  @override
+  String get navProfile => 'प्रोफ़ाइल';
+
+  @override
+  String get assignedTab => 'असाइन';
+
+  @override
+  String get pastTab => 'पिछली';
+
+  @override
+  String get noAssignedTrips => 'अभी आपको कोई ट्रिप नहीं मिली है।';
+
+  @override
+  String get noPastTrips => 'इस महीने कोई ट्रिप नहीं।';
+
+  @override
+  String get myDocumentsIntro =>
+      'अपना लाइसेंस, आधार और बाकी कागज़ जोड़ें। फ़्लीट मालिक हर एक को जाँचकर मंज़ूर करेंगे।';
+
+  @override
+  String get profileTitle => 'प्रोफ़ाइल';
+
+  @override
+  String get editName => 'नाम बदलें';
+
+  @override
+  String get yourName => 'आपका नाम';
+
+  @override
+  String get nameSaved => 'नाम सेव हुआ';
+
+  @override
+  String get fleetLabel => 'फ़्लीट';
+
+  @override
+  String get phoneNumberLabel => 'मोबाइल नंबर';
+
+  @override
+  String get cabsYouDrive => 'आप ये कैब चला सकते हैं';
+
+  @override
+  String get noCabsLinked => 'अभी कोई कैब नहीं जुड़ी। फ़्लीट मालिक से पूछें।';
+
+  @override
+  String driverSince({required String date}) {
+    return '$date से ड्राइवर';
+  }
+
+  @override
+  String get when => 'कब';
+
+  @override
+  String confirmUpload({required int count}) {
+    return 'अपलोड की पुष्टि करें ($count)';
+  }
+
+  @override
+  String get fileReadyToUpload => 'चुनी गई · अभी अपलोड नहीं हुई';
+
+  @override
+  String get fileUploading => 'अपलोड हो रही है…';
+
+  @override
+  String get fileUploaded => 'अपलोड हो गई';
+
+  @override
+  String get fileUploadFailed => 'अपलोड नहीं हुई · फिर कोशिश करें';
+
+  @override
+  String get uploadFilesFirst =>
+      'पहले चुनी गई फ़ाइलें अपलोड करने के लिए \"अपलोड की पुष्टि करें\" दबाएँ।';
+
+  @override
+  String filesUploadedCount({required int count}) {
+    return '$count फ़ाइलें अपलोड हुईं';
+  }
+
+  @override
+  String get colFiles => 'फ़ाइलें';
+
+  @override
+  String get noFiles => 'कोई फ़ाइल नहीं';
+
+  @override
+  String get fixHighlighted => 'लाल निशान वाले खाने भरें।';
+
+  @override
+  String get documentSentForApproval =>
+      'दस्तावेज़ जुड़ गया। फ़्लीट मालिक इसे मंज़ूर करेंगे।';
+
+  @override
+  String get documentSaved => 'दस्तावेज़ सेव हुआ';
+
+  @override
+  String uploadAndSave({required int count}) {
+    return '$count फ़ाइलें अपलोड करके सेव करें';
+  }
+
+  @override
+  String get photoMustBeImage => 'कोई फ़ोटो चुनें (JPG, PNG या WebP)।';
+
+  @override
+  String get invalidEmail => 'सही ईमेल पता लिखें';
+
+  @override
+  String get invalidMobile => '10 अंकों का मोबाइल नंबर लिखें';
+
+  @override
+  String get dateOfBirth => 'जन्म तिथि';
+
+  @override
+  String get emailLabel => 'ईमेल';
+
+  @override
+  String get addressLabel => 'पता';
+
+  @override
+  String get emergencyContact => 'आपातकालीन संपर्क';
+
+  @override
+  String get contactName => 'संपर्क का नाम';
+
+  @override
+  String get contactPhone => 'संपर्क का मोबाइल नंबर';
+
+  @override
+  String get editProfile => 'प्रोफ़ाइल बदलें';
+
+  @override
+  String get editDetails => 'विवरण बदलें';
+
+  @override
+  String get choosePhoto => 'फ़ोटो चुनें';
+
+  @override
+  String get changePhone => 'मोबाइल नंबर बदलें';
+
+  @override
+  String get changePhoneIntro =>
+      'आप इसी मोबाइल नंबर से लॉग इन करते हैं। नए नंबर पर कोड भेजकर जाँचेंगे कि वह आपका है।';
+
+  @override
+  String codeSentTo({required String phone}) {
+    return '$phone पर भेजा गया 6 अंकों का कोड लिखें';
+  }
+
+  @override
+  String get verifyAndChange => 'जाँचें और बदलें';
+
+  @override
+  String get phoneChanged => 'मोबाइल नंबर बदल गया';
+
+  @override
+  String get profileSaved => 'प्रोफ़ाइल सेव हुई';
+
+  @override
+  String get personalDetails => 'निजी विवरण';
+
+  @override
+  String get discardDocumentTitle => 'यह दस्तावेज़ छोड़ दें?';
+
+  @override
+  String get discardDocumentBody =>
+      'यह सेव नहीं हुआ है। जोड़ी गई फ़ाइलें और जानकारी हट जाएँगी।';
+
+  @override
+  String get keepEditing => 'बदलाव जारी रखें';
+
+  @override
+  String get discard => 'छोड़ दें';
+
+  @override
+  String uploadingStep({required int n, required int count}) {
+    return '$count में से $n अपलोड हो रही है…';
+  }
+
+  @override
+  String get savingStep => 'सेव हो रहा है…';
 }

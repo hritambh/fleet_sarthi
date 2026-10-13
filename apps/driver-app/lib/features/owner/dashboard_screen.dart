@@ -230,40 +230,26 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 4, bottom: 16),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            greeting(l, DateTime.now(), firstName),
-                            style: const TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.w700,
-                              color: TaxcyColors.blue950,
-                              letterSpacing: -0.4,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            '${fmt.calendarDate(istToday(widget.now))}'
-                            ' · ${session?.activeMembership?.orgName ?? ''}',
-                            style: const TextStyle(color: TaxcyColors.muted),
-                          ),
-                          const SizedBox(height: 12),
-                          daySwitch,
-                        ],
+                    Text(
+                      greeting(l, DateTime.now(), firstName),
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w700,
+                        color: TaxcyColors.blue950,
+                        letterSpacing: -0.4,
                       ),
                     ),
-                    FilledButton.icon(
-                      key: const Key('dashboard-new-trip'),
-                      onPressed: () =>
-                          openScreen<void>(context, const CreateTripScreen()),
-                      icon: const Icon(Icons.add),
-                      label: Text(l.newTrip),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${fmt.calendarDate(istToday(widget.now))}'
+                      ' · ${session?.activeMembership?.orgName ?? ''}',
+                      style: const TextStyle(color: TaxcyColors.muted),
                     ),
+                    const SizedBox(height: 12),
+                    daySwitch,
                   ],
                 ),
               ),
@@ -393,10 +379,9 @@ class _HeadlineCards extends StatelessWidget {
   }
 }
 
-const _hubOrange = Color(0xFFF7931E);
-
-/// The dark "Quick Operations Hub": add a trip, assign a waiting trip, invite
-/// a driver, add a cab.
+/// The "Quick Operations Hub": add a trip, assign a waiting trip, invite a
+/// driver, add a cab. A section card like the others, with add trip as the
+/// one filled (primary) action.
 class _QuickOpsHub extends StatelessWidget {
   const _QuickOpsHub();
 
@@ -413,59 +398,35 @@ class _QuickOpsHub extends StatelessWidget {
         ],
       ),
     );
-    return Container(
+    return SectionCard(
       key: const Key('quick-ops'),
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: TaxcyColors.ink,
-        borderRadius: BorderRadius.circular(14),
-      ),
+      title: l.quickOpsHub,
+      actions: [
+        Text(
+          l.fastDispatch,
+          style: const TextStyle(
+            color: TaxcyColors.muted,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 1,
+          ),
+        ),
+      ],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.touch_app_outlined, color: _hubOrange),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  l.quickOpsHub,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              Text(
-                l.fastDispatch,
-                style: const TextStyle(
-                  color: Color(0xFF94A3B8),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
           row(
             _HubButton(
               key: const Key('quick-add-trip'),
               icon: Icons.add_circle_outline,
               label: l.addTrip,
-              background: _hubOrange,
-              foreground: const Color(0xFF4A2600),
+              primary: true,
               onTap: () => openScreen<void>(context, const CreateTripScreen()),
             ),
             _HubButton(
               key: const Key('quick-tag-driver'),
               icon: Icons.link,
-              iconColor: TaxcyColors.blue600,
               label: l.tagDriver,
-              background: Colors.white,
-              foreground: TaxcyColors.ink,
               onTap: () => showTagDriver(context),
             ),
           ),
@@ -474,19 +435,13 @@ class _QuickOpsHub extends StatelessWidget {
             _HubButton(
               key: const Key('quick-add-driver'),
               icon: Icons.person_add_alt,
-              iconColor: TaxcyColors.muted,
               label: l.addDriverQuick,
-              background: TaxcyColors.blue100,
-              foreground: TaxcyColors.ink,
               onTap: () => inviteDriver(context),
             ),
             _HubButton(
               key: const Key('quick-add-cab'),
               icon: Icons.directions_car_outlined,
-              iconColor: TaxcyColors.muted,
               label: l.addCabQuick,
-              background: TaxcyColors.blue100,
-              foreground: TaxcyColors.ink,
               onTap: () => openScreen<void>(context, const VehicleFormScreen()),
             ),
           ),
@@ -496,55 +451,62 @@ class _QuickOpsHub extends StatelessWidget {
   }
 }
 
+/// A hub tile: filled blue for the primary action, otherwise a light blue
+/// tile with a blue icon, in the app's palette.
 class _HubButton extends StatelessWidget {
   const _HubButton({
     required this.icon,
     required this.label,
-    required this.background,
-    required this.foreground,
     required this.onTap,
-    this.iconColor,
+    this.primary = false,
     super.key,
   });
 
   final IconData icon;
   final String label;
-  final Color background;
-  final Color foreground;
-  final Color? iconColor;
+  final bool primary;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => Material(
-    color: background,
-    borderRadius: BorderRadius.circular(10),
-    child: InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: iconColor ?? foreground, size: 22),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: foreground,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
+  Widget build(BuildContext context) {
+    final foreground = primary ? Colors.white : TaxcyColors.ink;
+    final iconColor = primary ? Colors.white : TaxcyColors.blue700;
+    return Material(
+      color: primary ? TaxcyColors.blue700 : TaxcyColors.blue50,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: primary
+            ? BorderSide.none
+            : const BorderSide(color: TaxcyColors.blue100),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: iconColor, size: 22),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: foreground,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 String _route(AppLocalizations l, Trip t) =>

@@ -79,7 +79,10 @@ describe('demo seed', () => {
   });
 
   it('produces the alerts the getting-started guide promises', async () => {
-    const open = await h.owner.alert.findMany({ where: { status: 'open' } });
+    // Only the demo fleet's: other test files share this database and raise
+    // alerts of their own (e.g. fuel alerts in fuel.int.test.ts).
+    const org = await demoOrg();
+    const open = await h.owner.alert.findMany({ where: { status: 'open', orgId: org.id } });
     const titles = open.map((a) => `${a.kind}: ${a.title}`);
     expect(titles).toEqual(
       expect.arrayContaining([

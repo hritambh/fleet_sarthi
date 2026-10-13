@@ -1590,8 +1590,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saveRenewal => 'Save renewal';
 
   @override
-  String get noDocuments =>
-      'No documents. Add RC, insurance, permit and PUC for vehicles, and licences for drivers.';
+  String get noDocuments => 'No documents yet.';
 
   @override
   String get docRc => 'Registration (RC)';
@@ -3096,4 +3095,256 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pickTripToAssign => 'Pick a trip to assign';
+
+  @override
+  String get docAadhaar => 'Aadhaar card';
+
+  @override
+  String get docPan => 'PAN card';
+
+  @override
+  String get docPoliceVerification => 'Police verification';
+
+  @override
+  String get docBadge => 'Badge / PSV licence';
+
+  @override
+  String get docPhoto => 'Photo';
+
+  @override
+  String get noExpiry => 'No expiry';
+
+  @override
+  String get docPendingApproval => 'Waiting for approval';
+
+  @override
+  String get docRejected => 'Rejected';
+
+  @override
+  String docRejectedBecause({required String note}) {
+    return 'Rejected: $note';
+  }
+
+  @override
+  String get addedByDriver => 'Added by driver';
+
+  @override
+  String get renewalOf => 'Renewal';
+
+  @override
+  String get approveDocument => 'Approve';
+
+  @override
+  String get rejectDocument => 'Reject';
+
+  @override
+  String get rejectDocumentTitle => 'Reject this document?';
+
+  @override
+  String get rejectReasonLabel => 'Reason (the driver sees this)';
+
+  @override
+  String get documentApproved => 'Document approved';
+
+  @override
+  String get kindDocSubmitted => 'Document to approve';
+
+  @override
+  String alertDocSubmittedTitle({required String driver, required String doc}) {
+    return '$driver added their $doc';
+  }
+
+  @override
+  String alertDocRenewedTitle({required String driver, required String doc}) {
+    return '$driver uploaded a renewed $doc';
+  }
+
+  @override
+  String get alertDocSubmittedBody =>
+      'Check it and approve or reject it on their Documents tab.';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navMyDocuments => 'Documents';
+
+  @override
+  String get navProfile => 'Profile';
+
+  @override
+  String get assignedTab => 'Assigned';
+
+  @override
+  String get pastTab => 'Past';
+
+  @override
+  String get noAssignedTrips => 'No trips assigned to you right now.';
+
+  @override
+  String get noPastTrips => 'No trips this month.';
+
+  @override
+  String get myDocumentsIntro =>
+      'Add your licence, Aadhaar and other papers. Your fleet owner checks each one before it counts.';
+
+  @override
+  String get profileTitle => 'Profile';
+
+  @override
+  String get editName => 'Edit name';
+
+  @override
+  String get yourName => 'Your name';
+
+  @override
+  String get nameSaved => 'Name saved';
+
+  @override
+  String get fleetLabel => 'Fleet';
+
+  @override
+  String get phoneNumberLabel => 'Mobile number';
+
+  @override
+  String get cabsYouDrive => 'Cabs you can drive';
+
+  @override
+  String get noCabsLinked => 'No cabs linked yet. Ask your fleet owner.';
+
+  @override
+  String driverSince({required String date}) {
+    return 'Driver since $date';
+  }
+
+  @override
+  String get when => 'When';
+
+  @override
+  String confirmUpload({required int count}) {
+    return 'Confirm upload ($count)';
+  }
+
+  @override
+  String get fileReadyToUpload => 'Selected · not uploaded yet';
+
+  @override
+  String get fileUploading => 'Uploading…';
+
+  @override
+  String get fileUploaded => 'Uploaded';
+
+  @override
+  String get fileUploadFailed => 'Upload failed · try again';
+
+  @override
+  String get uploadFilesFirst =>
+      'Tap Confirm upload to upload the selected files first.';
+
+  @override
+  String filesUploadedCount({required int count}) {
+    return '$count files uploaded';
+  }
+
+  @override
+  String get colFiles => 'Files';
+
+  @override
+  String get noFiles => 'No files';
+
+  @override
+  String get fixHighlighted => 'Fill in the highlighted fields.';
+
+  @override
+  String get documentSentForApproval =>
+      'Document added. Your fleet owner will approve it.';
+
+  @override
+  String get documentSaved => 'Document saved';
+
+  @override
+  String uploadAndSave({required int count}) {
+    return 'Upload $count files & save';
+  }
+
+  @override
+  String get photoMustBeImage => 'Pick a photo (JPG, PNG or WebP).';
+
+  @override
+  String get invalidEmail => 'Enter a valid email address';
+
+  @override
+  String get invalidMobile => 'Enter a 10-digit mobile number';
+
+  @override
+  String get dateOfBirth => 'Date of birth';
+
+  @override
+  String get emailLabel => 'Email';
+
+  @override
+  String get addressLabel => 'Address';
+
+  @override
+  String get emergencyContact => 'Emergency contact';
+
+  @override
+  String get contactName => 'Contact name';
+
+  @override
+  String get contactPhone => 'Contact mobile number';
+
+  @override
+  String get editProfile => 'Edit profile';
+
+  @override
+  String get editDetails => 'Edit details';
+
+  @override
+  String get choosePhoto => 'Choose photo';
+
+  @override
+  String get changePhone => 'Change mobile number';
+
+  @override
+  String get changePhoneIntro =>
+      'Your mobile number is how you log in. We’ll send a code to the new number to check it’s yours.';
+
+  @override
+  String codeSentTo({required String phone}) {
+    return 'Enter the 6-digit code sent to $phone';
+  }
+
+  @override
+  String get verifyAndChange => 'Verify & change';
+
+  @override
+  String get phoneChanged => 'Mobile number changed';
+
+  @override
+  String get profileSaved => 'Profile saved';
+
+  @override
+  String get personalDetails => 'Personal details';
+
+  @override
+  String get discardDocumentTitle => 'Discard this document?';
+
+  @override
+  String get discardDocumentBody =>
+      'It hasn’t been saved. The files and details you added will be lost.';
+
+  @override
+  String get keepEditing => 'Keep editing';
+
+  @override
+  String get discard => 'Discard';
+
+  @override
+  String uploadingStep({required int n, required int count}) {
+    return 'Uploading $n of $count…';
+  }
+
+  @override
+  String get savingStep => 'Saving…';
 }

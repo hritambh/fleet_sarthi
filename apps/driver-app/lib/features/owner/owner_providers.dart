@@ -7,6 +7,7 @@ import '../../app/providers.dart';
 import '../../core/api/models.dart';
 import '../../core/api/owner_api.dart';
 import '../../core/api/owner_models.dart';
+import '../driver/driver_providers.dart';
 
 final ownerTripsProvider = FutureProvider.autoDispose
     .family<List<Trip>, TripFilter>(
@@ -220,7 +221,10 @@ void refreshAfter(WidgetRef ref, Set<OwnerArea> areas) {
           ..invalidate(membersProvider)
           ..invalidate(dashboardSummaryProvider);
       case OwnerArea.documents:
-        ref.invalidate(documentsProvider);
+        // Owner lists (per vehicle, per driver, what's due) and the driver's own.
+        ref
+          ..invalidate(documentsProvider)
+          ..invalidate(myDocumentsProvider);
       case OwnerArea.settings:
         ref
           ..invalidate(auditSettingsProvider)

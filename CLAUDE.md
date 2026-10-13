@@ -58,3 +58,4 @@ Layering in the API: controller (no logic) → service (opens transactions) → 
 - Conventional Commits. Prettier formats TS/JSON/Markdown/YAML; `dart format` formats Dart.
 - Demo data (`apps/api/src/seed/seed.ts`): the Sharma Travels fleet plus Patil Cabs (Anil and Suresh each own one fleet and drive in the other); every demo person's password is `12345678`. `docs/usage/demo-data.md` and `seed.int.test.ts` depend on what the seed creates.
 - Deployment (Render Blueprint `render.yaml` + Neon + Backblaze B2) is documented in `docs/deployment.md`; design decisions in `docs/decisions.md`.
+- Project skills live in `.claude/skills/` and are named with an `fs-` prefix (folder and `name:` frontmatter, e.g. `fs-plan-feature`), so they're easy to tell apart from global and plugin skills.

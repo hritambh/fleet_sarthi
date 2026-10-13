@@ -124,6 +124,10 @@ abstract class OwnerApi {
   /// Replaces the vehicles driver [id] may drive.
   Future<Driver> setDriverVehicles(String id, List<String> vehicleIds);
   Future<Driver> updateDriver(String id, {String? name, String? status});
+
+  /// Profile fields (photoMediaId, dateOfBirth, email, address,
+  /// emergencyContactName, emergencyContactPhone); null clears one.
+  Future<Driver> updateDriverProfile(String id, JsonMap body);
   Future<Driver> setDriverPayRule(String id, PayRule? payRule);
   Future<List<Member>> members();
   Future<Member> inviteManager({required String name, required String phone});
@@ -135,6 +139,11 @@ abstract class OwnerApi {
   });
   Future<FleetDocument> createDocument(JsonMap body);
   Future<FleetDocument> renewDocument(String id, JsonMap body);
+
+  /// A driver's upload: approve it (a renewal then replaces the old copy) or
+  /// reject it with the reason the driver sees.
+  Future<FleetDocument> approveDocument(String id);
+  Future<FleetDocument> rejectDocument(String id, String note);
 
   // Settings
   Future<AuditSettings> auditSettings();
@@ -432,6 +441,10 @@ class HttpOwnerApi implements OwnerApi {
   );
 
   @override
+  Future<Driver> updateDriverProfile(String id, JsonMap body) async =>
+      Driver.fromJson(await _obj('PATCH', '/drivers/$id', body: body));
+
+  @override
   Future<Driver> setDriverPayRule(String id, PayRule? payRule) async =>
       Driver.fromJson(
         await _obj(
@@ -480,6 +493,16 @@ class HttpOwnerApi implements OwnerApi {
   Future<FleetDocument> renewDocument(String id, JsonMap body) async =>
       FleetDocument.fromJson(
         await _obj('POST', '/documents/$id/renew', body: body),
+      );
+
+  @override
+  Future<FleetDocument> approveDocument(String id) async =>
+      FleetDocument.fromJson(await _obj('POST', '/documents/$id/approve'));
+
+  @override
+  Future<FleetDocument> rejectDocument(String id, String note) async =>
+      FleetDocument.fromJson(
+        await _obj('POST', '/documents/$id/reject', body: {'note': note}),
       );
 
   @override

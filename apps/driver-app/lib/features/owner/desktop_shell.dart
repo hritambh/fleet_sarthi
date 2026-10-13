@@ -60,6 +60,14 @@ class _DesktopOwnerShellState extends ConsumerState<DesktopOwnerShell> {
     });
   }
 
+  /// The logo and name: back to the dashboard's first page from anywhere.
+  void _goHome() {
+    _navigators[OwnerSection.dashboard]!.currentState?.popUntil(
+      (r) => r.isFirst,
+    );
+    if (_section != OwnerSection.dashboard) _open(OwnerSection.dashboard);
+  }
+
   Widget _root(OwnerSection section) => switch (section) {
     OwnerSection.dashboard => DashboardScreen(
       onOpenTrips: () => _open(OwnerSection.trips),
@@ -79,7 +87,7 @@ class _DesktopOwnerShellState extends ConsumerState<DesktopOwnerShell> {
       key: const Key('owner-desktop'),
       body: Row(
         children: [
-          _Sidebar(selected: _section, onOpen: _open),
+          _Sidebar(selected: _section, onOpen: _open, onHome: _goHome),
           Expanded(
             child: Theme(
               data: desktopContentTheme(Theme.of(context)),
@@ -136,10 +144,15 @@ ThemeData desktopContentTheme(ThemeData base) => base.copyWith(
 );
 
 class _Sidebar extends ConsumerWidget {
-  const _Sidebar({required this.selected, required this.onOpen});
+  const _Sidebar({
+    required this.selected,
+    required this.onOpen,
+    required this.onHome,
+  });
 
   final OwnerSection selected;
   final ValueChanged<OwnerSection> onOpen;
+  final VoidCallback onHome;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -165,7 +178,7 @@ class _Sidebar extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const _Brand(),
+            _Brand(onTap: onHome),
             const _FleetCard(),
             Expanded(
               child: ListView(
@@ -209,43 +222,60 @@ class _Sidebar extends ConsumerWidget {
   }
 }
 
+/// The logo and app name; clicking either goes to the dashboard.
 class _Brand extends StatelessWidget {
-  const _Brand();
+  const _Brand({required this.onTap});
+
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-    child: Row(
-      children: [
-        Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: const Icon(
-            Icons.local_taxi,
-            color: TaxcyColors.blue700,
-            size: 22,
-          ),
+    padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+    child: Semantics(
+      link: true,
+      label: context.l10n.navDashboard,
+      child: InkWell(
+        key: const Key('side-brand'),
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+          child: _brandRow(context),
         ),
-        const SizedBox(width: 12),
-        Flexible(
-          child: Text(
-            context.l10n.appTitle,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.2,
-            ),
-          ),
-        ),
-      ],
+      ),
     ),
+  );
+
+  Widget _brandRow(BuildContext context) => Row(
+    children: [
+      Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Icon(
+          Icons.local_taxi,
+          color: TaxcyColors.blue700,
+          size: 22,
+        ),
+      ),
+      const SizedBox(width: 12),
+      Flexible(
+        child: Text(
+          context.l10n.appTitle,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.2,
+          ),
+        ),
+      ),
+    ],
   );
 }
 

@@ -268,10 +268,12 @@ void main() {
       return h;
     }
 
-    testWidgets('from the driver menu: set a first password', (tester) async {
+    testWidgets('from the driver profile: set a first password', (
+      tester,
+    ) async {
       final h = await signedIn(tester);
-      await tapKey(tester, const Key('driver-menu'));
-      await tapKey(tester, const Key('driver-account-security'));
+      await tapKey(tester, const Key('driver-nav-profile'));
+      await tapKey(tester, const Key('profile-security'));
       expect(find.byType(AccountSecurityScreen), findsOneWidget);
       expect(find.text('Not set yet'), findsOneWidget);
       expect(find.byKey(const Key('current-password-field')), findsNothing);
@@ -330,12 +332,17 @@ void main() {
   testWidgets('signing out ends the session and shows the login screen', (
     tester,
   ) async {
+    // Tall enough for the whole Profile tab.
+    tester.view
+      ..devicePixelRatio = 1
+      ..physicalSize = const Size(420, 2400);
+    addTearDown(tester.view.reset);
     final h = await Harness.create(session: Session.fromJson(sessionJson()));
     addTearDown(h.dispose);
     await tester.pumpWidget(h.wrap(const TaxcyDriverApp()));
     await settle(tester);
-    await tapKey(tester, const Key('driver-menu'));
-    await tester.tap(find.text('Sign out'));
+    await tapKey(tester, const Key('driver-nav-profile'));
+    await tester.tap(find.byKey(const Key('profile-sign-out')));
     await settle(tester);
     expect(h.auth.names, contains('logout'));
     expect(await h.sessions.load(), isNull);
