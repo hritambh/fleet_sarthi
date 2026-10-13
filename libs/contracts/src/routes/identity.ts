@@ -35,6 +35,27 @@ export const Password = z
   .min(8, 'Use at least 8 characters')
   .max(128, 'Use at most 128 characters');
 
+/**
+ * Proof of a phone number from the OTP provider (phone.email: the access token its
+ * sign-in screen returns; the API checks it with phone.email and uses it once).
+ */
+const VerificationToken = z.string().trim().min(1).max(4096);
+
+/** Which sign-in methods this server offers (set by its environment). */
+export const AuthMethods = z.object({
+  /** Phone OTP, or null when off. `stub` is a local stand-in for development and tests. */
+  phoneOtp: z
+    .object({
+      provider: z.enum(['phone_email', 'stub']),
+      /** phone.email's public client id (null for the stub). */
+      clientId: z.string().nullable(),
+    })
+    .nullable(),
+  /** Sign-up must carry a verificationToken for the number being signed up. */
+  signupRequiresVerifiedPhone: z.boolean(),
+});
+export type AuthMethods = z.infer<typeof AuthMethods>;
+
 /** The device a session is for. */
 const DeviceFields = {
   deviceId: Id,
@@ -43,6 +64,48 @@ const DeviceFields = {
 };
 
 export const identityRoutes = {
+  authMethods: defineRoute({
+    method: 'GET',
+    path: '/auth/methods',
+    summary: 'Which sign-in methods this server offers (phone OTP, verified sign-up)',
+    tag: 'auth',
+    access: access.public,
+    response: AuthMethods,
+  }),
+  phoneOtpCheck: defineRoute({
+    method: 'POST',
+    path: '/auth/phone-otp/check',
+    summary:
+      'Whether a number has an account (including invited people who have not signed up), before sending an OTP to log in',
+    tag: 'auth',
+    access: access.public,
+    body: z.object({ phone: PhoneE164 }),
+    response: z.object({ exists: z.boolean() }),
+  }),
+  phoneOtpLogin: defineRoute({
+    method: 'POST',
+    path: '/auth/phone-otp/login',
+    summary:
+      'Sign in with a phone verified by OTP (no password). NOT_FOUND when the number has no account; sign up instead',
+    tag: 'auth',
+    access: access.public,
+    body: z.object({
+      verificationToken: VerificationToken,
+      /** The number the user entered; the verified one must match (PHONE_MISMATCH). */
+      phone: PhoneE164.optional(),
+      ...DeviceFields,
+    }),
+    response: Session,
+  }),
+  resetPasswordVerified: defineRoute({
+    method: 'POST',
+    path: '/auth/password/reset-verified',
+    summary: 'Set a new password for the number verified by OTP; signs out every other session',
+    tag: 'auth',
+    access: access.public,
+    body: z.object({ verificationToken: VerificationToken, password: Password, ...DeviceFields }),
+    response: Session,
+  }),
   requestOtp: defineRoute({
     method: 'POST',
     path: '/auth/otp/request',
@@ -69,6 +132,8 @@ export const identityRoutes = {
       phone: PhoneE164,
       password: Password,
       name: z.string().trim().min(1).max(100).optional(),
+      /** OTP proof that the caller owns `phone`; required when the server says so. */
+      verificationToken: VerificationToken.optional(),
       ...DeviceFields,
     }),
     response: Session,

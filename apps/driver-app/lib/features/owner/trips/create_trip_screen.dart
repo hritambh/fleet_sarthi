@@ -5,12 +5,15 @@ import 'package:uuid/uuid.dart';
 
 import '../../../app/providers.dart';
 import '../../../core/api/json.dart';
+import '../../../core/api/models.dart';
+import '../../../core/api/owner_models.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../common/format.dart';
 import '../links.dart';
 import '../owner_providers.dart';
 import '../owner_widgets.dart';
 import 'owner_trip_detail_screen.dart';
+import 'pin_picker.dart';
 
 /// What the create-trip form collected.
 class NewTripInput {
@@ -26,6 +29,8 @@ class NewTripInput {
     this.customerPhone = '',
     this.vehicleId,
     this.driverId,
+    this.fromPoint,
+    this.toPoint,
   });
 
   final String tripType;
@@ -41,10 +46,14 @@ class NewTripInput {
   final String customerPhone;
   final String? vehicleId;
   final String? driverId;
+
+  /// Optional map pins for the pickup and drop.
+  final GeoPoint? fromPoint;
+  final GeoPoint? toPoint;
 }
 
 /// The POST /trips body for [input], or the first problem with it (in the
-/// user's language). Mirrors the admin web's checks.
+/// user's language). Mirrors the API's checks.
 ({JsonMap? body, String? problem}) newTripBody(
   AppLocalizations l,
   NewTripInput input, {
@@ -77,8 +86,12 @@ class NewTripInput {
     body: {
       'id': id,
       'tripType': input.tripType,
-      'from': {'text': input.fromText.trim()},
-      if (!local) 'to': {'text': input.toText.trim()},
+      'from': {
+        'text': input.fromText.trim(),
+        'point': ?input.fromPoint?.toJson(),
+      },
+      if (!local)
+        'to': {'text': input.toText.trim(), 'point': ?input.toPoint?.toJson()},
       'scheduledStartAt': input.start.toUtc().toIso8601String(),
       'scheduledEndAt': input.end.toUtc().toIso8601String(),
       'quotedFarePaise': fare,
@@ -120,8 +133,13 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
   late DateTime _end = _start.add(const Duration(hours: 4));
   String? _vehicleId;
   String? _driverId;
+  GeoPoint? _fromPoint;
+  GeoPoint? _toPoint;
   String? _problem;
   bool _busy = false;
+
+  /// A picked vehicle or driver turned out busy at the new times and was cleared.
+  bool _cleared = false;
 
   static DateTime _nextHour(DateTime t) =>
       DateTime(t.year, t.month, t.day, t.hour + 1);
@@ -165,6 +183,8 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
         customerPhone: _phone.text,
         vehicleId: _vehicleId,
         driverId: _driverId,
+        fromPoint: _fromPoint,
+        toPoint: _toPoint,
       ),
       id: _id,
     );
@@ -190,6 +210,28 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
     final l = context.l10n;
     final fmt = context.fmt;
     final local = _tripType == 'local_rental';
+    // Who is already booked in this window: shown greyed out in the pickers,
+    // and a pick that becomes busy when the times change is cleared.
+    final window = _end.isAfter(_start)
+        ? (from: _start, to: _end, excludeTripId: null)
+        : null;
+    final availability = window == null
+        ? Availability.none
+        : ref.watch(availabilityProvider(window)).value ?? Availability.none;
+    if (window != null) {
+      ref.listen(availabilityProvider(window), (_, next) {
+        final a = next.value;
+        if (a == null) return;
+        final vehicleBusy = a.vehicles.containsKey(_vehicleId);
+        final driverBusy = a.drivers.containsKey(_driverId);
+        if (!vehicleBusy && !driverBusy) return;
+        setState(() {
+          if (vehicleBusy) _vehicleId = null;
+          if (driverBusy) _driverId = null;
+          _cleared = true;
+        });
+      });
+    }
     return Scaffold(
       appBar: AppBar(title: Text(l.newTrip)),
       body: ListView(
@@ -221,6 +263,13 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
                     prefixIcon: const Icon(Icons.trip_origin),
                   ),
                 ),
+                PinField(
+                  key: const Key('owner-trip-from-pin'),
+                  title: l.pickupOnMap,
+                  value: _fromPoint,
+                  near: _toPoint,
+                  onChanged: (p) => setState(() => _fromPoint = p),
+                ),
                 if (!local) ...[
                   const SizedBox(height: 12),
                   TextField(
@@ -230,6 +279,13 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
                       labelText: l.drop,
                       prefixIcon: const Icon(Icons.place),
                     ),
+                  ),
+                  PinField(
+                    key: const Key('owner-trip-to-pin'),
+                    title: l.dropOnMap,
+                    value: _toPoint,
+                    near: _fromPoint,
+                    onChanged: (p) => setState(() => _toPoint = p),
                   ),
                 ],
                 const SizedBox(height: 12),
@@ -324,7 +380,9 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
                   label: l.vehicleOptional,
                   noneLabel: l.assignLater,
                   driverId: _vehicleId == null ? _driverId : null,
+                  busy: availability.vehicles,
                   onChanged: (v) => setState(() {
+                    _cleared = false;
                     _vehicleId = v;
                     final driver = _driverId;
                     if (v != null &&
@@ -340,8 +398,20 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
                   label: l.driverOptional,
                   noneLabel: l.assignLater,
                   vehicleId: _vehicleId,
-                  onChanged: (v) => setState(() => _driverId = v),
+                  busy: availability.drivers,
+                  onChanged: (v) => setState(() {
+                    _cleared = false;
+                    _driverId = v;
+                  }),
                 ),
+                if (_cleared) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    l.busyPickCleared,
+                    key: const Key('busy-pick-cleared'),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
                 if (_problem != null) ...[
                   const SizedBox(height: 12),
                   Text(

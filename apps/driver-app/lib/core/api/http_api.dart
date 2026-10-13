@@ -133,6 +133,10 @@ class HttpTaxcyApi implements TaxcyApi {
 
   /// One authorised request; returns the decoded JSON body (null when empty).
   /// Shared with HttpOwnerApi so both use the same token refresh.
+  ///
+  /// [withRefreshToken] adds the current refresh token to [body] (a JSON
+  /// object) at send time, so a retry after a token refresh sends the rotated
+  /// one: replaying a rotated refresh token signs the user out everywhere.
   Future<Object?> send(
     String method,
     String path, {
@@ -140,17 +144,22 @@ class HttpTaxcyApi implements TaxcyApi {
     Map<String, String>? query,
     Map<String, String> headers = const {},
     bool auth = true,
+    bool withRefreshToken = false,
   }) async {
     Future<http.Response> attempt() async {
-      final token = auth ? (await sessions.load())?.accessToken : null;
+      final session = await sessions.load();
+      final token = auth ? session?.accessToken : null;
+      final payload = withRefreshToken
+          ? {...?(body as JsonMap?), 'refreshToken': session?.refreshToken}
+          : body;
       final request = http.Request(method, _uri(path, query))
         ..headers.addAll({
           'Accept': 'application/json',
-          if (body != null) 'Content-Type': 'application/json',
+          if (payload != null) 'Content-Type': 'application/json',
           if (token != null) 'Authorization': 'Bearer $token',
           ...headers,
         });
-      if (body != null) request.body = jsonEncode(body);
+      if (payload != null) request.body = jsonEncode(payload);
       try {
         return await http.Response.fromStream(
           await _http.send(request).timeout(timeout),

@@ -17,12 +17,35 @@ abstract class AuthApi {
 
   /// Phone + password sign-up. An invited number without a password gets this
   /// password and joins its fleet; ACCOUNT_EXISTS when the number already has
-  /// a password.
+  /// a password. [verificationToken] proves the number by OTP (required when
+  /// the server's [AuthMethods.signupRequiresVerifiedPhone]).
   Future<Session> signUp({
     required String phone,
     required String password,
     required DeviceInfo device,
     String? name,
+    String? verificationToken,
+  });
+
+  /// Which sign-in methods the server offers.
+  Future<AuthMethods> methods();
+
+  /// Whether [phone] has an account (checked before sending an OTP to log in).
+  Future<bool> phoneOtpCheck(String phone);
+
+  /// Signs in the owner of the number an OTP verified; NOT_FOUND when it has
+  /// no account, PHONE_MISMATCH when it isn't [phone] (the number entered).
+  Future<Session> phoneOtpLogin({
+    required String verificationToken,
+    required DeviceInfo device,
+    String? phone,
+  });
+
+  /// A new password for the number an OTP verified (instead of a reset code).
+  Future<Session> resetPasswordVerified({
+    required String verificationToken,
+    required String password,
+    required DeviceInfo device,
   });
 
   /// INVALID_CREDENTIALS for a wrong number or password alike.
@@ -50,6 +73,17 @@ abstract class AuthApi {
   Future<Account> account();
 
   Future<void> logout(String refreshToken);
+
+  /// The fleets the user belongs to now, including any that added them since
+  /// they signed in.
+  Future<List<Membership>> memberships();
+
+  /// A new session in [orgId], one of the user's fleets.
+  Future<Session> switchOrg(String orgId);
+
+  /// Creates a fleet owned by the user ([kind] `fleet`, or `dco` when they
+  /// also drive) and returns a session in it.
+  Future<Session> createOrg({required String name, required String kind});
 }
 
 /// [AuthApi] over the shared HTTP client (same base URL and token refresh).
@@ -79,10 +113,45 @@ class HttpAuthApi implements AuthApi {
     required String password,
     required DeviceInfo device,
     String? name,
+    String? verificationToken,
   }) => _session('/auth/signup', {
     'phone': phone,
     'password': password,
     'name': ?name,
+    'verificationToken': ?verificationToken,
+    ..._device(device),
+  });
+
+  @override
+  Future<AuthMethods> methods() async =>
+      AuthMethods.fromJson(await _public('GET', '/auth/methods'));
+
+  @override
+  Future<bool> phoneOtpCheck(String phone) async =>
+      (await _public('POST', '/auth/phone-otp/check', {
+        'phone': phone,
+      }))['exists'] ==
+      true;
+
+  @override
+  Future<Session> phoneOtpLogin({
+    required String verificationToken,
+    required DeviceInfo device,
+    String? phone,
+  }) => _session('/auth/phone-otp/login', {
+    'verificationToken': verificationToken,
+    'phone': ?phone,
+    ..._device(device),
+  });
+
+  @override
+  Future<Session> resetPasswordVerified({
+    required String verificationToken,
+    required String password,
+    required DeviceInfo device,
+  }) => _session('/auth/password/reset-verified', {
+    'verificationToken': verificationToken,
+    'password': password,
     ..._device(device),
   });
 
@@ -123,6 +192,38 @@ class HttpAuthApi implements AuthApi {
   @override
   Future<Account> account() async =>
       Account.fromJson(asJsonMap(await _api.send('GET', '/me')));
+
+  @override
+  Future<List<Membership>> memberships() async => asJsonMap(
+    await _api.send('GET', '/me'),
+  ).objects('memberships').map(Membership.fromJson).toList();
+
+  @override
+  Future<Session> switchOrg(String orgId) async => Session.fromJson(
+    asJsonMap(
+      await _api.send(
+        'POST',
+        '/auth/switch-org',
+        body: {'orgId': orgId},
+        withRefreshToken: true,
+      ),
+    ),
+  );
+
+  @override
+  Future<Session> createOrg({
+    required String name,
+    required String kind,
+  }) async => Session.fromJson(
+    asJsonMap(
+      await _api.send(
+        'POST',
+        '/orgs',
+        body: {'name': name, 'kind': kind},
+        withRefreshToken: true,
+      ),
+    ),
+  );
 
   @override
   Future<void> logout(String refreshToken) => _api.send(

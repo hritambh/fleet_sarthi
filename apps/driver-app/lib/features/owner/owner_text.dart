@@ -33,6 +33,17 @@ String alertStatusLabel(AppLocalizations l, String status) => switch (status) {
   _ => status,
 };
 
+/// "Good morning, Anil" by the time of day; without a name, just the greeting.
+String greeting(AppLocalizations l, DateTime now, String name) {
+  final hour = now.hour;
+  final text = hour < 12
+      ? l.greetingMorning
+      : hour < 17
+      ? l.greetingAfternoon
+      : l.greetingEvening;
+  return name.isEmpty ? text : '$text, $name';
+}
+
 String roleLabel(AppLocalizations l, String role) => switch (role) {
   'owner' => l.roleOwner,
   'manager' => l.roleManager,

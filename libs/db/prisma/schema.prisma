@@ -352,11 +352,29 @@ model Document {
   number       String?
   validFrom    DateTime? @map("valid_from") @db.Date
   expiresOn    DateTime  @map("expires_on") @db.Date
+  /// The first file, kept for older clients; every file is in DocumentFile.
   mediaId      String?   @map("media_id") @db.Uuid
   supersededBy String?   @map("superseded_by") @db.Uuid
   createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
+  files DocumentFile[]
+
   @@map("documents")
+}
+
+/// A document's files (photos and PDFs), in the order they were added.
+model DocumentFile {
+  orgId      String   @map("org_id") @db.Uuid
+  documentId String   @map("document_id") @db.Uuid
+  mediaId    String   @map("media_id") @db.Uuid
+  position   Int      @db.SmallInt
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@id([documentId, mediaId])
+  @@index([orgId])
+  @@map("document_files")
 }
 
 model OdometerReading {

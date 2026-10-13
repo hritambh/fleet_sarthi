@@ -1,3 +1,4 @@
+export * from './analytics/index.js';
 export * from './documents/index.js';
 export * from './fuel/index.js';
 export type * from './messages.js';

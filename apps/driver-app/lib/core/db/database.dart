@@ -128,6 +128,30 @@ class AppDatabase extends _$AppDatabase {
     },
   );
 
+  /// How many things on this device the server doesn't have yet: queued
+  /// writes, photos and GPS points not uploaded, and trips under way (still
+  /// recording GPS). Rejected writes (`attention`) don't count: the server
+  /// already refused them. The data belongs to one fleet, so the app only
+  /// switches fleets (which clears it) when this is zero.
+  Future<int> unsyncedWork() async {
+    Future<int> count(
+      TableInfo<Table, dynamic> table,
+      Expression<bool> where,
+    ) =>
+        (selectOnly(table)
+              ..addColumns([countAll()])
+              ..where(where))
+            .map((row) => row.read(countAll())!)
+            .getSingle();
+    final counts = await Future.wait([
+      count(outboxItems, outboxItems.state.equals('pending')),
+      count(photos, photos.uploaded.equals(false)),
+      count(gpsPoints, gpsPoints.uploaded.equals(false)),
+      count(cachedTrips, cachedTrips.status.equals('started')),
+    ]);
+    return counts.fold<int>(0, (a, b) => a + b);
+  }
+
   /// Removes everything when the driver signs out.
   Future<void> clearAll() async {
     await transaction(() async {

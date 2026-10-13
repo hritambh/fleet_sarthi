@@ -108,13 +108,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginCheckNumber => 'Check the number and try again.';
 
   @override
-  String get noFleetTitle => 'Not part of a fleet yet';
-
-  @override
-  String get noFleetBody =>
-      'Your number isn\'t registered in any fleet yet. Ask your fleet owner to add you, or create your fleet on the Fleet Sarthi admin website.';
-
-  @override
   String get ownerMode => 'Owner mode';
 
   @override
@@ -2530,4 +2523,571 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get switchWorkspace => 'Switch mode or fleet';
+
+  @override
+  String workspaceManage({required String fleet}) {
+    return 'Manage $fleet';
+  }
+
+  @override
+  String workspaceDrive({required String fleet}) {
+    return 'Drive for $fleet';
+  }
+
+  @override
+  String get workspaceManageHint =>
+      'Owner mode: vehicles, drivers, trips and money';
+
+  @override
+  String get workspaceDriveHint => 'Driver mode: your trips, fuel and photos';
+
+  @override
+  String get setUpMyFleet => 'I own vehicles: set up my fleet';
+
+  @override
+  String unsyncedBeforeSwitch({required int count}) {
+    return '$count trip updates on this phone haven\'t been sent yet. Go online, let them sync, then switch.';
+  }
+
+  @override
+  String get getStartedTitle => 'Welcome to Fleet Sarthi';
+
+  @override
+  String get getStartedDriveTitle => 'Drive for a vehicle owner';
+
+  @override
+  String getStartedDriveBody({required String phone}) {
+    return 'Ask the owner to add $phone as a driver in their Fleet Sarthi. Then tap Check again.';
+  }
+
+  @override
+  String get checkAgain => 'Check again';
+
+  @override
+  String get stillNoFleet => 'No owner has added you yet.';
+
+  @override
+  String get getStartedOwnTitle => 'Own vehicles?';
+
+  @override
+  String get getStartedOwnBody =>
+      'Set up your fleet to add vehicles and drivers. You can still drive for other owners from the same account.';
+
+  @override
+  String get createFleetTitle => 'Set up your fleet';
+
+  @override
+  String get fleetNameLabel => 'Fleet or business name';
+
+  @override
+  String get fleetNameTooShort => 'Enter at least 2 characters';
+
+  @override
+  String get iDriveToo => 'I also drive my own vehicles';
+
+  @override
+  String get createFleet => 'Create fleet';
+
+  @override
+  String get addMapPin => 'Add map pin';
+
+  @override
+  String get changePin => 'Change';
+
+  @override
+  String get removePin => 'Remove pin';
+
+  @override
+  String get pickupOnMap => 'Pickup on the map';
+
+  @override
+  String get dropOnMap => 'Drop on the map';
+
+  @override
+  String get pinPickerHint =>
+      'Tap the map to drop the pin. Tap again to move it.';
+
+  @override
+  String get usePin => 'Use this pin';
+
+  @override
+  String get navGroupOverview => 'Overview';
+
+  @override
+  String get navGroupFleet => 'Fleet';
+
+  @override
+  String get navGroupMoney => 'Money';
+
+  @override
+  String get navGroupSetup => 'Setup';
+
+  @override
+  String get greetingMorning => 'Good morning';
+
+  @override
+  String get greetingAfternoon => 'Good afternoon';
+
+  @override
+  String get greetingEvening => 'Good evening';
+
+  @override
+  String get colRoute => 'Route';
+
+  @override
+  String get colCustomer => 'Customer';
+
+  @override
+  String get colFare => 'Fare';
+
+  @override
+  String get colDocument => 'Document';
+
+  @override
+  String get colFor => 'For';
+
+  @override
+  String get colNumber => 'Number';
+
+  @override
+  String get colRole => 'Role';
+
+  @override
+  String get colBalance => 'Balance';
+
+  @override
+  String get colShortfall => 'Short';
+
+  @override
+  String get usualEfficiency => 'Usual efficiency';
+
+  @override
+  String get alertsInbox => 'Alerts & review';
+
+  @override
+  String get documentsExpiredChip => 'Document expired';
+
+  @override
+  String get documentsDueChip => 'Document due';
+
+  @override
+  String get managersSection => 'Managers';
+
+  @override
+  String get noManagersYet => 'No managers yet.';
+
+  @override
+  String get shareTripHeading => 'Trip details';
+
+  @override
+  String get shareCustomer => 'Customer';
+
+  @override
+  String get sharePickup => 'Pickup';
+
+  @override
+  String get shareDrop => 'Drop';
+
+  @override
+  String get sharePickupTime => 'Pickup time';
+
+  @override
+  String get shareCab => 'Cab';
+
+  @override
+  String get shareDriver => 'Driver';
+
+  @override
+  String get shareFare => 'Fare';
+
+  @override
+  String shareFareWithKm({required String fare, required String km}) {
+    return '$fare ($km included)';
+  }
+
+  @override
+  String get copyDetails => 'Copy details';
+
+  @override
+  String get detailsCopied => 'Trip details copied';
+
+  @override
+  String get shareOnWhatsApp => 'Send on WhatsApp';
+
+  @override
+  String get whatsAppUnavailable => 'Couldn\'t open WhatsApp';
+
+  @override
+  String get analytics => 'Analytics';
+
+  @override
+  String get analyticsIntro =>
+      'Daily fuel bought, revenue and km for the month, by vehicle.';
+
+  @override
+  String get month => 'Month';
+
+  @override
+  String get perTripAverages => 'Average per trip';
+
+  @override
+  String get avgKmPerTrip => 'Km per trip';
+
+  @override
+  String get avgRevenuePerTrip => 'Revenue per trip';
+
+  @override
+  String get avgFuelCostPerTrip => 'Fuel cost per trip (est.)';
+
+  @override
+  String tripsInMonth({required int count}) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count trips this month',
+      one: '1 trip this month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fuelBoughtPerDay => 'Fuel bought per day';
+
+  @override
+  String get revenuePerDay => 'Revenue per day';
+
+  @override
+  String get kmPerDay => 'Km driven per day';
+
+  @override
+  String monthTotal({required String total}) {
+    return 'Month total: $total';
+  }
+
+  @override
+  String get fuelInRupeesNote =>
+      'Shown in ₹, since litres and kg can\'t be added together.';
+
+  @override
+  String get noActivityThisMonth => 'Nothing this month.';
+
+  @override
+  String get customDay => 'Custom';
+
+  @override
+  String tripsOnDay({required String date}) {
+    return 'Trips on $date';
+  }
+
+  @override
+  String get availableCabs => 'Available cabs';
+
+  @override
+  String get availableDrivers => 'Available drivers';
+
+  @override
+  String get tripsUnassigned => 'Trips unassigned';
+
+  @override
+  String get completedTrips => 'Completed trips';
+
+  @override
+  String percentReady({required int percent}) {
+    return '$percent% ready';
+  }
+
+  @override
+  String cabsFooter({required int onTrip, required int inactive}) {
+    return '$onTrip on trip · $inactive inactive';
+  }
+
+  @override
+  String driversFooter({required int onTrip, required int assigned}) {
+    return '$onTrip on trip · $assigned assigned';
+  }
+
+  @override
+  String get standby => 'Standby';
+
+  @override
+  String get needsCab => 'Needs cab';
+
+  @override
+  String get pending => 'pending';
+
+  @override
+  String get resolveQueue => 'Resolve queue';
+
+  @override
+  String get runs => 'runs';
+
+  @override
+  String grossFare({required String amount}) {
+    return '$amount gross fare';
+  }
+
+  @override
+  String busyFromTo({required String from, required String to}) {
+    return 'Busy $from – $to';
+  }
+
+  @override
+  String get busyPickCleared =>
+      'The vehicle or driver you picked is booked at the new time, so it was cleared.';
+
+  @override
+  String get busyPickWarning =>
+      'This vehicle or driver is already booked at this time.';
+
+  @override
+  String get uploadFile => 'Upload file';
+
+  @override
+  String get chooseOtherFile => 'Choose another file';
+
+  @override
+  String get uploadFileHint =>
+      'Or upload a PDF or image (JPG, PNG, WebP), up to 15 MB.';
+
+  @override
+  String get fileTooLarge => 'That file is larger than 15 MB.';
+
+  @override
+  String get pdfDocument => 'PDF document';
+
+  @override
+  String get imageFile => 'Image';
+
+  @override
+  String get viewDocument => 'View document';
+
+  @override
+  String get documentUnavailable => 'Couldn\'t open the document. Try again.';
+
+  @override
+  String get schedule => 'Schedule';
+
+  @override
+  String get noTripsThisDay => 'No trips this day.';
+
+  @override
+  String get previousMonth => 'Previous month';
+
+  @override
+  String get nextMonth => 'Next month';
+
+  @override
+  String get logInWithOtp => 'Log in with OTP';
+
+  @override
+  String get noAccountForNumber =>
+      'No account with this number yet. Sign up instead.';
+
+  @override
+  String get signUpVerifyHint =>
+      'We\'ll send an OTP to confirm the number is yours.';
+
+  @override
+  String get verifyAndCreateAccount => 'Verify number & create account';
+
+  @override
+  String get resetWithOtpIntro =>
+      'Verify your mobile number with an OTP, then choose a new password.';
+
+  @override
+  String get numberVerified => 'Number verified';
+
+  @override
+  String get verifyWithOtp => 'Verify with OTP';
+
+  @override
+  String get phoneVerifyTitle => 'Verify your number';
+
+  @override
+  String get stubVerifyHint =>
+      'Test mode: no SMS is sent. The number below counts as verified.';
+
+  @override
+  String get errorPhoneOtpDisabled => 'OTP sign-in isn\'t available right now.';
+
+  @override
+  String get errorPhoneNotVerified =>
+      'Couldn\'t verify your number. Try again.';
+
+  @override
+  String get errorPhoneMismatch =>
+      'The number you verified isn\'t the one you entered.';
+
+  @override
+  String get errorPhoneVerificationRequired =>
+      'Verify your mobile number to sign up.';
+
+  @override
+  String get verify => 'Verify';
+
+  @override
+  String get allowPopups =>
+      'Allow pop-ups for this site to verify your number, then try again.';
+
+  @override
+  String get tripInProgress => 'Trip in progress';
+
+  @override
+  String get nextTrip => 'Next trip';
+
+  @override
+  String startsIn({required String time}) {
+    return 'Starts in $time';
+  }
+
+  @override
+  String get startingNow => 'Starting now';
+
+  @override
+  String runningLate({required String time}) {
+    return '$time late';
+  }
+
+  @override
+  String get todayAtAGlance => 'Today at a glance';
+
+  @override
+  String get lastSevenDays => 'Last 7 days';
+
+  @override
+  String get statTripsDone => 'Trips done';
+
+  @override
+  String get statKmDriven => 'Km driven';
+
+  @override
+  String get statCollected => 'Collected';
+
+  @override
+  String ofTotal({required int done, required int total}) {
+    return '$done of $total';
+  }
+
+  @override
+  String cashAmount({required String amount}) {
+    return 'Cash $amount';
+  }
+
+  @override
+  String get callCustomer => 'Call';
+
+  @override
+  String get directions => 'Directions';
+
+  @override
+  String kmSoFar({required String km}) {
+    return '$km so far';
+  }
+
+  @override
+  String durationHm({required int h, required String m}) {
+    return '$h h $m min';
+  }
+
+  @override
+  String durationM({required int m}) {
+    return '$m min';
+  }
+
+  @override
+  String get syncNow => 'Sync now';
+
+  @override
+  String get noTripsAssigned => 'No trips assigned yet';
+
+  @override
+  String get noTripsHint =>
+      'When your fleet owner assigns a trip, it shows up here. Pull down to refresh, or start one yourself.';
+
+  @override
+  String get detailsTab => 'Details';
+
+  @override
+  String get documentFiles => 'Files (photos or PDFs)';
+
+  @override
+  String photoNumber({required int number}) {
+    return 'Photo $number';
+  }
+
+  @override
+  String tooManyFiles({required int count}) {
+    return 'A document can have up to $count files.';
+  }
+
+  @override
+  String fileTooLargeNamed({required String name}) {
+    return '$name is larger than 15 MB.';
+  }
+
+  @override
+  String get uploadFiles => 'Upload files';
+
+  @override
+  String viewFiles({required int count}) {
+    return 'View files ($count)';
+  }
+
+  @override
+  String get open => 'Open';
+
+  @override
+  String get filters => 'Filters';
+
+  @override
+  String filtersCount({required int count}) {
+    return 'Filters ($count)';
+  }
+
+  @override
+  String get clearAll => 'Clear all';
+
+  @override
+  String get apply => 'Apply';
+
+  @override
+  String get severity => 'Severity';
+
+  @override
+  String get alertKindTitle => 'Type';
+
+  @override
+  String get quickOpsHub => 'Quick Operations Hub';
+
+  @override
+  String get fastDispatch => 'FAST-DISPATCH';
+
+  @override
+  String get addTrip => 'Add Trip';
+
+  @override
+  String get tagDriver => 'Tag Driver';
+
+  @override
+  String get addDriverQuick => '+ Add Driver';
+
+  @override
+  String get addCabQuick => '+ Add Cab';
+
+  @override
+  String get scheduledRides => 'Scheduled rides';
+
+  @override
+  String scheduledRidesOn({required String date}) {
+    return 'Scheduled rides · $date';
+  }
+
+  @override
+  String get noTripsWaiting => 'No trips waiting for a driver.';
+
+  @override
+  String get pickTripToAssign => 'Pick a trip to assign';
 }

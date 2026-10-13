@@ -11,10 +11,9 @@
     "libs/*"
   ],
   "scripts": {
-    "dev": "nx run-many -t dev -p @taxcy/api @taxcy/workers @taxcy/admin-web --output-style=stream",
+    "dev": "nx run-many -t dev -p @taxcy/api @taxcy/workers --output-style=stream",
     "dev:api": "nx run @taxcy/api:dev --output-style=stream",
     "dev:workers": "nx run @taxcy/workers:dev --output-style=stream",
-    "dev:admin": "nx run @taxcy/admin-web:dev --output-style=stream",
     "dev:driver-web": "bun run --cwd apps/driver-app web",
     "build:apk": "apps/driver-app/scripts/build-apk.sh",
     "driver:keystore": "apps/driver-app/scripts/create-keystore.sh",
@@ -44,8 +43,6 @@
     "@eslint/js": "^10.0.1",
     "@types/node": "~24.19.1",
     "eslint": "^10.12.0",
-    "eslint-plugin-react-hooks": "^7.1.1",
-    "eslint-plugin-react-refresh": "^0.5.7",
     "globals": "^17.13.0",
     "nx": "23.3.0",
     "prettier": "^3.9.9",

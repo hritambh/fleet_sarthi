@@ -108,13 +108,6 @@ class AppLocalizationsHi extends AppLocalizations {
   String get loginCheckNumber => 'नंबर जाँचें और फिर कोशिश करें।';
 
   @override
-  String get noFleetTitle => 'अभी किसी फ़्लीट में नहीं जुड़े हैं';
-
-  @override
-  String get noFleetBody =>
-      'आपका नंबर अभी किसी फ़्लीट में दर्ज नहीं है। अपने फ़्लीट मालिक से जुड़वाने को कहें, या फ़्लीट सारथी एडमिन वेबसाइट पर अपनी फ़्लीट बनाएँ।';
-
-  @override
   String get ownerMode => 'मालिक मोड';
 
   @override
@@ -2524,4 +2517,570 @@ class AppLocalizationsHi extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get switchWorkspace => 'मोड या फ़्लीट बदलें';
+
+  @override
+  String workspaceManage({required String fleet}) {
+    return '$fleet संभालें';
+  }
+
+  @override
+  String workspaceDrive({required String fleet}) {
+    return '$fleet के लिए गाड़ी चलाएँ';
+  }
+
+  @override
+  String get workspaceManageHint =>
+      'मालिक मोड: गाड़ियाँ, ड्राइवर, ट्रिप और हिसाब';
+
+  @override
+  String get workspaceDriveHint => 'ड्राइवर मोड: आपकी ट्रिप, ईंधन और फ़ोटो';
+
+  @override
+  String get setUpMyFleet => 'मेरी अपनी गाड़ियाँ हैं: अपनी फ़्लीट बनाएँ';
+
+  @override
+  String unsyncedBeforeSwitch({required int count}) {
+    return 'इस फ़ोन पर ट्रिप के $count अपडेट अभी भेजे नहीं गए हैं। इंटरनेट चालू करें, सिंक होने दें, फिर बदलें।';
+  }
+
+  @override
+  String get getStartedTitle => 'फ़्लीट सारथी में स्वागत है';
+
+  @override
+  String get getStartedDriveTitle => 'किसी गाड़ी मालिक के लिए गाड़ी चलाएँ';
+
+  @override
+  String getStartedDriveBody({required String phone}) {
+    return 'मालिक से कहें कि वे अपने फ़्लीट सारथी में $phone को ड्राइवर के रूप में जोड़ें। फिर ‘फिर से देखें’ दबाएँ।';
+  }
+
+  @override
+  String get checkAgain => 'फिर से देखें';
+
+  @override
+  String get stillNoFleet => 'अभी किसी मालिक ने आपको नहीं जोड़ा है।';
+
+  @override
+  String get getStartedOwnTitle => 'आपकी अपनी गाड़ियाँ हैं?';
+
+  @override
+  String get getStartedOwnBody =>
+      'गाड़ियाँ और ड्राइवर जोड़ने के लिए अपनी फ़्लीट बनाएँ। इसी अकाउंट से आप दूसरे मालिकों के लिए गाड़ी भी चला सकते हैं।';
+
+  @override
+  String get createFleetTitle => 'अपनी फ़्लीट बनाएँ';
+
+  @override
+  String get fleetNameLabel => 'फ़्लीट या कारोबार का नाम';
+
+  @override
+  String get fleetNameTooShort => 'कम से कम 2 अक्षर लिखें';
+
+  @override
+  String get iDriveToo => 'मैं अपनी गाड़ियाँ खुद भी चलाता/चलाती हूँ';
+
+  @override
+  String get createFleet => 'फ़्लीट बनाएँ';
+
+  @override
+  String get addMapPin => 'मैप पर पिन लगाएँ';
+
+  @override
+  String get changePin => 'बदलें';
+
+  @override
+  String get removePin => 'पिन हटाएँ';
+
+  @override
+  String get pickupOnMap => 'मैप पर पिकअप';
+
+  @override
+  String get dropOnMap => 'मैप पर ड्रॉप';
+
+  @override
+  String get pinPickerHint =>
+      'पिन लगाने के लिए मैप पर टैप करें। बदलने के लिए फिर से टैप करें।';
+
+  @override
+  String get usePin => 'यह पिन लगाएँ';
+
+  @override
+  String get navGroupOverview => 'सारांश';
+
+  @override
+  String get navGroupFleet => 'फ़्लीट';
+
+  @override
+  String get navGroupMoney => 'हिसाब';
+
+  @override
+  String get navGroupSetup => 'सेटअप';
+
+  @override
+  String get greetingMorning => 'सुप्रभात';
+
+  @override
+  String get greetingAfternoon => 'नमस्ते';
+
+  @override
+  String get greetingEvening => 'शुभ संध्या';
+
+  @override
+  String get colRoute => 'रूट';
+
+  @override
+  String get colCustomer => 'ग्राहक';
+
+  @override
+  String get colFare => 'किराया';
+
+  @override
+  String get colDocument => 'दस्तावेज़';
+
+  @override
+  String get colFor => 'किसका';
+
+  @override
+  String get colNumber => 'नंबर';
+
+  @override
+  String get colRole => 'भूमिका';
+
+  @override
+  String get colBalance => 'बाकी हिसाब';
+
+  @override
+  String get colShortfall => 'कमी';
+
+  @override
+  String get usualEfficiency => 'आम माइलेज';
+
+  @override
+  String get alertsInbox => 'अलर्ट और जाँच';
+
+  @override
+  String get documentsExpiredChip => 'दस्तावेज़ की मियाद ख़त्म';
+
+  @override
+  String get documentsDueChip => 'दस्तावेज़ जल्द ख़त्म';
+
+  @override
+  String get managersSection => 'मैनेजर';
+
+  @override
+  String get noManagersYet => 'अभी कोई मैनेजर नहीं।';
+
+  @override
+  String get shareTripHeading => 'ट्रिप की जानकारी';
+
+  @override
+  String get shareCustomer => 'ग्राहक';
+
+  @override
+  String get sharePickup => 'पिकअप';
+
+  @override
+  String get shareDrop => 'ड्रॉप';
+
+  @override
+  String get sharePickupTime => 'पिकअप का समय';
+
+  @override
+  String get shareCab => 'गाड़ी';
+
+  @override
+  String get shareDriver => 'ड्राइवर';
+
+  @override
+  String get shareFare => 'किराया';
+
+  @override
+  String shareFareWithKm({required String fare, required String km}) {
+    return '$fare ($km शामिल)';
+  }
+
+  @override
+  String get copyDetails => 'जानकारी कॉपी करें';
+
+  @override
+  String get detailsCopied => 'ट्रिप की जानकारी कॉपी हो गई';
+
+  @override
+  String get shareOnWhatsApp => 'व्हाट्सऐप पर भेजें';
+
+  @override
+  String get whatsAppUnavailable => 'व्हाट्सऐप नहीं खुल सका';
+
+  @override
+  String get analytics => 'विश्लेषण';
+
+  @override
+  String get analyticsIntro =>
+      'महीने भर का रोज़ का फ़्यूल, कमाई और किलोमीटर, हर गाड़ी के हिसाब से।';
+
+  @override
+  String get month => 'महीना';
+
+  @override
+  String get perTripAverages => 'हर ट्रिप का औसत';
+
+  @override
+  String get avgKmPerTrip => 'प्रति ट्रिप किलोमीटर';
+
+  @override
+  String get avgRevenuePerTrip => 'प्रति ट्रिप कमाई';
+
+  @override
+  String get avgFuelCostPerTrip => 'प्रति ट्रिप फ़्यूल ख़र्च (अनुमान)';
+
+  @override
+  String tripsInMonth({required int count}) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'इस महीने $count ट्रिप',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fuelBoughtPerDay => 'रोज़ भरा गया फ़्यूल';
+
+  @override
+  String get revenuePerDay => 'रोज़ की कमाई';
+
+  @override
+  String get kmPerDay => 'रोज़ चले किलोमीटर';
+
+  @override
+  String monthTotal({required String total}) {
+    return 'महीने का कुल: $total';
+  }
+
+  @override
+  String get fuelInRupeesNote =>
+      '₹ में दिखाया है, क्योंकि लीटर और किलो जोड़े नहीं जा सकते।';
+
+  @override
+  String get noActivityThisMonth => 'इस महीने कुछ नहीं।';
+
+  @override
+  String get customDay => 'तारीख़ चुनें';
+
+  @override
+  String tripsOnDay({required String date}) {
+    return '$date की ट्रिप';
+  }
+
+  @override
+  String get availableCabs => 'ख़ाली गाड़ियाँ';
+
+  @override
+  String get availableDrivers => 'ख़ाली ड्राइवर';
+
+  @override
+  String get tripsUnassigned => 'बिना गाड़ी की ट्रिप';
+
+  @override
+  String get completedTrips => 'पूरी हुई ट्रिप';
+
+  @override
+  String percentReady({required int percent}) {
+    return '$percent% तैयार';
+  }
+
+  @override
+  String cabsFooter({required int onTrip, required int inactive}) {
+    return '$onTrip ट्रिप पर · $inactive बंद';
+  }
+
+  @override
+  String driversFooter({required int onTrip, required int assigned}) {
+    return '$onTrip ट्रिप पर · $assigned को ट्रिप मिली';
+  }
+
+  @override
+  String get standby => 'तैयार';
+
+  @override
+  String get needsCab => 'गाड़ी चाहिए';
+
+  @override
+  String get pending => 'बाकी';
+
+  @override
+  String get resolveQueue => 'लाइन निपटाएँ';
+
+  @override
+  String get runs => 'ट्रिप';
+
+  @override
+  String grossFare({required String amount}) {
+    return 'कुल किराया $amount';
+  }
+
+  @override
+  String busyFromTo({required String from, required String to}) {
+    return 'व्यस्त $from – $to';
+  }
+
+  @override
+  String get busyPickCleared =>
+      'चुनी गई गाड़ी या ड्राइवर नए समय पर बुक है, इसलिए हटा दिया गया।';
+
+  @override
+  String get busyPickWarning => 'यह गाड़ी या ड्राइवर इस समय पहले से बुक है।';
+
+  @override
+  String get uploadFile => 'फ़ाइल अपलोड करें';
+
+  @override
+  String get chooseOtherFile => 'दूसरी फ़ाइल चुनें';
+
+  @override
+  String get uploadFileHint =>
+      'या PDF या फ़ोटो (JPG, PNG, WebP) अपलोड करें, 15 MB तक।';
+
+  @override
+  String get fileTooLarge => 'यह फ़ाइल 15 MB से बड़ी है।';
+
+  @override
+  String get pdfDocument => 'PDF दस्तावेज़';
+
+  @override
+  String get imageFile => 'फ़ोटो';
+
+  @override
+  String get viewDocument => 'दस्तावेज़ देखें';
+
+  @override
+  String get documentUnavailable =>
+      'दस्तावेज़ नहीं खुल सका। फिर से कोशिश करें।';
+
+  @override
+  String get schedule => 'शेड्यूल';
+
+  @override
+  String get noTripsThisDay => 'इस दिन कोई ट्रिप नहीं।';
+
+  @override
+  String get previousMonth => 'पिछला महीना';
+
+  @override
+  String get nextMonth => 'अगला महीना';
+
+  @override
+  String get logInWithOtp => 'OTP से लॉग इन करें';
+
+  @override
+  String get noAccountForNumber =>
+      'इस नंबर से अभी कोई अकाउंट नहीं है। साइन अप करें।';
+
+  @override
+  String get signUpVerifyHint =>
+      'नंबर आपका है, यह पक्का करने के लिए हम OTP भेजेंगे।';
+
+  @override
+  String get verifyAndCreateAccount => 'नंबर सत्यापित करें और अकाउंट बनाएँ';
+
+  @override
+  String get resetWithOtpIntro =>
+      'OTP से अपना मोबाइल नंबर सत्यापित करें, फिर नया पासवर्ड चुनें।';
+
+  @override
+  String get numberVerified => 'नंबर सत्यापित हो गया';
+
+  @override
+  String get verifyWithOtp => 'OTP से सत्यापित करें';
+
+  @override
+  String get phoneVerifyTitle => 'अपना नंबर सत्यापित करें';
+
+  @override
+  String get stubVerifyHint =>
+      'टेस्ट मोड: कोई SMS नहीं भेजा जाता। नीचे दिया नंबर सत्यापित माना जाएगा।';
+
+  @override
+  String get errorPhoneOtpDisabled => 'OTP से साइन इन अभी उपलब्ध नहीं है।';
+
+  @override
+  String get errorPhoneNotVerified =>
+      'आपका नंबर सत्यापित नहीं हो सका। फिर से कोशिश करें।';
+
+  @override
+  String get errorPhoneMismatch =>
+      'आपने जो नंबर सत्यापित किया, वह लिखे गए नंबर से अलग है।';
+
+  @override
+  String get errorPhoneVerificationRequired =>
+      'साइन अप के लिए अपना मोबाइल नंबर सत्यापित करें।';
+
+  @override
+  String get verify => 'सत्यापित करें';
+
+  @override
+  String get allowPopups =>
+      'नंबर सत्यापित करने के लिए इस साइट के पॉप-अप चालू करें, फिर से कोशिश करें।';
+
+  @override
+  String get tripInProgress => 'ट्रिप चल रही है';
+
+  @override
+  String get nextTrip => 'अगली ट्रिप';
+
+  @override
+  String startsIn({required String time}) {
+    return '$time में शुरू';
+  }
+
+  @override
+  String get startingNow => 'अभी शुरू';
+
+  @override
+  String runningLate({required String time}) {
+    return '$time देर';
+  }
+
+  @override
+  String get todayAtAGlance => 'आज एक नज़र में';
+
+  @override
+  String get lastSevenDays => 'पिछले 7 दिन';
+
+  @override
+  String get statTripsDone => 'पूरी ट्रिप';
+
+  @override
+  String get statKmDriven => 'चली दूरी';
+
+  @override
+  String get statCollected => 'वसूली';
+
+  @override
+  String ofTotal({required int done, required int total}) {
+    return '$total में से $done';
+  }
+
+  @override
+  String cashAmount({required String amount}) {
+    return 'नकद $amount';
+  }
+
+  @override
+  String get callCustomer => 'कॉल';
+
+  @override
+  String get directions => 'रास्ता';
+
+  @override
+  String kmSoFar({required String km}) {
+    return 'अब तक $km';
+  }
+
+  @override
+  String durationHm({required int h, required String m}) {
+    return '$h घं $m मि';
+  }
+
+  @override
+  String durationM({required int m}) {
+    return '$m मि';
+  }
+
+  @override
+  String get syncNow => 'अभी सिंक करें';
+
+  @override
+  String get noTripsAssigned => 'अभी कोई ट्रिप नहीं मिली';
+
+  @override
+  String get noTripsHint =>
+      'जब आपका फ़्लीट मालिक कोई ट्रिप देगा, वह यहाँ दिखेगी। रीफ़्रेश के लिए नीचे खींचें, या खुद नई ट्रिप शुरू करें।';
+
+  @override
+  String get detailsTab => 'विवरण';
+
+  @override
+  String get documentFiles => 'फ़ाइलें (फ़ोटो या PDF)';
+
+  @override
+  String photoNumber({required int number}) {
+    return 'फ़ोटो $number';
+  }
+
+  @override
+  String tooManyFiles({required int count}) {
+    return 'एक दस्तावेज़ में ज़्यादा से ज़्यादा $count फ़ाइलें हो सकती हैं।';
+  }
+
+  @override
+  String fileTooLargeNamed({required String name}) {
+    return '$name 15 MB से बड़ी है।';
+  }
+
+  @override
+  String get uploadFiles => 'फ़ाइलें अपलोड करें';
+
+  @override
+  String viewFiles({required int count}) {
+    return 'फ़ाइलें देखें ($count)';
+  }
+
+  @override
+  String get open => 'खोलें';
+
+  @override
+  String get filters => 'फ़िल्टर';
+
+  @override
+  String filtersCount({required int count}) {
+    return 'फ़िल्टर ($count)';
+  }
+
+  @override
+  String get clearAll => 'सब हटाएँ';
+
+  @override
+  String get apply => 'लागू करें';
+
+  @override
+  String get severity => 'गंभीरता';
+
+  @override
+  String get alertKindTitle => 'प्रकार';
+
+  @override
+  String get quickOpsHub => 'त्वरित संचालन केंद्र';
+
+  @override
+  String get fastDispatch => 'फ़ास्ट-डिस्पैच';
+
+  @override
+  String get addTrip => 'ट्रिप जोड़ें';
+
+  @override
+  String get tagDriver => 'ड्राइवर टैग करें';
+
+  @override
+  String get addDriverQuick => '+ ड्राइवर जोड़ें';
+
+  @override
+  String get addCabQuick => '+ कैब जोड़ें';
+
+  @override
+  String get scheduledRides => 'निर्धारित सवारियाँ';
+
+  @override
+  String scheduledRidesOn({required String date}) {
+    return 'निर्धारित सवारियाँ · $date';
+  }
+
+  @override
+  String get noTripsWaiting => 'कोई ट्रिप ड्राइवर का इंतज़ार नहीं कर रही।';
+
+  @override
+  String get pickTripToAssign => 'असाइन करने के लिए ट्रिप चुनें';
 }

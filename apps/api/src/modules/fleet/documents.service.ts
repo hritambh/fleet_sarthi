@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { Document, DocType } from '@taxcy/contracts';
+import type { Document, DocumentFile, DocType } from '@taxcy/contracts';
 import type { Prisma, TenantTx } from '@taxcy/db';
 import {
   daysUntil,
@@ -16,6 +16,13 @@ import { SettingsService } from './settings.service.js';
 type DocumentRow = Prisma.DocumentGetPayload<object>;
 
 const isoDate = (d: Date) => d.toISOString().slice(0, 10);
+
+const DOCUMENT_CONTENT_TYPES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'application/pdf',
+]);
 const dedupePrefix = (docId: string) => `doc:${docId}:`;
 
 export interface DocumentDetails {
@@ -23,7 +30,13 @@ export interface DocumentDetails {
   validFrom?: Date | undefined;
   expiresOn: Date;
   mediaId?: string | undefined;
+  mediaIds?: string[] | undefined;
 }
+
+/** The document's files in order, from mediaIds or the older single mediaId. */
+const fileIds = (input: DocumentDetails): string[] => [
+  ...new Set(input.mediaIds ?? (input.mediaId ? [input.mediaId] : [])),
+];
 
 @Injectable()
 export class DocumentsService {
@@ -61,7 +74,8 @@ export class DocumentsService {
       },
       orderBy: [{ expiresOn: 'asc' }],
     });
-    return rows.map((r) => this.toDocument(r, today, audit.docAlertDays));
+    const files = await this.filesFor(tx, rows);
+    return rows.map((r) => this.toDocument(r, today, audit.docAlertDays, files));
   }
 
   async create(
@@ -96,7 +110,8 @@ export class DocumentsService {
     ) {
       throw notFound('Driver');
     }
-    await this.assertMedia(tx, input.mediaId);
+    const files = fileIds(input);
+    for (const mediaId of files) await this.assertMedia(tx, mediaId);
     const row = await tx.document.create({
       data: {
         id: newId(),
@@ -107,9 +122,10 @@ export class DocumentsService {
         number: input.number ?? null,
         validFrom: input.validFrom ?? null,
         expiresOn: input.expiresOn,
-        mediaId: input.mediaId ?? null,
+        mediaId: files[0] ?? null,
       },
     });
+    await this.saveFiles(tx, row.id, files);
     await this.evaluateAlerts(tx, row);
     return this.present(tx, row);
   }
@@ -119,7 +135,8 @@ export class DocumentsService {
     const old = await tx.document.findFirst({ where: { id, orgId: tx.orgId } });
     if (!old) throw notFound('Document');
     if (old.supersededBy) throw new AppError('CONFLICT', 'This document has already been renewed');
-    await this.assertMedia(tx, input.mediaId);
+    const files = fileIds(input);
+    for (const mediaId of files) await this.assertMedia(tx, mediaId);
     const row = await tx.document.create({
       data: {
         id: newId(),
@@ -130,9 +147,10 @@ export class DocumentsService {
         number: input.number ?? old.number,
         validFrom: input.validFrom ?? null,
         expiresOn: input.expiresOn,
-        mediaId: input.mediaId ?? null,
+        mediaId: files[0] ?? null,
       },
     });
+    await this.saveFiles(tx, row.id, files);
     await tx.document.update({ where: { id: old.id }, data: { supersededBy: row.id } });
     await this.alerts.autoResolvePrefix(tx, dedupePrefix(old.id));
     await this.evaluateAlerts(tx, row);
@@ -192,17 +210,80 @@ export class DocumentsService {
     return d?.name ?? 'driver';
   }
 
+  /** A document's file: a photo or a PDF registered as a 'document' upload. */
   private async assertMedia(tx: TenantTx, mediaId: string | undefined): Promise<void> {
-    if (mediaId && !(await tx.mediaObject.count({ where: { id: mediaId, orgId: tx.orgId } })))
-      throw notFound('Media');
+    if (!mediaId) return;
+    const media = await tx.mediaObject.findFirst({
+      where: { id: mediaId, orgId: tx.orgId },
+      select: { kind: true, contentType: true },
+    });
+    if (!media) throw notFound('Media');
+    if (media.kind !== 'document' || !DOCUMENT_CONTENT_TYPES.has(media.contentType)) {
+      throw new AppError('VALIDATION_FAILED', 'A document must be a photo or a PDF upload', {
+        mediaId,
+      });
+    }
+  }
+
+  private async saveFiles(tx: TenantTx, documentId: string, mediaIds: readonly string[]) {
+    if (!mediaIds.length) return;
+    await tx.documentFile.createMany({
+      data: mediaIds.map((mediaId, position) => ({
+        orgId: tx.orgId,
+        documentId,
+        mediaId,
+        position,
+      })),
+    });
+  }
+
+  /** Each document's files in order, with their content types, by document id. */
+  private async filesFor(
+    tx: TenantTx,
+    rows: readonly DocumentRow[],
+  ): Promise<Map<string, DocumentFile[]>> {
+    if (!rows.length) return new Map();
+    const links = await tx.documentFile.findMany({
+      where: { orgId: tx.orgId, documentId: { in: rows.map((r) => r.id) } },
+      orderBy: [{ documentId: 'asc' }, { position: 'asc' }],
+    });
+    // A document saved before files existed only has documents.media_id.
+    const linked = new Set(links.map((f) => f.documentId));
+    const all = [
+      ...links.map((f) => ({ documentId: f.documentId, mediaId: f.mediaId })),
+      ...rows.flatMap((r) =>
+        r.mediaId && !linked.has(r.id) ? [{ documentId: r.id, mediaId: r.mediaId }] : [],
+      ),
+    ];
+    const media = await tx.mediaObject.findMany({
+      where: { orgId: tx.orgId, id: { in: all.map((f) => f.mediaId) } },
+      select: { id: true, contentType: true },
+    });
+    const types = new Map(media.map((m) => [m.id, m.contentType]));
+    const byDocument = new Map<string, DocumentFile[]>();
+    for (const f of all) {
+      const contentType = types.get(f.mediaId);
+      if (!contentType) continue;
+      const list = byDocument.get(f.documentId) ?? [];
+      list.push({ mediaId: f.mediaId, contentType });
+      byDocument.set(f.documentId, list);
+    }
+    return byDocument;
   }
 
   private async present(tx: TenantTx, row: DocumentRow): Promise<Document> {
     const { audit } = await this.settings.get(tx);
-    return this.toDocument(row, istBusinessDate(new Date()), audit.docAlertDays);
+    const files = await this.filesFor(tx, [row]);
+    return this.toDocument(row, istBusinessDate(new Date()), audit.docAlertDays, files);
   }
 
-  private toDocument(row: DocumentRow, today: string, alertDays: readonly number[]): Document {
+  private toDocument(
+    row: DocumentRow,
+    today: string,
+    alertDays: readonly number[],
+    filesByDocument: ReadonlyMap<string, DocumentFile[]>,
+  ): Document {
+    const files = filesByDocument.get(row.id) ?? [];
     const daysLeft = daysUntil(isoDate(row.expiresOn), today);
     const status = row.supersededBy
       ? 'superseded'
@@ -219,7 +300,9 @@ export class DocumentsService {
       number: row.number,
       validFrom: row.validFrom,
       expiresOn: row.expiresOn,
-      mediaId: row.mediaId,
+      mediaId: files[0]?.mediaId ?? row.mediaId,
+      mediaContentType: files[0]?.contentType ?? null,
+      files,
       supersededBy: row.supersededBy,
       daysLeft,
       status,

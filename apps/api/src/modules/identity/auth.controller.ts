@@ -1,7 +1,8 @@
-import { Controller, Req } from '@nestjs/common';
+import { Controller, Inject, Req } from '@nestjs/common';
 import { identityRoutes as r, type RouteInput, type RouteOutput } from '@taxcy/contracts';
 import type { Request } from 'express';
 import type { AuthContext } from '../../platform/auth/auth-context.js';
+import { APP_CONFIG, type AppConfig } from '../../platform/config.js';
 import { Auth, Input, Route } from '../../platform/http/route.js';
 import { OrgsService } from './orgs.service.js';
 import { OtpService } from './otp.service.js';
@@ -10,10 +11,63 @@ import { SessionService } from './session.service.js';
 @Controller()
 export class AuthController {
   constructor(
+    @Inject(APP_CONFIG) private readonly config: AppConfig,
     private readonly otp: OtpService,
     private readonly sessions: SessionService,
     private readonly orgs: OrgsService,
   ) {}
+
+  @Route(r.authMethods)
+  authMethods(): RouteOutput<typeof r.authMethods> {
+    const provider = this.config.PHONE_OTP_PROVIDER;
+    return {
+      phoneOtp:
+        provider === 'none'
+          ? null
+          : {
+              provider,
+              clientId:
+                provider === 'phone_email' ? (this.config.PHONE_EMAIL_CLIENT_ID ?? null) : null,
+            },
+      signupRequiresVerifiedPhone: this.config.SIGNUP_REQUIRES_VERIFIED_PHONE,
+    };
+  }
+
+  @Route(r.phoneOtpCheck)
+  phoneOtpCheck(
+    @Input() { body }: RouteInput<typeof r.phoneOtpCheck>,
+    @Req() req: Request,
+  ): Promise<RouteOutput<typeof r.phoneOtpCheck>> {
+    return this.sessions.phoneOtpCheck(body.phone, req.ip ?? 'unknown');
+  }
+
+  @Route(r.phoneOtpLogin)
+  phoneOtpLogin(
+    @Input() { body }: RouteInput<typeof r.phoneOtpLogin>,
+    @Req() req: Request,
+  ): Promise<RouteOutput<typeof r.phoneOtpLogin>> {
+    return this.sessions.phoneOtpLogin({
+      verificationToken: body.verificationToken,
+      phone: body.phone,
+      ip: req.ip ?? 'unknown',
+      deviceId: body.deviceId,
+      platform: body.platform,
+      appVersion: body.appVersion,
+    });
+  }
+
+  @Route(r.resetPasswordVerified)
+  resetPasswordVerified(
+    @Input() { body }: RouteInput<typeof r.resetPasswordVerified>,
+  ): Promise<RouteOutput<typeof r.resetPasswordVerified>> {
+    return this.sessions.resetPasswordVerified({
+      verificationToken: body.verificationToken,
+      password: body.password,
+      deviceId: body.deviceId,
+      platform: body.platform,
+      appVersion: body.appVersion,
+    });
+  }
 
   @Route(r.requestOtp)
   requestOtp(
@@ -33,6 +87,7 @@ export class AuthController {
       password: body.password,
       ip: req.ip ?? 'unknown',
       name: body.name,
+      verificationToken: body.verificationToken,
       deviceId: body.deviceId,
       platform: body.platform,
       appVersion: body.appVersion,

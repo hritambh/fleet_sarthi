@@ -41,7 +41,81 @@ describe('sign-up and reset codes', () => {
   });
 });
 
+describe('phone OTP switched off (the default)', () => {
+  it('reports no OTP and refuses OTP sign-in', async () => {
+    const methods = await request(h.http).get('/v1/auth/methods').expect(200);
+    expect(methods.body).toEqual({ phoneOtp: null, signupRequiresVerifiedPhone: false });
+    const res = await request(h.http)
+      .post('/v1/auth/phone-otp/login')
+      .send({ verificationToken: 'stub:+919876543210', deviceId: randomUUID(), platform: 'web' })
+      .expect(403);
+    expect(res.body).toMatchObject({ error: { code: 'PHONE_OTP_DISABLED' } });
+  });
+
+  it('refuses the account check too', async () => {
+    const res = await request(h.http)
+      .post('/v1/auth/phone-otp/check')
+      .send({ phone: '+919876543210' })
+      .expect(403);
+    expect(res.body).toMatchObject({ error: { code: 'PHONE_OTP_DISABLED' } });
+  });
+});
+
 describe('orgs and memberships', () => {
+  it('one account owns a fleet and drives in another, both ways (U1/U2)', async () => {
+    const u1 = await ownerSession(h, 'fleet', 'U1 Cabs');
+    const u2 = await ownerSession(h, 'fleet', 'U2 Cabs');
+    const invite = (owner: Session, driver: Session) =>
+      request(h.http)
+        .post('/v1/drivers')
+        .set(...bearer(owner))
+        .send({ name: 'Driver', phone: driver.user.phone })
+        .expect(201);
+    await invite(u1, u2);
+    await invite(u2, u1);
+
+    // Already signed in: the invite shows up in /me without signing in again.
+    const me = await request(h.http)
+      .get('/v1/me')
+      .set(...bearer(u1))
+      .expect(200);
+    expect((me.body as { memberships: unknown }).memberships).toEqual([
+      { orgId: u1.activeOrgId, orgName: 'U1 Cabs', orgKind: 'fleet', roles: ['owner'] },
+      { orgId: u2.activeOrgId, orgName: 'U2 Cabs', orgKind: 'fleet', roles: ['driver'] },
+    ]);
+
+    const driving = await request(h.http)
+      .post('/v1/auth/switch-org')
+      .set(...bearer(u1))
+      .send({ orgId: u2.activeOrgId, refreshToken: u1.refreshToken })
+      .expect(200);
+    const asDriver = await request(h.http)
+      .get('/v1/me')
+      .set(...bearer(driving.body as Session))
+      .expect(200);
+    expect(asDriver.body).toMatchObject({ activeOrgId: u2.activeOrgId, roles: ['driver'] });
+  });
+
+  it('signs in to a fleet the user owns before an older one they drive for', async () => {
+    const owner = await ownerSession(h, 'fleet', 'Older Fleet');
+    const phone = randomPhone();
+    const first = await login(h, phone);
+    await request(h.http)
+      .post('/v1/drivers')
+      .set(...bearer(owner))
+      .send({ name: 'Driver', phone })
+      .expect(201);
+    const own = await request(h.http)
+      .post('/v1/orgs')
+      .set(...bearer(first))
+      .send({ name: 'My Fleet', kind: 'fleet', refreshToken: first.refreshToken })
+      .expect(201);
+
+    const again = await login(h, phone);
+    expect(again.memberships.map((m) => m.orgName)).toEqual(['Older Fleet', 'My Fleet']);
+    expect(again.activeOrgId).toBe((own.body as Session).activeOrgId);
+  });
+
   it('makes the creator the owner of a fleet and scopes the session to it', async () => {
     const session = await ownerSession(h, 'fleet', 'Sharma Travels');
     expect(session.activeOrgId).not.toBeNull();

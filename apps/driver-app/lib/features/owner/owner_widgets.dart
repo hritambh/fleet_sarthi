@@ -6,13 +6,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../core/api/models.dart';
+import '../../core/api/owner_models.dart';
 import '../common/errors.dart';
 import '../common/format.dart';
 import 'owner_providers.dart';
 import 'owner_text.dart';
 
-/// Content width on wide screens (the web build at desktop size).
+/// Content width on wide screens (tablets).
 const ownerMaxWidth = 960.0;
+
+/// From this width owner mode uses the desktop layout: a sidebar, wider pages,
+/// tables and multi-column dashboards (the web build on a laptop or monitor).
+const desktopMinWidth = 1100.0;
+
+/// Content width in the desktop layout.
+const desktopMaxWidth = 1320.0;
+
+bool isDesktop(BuildContext context) =>
+    MediaQuery.sizeOf(context).width >= desktopMinWidth;
 
 /// Centres [child] and caps its width, so lists don't stretch across a desktop.
 class PageWidth extends StatelessWidget {
@@ -23,10 +34,53 @@ class PageWidth extends StatelessWidget {
   Widget build(BuildContext context) => Align(
     alignment: Alignment.topCenter,
     child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: ownerMaxWidth),
-      child: child,
+      constraints: BoxConstraints(
+        maxWidth: isDesktop(context) ? desktopMaxWidth : ownerMaxWidth,
+      ),
+      // Narrower content (a filter, a short card) lines up on the left
+      // instead of centring; it keeps its own width.
+      child: Align(alignment: AlignmentDirectional.topStart, child: child),
     ),
   );
+}
+
+/// A page's main action ("Add vehicle"): a button in the header on the
+/// desktop, a floating button on phones.
+class PageAction {
+  const PageAction({
+    required this.key,
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final Key key;
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+
+  List<Widget> headerActions(BuildContext context) => isDesktop(context)
+      ? [
+          Padding(
+            padding: const EdgeInsets.only(right: 24),
+            child: FilledButton.icon(
+              key: key,
+              onPressed: onPressed,
+              icon: Icon(icon),
+              label: Text(label),
+            ),
+          ),
+        ]
+      : const [];
+
+  Widget? fab(BuildContext context) => isDesktop(context)
+      ? null
+      : FloatingActionButton.extended(
+          key: key,
+          onPressed: onPressed,
+          icon: Icon(icon),
+          label: Text(label),
+        );
 }
 
 /// Loading spinner, an error with a retry button, or the data. Owner mode is
@@ -103,7 +157,10 @@ class RefreshPage extends StatelessWidget {
     onRefresh: onRefresh,
     child: ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: padding,
+      // More breathing room around desktop pages.
+      padding: isDesktop(context)
+          ? padding.copyWith(left: 28, right: 28, top: 24)
+          : padding,
       children: [for (final child in children) PageWidth(child: child)],
     ),
   );
@@ -212,6 +269,263 @@ class StatTile extends StatelessWidget {
   );
 }
 
+/// A headline number on the desktop dashboard: a tinted icon, the value large,
+/// a label and an optional hint; clickable when [onTap] is set.
+class MetricCard extends StatelessWidget {
+  const MetricCard({
+    required this.icon,
+    required this.accent,
+    required this.label,
+    required this.value,
+    this.hint,
+    this.onTap,
+    super.key,
+  });
+
+  final IconData icon;
+  final Color accent;
+  final String label;
+  final String value;
+  final String? hint;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) => Card(
+    margin: EdgeInsets.zero,
+    clipBehavior: Clip.antiAlias,
+    child: InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: accent, width: 3)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: accent),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w700,
+                      color: TaxcyColors.blue950,
+                      height: 1.1,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: TaxcyColors.ink,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  if (hint != null)
+                    Text(
+                      hint!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: TaxcyColors.muted,
+                        fontSize: 12,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+/// A dashboard headline: icon and an optional pill on top, the label, a large
+/// value with a smaller suffix ("18 / 24"), then an optional progress bar,
+/// footer line and link. [highlight] tints it orange for "needs action".
+class KpiCard extends StatelessWidget {
+  const KpiCard({
+    required this.icon,
+    required this.accent,
+    required this.label,
+    required this.value,
+    this.suffix,
+    this.pill,
+    this.progress,
+    this.footer,
+    this.link,
+    this.highlight = false,
+    this.onTap,
+    super.key,
+  });
+
+  final IconData icon;
+  final Color accent;
+  final String label;
+  final String value;
+  final String? suffix;
+  final String? pill;
+
+  /// 0 to 1.
+  final double? progress;
+  final String? footer;
+
+  /// A call to action at the bottom, e.g. "Resolve queue".
+  final String? link;
+  final bool highlight;
+  final VoidCallback? onTap;
+
+  static const _orange = Color(0xFFF08A24);
+
+  @override
+  Widget build(BuildContext context) {
+    final tint = highlight ? _orange : accent;
+    return Card(
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      color: highlight ? const Color(0xFFFDE7D3) : null,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: highlight
+                          ? _orange
+                          : accent.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      icon,
+                      size: 20,
+                      color: highlight ? Colors.white : accent,
+                    ),
+                  ),
+                  const Spacer(),
+                  if (pill != null)
+                    Flexible(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: highlight
+                              ? TaxcyColors.ink
+                              : tint.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          pill!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: highlight ? Colors.white : tint,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: TaxcyColors.muted, fontSize: 13),
+              ),
+              const SizedBox(height: 2),
+              Text.rich(
+                TextSpan(
+                  text: value,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: TaxcyColors.blue950,
+                  ),
+                  children: [
+                    if (suffix != null)
+                      TextSpan(
+                        text: ' $suffix',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: TaxcyColors.muted,
+                        ),
+                      ),
+                  ],
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (progress != null) ...[
+                const SizedBox(height: 10),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(999),
+                  child: LinearProgressIndicator(
+                    value: progress!.clamp(0, 1),
+                    minHeight: 6,
+                    color: tint,
+                    backgroundColor: TaxcyColors.border,
+                  ),
+                ),
+              ],
+              if (footer != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  footer!,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: TaxcyColors.muted,
+                  ),
+                ),
+              ],
+              if (link != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  link!,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    decoration: TextDecoration.underline,
+                    color: TaxcyColors.ink,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class StatGrid extends StatelessWidget {
   const StatGrid(this.children, {super.key});
   final List<Widget> children;
@@ -291,6 +605,21 @@ Future<bool> runAction(
     );
     return false;
   }
+}
+
+/// Tabs under a page header: dark on the desktop's white header
+/// (desktopContentTheme), white on the phone's blue bar. Scrollable, so long
+/// Hindi labels fit on a narrow phone.
+TabBar ownerTabBar(BuildContext context, List<Widget> tabs) {
+  final desktop = isDesktop(context);
+  return TabBar(
+    isScrollable: true,
+    tabAlignment: TabAlignment.start,
+    labelColor: desktop ? TaxcyColors.blue800 : Colors.white,
+    unselectedLabelColor: desktop ? TaxcyColors.ink : TaxcyColors.blue100,
+    indicatorColor: desktop ? TaxcyColors.blue700 : Colors.white,
+    tabs: tabs,
+  );
 }
 
 /// Pushes [screen] on the root navigator.
@@ -510,6 +839,7 @@ class VehiclePicker extends ConsumerWidget {
     this.noneLabel,
     this.activeOnly = true,
     this.driverId,
+    this.busy = const {},
     super.key,
   });
 
@@ -519,6 +849,9 @@ class VehiclePicker extends ConsumerWidget {
   final String? noneLabel;
   final bool activeOnly;
   final String? driverId;
+
+  /// Vehicles booked during the trip's time, by id: listed but not pickable.
+  final Map<String, Busy> busy;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -546,12 +879,11 @@ class VehiclePicker extends ConsumerWidget {
         if (noneLabel != null)
           DropdownMenuItem<String?>(child: Text(noneLabel!)),
         for (final Vehicle v in list)
-          DropdownMenuItem<String?>(
-            value: v.id,
-            child: Text(
-              '${formatRegistration(v.registrationNo)} · ${v.model}',
-              overflow: TextOverflow.ellipsis,
-            ),
+          _pickerItem(
+            context,
+            id: v.id,
+            text: '${formatRegistration(v.registrationNo)} · ${v.model}',
+            busy: v.id == value ? null : busy[v.id],
           ),
       ],
       onChanged: onChanged,
@@ -569,6 +901,7 @@ class DriverPicker extends ConsumerWidget {
     required this.label,
     this.noneLabel,
     this.vehicleId,
+    this.busy = const {},
     super.key,
   });
 
@@ -577,6 +910,9 @@ class DriverPicker extends ConsumerWidget {
   final String label;
   final String? noneLabel;
   final String? vehicleId;
+
+  /// Drivers booked during the trip's time, by id: listed but not pickable.
+  final Map<String, Busy> busy;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -606,12 +942,46 @@ class DriverPicker extends ConsumerWidget {
         if (noneLabel != null)
           DropdownMenuItem<String?>(child: Text(noneLabel!)),
         for (final d in drivers)
-          DropdownMenuItem<String?>(value: d.id, child: Text(d.name)),
+          _pickerItem(
+            context,
+            id: d.id,
+            text: d.name,
+            busy: d.id == value ? null : busy[d.id],
+          ),
       ],
       onChanged: onChanged,
     );
   }
 }
+
+/// "Busy 2:00 pm – 6:00 pm" (with the day when it isn't the same day).
+String busyText(Fmt fmt, Busy b) {
+  final from = b.from.toLocal();
+  final to = b.to.toLocal();
+  final sameDay =
+      from.year == to.year && from.month == to.month && from.day == to.day;
+  return fmt.l.busyFromTo(
+    from: fmt.dayTime(b.from),
+    to: sameDay ? fmt.time(b.to) : fmt.dayTime(b.to),
+  );
+}
+
+/// A vehicle or driver in a picker; disabled and labelled when [busy].
+DropdownMenuItem<String?> _pickerItem(
+  BuildContext context, {
+  required String id,
+  required String text,
+  required Busy? busy,
+}) => DropdownMenuItem<String?>(
+  key: ValueKey('pick-$id'),
+  value: id,
+  enabled: busy == null,
+  child: Text(
+    busy == null ? text : '$text · ${busyText(context.fmt, busy)}',
+    overflow: TextOverflow.ellipsis,
+    style: busy == null ? null : const TextStyle(color: TaxcyColors.muted),
+  ),
+);
 
 /// Picks a calendar date; [value] and the result are YYYY-MM-DD.
 Future<String?> pickIsoDate(
@@ -642,3 +1012,165 @@ void fire(Future<void> future) => unawaited(future);
 final isOwnerProvider = Provider<bool>(
   (ref) => ref.watch(authProvider).value?.isOwner ?? false,
 );
+
+/// A column of a [DesktopTable]: its header, its share of the width, and
+/// whether its cells line up on the right (amounts).
+class TableColumn {
+  const TableColumn(this.label, {this.flex = 2, this.end = false});
+  final String label;
+  final int flex;
+  final bool end;
+}
+
+/// One row of a [DesktopTable]; [onTap] makes it clickable.
+class TableRowData {
+  const TableRowData({required this.key, required this.cells, this.onTap});
+  final Key key;
+  final List<Widget> cells;
+  final VoidCallback? onTap;
+}
+
+/// A table for the desktop layout: a tinted header, then one row per item that
+/// highlights on hover and opens on click.
+class DesktopTable extends StatelessWidget {
+  const DesktopTable({required this.columns, required this.rows, super.key});
+  final List<TableColumn> columns;
+  final List<TableRowData> rows;
+
+  Widget _cells(List<Widget> children) => Row(
+    children: [
+      for (var i = 0; i < columns.length; i++)
+        Expanded(
+          flex: columns[i].flex,
+          child: Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Align(
+              alignment: columns[i].end
+                  ? AlignmentDirectional.centerEnd
+                  : AlignmentDirectional.centerStart,
+              child: children[i],
+            ),
+          ),
+        ),
+    ],
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    const headerStyle = TextStyle(
+      color: TaxcyColors.muted,
+      fontSize: 12,
+      fontWeight: FontWeight.w600,
+      letterSpacing: 0.3,
+    );
+    return Card(
+      margin: const EdgeInsets.only(top: 4),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          Container(
+            color: TaxcyColors.blue50,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: _cells([
+              for (final c in columns)
+                Text(c.label.toUpperCase(), style: headerStyle),
+            ]),
+          ),
+          for (final row in rows)
+            InkWell(
+              key: row.key,
+              hoverColor: TaxcyColors.blue50,
+              onTap: row.onTap,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 14,
+                ),
+                decoration: const BoxDecoration(
+                  border: Border(top: BorderSide(color: TaxcyColors.border)),
+                ),
+                child: _cells(row.cells),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Cards in as many columns as fit (each at least [minWidth]), up to four.
+class CardGrid extends StatelessWidget {
+  const CardGrid({required this.children, this.minWidth = 300, super.key});
+  final List<Widget> children;
+  final double minWidth;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, box) {
+      const gap = 16.0;
+      final columns = ((box.maxWidth + gap) / (minWidth + gap)).floor().clamp(
+        1,
+        4,
+      );
+      final width = (box.maxWidth - gap * (columns - 1)) / columns;
+      return Wrap(
+        spacing: gap,
+        runSpacing: gap,
+        children: [
+          for (final child in children) SizedBox(width: width, child: child),
+        ],
+      );
+    },
+  );
+}
+
+/// "Sharma Travels" → "ST".
+String initials(String name) {
+  final words = name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
+  return words.take(2).map((w) => w[0].toUpperCase()).join();
+}
+
+/// A round avatar with someone's initials.
+class InitialsAvatar extends StatelessWidget {
+  const InitialsAvatar(this.name, {this.radius = 20, super.key});
+  final String name;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) => CircleAvatar(
+    radius: radius,
+    backgroundColor: TaxcyColors.blue100,
+    foregroundColor: TaxcyColors.blue800,
+    child: Text(
+      initials(name),
+      style: TextStyle(fontWeight: FontWeight.w700, fontSize: radius * 0.7),
+    ),
+  );
+}
+
+/// A registration number as a yellow commercial plate, like on a cab.
+class NumberPlate extends StatelessWidget {
+  const NumberPlate(this.registration, {super.key});
+  final String registration;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+    decoration: BoxDecoration(
+      color: const Color(0xFFFFD43B),
+      borderRadius: BorderRadius.circular(6),
+      border: Border.all(color: const Color(0xFF1F2937)),
+    ),
+    child: Text(
+      registration,
+      maxLines: 1,
+      softWrap: false,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        fontWeight: FontWeight.w800,
+        letterSpacing: 0.8,
+        color: Color(0xFF111827),
+      ),
+    ),
+  );
+}

@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:taxcy_driver/core/api/models.dart';
 import 'package:taxcy_driver/core/api/owner_models.dart';
 import 'package:taxcy_driver/features/common/format.dart';
 import 'package:taxcy_driver/features/owner/owner_text.dart';
@@ -326,6 +327,8 @@ void main() {
       String? driver,
       DateTime? end,
       String type = 'one_way',
+      GeoPoint? fromPoint,
+      GeoPoint? toPoint,
     }) => NewTripInput(
       tripType: type,
       fromText: ' Pune ',
@@ -338,7 +341,29 @@ void main() {
       customerPhone: '98222 22222',
       vehicleId: vehicle,
       driverId: driver,
+      fromPoint: fromPoint,
+      toPoint: toPoint,
     );
+
+    test('adds map pins to the places that have one', () {
+      final body = newTripBody(
+        en.l,
+        input(fromPoint: const GeoPoint(18.5204, 73.8567)),
+        id: 'x',
+      ).body!;
+      expect(body['from'], {
+        'text': 'Pune',
+        'point': {'lat': 18.5204, 'lng': 73.8567},
+      });
+      expect(body['to'], {'text': 'Mumbai'});
+      // A local rental has no drop, so no drop pin either.
+      final local = newTripBody(
+        en.l,
+        input(type: 'local_rental', toPoint: const GeoPoint(19.076, 72.8777)),
+        id: 'x',
+      ).body!;
+      expect(local.containsKey('to'), isFalse);
+    });
 
     test('builds the API body', () {
       final r = newTripBody(

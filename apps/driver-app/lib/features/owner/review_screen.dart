@@ -20,7 +20,10 @@ const reviewStatuses = [
 
 /// Items Fleet Sarthi isn't sure about: photo vs typed value; the owner decides.
 class ReviewScreen extends ConsumerStatefulWidget {
-  const ReviewScreen({super.key});
+  const ReviewScreen({this.embedded = false, super.key});
+
+  /// Inside [AlertsInboxScreen]'s tabs: no page header of its own.
+  final bool embedded;
 
   @override
   ConsumerState<ReviewScreen> createState() => _ReviewScreenState();
@@ -33,40 +36,42 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final items = ref.watch(reviewItemsProvider(_status));
+    final body = RefreshPage(
+      onRefresh: () => ref.refresh(reviewItemsProvider(_status).future),
+      children: [
+        Text(l.reviewIntro, style: Theme.of(context).textTheme.bodySmall),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: 240,
+          child: DropdownButtonFormField<String?>(
+            initialValue: _status,
+            isExpanded: true,
+            decoration: InputDecoration(labelText: l.status, isDense: true),
+            items: [
+              for (final s in reviewStatuses)
+                DropdownMenuItem<String?>(
+                  value: s,
+                  child: Text(reviewStatusLabel(l, s)),
+                ),
+              DropdownMenuItem<String?>(child: Text(l.all)),
+            ],
+            onChanged: (v) => setState(() => _status = v),
+          ),
+        ),
+        const SizedBox(height: 8),
+        AsyncView(
+          value: items,
+          onRetry: () => ref.invalidate(reviewItemsProvider(_status)),
+          builder: (list) => list.isEmpty
+              ? EmptyState(_status == 'open' ? l.nothingToReview : l.noItems)
+              : Column(children: [for (final i in list) ReviewCard(i)]),
+        ),
+      ],
+    );
+    if (widget.embedded) return body;
     return Scaffold(
       appBar: AppBar(title: Text(l.review)),
-      body: RefreshPage(
-        onRefresh: () => ref.refresh(reviewItemsProvider(_status).future),
-        children: [
-          Text(l.reviewIntro, style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: 240,
-            child: DropdownButtonFormField<String?>(
-              initialValue: _status,
-              isExpanded: true,
-              decoration: InputDecoration(labelText: l.status, isDense: true),
-              items: [
-                for (final s in reviewStatuses)
-                  DropdownMenuItem<String?>(
-                    value: s,
-                    child: Text(reviewStatusLabel(l, s)),
-                  ),
-                DropdownMenuItem<String?>(child: Text(l.all)),
-              ],
-              onChanged: (v) => setState(() => _status = v),
-            ),
-          ),
-          const SizedBox(height: 8),
-          AsyncView(
-            value: items,
-            onRetry: () => ref.invalidate(reviewItemsProvider(_status)),
-            builder: (list) => list.isEmpty
-                ? EmptyState(_status == 'open' ? l.nothingToReview : l.noItems)
-                : Column(children: [for (final i in list) ReviewCard(i)]),
-          ),
-        ],
-      ),
+      body: body,
     );
   }
 }
@@ -117,6 +122,118 @@ class ReviewCard extends ConsumerWidget {
     final fmt = context.fmt;
     final reason = reviewReasonText(l, item);
     final hasValue = item.valueKind != null;
+    final header = Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        ToneChip(reviewKindLabel(l, item.kind), tone: Tone.warning),
+        if (!item.isOpen) ToneChip(reviewStatusLabel(l, item.status)),
+        Text(
+          fmt.dayTime(item.createdAt),
+          style: const TextStyle(fontSize: 12, color: TaxcyColors.muted),
+        ),
+      ],
+    );
+    final hasValues = item.typedValue != null || item.ocrValue != null;
+    final openTrip = item.tripId == null
+        ? null
+        : TextButton(
+            onPressed: () => openScreen<void>(
+              context,
+              OwnerTripDetailScreen(tripId: item.tripId!),
+            ),
+            child: Text(l.openTrip),
+          );
+    final actions = !item.isOpen
+        ? null
+        : Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              if (hasValue)
+                FilledButton(
+                  key: const Key('review-keep-typed'),
+                  onPressed: () => _resolve(context, ref, 'accepted_typed'),
+                  child: Text(l.keepTyped),
+                ),
+              if (hasValue && item.ocrValue != null)
+                OutlinedButton(
+                  key: const Key('review-use-photo'),
+                  onPressed: () => _resolve(context, ref, 'accepted_ocr'),
+                  child: Text(l.usePhotoValue),
+                ),
+              if (hasValue)
+                OutlinedButton(
+                  key: const Key('review-correct'),
+                  onPressed: () => _correct(context, ref),
+                  child: Text(l.enterCorrectValue),
+                ),
+              TextButton(
+                key: const Key('review-dismiss'),
+                onPressed: () => _resolve(context, ref, 'dismissed'),
+                child: Text(hasValue ? l.dismiss : l.markReviewed),
+              ),
+            ],
+          );
+
+    if (isDesktop(context)) {
+      // The photo beside the two readings, so they're compared at a glance.
+      return Card(
+        key: ValueKey('review-${item.id}'),
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (item.mediaId != null) ...[
+                SizedBox(
+                  width: 360,
+                  child: MediaPhoto(item.mediaId!, height: 240),
+                ),
+                const SizedBox(width: 24),
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    header,
+                    if (reason != null) ...[
+                      const SizedBox(height: 10),
+                      Text(reason, style: const TextStyle(fontSize: 15)),
+                    ],
+                    if (hasValues) ...[
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          _Reading(
+                            label: l.typedByDriver,
+                            value: reviewValueText(fmt, item, item.typedValue),
+                          ),
+                          const SizedBox(width: 16),
+                          _Reading(
+                            label: l.readFromThePhoto,
+                            value: reviewValueText(fmt, item, item.ocrValue),
+                          ),
+                        ],
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        if (actions != null) Expanded(child: actions),
+                        ?openTrip,
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Card(
       key: ValueKey('review-${item.id}'),
       child: Padding(
@@ -124,28 +241,13 @@ class ReviewCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                ToneChip(reviewKindLabel(l, item.kind), tone: Tone.warning),
-                if (!item.isOpen) ToneChip(reviewStatusLabel(l, item.status)),
-                Text(
-                  fmt.dayTime(item.createdAt),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: TaxcyColors.muted,
-                  ),
-                ),
-              ],
-            ),
+            header,
             if (reason != null) ...[const SizedBox(height: 8), Text(reason)],
             if (item.mediaId != null) ...[
               const SizedBox(height: 8),
               MediaPhoto(item.mediaId!, height: 180),
             ],
-            if (item.typedValue != null || item.ocrValue != null) ...[
+            if (hasValues) ...[
               const SizedBox(height: 8),
               StatGrid([
                 StatTile(
@@ -158,49 +260,47 @@ class ReviewCard extends ConsumerWidget {
                 ),
               ]),
             ],
-            if (item.tripId != null)
-              TextButton(
-                onPressed: () => openScreen<void>(
-                  context,
-                  OwnerTripDetailScreen(tripId: item.tripId!),
-                ),
-                child: Text(l.openTrip),
-              ),
-            if (item.isOpen) ...[
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  if (hasValue)
-                    FilledButton(
-                      key: const Key('review-keep-typed'),
-                      onPressed: () => _resolve(context, ref, 'accepted_typed'),
-                      child: Text(l.keepTyped),
-                    ),
-                  if (hasValue && item.ocrValue != null)
-                    OutlinedButton(
-                      key: const Key('review-use-photo'),
-                      onPressed: () => _resolve(context, ref, 'accepted_ocr'),
-                      child: Text(l.usePhotoValue),
-                    ),
-                  if (hasValue)
-                    OutlinedButton(
-                      key: const Key('review-correct'),
-                      onPressed: () => _correct(context, ref),
-                      child: Text(l.enterCorrectValue),
-                    ),
-                  TextButton(
-                    key: const Key('review-dismiss'),
-                    onPressed: () => _resolve(context, ref, 'dismissed'),
-                    child: Text(hasValue ? l.dismiss : l.markReviewed),
-                  ),
-                ],
-              ),
-            ],
+            ?openTrip,
+            if (actions != null) ...[const SizedBox(height: 8), actions],
           ],
         ),
       ),
     );
   }
+}
+
+/// One reading in a large box, for the desktop review card.
+class _Reading extends StatelessWidget {
+  const _Reading({required this.label, required this.value});
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 200,
+    padding: const EdgeInsets.all(14),
+    decoration: BoxDecoration(
+      color: TaxcyColors.blue50,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: TaxcyColors.blue100),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(color: TaxcyColors.muted, fontSize: 12),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            color: TaxcyColors.blue950,
+          ),
+        ),
+      ],
+    ),
+  );
 }

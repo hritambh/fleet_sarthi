@@ -1,28 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/preferences.dart';
 import '../../app/providers.dart';
+import '../../app/workspaces.dart';
 import '../../app/theme.dart';
 import '../account/account_security_screen.dart';
 import '../common/format.dart';
 import '../common/language_picker.dart';
-import 'alerts_screen.dart';
 import 'dashboard_screen.dart';
-import 'documents_screen.dart';
-import 'fuel_screens.dart';
-import 'owner_providers.dart';
+import 'desktop_shell.dart';
+import 'alerts_inbox.dart';
+import 'analytics_screen.dart';
 import 'owner_text.dart';
 import 'owner_widgets.dart';
 import 'people_screens.dart';
-import 'review_screen.dart';
 import 'settings_screen.dart';
 import 'settlements_screen.dart';
 import 'trips/owner_trips_screen.dart';
 import 'vehicles_screen.dart';
+import '../workspaces/workspace_switcher.dart';
 
-/// Owner mode: Dashboard / Trips / Alerts / More. A bottom navigation bar on
-/// phones, a side rail on wide screens (tablets, the web build on a desktop).
+/// Owner mode: Dashboard / Trips / More, with alerts and review behind the
+/// bell in each page header. A bottom navigation bar on phones, a side rail on
+/// tablets, and on a desktop-sized screen (the web build on a laptop) the
+/// [DesktopOwnerShell] with every section in a sidebar.
 class OwnerShell extends ConsumerStatefulWidget {
   const OwnerShell({super.key});
 
@@ -37,27 +38,18 @@ class _OwnerShellState extends ConsumerState<OwnerShell> {
 
   @override
   Widget build(BuildContext context) {
+    if (isDesktop(context)) return const DesktopOwnerShell();
     final l = context.l10n;
-    final summary = ref.watch(alertSummaryProvider).value;
-    final alertCount = summary?.openAlerts ?? 0;
-    final reviewCount = summary?.openReviewItems ?? 0;
-    Widget badged(IconData icon, int count) => Badge(
-      isLabelVisible: count > 0,
-      label: Text(count > 99 ? '99+' : '$count'),
-      child: Icon(icon),
-    );
     final destinations = [
-      (Icons.dashboard_outlined, l.navDashboard, 0),
-      (Icons.route, l.navTrips, 0),
-      (Icons.notifications_outlined, l.navAlerts, alertCount),
-      (Icons.menu, l.navMore, reviewCount),
+      (Icons.dashboard_outlined, l.navDashboard),
+      (Icons.route, l.navTrips),
+      (Icons.menu, l.navMore),
     ];
     final body = IndexedStack(
       index: _tab,
       children: [
-        DashboardScreen(onOpenTab: _open),
+        DashboardScreen(onOpenTrips: () => _open(1)),
         const OwnerTripsScreen(),
-        const AlertsScreen(),
         const MoreScreen(),
       ],
     );
@@ -78,9 +70,9 @@ class _OwnerShellState extends ConsumerState<OwnerShell> {
                 child: Icon(Icons.local_taxi, color: TaxcyColors.blue700),
               ),
               destinations: [
-                for (final (icon, label, count) in destinations)
+                for (final (icon, label) in destinations)
                   NavigationRailDestination(
-                    icon: badged(icon, count),
+                    icon: Icon(icon),
                     label: Text(label),
                   ),
               ],
@@ -100,8 +92,8 @@ class _OwnerShellState extends ConsumerState<OwnerShell> {
         backgroundColor: Colors.white,
         indicatorColor: TaxcyColors.blue100,
         destinations: [
-          for (final (icon, label, count) in destinations)
-            NavigationDestination(icon: badged(icon, count), label: label),
+          for (final (icon, label) in destinations)
+            NavigationDestination(icon: Icon(icon), label: label),
         ],
       ),
     );
@@ -116,8 +108,6 @@ class MoreScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final session = ref.watch(authProvider).value;
-    final reviewCount =
-        ref.watch(alertSummaryProvider).value?.openReviewItems ?? 0;
     Widget item(IconData icon, String title, Widget screen, {Key? key}) =>
         ListTile(
           key: key,
@@ -127,7 +117,7 @@ class MoreScreen extends ConsumerWidget {
           onTap: () => openScreen<void>(context, screen),
         );
     return Scaffold(
-      appBar: AppBar(title: Text(l.navMore)),
+      appBar: AppBar(title: Text(l.navMore), actions: const [AlertsBell()]),
       body: ListView(
         children: [
           PageWidth(
@@ -160,35 +150,10 @@ class MoreScreen extends ConsumerWidget {
                   key: const Key('more-drivers'),
                 ),
                 item(
-                  Icons.group,
-                  l.members,
-                  const MembersScreen(),
-                  key: const Key('more-members'),
-                ),
-                item(
-                  Icons.description,
-                  l.documents,
-                  const DocumentsScreen(),
-                  key: const Key('more-documents'),
-                ),
-                item(
-                  Icons.local_gas_station,
-                  l.fuel,
-                  const FuelIndexScreen(),
-                  key: const Key('more-fuel'),
-                ),
-                ListTile(
-                  key: const Key('more-review'),
-                  leading: const Icon(Icons.fact_check),
-                  title: Text(l.review),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (reviewCount > 0) Badge(label: Text('$reviewCount')),
-                      const Icon(Icons.chevron_right),
-                    ],
-                  ),
-                  onTap: () => openScreen<void>(context, const ReviewScreen()),
+                  Icons.insights,
+                  l.analytics,
+                  const AnalyticsScreen(),
+                  key: const Key('more-analytics'),
                 ),
                 item(
                   Icons.account_balance_wallet,
@@ -214,13 +179,12 @@ class MoreScreen extends ConsumerWidget {
                   title: Text(l.language),
                   onTap: () => showLanguagePicker(context, ref),
                 ),
-                if (session?.isDriver ?? false)
+                if (session != null && workspacesFor(session).length > 1)
                   ListTile(
-                    key: const Key('switch-to-driver'),
-                    leading: const Icon(Icons.local_taxi),
-                    title: Text(l.driverMode),
-                    onTap: () =>
-                        ref.read(appModeProvider.notifier).set(AppMode.driver),
+                    key: const Key('switch-workspace'),
+                    leading: const Icon(Icons.swap_horiz),
+                    title: Text(l.switchWorkspace),
+                    onTap: () => showWorkspaceSwitcher(context, ref),
                   ),
                 ListTile(
                   leading: const Icon(Icons.logout),

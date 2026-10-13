@@ -6,9 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
 import '../../core/api/api.dart';
+import '../../core/api/auth_models.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/errors.dart';
 import '../common/format.dart';
+import 'phone_email_popup.dart';
+import 'phone_verification.dart';
 
 /// The API's password rule (libs/contracts Password).
 const minPasswordLength = 8;
@@ -240,6 +243,25 @@ mixin AuthFormState<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   Timer? _ticker;
 
   AuthController get auth => ref.read(authProvider.notifier);
+
+  /// Proves the number with an OTP; the provider's token, or null if the user
+  /// backed out.
+  Future<String?> verifyPhone(PhoneOtpMethod otp, {String hint = ''}) async {
+    final deviceId = await ref.read(sessionStoreProvider).deviceId();
+    if (!mounted) return null;
+    setState(() {
+      error = null;
+      errorCode = null;
+    });
+    try {
+      return await ref
+          .read(phoneVerifierProvider)
+          .verify(context, otp, deviceId: deviceId, phoneHint: hint.trim());
+    } on PopupBlockedException {
+      if (mounted) showError(context.l10n.allowPopups);
+      return null;
+    }
+  }
 
   void showError(String message) => setState(() {
     error = message;

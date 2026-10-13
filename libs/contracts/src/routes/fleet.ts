@@ -86,6 +86,12 @@ export type Driver = z.infer<typeof Driver>;
 export const DocType = z.enum(['rc', 'insurance', 'permit', 'puc', 'driving_licence']);
 export type DocType = z.infer<typeof DocType>;
 
+/** Most files one document holds. */
+export const MAX_DOCUMENT_FILES = 10;
+
+export const DocumentFile = z.object({ mediaId: Id, contentType: z.string() });
+export type DocumentFile = z.infer<typeof DocumentFile>;
+
 export const Document = z.object({
   id: Id,
   docType: DocType,
@@ -94,7 +100,12 @@ export const Document = z.object({
   number: z.string().nullable(),
   validFrom: CalendarDate.nullable(),
   expiresOn: CalendarDate,
+  /** The first file (older clients); every file is in `files`. */
   mediaId: Id.nullable(),
+  /** The first file's type ("image/jpeg", "application/pdf", …). */
+  mediaContentType: z.string().nullable(),
+  /** Every file (photos and PDFs), in the order they were added. */
+  files: z.array(DocumentFile),
   supersededBy: Id.nullable(),
   /** Days until expiry in IST; negative once expired. */
   daysLeft: z.number().int(),
@@ -107,7 +118,10 @@ const DocumentDetails = z.object({
   number: z.string().trim().max(50).optional(),
   validFrom: CalendarDate.optional(),
   expiresOn: CalendarDate,
+  /** One file (older clients). Use mediaIds for several. */
   mediaId: Id.optional(),
+  /** The document's files in order: uploaded photos or PDFs (kind "document"). */
+  mediaIds: z.array(Id).max(MAX_DOCUMENT_FILES).optional(),
 });
 
 export const AuditSettings = z.object({

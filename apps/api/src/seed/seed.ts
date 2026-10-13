@@ -24,8 +24,18 @@ import { textPng } from './png.js';
 
 const OWNER = { name: 'Anil Sharma', phone: '+919000000001' };
 const MANAGER = { name: 'Priya Nair', phone: '+919000000002' };
+/**
+ * A second, one-car fleet: Suresh (a Sharma Travels driver) owns it and Anil drives
+ * its car. So one account runs a fleet and drives in another, both ways round, and
+ * both of them can switch between owner and driver mode.
+ */
+const SECOND_FLEET = {
+  name: 'Patil Cabs',
+  ownerPhone: '+919000000012',
+  vehicle: { reg: 'MH12GH3456', make: 'Maruti Suzuki', model: 'Ertiga', fuel: 'cng' as const },
+};
 /** Every demo person signs in with this password (demo data only). */
-export const DEMO_PASSWORD = 'demo1234';
+export const DEMO_PASSWORD = '12345678';
 const HISTORY_DAYS = 42;
 const SETTLED_UNTIL_DAYS_AGO = 3;
 const GPS_DAYS = 4;
@@ -118,7 +128,10 @@ class Seeder {
       tx.user.findUnique({ where: { phoneE164: OWNER.phone }, include: { memberships: true } }),
     );
     if (existing?.memberships.length) {
-      log('Demo org already exists; nothing to do. Run `bun run db:reset` to start over.');
+      log('Demo org already exists. Run `bun run db:reset` to start over.');
+      // Added later: top up databases seeded before it existed.
+      await this.secondFleet();
+      await this.setDemoPasswords();
       this.printLogins();
       return;
     }
@@ -210,6 +223,7 @@ class Seeder {
       `settled every day up to ${SETTLED_UNTIL_DAYS_AGO} days ago (the last two days are left as drafts)`,
     );
     log(`${this.photos} photos uploaded`);
+    await this.secondFleet();
     await this.setDemoPasswords();
     this.printLogins();
   }
@@ -223,7 +237,78 @@ class Seeder {
       log(
         `  driver   ${p.driver.name.padEnd(15)} ${p.driver.phone}   (${p.vehicle.model}, ${p.vehicle.fuel})`,
       );
+    log(
+      `Seeded org "${SECOND_FLEET.name}": owner Suresh Patil, driver Anil Sharma ` +
+        '(both switch between owner and driver mode)',
+    );
     log(`Sign in with any of these numbers and the password ${DEMO_PASSWORD}.`);
+  }
+
+  /** Patil Cabs (see SECOND_FLEET), with one trip for Anil tomorrow. Skips if it exists. */
+  private async secondFleet(): Promise<void> {
+    const exists = await this.db.system((tx) =>
+      tx.organization.findFirst({ where: { name: SECOND_FLEET.name }, select: { id: true } }),
+    );
+    if (exists) return;
+    const owner = await this.db.system((tx) =>
+      tx.user.findUnique({ where: { phoneE164: SECOND_FLEET.ownerPhone } }),
+    );
+    if (!owner) return;
+    const orgId = newId();
+    await this.db.tenant(orgId, async (tx) => {
+      await tx.organization.create({ data: { id: orgId, name: SECOND_FLEET.name, kind: 'fleet' } });
+      await tx.orgSettings.create({
+        data: {
+          orgId,
+          driverPayRule: {
+            kind: 'percent_of_fare',
+            percent: 25,
+            base: 'quoted',
+            allowanceToDriver: true,
+          },
+        },
+      });
+      await tx.membership.create({
+        data: { id: newId(), orgId, userId: owner.id, roles: ['owner'] },
+      });
+    });
+    const auth: TenantAuth = { userId: owner.id, orgId, roles: ['owner'] };
+    const v = SECOND_FLEET.vehicle;
+    const vehicle = await this.db.tenant(orgId, (tx) =>
+      this.fleet.createVehicle(tx, {
+        registrationNo: v.reg,
+        make: v.make,
+        model: v.model,
+        fuelType: v.fuel,
+        year: 2023,
+        lastOdometerKm: 21_000,
+      }),
+    );
+    const driver = await this.db.tenant(orgId, (tx) =>
+      this.fleet.inviteDriver(tx, {
+        name: OWNER.name,
+        phone: OWNER.phone,
+        vehicleIds: [vehicle.id],
+      }),
+    );
+    await this.db.tenant(orgId, (tx) =>
+      tx.membership.updateMany({
+        where: { orgId, userId: driver.userId },
+        data: { status: 'active' },
+      }),
+    );
+    await this.trips.create(auth, {
+      tripType: 'one_way',
+      customer: { name: 'Nikhil Deshpande', phone: '+919822000201' },
+      from: { text: 'Pune Station', point: PUNE },
+      to: { text: 'Mumbai Airport T2', point: null },
+      scheduledStartAt: ist(-1, 9),
+      scheduledEndAt: ist(-1, 13),
+      quotedFarePaise: 360_000,
+      vehicleId: vehicle.id,
+      driverId: driver.id,
+    });
+    log(`org "${SECOND_FLEET.name}": owner Suresh Patil, driver Anil Sharma, 1 car, 1 trip`);
   }
 
   private async setDemoPasswords(): Promise<void> {

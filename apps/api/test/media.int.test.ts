@@ -171,6 +171,90 @@ describe('signed uploads', () => {
   });
 });
 
+describe('document files', () => {
+  async function newVehicle(reg: string): Promise<string> {
+    const res = await request(h.http)
+      .post('/v1/vehicles')
+      .set(...bearer(owner))
+      .send({ registrationNo: reg, make: 'Toyota', model: 'Etios', fuelType: 'petrol' })
+      .expect(201);
+    return (res.body as { id: string }).id;
+  }
+
+  it('attaches an uploaded PDF and reports its type', async () => {
+    const bytes = Buffer.from(`%PDF-1.7 fake insurance ${randomUUID()}`);
+    const ticket = await register(bytes, { kind: 'document', contentType: 'application/pdf' });
+    await putTo(ticket, bytes);
+    await request(h.http)
+      .post(`/v1/media/${ticket.id}/complete`)
+      .set(...bearer(owner))
+      .expect(200);
+
+    const res = await request(h.http)
+      .post('/v1/documents')
+      .set(...bearer(owner))
+      .send({
+        docType: 'insurance',
+        vehicleId: await newVehicle('MH12PD0001'),
+        expiresOn: '2027-03-31',
+        mediaId: ticket.id,
+      })
+      .expect(201);
+    expect(res.body).toMatchObject({ mediaId: ticket.id, mediaContentType: 'application/pdf' });
+  });
+
+  it('keeps several files in order', async () => {
+    async function uploaded(contentType: string, label: string): Promise<string> {
+      const bytes = Buffer.from(`${label} ${randomUUID()}`);
+      const ticket = await register(bytes, { kind: 'document', contentType });
+      await putTo(ticket, bytes);
+      await request(h.http)
+        .post(`/v1/media/${ticket.id}/complete`)
+        .set(...bearer(owner))
+        .expect(200);
+      return ticket.id;
+    }
+    const front = await uploaded('image/jpeg', 'rc-front');
+    const back = await uploaded('image/jpeg', 'rc-back');
+    const pdf = await uploaded('application/pdf', '%PDF rc');
+
+    const res = await request(h.http)
+      .post('/v1/documents')
+      .set(...bearer(owner))
+      .send({
+        docType: 'rc',
+        vehicleId: await newVehicle('MH12PD0003'),
+        expiresOn: '2030-01-31',
+        mediaIds: [front, back, pdf],
+      })
+      .expect(201);
+    expect(res.body).toMatchObject({
+      mediaId: front,
+      mediaContentType: 'image/jpeg',
+      files: [
+        { mediaId: front, contentType: 'image/jpeg' },
+        { mediaId: back, contentType: 'image/jpeg' },
+        { mediaId: pdf, contentType: 'application/pdf' },
+      ],
+    });
+  });
+
+  it('refuses an odometer photo as a document file', async () => {
+    const ticket = await register(photo('not-a-document'));
+    const res = await request(h.http)
+      .post('/v1/documents')
+      .set(...bearer(owner))
+      .send({
+        docType: 'insurance',
+        vehicleId: await newVehicle('MH12PD0002'),
+        expiresOn: '2027-03-31',
+        mediaId: ticket.id,
+      })
+      .expect(400);
+    expect(res.body).toMatchObject({ error: { code: 'VALIDATION_FAILED' } });
+  });
+});
+
 describe('OCR reconciliation', () => {
   async function odometerPhotoWithReading(typedKm: number, metadata: Record<string, string>) {
     const orgId = owner.activeOrgId ?? '';

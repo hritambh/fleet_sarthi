@@ -278,18 +278,6 @@ abstract class AppLocalizations {
   /// **'Check the number and try again.'**
   String get loginCheckNumber;
 
-  /// No description provided for @noFleetTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Not part of a fleet yet'**
-  String get noFleetTitle;
-
-  /// No description provided for @noFleetBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Your number isn\'t registered in any fleet yet. Ask your fleet owner to add you, or create your fleet on the Fleet Sarthi admin website.'**
-  String get noFleetBody;
-
   /// No description provided for @ownerMode.
   ///
   /// In en, this message translates to:
@@ -4399,6 +4387,990 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{The driver has 1 assigned or running trip in this vehicle. Reassign or finish it before unlinking.} other{The driver has {count} assigned or running trips in this vehicle. Reassign or finish them before unlinking.}}'**
   String errorLinkInUseCount({required int count});
+
+  /// No description provided for @switchWorkspace.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch mode or fleet'**
+  String get switchWorkspace;
+
+  /// No description provided for @workspaceManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage {fleet}'**
+  String workspaceManage({required String fleet});
+
+  /// No description provided for @workspaceDrive.
+  ///
+  /// In en, this message translates to:
+  /// **'Drive for {fleet}'**
+  String workspaceDrive({required String fleet});
+
+  /// No description provided for @workspaceManageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner mode: vehicles, drivers, trips and money'**
+  String get workspaceManageHint;
+
+  /// No description provided for @workspaceDriveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver mode: your trips, fuel and photos'**
+  String get workspaceDriveHint;
+
+  /// No description provided for @setUpMyFleet.
+  ///
+  /// In en, this message translates to:
+  /// **'I own vehicles: set up my fleet'**
+  String get setUpMyFleet;
+
+  /// No description provided for @unsyncedBeforeSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} trip updates on this phone haven\'t been sent yet. Go online, let them sync, then switch.'**
+  String unsyncedBeforeSwitch({required int count});
+
+  /// No description provided for @getStartedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Fleet Sarthi'**
+  String get getStartedTitle;
+
+  /// No description provided for @getStartedDriveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Drive for a vehicle owner'**
+  String get getStartedDriveTitle;
+
+  /// No description provided for @getStartedDriveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the owner to add {phone} as a driver in their Fleet Sarthi. Then tap Check again.'**
+  String getStartedDriveBody({required String phone});
+
+  /// No description provided for @checkAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Check again'**
+  String get checkAgain;
+
+  /// No description provided for @stillNoFleet.
+  ///
+  /// In en, this message translates to:
+  /// **'No owner has added you yet.'**
+  String get stillNoFleet;
+
+  /// No description provided for @getStartedOwnTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Own vehicles?'**
+  String get getStartedOwnTitle;
+
+  /// No description provided for @getStartedOwnBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your fleet to add vehicles and drivers. You can still drive for other owners from the same account.'**
+  String get getStartedOwnBody;
+
+  /// No description provided for @createFleetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your fleet'**
+  String get createFleetTitle;
+
+  /// No description provided for @fleetNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fleet or business name'**
+  String get fleetNameLabel;
+
+  /// No description provided for @fleetNameTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter at least 2 characters'**
+  String get fleetNameTooShort;
+
+  /// No description provided for @iDriveToo.
+  ///
+  /// In en, this message translates to:
+  /// **'I also drive my own vehicles'**
+  String get iDriveToo;
+
+  /// No description provided for @createFleet.
+  ///
+  /// In en, this message translates to:
+  /// **'Create fleet'**
+  String get createFleet;
+
+  /// No description provided for @addMapPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Add map pin'**
+  String get addMapPin;
+
+  /// No description provided for @changePin.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get changePin;
+
+  /// No description provided for @removePin.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove pin'**
+  String get removePin;
+
+  /// No description provided for @pickupOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup on the map'**
+  String get pickupOnMap;
+
+  /// No description provided for @dropOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop on the map'**
+  String get dropOnMap;
+
+  /// No description provided for @pinPickerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the map to drop the pin. Tap again to move it.'**
+  String get pinPickerHint;
+
+  /// No description provided for @usePin.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this pin'**
+  String get usePin;
+
+  /// No description provided for @navGroupOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get navGroupOverview;
+
+  /// No description provided for @navGroupFleet.
+  ///
+  /// In en, this message translates to:
+  /// **'Fleet'**
+  String get navGroupFleet;
+
+  /// No description provided for @navGroupMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Money'**
+  String get navGroupMoney;
+
+  /// No description provided for @navGroupSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup'**
+  String get navGroupSetup;
+
+  /// No description provided for @greetingMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning'**
+  String get greetingMorning;
+
+  /// No description provided for @greetingAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good afternoon'**
+  String get greetingAfternoon;
+
+  /// No description provided for @greetingEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening'**
+  String get greetingEvening;
+
+  /// No description provided for @colRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Route'**
+  String get colRoute;
+
+  /// No description provided for @colCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get colCustomer;
+
+  /// No description provided for @colFare.
+  ///
+  /// In en, this message translates to:
+  /// **'Fare'**
+  String get colFare;
+
+  /// No description provided for @colDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Document'**
+  String get colDocument;
+
+  /// No description provided for @colFor.
+  ///
+  /// In en, this message translates to:
+  /// **'For'**
+  String get colFor;
+
+  /// No description provided for @colNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Number'**
+  String get colNumber;
+
+  /// No description provided for @colRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get colRole;
+
+  /// No description provided for @colBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get colBalance;
+
+  /// No description provided for @colShortfall.
+  ///
+  /// In en, this message translates to:
+  /// **'Short'**
+  String get colShortfall;
+
+  /// No description provided for @usualEfficiency.
+  ///
+  /// In en, this message translates to:
+  /// **'Usual efficiency'**
+  String get usualEfficiency;
+
+  /// No description provided for @alertsInbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts & review'**
+  String get alertsInbox;
+
+  /// No description provided for @documentsExpiredChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Document expired'**
+  String get documentsExpiredChip;
+
+  /// No description provided for @documentsDueChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Document due'**
+  String get documentsDueChip;
+
+  /// No description provided for @managersSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Managers'**
+  String get managersSection;
+
+  /// No description provided for @noManagersYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No managers yet.'**
+  String get noManagersYet;
+
+  /// No description provided for @shareTripHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip details'**
+  String get shareTripHeading;
+
+  /// No description provided for @shareCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get shareCustomer;
+
+  /// No description provided for @sharePickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup'**
+  String get sharePickup;
+
+  /// No description provided for @shareDrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop'**
+  String get shareDrop;
+
+  /// No description provided for @sharePickupTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup time'**
+  String get sharePickupTime;
+
+  /// No description provided for @shareCab.
+  ///
+  /// In en, this message translates to:
+  /// **'Cab'**
+  String get shareCab;
+
+  /// No description provided for @shareDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver'**
+  String get shareDriver;
+
+  /// No description provided for @shareFare.
+  ///
+  /// In en, this message translates to:
+  /// **'Fare'**
+  String get shareFare;
+
+  /// No description provided for @shareFareWithKm.
+  ///
+  /// In en, this message translates to:
+  /// **'{fare} ({km} included)'**
+  String shareFareWithKm({required String fare, required String km});
+
+  /// No description provided for @copyDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy details'**
+  String get copyDetails;
+
+  /// No description provided for @detailsCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip details copied'**
+  String get detailsCopied;
+
+  /// No description provided for @shareOnWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Send on WhatsApp'**
+  String get shareOnWhatsApp;
+
+  /// No description provided for @whatsAppUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open WhatsApp'**
+  String get whatsAppUnavailable;
+
+  /// No description provided for @analytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics'**
+  String get analytics;
+
+  /// No description provided for @analyticsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily fuel bought, revenue and km for the month, by vehicle.'**
+  String get analyticsIntro;
+
+  /// No description provided for @month.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get month;
+
+  /// No description provided for @perTripAverages.
+  ///
+  /// In en, this message translates to:
+  /// **'Average per trip'**
+  String get perTripAverages;
+
+  /// No description provided for @avgKmPerTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Km per trip'**
+  String get avgKmPerTrip;
+
+  /// No description provided for @avgRevenuePerTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue per trip'**
+  String get avgRevenuePerTrip;
+
+  /// No description provided for @avgFuelCostPerTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel cost per trip (est.)'**
+  String get avgFuelCostPerTrip;
+
+  /// No description provided for @tripsInMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 trip this month} other{{count} trips this month}}'**
+  String tripsInMonth({required int count});
+
+  /// No description provided for @fuelBoughtPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel bought per day'**
+  String get fuelBoughtPerDay;
+
+  /// No description provided for @revenuePerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue per day'**
+  String get revenuePerDay;
+
+  /// No description provided for @kmPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Km driven per day'**
+  String get kmPerDay;
+
+  /// No description provided for @monthTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Month total: {total}'**
+  String monthTotal({required String total});
+
+  /// No description provided for @fuelInRupeesNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown in ₹, since litres and kg can\'t be added together.'**
+  String get fuelInRupeesNote;
+
+  /// No description provided for @noActivityThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing this month.'**
+  String get noActivityThisMonth;
+
+  /// No description provided for @customDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get customDay;
+
+  /// No description provided for @tripsOnDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips on {date}'**
+  String tripsOnDay({required String date});
+
+  /// No description provided for @availableCabs.
+  ///
+  /// In en, this message translates to:
+  /// **'Available cabs'**
+  String get availableCabs;
+
+  /// No description provided for @availableDrivers.
+  ///
+  /// In en, this message translates to:
+  /// **'Available drivers'**
+  String get availableDrivers;
+
+  /// No description provided for @tripsUnassigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips unassigned'**
+  String get tripsUnassigned;
+
+  /// No description provided for @completedTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed trips'**
+  String get completedTrips;
+
+  /// No description provided for @percentReady.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% ready'**
+  String percentReady({required int percent});
+
+  /// No description provided for @cabsFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'{onTrip} on trip · {inactive} inactive'**
+  String cabsFooter({required int onTrip, required int inactive});
+
+  /// No description provided for @driversFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'{onTrip} on trip · {assigned} assigned'**
+  String driversFooter({required int onTrip, required int assigned});
+
+  /// No description provided for @standby.
+  ///
+  /// In en, this message translates to:
+  /// **'Standby'**
+  String get standby;
+
+  /// No description provided for @needsCab.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs cab'**
+  String get needsCab;
+
+  /// No description provided for @pending.
+  ///
+  /// In en, this message translates to:
+  /// **'pending'**
+  String get pending;
+
+  /// No description provided for @resolveQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve queue'**
+  String get resolveQueue;
+
+  /// No description provided for @runs.
+  ///
+  /// In en, this message translates to:
+  /// **'runs'**
+  String get runs;
+
+  /// No description provided for @grossFare.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} gross fare'**
+  String grossFare({required String amount});
+
+  /// No description provided for @busyFromTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Busy {from} – {to}'**
+  String busyFromTo({required String from, required String to});
+
+  /// No description provided for @busyPickCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'The vehicle or driver you picked is booked at the new time, so it was cleared.'**
+  String get busyPickCleared;
+
+  /// No description provided for @busyPickWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This vehicle or driver is already booked at this time.'**
+  String get busyPickWarning;
+
+  /// No description provided for @uploadFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload file'**
+  String get uploadFile;
+
+  /// No description provided for @chooseOtherFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another file'**
+  String get chooseOtherFile;
+
+  /// No description provided for @uploadFileHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Or upload a PDF or image (JPG, PNG, WebP), up to 15 MB.'**
+  String get uploadFileHint;
+
+  /// No description provided for @fileTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'That file is larger than 15 MB.'**
+  String get fileTooLarge;
+
+  /// No description provided for @pdfDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF document'**
+  String get pdfDocument;
+
+  /// No description provided for @imageFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Image'**
+  String get imageFile;
+
+  /// No description provided for @viewDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'View document'**
+  String get viewDocument;
+
+  /// No description provided for @documentUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the document. Try again.'**
+  String get documentUnavailable;
+
+  /// No description provided for @schedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get schedule;
+
+  /// No description provided for @noTripsThisDay.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips this day.'**
+  String get noTripsThisDay;
+
+  /// No description provided for @previousMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get previousMonth;
+
+  /// No description provided for @nextMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get nextMonth;
+
+  /// No description provided for @logInWithOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in with OTP'**
+  String get logInWithOtp;
+
+  /// No description provided for @noAccountForNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'No account with this number yet. Sign up instead.'**
+  String get noAccountForNumber;
+
+  /// No description provided for @signUpVerifyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll send an OTP to confirm the number is yours.'**
+  String get signUpVerifyHint;
+
+  /// No description provided for @verifyAndCreateAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify number & create account'**
+  String get verifyAndCreateAccount;
+
+  /// No description provided for @resetWithOtpIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your mobile number with an OTP, then choose a new password.'**
+  String get resetWithOtpIntro;
+
+  /// No description provided for @numberVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Number verified'**
+  String get numberVerified;
+
+  /// No description provided for @verifyWithOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify with OTP'**
+  String get verifyWithOtp;
+
+  /// No description provided for @phoneVerifyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your number'**
+  String get phoneVerifyTitle;
+
+  /// No description provided for @stubVerifyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Test mode: no SMS is sent. The number below counts as verified.'**
+  String get stubVerifyHint;
+
+  /// No description provided for @errorPhoneOtpDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'OTP sign-in isn\'t available right now.'**
+  String get errorPhoneOtpDisabled;
+
+  /// No description provided for @errorPhoneNotVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t verify your number. Try again.'**
+  String get errorPhoneNotVerified;
+
+  /// No description provided for @errorPhoneMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The number you verified isn\'t the one you entered.'**
+  String get errorPhoneMismatch;
+
+  /// No description provided for @errorPhoneVerificationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your mobile number to sign up.'**
+  String get errorPhoneVerificationRequired;
+
+  /// No description provided for @verify.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify'**
+  String get verify;
+
+  /// No description provided for @allowPopups.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow pop-ups for this site to verify your number, then try again.'**
+  String get allowPopups;
+
+  /// No description provided for @tripInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip in progress'**
+  String get tripInProgress;
+
+  /// No description provided for @nextTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Next trip'**
+  String get nextTrip;
+
+  /// No description provided for @startsIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts in {time}'**
+  String startsIn({required String time});
+
+  /// No description provided for @startingNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting now'**
+  String get startingNow;
+
+  /// No description provided for @runningLate.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} late'**
+  String runningLate({required String time});
+
+  /// No description provided for @todayAtAGlance.
+  ///
+  /// In en, this message translates to:
+  /// **'Today at a glance'**
+  String get todayAtAGlance;
+
+  /// No description provided for @lastSevenDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get lastSevenDays;
+
+  /// No description provided for @statTripsDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips done'**
+  String get statTripsDone;
+
+  /// No description provided for @statKmDriven.
+  ///
+  /// In en, this message translates to:
+  /// **'Km driven'**
+  String get statKmDriven;
+
+  /// No description provided for @statCollected.
+  ///
+  /// In en, this message translates to:
+  /// **'Collected'**
+  String get statCollected;
+
+  /// No description provided for @ofTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total}'**
+  String ofTotal({required int done, required int total});
+
+  /// No description provided for @cashAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash {amount}'**
+  String cashAmount({required String amount});
+
+  /// No description provided for @callCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get callCustomer;
+
+  /// No description provided for @directions.
+  ///
+  /// In en, this message translates to:
+  /// **'Directions'**
+  String get directions;
+
+  /// No description provided for @kmSoFar.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} so far'**
+  String kmSoFar({required String km});
+
+  /// No description provided for @durationHm.
+  ///
+  /// In en, this message translates to:
+  /// **'{h} h {m} min'**
+  String durationHm({required int h, required String m});
+
+  /// No description provided for @durationM.
+  ///
+  /// In en, this message translates to:
+  /// **'{m} min'**
+  String durationM({required int m});
+
+  /// No description provided for @syncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get syncNow;
+
+  /// No description provided for @noTripsAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips assigned yet'**
+  String get noTripsAssigned;
+
+  /// No description provided for @noTripsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'When your fleet owner assigns a trip, it shows up here. Pull down to refresh, or start one yourself.'**
+  String get noTripsHint;
+
+  /// No description provided for @detailsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get detailsTab;
+
+  /// No description provided for @documentFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Files (photos or PDFs)'**
+  String get documentFiles;
+
+  /// No description provided for @photoNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo {number}'**
+  String photoNumber({required int number});
+
+  /// No description provided for @tooManyFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'A document can have up to {count} files.'**
+  String tooManyFiles({required int count});
+
+  /// No description provided for @fileTooLargeNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is larger than 15 MB.'**
+  String fileTooLargeNamed({required String name});
+
+  /// No description provided for @uploadFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload files'**
+  String get uploadFiles;
+
+  /// No description provided for @viewFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'View files ({count})'**
+  String viewFiles({required int count});
+
+  /// No description provided for @open.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get open;
+
+  /// No description provided for @filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get filters;
+
+  /// No description provided for @filtersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters ({count})'**
+  String filtersCount({required int count});
+
+  /// No description provided for @clearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get clearAll;
+
+  /// No description provided for @apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get apply;
+
+  /// No description provided for @severity.
+  ///
+  /// In en, this message translates to:
+  /// **'Severity'**
+  String get severity;
+
+  /// No description provided for @alertKindTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get alertKindTitle;
+
+  /// No description provided for @quickOpsHub.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Operations Hub'**
+  String get quickOpsHub;
+
+  /// No description provided for @fastDispatch.
+  ///
+  /// In en, this message translates to:
+  /// **'FAST-DISPATCH'**
+  String get fastDispatch;
+
+  /// No description provided for @addTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Trip'**
+  String get addTrip;
+
+  /// No description provided for @tagDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag Driver'**
+  String get tagDriver;
+
+  /// No description provided for @addDriverQuick.
+  ///
+  /// In en, this message translates to:
+  /// **'+ Add Driver'**
+  String get addDriverQuick;
+
+  /// No description provided for @addCabQuick.
+  ///
+  /// In en, this message translates to:
+  /// **'+ Add Cab'**
+  String get addCabQuick;
+
+  /// No description provided for @scheduledRides.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled rides'**
+  String get scheduledRides;
+
+  /// No description provided for @scheduledRidesOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled rides · {date}'**
+  String scheduledRidesOn({required String date});
+
+  /// No description provided for @noTripsWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips waiting for a driver.'**
+  String get noTripsWaiting;
+
+  /// No description provided for @pickTripToAssign.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a trip to assign'**
+  String get pickTripToAssign;
 }
 
 class _AppLocalizationsDelegate

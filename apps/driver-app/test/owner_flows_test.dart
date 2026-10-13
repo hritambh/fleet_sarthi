@@ -54,10 +54,10 @@ void main() {
       expect(screensFor(session(['driver']), null), AppMode.driver);
       expect(screensFor(session(['owner']), null), AppMode.owner);
       expect(screensFor(session(['manager']), AppMode.driver), AppMode.owner);
-      expect(screensFor(session(['owner', 'driver']), null), AppMode.driver);
+      expect(screensFor(session(['owner', 'driver']), null), AppMode.owner);
       expect(
-        screensFor(session(['owner', 'driver']), AppMode.owner),
-        AppMode.owner,
+        screensFor(session(['owner', 'driver']), AppMode.driver),
+        AppMode.driver,
       );
       expect(screensFor(session([]), null), isNull);
     });
@@ -72,7 +72,22 @@ void main() {
       expect(find.byKey(const Key('owner-nav')), findsNothing);
       await tester.tap(find.byKey(const Key('driver-menu')));
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('switch-to-owner')), findsNothing);
+      await tester.tap(find.byKey(const Key('switch-workspace')));
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(
+          const Key('workspace-driver-0199c7a2-0000-7000-8000-000000000999'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(
+          const Key('workspace-owner-0199c7a2-0000-7000-8000-000000000999'),
+        ),
+        findsNothing,
+      );
+      // They can still become an owner from the same account.
+      expect(find.byKey(const Key('set-up-fleet')), findsOneWidget);
     });
 
     for (final role in ['owner', 'manager']) {
@@ -81,7 +96,7 @@ void main() {
         await tester.pumpWidget(h.wrap(const TaxcyDriverApp()));
         await settle(tester);
         expect(find.byKey(const Key('owner-nav')), findsOneWidget);
-        expect(find.text('Today’s trips'), findsOneWidget);
+        expect(find.text('Scheduled rides'), findsOneWidget);
         expect(find.text('My trips'), findsNothing);
       });
     }
@@ -92,39 +107,54 @@ void main() {
       final h = await owner(tester, roles: ['owner', 'driver']);
       await tester.pumpWidget(h.wrap(const TaxcyDriverApp()));
       await settle(tester);
-      expect(find.text('My trips'), findsOneWidget);
-
-      await tester.tap(find.byKey(const Key('driver-menu')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('switch-to-owner')));
-      await settle(tester);
+      // Owning the fleet opens owner mode first.
       expect(find.byKey(const Key('owner-nav')), findsOneWidget);
-      expect(h.prefs.getString('app_mode_v1'), 'owner');
 
       await tester.tap(find.text('More'));
       await settle(tester);
-      await tester.tap(find.byKey(const Key('switch-to-driver')));
+      await tester.tap(find.byKey(const Key('switch-workspace')));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(
+          const Key('workspace-driver-0199c7a2-0000-7000-8000-000000000999'),
+        ),
+      );
       await settle(tester);
       expect(find.text('My trips'), findsOneWidget);
       expect(h.prefs.getString('app_mode_v1'), 'driver');
+
+      await tester.tap(find.byKey(const Key('driver-menu')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('switch-workspace')));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(
+          const Key('workspace-owner-0199c7a2-0000-7000-8000-000000000999'),
+        ),
+      );
+      await settle(tester);
+      expect(find.byKey(const Key('owner-nav')), findsOneWidget);
+      expect(h.prefs.getString('app_mode_v1'), 'owner');
+      // Same fleet: no new session, nothing cleared.
+      expect(h.auth.names, isNot(contains('switchOrg')));
     });
 
-    testWidgets('an owner-driver who last used owner mode starts there', (
+    testWidgets('an owner-driver who last used driver mode starts there', (
       tester,
     ) async {
       phone(tester);
       final h = await Harness.create(
         session: session(['owner', 'driver']),
-        preferences: {'app_mode_v1': 'owner'},
+        preferences: {'app_mode_v1': 'driver'},
       );
       addTearDown(h.dispose);
       await tester.pumpWidget(h.wrap(const TaxcyDriverApp()));
       await settle(tester);
-      expect(find.byKey(const Key('owner-nav')), findsOneWidget);
+      expect(find.text('My trips'), findsOneWidget);
     });
 
-    testWidgets('on a wide screen owner mode uses a side rail', (tester) async {
-      phone(tester, width: 1280);
+    testWidgets('on a tablet owner mode uses a side rail', (tester) async {
+      phone(tester, width: 960);
       final h = await Harness.create(session: session(['owner']));
       addTearDown(h.dispose);
       await tester.pumpWidget(h.wrap(const TaxcyDriverApp()));
@@ -138,7 +168,7 @@ void main() {
       await tester.pumpWidget(h.wrap(const TaxcyDriverApp()));
       await settle(tester);
       expect(find.text('डैशबोर्ड'), findsWidgets);
-      expect(find.text('आज की ट्रिप'), findsOneWidget);
+      expect(find.text('निर्धारित सवारियाँ'), findsOneWidget);
       // The open fuel alert, worded from its message code.
       expect(
         find.text(
@@ -150,11 +180,11 @@ void main() {
   });
 
   group('managers', () {
-    testWidgets('can see members but not invite or remove managers', (
+    testWidgets('can see managers in settings but not invite or remove them', (
       tester,
     ) async {
       final h = await owner(tester, roles: ['manager']);
-      await tester.pumpWidget(h.screen(const MembersScreen()));
+      await tester.pumpWidget(h.screen(const SettingsScreen()));
       await settle(tester);
       expect(find.text('Priya Sharma'), findsOneWidget);
       expect(find.byKey(const Key('invite-manager')), findsNothing);
@@ -230,12 +260,42 @@ void main() {
     await tester.enterText(find.byKey(const Key('owner-trip-to')), 'Shirdi');
     await tester.enterText(find.byKey(const Key('owner-trip-fare')), '4500');
     await tester.enterText(find.byKey(const Key('owner-trip-km')), '300');
+
+    // Pin the pickup on the map: nothing to use until the map is tapped.
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(const Key('owner-trip-from-pin')),
+        matching: find.text('Add map pin'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Pickup on the map'), findsOneWidget);
+    final use = find.byKey(const Key('pin-use'));
+    expect(tester.widget<FilledButton>(use).onPressed, isNull);
+    // A single tap drops the pin at once: 1 ms (flutter_map's zero-length
+    // timer), not the 250 ms double-tap window.
+    await tester.tap(find.byKey(const Key('pin-map')));
+    await tester.pump(const Duration(milliseconds: 1));
+    expect(tester.widget<FilledButton>(use).onPressed, isNotNull);
+    await tester.tap(use);
+    await tester.pumpAndSettle();
+    // Back on the form, the pickup shows its pin; the drop has none.
+    expect(find.text('Change'), findsOneWidget);
+    expect(find.text('Add map pin'), findsOneWidget);
+
     await tester.tap(find.byKey(const Key('owner-create-trip')));
     await settle(tester);
     final body = h.owner.last('createTrip').args;
     expect(body['quotedFarePaise'], 450000);
     expect(body['includedKm'], 300);
     expect(body.containsKey('vehicleId'), isFalse);
+    final from = body['from'] as Map;
+    expect(from['text'], 'Pune');
+    // The map opens on Pune and the tap lands at its centre.
+    final point = from['point'] as Map;
+    expect(point['lat'] as double, closeTo(18.52, 0.05));
+    expect(point['lng'] as double, closeTo(73.86, 0.05));
+    expect(body['to'], {'text': 'Shirdi'});
 
     // On the new trip's page: assign it.
     expect(find.byKey(const Key('trip-assign')), findsOneWidget);
@@ -474,9 +534,11 @@ void main() {
     },
   );
 
-  testWidgets('invite a manager, then remove their access', (tester) async {
+  testWidgets('invite a manager from settings, then remove their access', (
+    tester,
+  ) async {
     final h = await owner(tester);
-    await tester.pumpWidget(h.screen(const MembersScreen()));
+    await tester.pumpWidget(h.screen(const SettingsScreen()));
     await settle(tester);
     await tester.tap(find.byKey(const Key('invite-manager')));
     await tester.pumpAndSettle();

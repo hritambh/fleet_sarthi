@@ -13,6 +13,7 @@ import '../owner_providers.dart';
 import '../owner_text.dart';
 import '../owner_widgets.dart';
 import 'route_map.dart';
+import 'trip_share.dart';
 
 const _uuid = Uuid();
 
@@ -138,6 +139,8 @@ class _Header extends ConsumerWidget {
                 ),
             ],
           ),
+          const SizedBox(height: 8),
+          TripShareButtons(trip),
         ],
       ),
     );
@@ -190,6 +193,21 @@ class _AssignDialogState extends ConsumerState<AssignDialog> {
     final driver = _driverId;
     final paired =
         vehicle != null && driver != null && pairLinked(ref, vehicle, driver);
+    // Who is booked during this trip's window, not counting this trip.
+    final availability =
+        ref
+            .watch(
+              availabilityProvider((
+                from: widget.trip.scheduledStartAt,
+                to: widget.trip.scheduledEndAt,
+                excludeTripId: widget.trip.id,
+              )),
+            )
+            .value ??
+        Availability.none;
+    final pickBusy =
+        availability.vehicles.containsKey(vehicle) ||
+        availability.drivers.containsKey(driver);
     return AlertDialog(
       title: Text(reassign ? l.reassignTripTitle : l.assignTripTitle),
       content: SizedBox(
@@ -201,6 +219,7 @@ class _AssignDialogState extends ConsumerState<AssignDialog> {
               value: _vehicleId,
               label: l.vehicle,
               driverId: _vehicleId == null ? _driverId : null,
+              busy: availability.vehicles,
               onChanged: (v) => setState(() {
                 _vehicleId = v;
                 final driver = _driverId;
@@ -216,10 +235,18 @@ class _AssignDialogState extends ConsumerState<AssignDialog> {
               value: _driverId,
               label: l.driver,
               vehicleId: _vehicleId,
+              busy: availability.drivers,
               onChanged: (v) => setState(() => _driverId = v),
             ),
             const SizedBox(height: 12),
-            Text(l.overlapNote, style: Theme.of(context).textTheme.bodySmall),
+            if (pickBusy)
+              Text(
+                l.busyPickWarning,
+                key: const Key('assign-busy'),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              )
+            else
+              Text(l.overlapNote, style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
       ),
@@ -230,7 +257,7 @@ class _AssignDialogState extends ConsumerState<AssignDialog> {
         ),
         FilledButton(
           key: const Key('assign-confirm'),
-          onPressed: _busy || !paired ? null : _assign,
+          onPressed: _busy || !paired || pickBusy ? null : _assign,
           child: Text(reassign ? l.reassign : l.assign),
         ),
       ],
@@ -510,11 +537,9 @@ class _RouteCard extends ConsumerWidget {
     final mismatchAlert = closed
         ? ref
               .watch(
-                alertsProvider((
-                  status: null,
-                  kind: 'odo_gps_mismatch',
-                  tripId: trip.id,
-                )),
+                alertsProvider(
+                  alertQuery(kinds: {'odo_gps_mismatch'}, tripId: trip.id),
+                ),
               )
               .value
               ?.firstOrNull

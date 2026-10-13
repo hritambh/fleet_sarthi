@@ -8,6 +8,7 @@ import '../../core/api/owner_models.dart';
 import '../common/format.dart';
 import 'owner_providers.dart';
 import 'owner_text.dart';
+import 'alerts_inbox.dart';
 import 'owner_widgets.dart';
 
 /// Each driver's settlement for one IST day (yesterday by default).
@@ -28,7 +29,7 @@ class _SettlementsScreenState extends ConsumerState<SettlementsScreen> {
     final fmt = context.fmt;
     final list = ref.watch(settlementsProvider(_date));
     return Scaffold(
-      appBar: AppBar(title: Text(l.settlements)),
+      appBar: AppBar(title: Text(l.settlements), actions: const [AlertsBell()]),
       body: RefreshPage(
         onRefresh: () => ref.refresh(settlementsProvider(_date).future),
         children: [
@@ -59,10 +60,94 @@ class _SettlementsScreenState extends ConsumerState<SettlementsScreen> {
             onRetry: () => ref.invalidate(settlementsProvider(_date)),
             builder: (rows) => rows.isEmpty
                 ? EmptyState(l.noActivity(date: fmt.calendarDate(_date)))
+                : isDesktop(context)
+                ? _SettlementTable(rows)
                 : Column(children: [for (final s in rows) _SettlementTile(s)]),
           ),
         ],
       ),
+    );
+  }
+}
+
+/// The day's settlements on the desktop: one row per driver with trips,
+/// money in and the balance; a click opens the driver's day.
+class _SettlementTable extends StatelessWidget {
+  const _SettlementTable(this.rows);
+  final List<SettlementSummary> rows;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final fmt = context.fmt;
+    return DesktopTable(
+      key: const Key('settlement-table'),
+      columns: [
+        TableColumn(l.driver, flex: 3),
+        TableColumn(l.navTrips, end: true),
+        TableColumn(l.expected, end: true),
+        TableColumn(l.methodCash, end: true),
+        TableColumn(l.online, end: true),
+        TableColumn(l.colBalance, flex: 4),
+        TableColumn(l.colShortfall, end: true),
+        TableColumn(l.status),
+      ],
+      rows: [
+        for (final s in rows)
+          TableRowData(
+            key: ValueKey('settlement-${s.driverId}'),
+            onTap: () => openScreen<void>(
+              context,
+              SettlementDetailScreen(
+                date: s.businessDate,
+                driverId: s.driverId,
+              ),
+            ),
+            cells: [
+              Row(
+                children: [
+                  InitialsAvatar(s.driverName, radius: 16),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: Text(
+                      s.driverName,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+              Text(fmt.number(s.tripCount)),
+              Text(fmt.inr(s.expectedFarePaise)),
+              Text(fmt.inr(s.cashPaise)),
+              Text(fmt.inr(s.onlinePaise)),
+              Text(
+                netPayableText(fmt, s.netPayablePaise),
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: s.netPayablePaise < 0
+                      ? Colors.amber.shade900
+                      : TaxcyColors.ink,
+                ),
+              ),
+              Text(
+                s.shortfallPaise == 0 ? '–' : fmt.inr(s.shortfallPaise),
+                style: TextStyle(
+                  color: s.shortfallPaise == 0
+                      ? TaxcyColors.muted
+                      : Colors.red.shade700,
+                  fontWeight: s.shortfallPaise == 0
+                      ? FontWeight.w400
+                      : FontWeight.w600,
+                ),
+              ),
+              ToneChip(
+                s.isSettled ? l.statusSettled : l.draft,
+                tone: s.isSettled ? Tone.success : Tone.warning,
+              ),
+            ],
+          ),
+      ],
     );
   }
 }

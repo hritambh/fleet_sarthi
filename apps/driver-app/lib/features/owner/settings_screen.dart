@@ -9,8 +9,10 @@ import '../account/account_security_screen.dart';
 import '../common/format.dart';
 import '../common/language_picker.dart';
 import 'owner_providers.dart';
+import 'alerts_inbox.dart';
 import 'owner_widgets.dart';
 import 'pay_rule_editor.dart';
+import 'people_screens.dart';
 
 /// Language, audit thresholds and the default driver pay. Only the owner can
 /// change the last two; managers see them read-only.
@@ -24,65 +26,94 @@ class SettingsScreen extends ConsumerWidget {
     final audit = ref.watch(auditSettingsProvider);
     final pay = ref.watch(defaultPayRuleProvider);
     final locale = ref.watch(localeProvider);
+    final language = Card(
+      child: ListTile(
+        key: const Key('settings-language'),
+        leading: const Icon(Icons.translate),
+        title: Text(l.language),
+        subtitle: Text(
+          locale == null
+              ? l.languageDevice
+              : languageNames[locale.languageCode] ?? locale.languageCode,
+        ),
+        onTap: () => showLanguagePicker(context, ref),
+      ),
+    );
+    final security = Card(
+      child: ListTile(
+        key: const Key('settings-account-security'),
+        leading: const Icon(Icons.lock_outline),
+        title: Text(l.accountSecurity),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => openScreen<void>(context, const AccountSecurityScreen()),
+      ),
+    );
+    final ownerOnly = isOwner
+        ? null
+        : Padding(
+            padding: const EdgeInsets.all(8),
+            child: Text(
+              l.settingsOwnerOnly,
+              key: const Key('settings-owner-only'),
+              style: const TextStyle(color: TaxcyColors.muted),
+            ),
+          );
+    final thresholds = SectionCard(
+      title: l.auditThresholds,
+      child: AsyncView(
+        value: audit,
+        onRetry: () => ref.invalidate(auditSettingsProvider),
+        builder: (a) => _AuditForm(initial: a, editable: isOwner),
+      ),
+    );
+    final payCard = SectionCard(
+      title: l.defaultDriverPay,
+      child: AsyncView(
+        value: pay,
+        onRetry: () => ref.invalidate(defaultPayRuleProvider),
+        builder: (p) => _PayForm(initial: p, editable: isOwner),
+      ),
+    );
     return Scaffold(
-      appBar: AppBar(title: Text(l.settings)),
+      appBar: AppBar(title: Text(l.settings), actions: const [AlertsBell()]),
       body: RefreshPage(
         onRefresh: () async {
           ref
             ..invalidate(auditSettingsProvider)
-            ..invalidate(defaultPayRuleProvider);
+            ..invalidate(defaultPayRuleProvider)
+            ..invalidate(membersProvider);
           await ref.read(auditSettingsProvider.future);
         },
-        children: [
-          Card(
-            child: ListTile(
-              key: const Key('settings-language'),
-              leading: const Icon(Icons.translate),
-              title: Text(l.language),
-              subtitle: Text(
-                locale == null
-                    ? l.languageDevice
-                    : languageNames[locale.languageCode] ?? locale.languageCode,
-              ),
-              onTap: () => showLanguagePicker(context, ref),
-            ),
-          ),
-          Card(
-            child: ListTile(
-              key: const Key('settings-account-security'),
-              leading: const Icon(Icons.lock_outline),
-              title: Text(l.accountSecurity),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () =>
-                  openScreen<void>(context, const AccountSecurityScreen()),
-            ),
-          ),
-          if (!isOwner)
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: Text(
-                l.settingsOwnerOnly,
-                key: const Key('settings-owner-only'),
-                style: const TextStyle(color: TaxcyColors.muted),
-              ),
-            ),
-          SectionCard(
-            title: l.auditThresholds,
-            child: AsyncView(
-              value: audit,
-              onRetry: () => ref.invalidate(auditSettingsProvider),
-              builder: (a) => _AuditForm(initial: a, editable: isOwner),
-            ),
-          ),
-          SectionCard(
-            title: l.defaultDriverPay,
-            child: AsyncView(
-              value: pay,
-              onRetry: () => ref.invalidate(defaultPayRuleProvider),
-              builder: (p) => _PayForm(initial: p, editable: isOwner),
-            ),
-          ),
-        ],
+        children: isDesktop(context)
+            ? [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 3, child: thresholds),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        children: [
+                          language,
+                          security,
+                          ?ownerOnly,
+                          payCard,
+                          const ManagersSection(),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ]
+            : [
+                language,
+                security,
+                ?ownerOnly,
+                thresholds,
+                payCard,
+                const ManagersSection(),
+              ],
       ),
     );
   }
@@ -170,25 +201,43 @@ class _AuditFormState extends ConsumerState<_AuditForm> {
       ('odo', l.odoTolerance, l.odoToleranceHint),
       ('days', l.docAlertDays, l.docAlertDaysHint),
     ];
+    Widget field(String key, String label, String hint) => TextField(
+      key: Key('audit-$key'),
+      controller: _fields[key],
+      enabled: widget.editable,
+      keyboardType: key == 'days'
+          ? TextInputType.text
+          : const TextInputType.numberWithOptions(decimal: true),
+      decoration: InputDecoration(
+        labelText: label,
+        helperText: hint,
+        helperMaxLines: 3,
+      ),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final (key, label, hint) in rows) ...[
-          TextField(
-            key: Key('audit-$key'),
-            controller: _fields[key],
-            enabled: widget.editable,
-            keyboardType: key == 'days'
-                ? TextInputType.text
-                : const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(
-              labelText: label,
-              helperText: hint,
-              helperMaxLines: 3,
-            ),
-          ),
-          const SizedBox(height: 12),
-        ],
+        if (isDesktop(context))
+          // Two fields to a row on the desktop.
+          LayoutBuilder(
+            builder: (context, box) {
+              final width = (box.maxWidth - 16) / 2;
+              return Wrap(
+                spacing: 16,
+                runSpacing: 12,
+                children: [
+                  for (final (key, label, hint) in rows)
+                    SizedBox(width: width, child: field(key, label, hint)),
+                ],
+              );
+            },
+          )
+        else
+          for (final (key, label, hint) in rows) ...[
+            field(key, label, hint),
+            const SizedBox(height: 12),
+          ],
+        if (isDesktop(context)) const SizedBox(height: 16),
         if (_message != null)
           Text(
             _message!,

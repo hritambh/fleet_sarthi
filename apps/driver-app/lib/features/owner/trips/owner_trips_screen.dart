@@ -7,6 +7,7 @@ import '../../../core/api/owner_api.dart';
 import '../../common/format.dart';
 import '../owner_providers.dart';
 import '../owner_text.dart';
+import '../alerts_inbox.dart';
 import '../owner_widgets.dart';
 import 'create_trip_screen.dart';
 import 'owner_trip_detail_screen.dart';
@@ -22,14 +23,17 @@ const tripStatuses = [
 
 /// Every trip in the fleet, filtered by status, IST day, driver and vehicle.
 class OwnerTripsScreen extends ConsumerStatefulWidget {
-  const OwnerTripsScreen({super.key});
+  const OwnerTripsScreen({this.initialStatus, super.key});
+
+  /// Starts filtered to this status (the dashboard's "resolve queue").
+  final String? initialStatus;
 
   @override
   ConsumerState<OwnerTripsScreen> createState() => _OwnerTripsScreenState();
 }
 
 class _OwnerTripsScreenState extends ConsumerState<OwnerTripsScreen> {
-  String? _status;
+  late String? _status = widget.initialStatus;
   String? _date;
   String? _driverId;
   String? _vehicleId;
@@ -49,14 +53,19 @@ class _OwnerTripsScreenState extends ConsumerState<OwnerTripsScreen> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final trips = ref.watch(ownerTripsProvider(_filter));
+    final desktop = isDesktop(context);
+    final action = PageAction(
+      key: const Key('owner-new-trip'),
+      icon: Icons.add,
+      label: l.newTrip,
+      onPressed: () => openScreen<void>(context, const CreateTripScreen()),
+    );
     return Scaffold(
-      appBar: AppBar(title: Text(l.navTrips)),
-      floatingActionButton: FloatingActionButton.extended(
-        key: const Key('owner-new-trip'),
-        onPressed: () => openScreen<void>(context, const CreateTripScreen()),
-        icon: const Icon(Icons.add),
-        label: Text(l.newTrip),
+      appBar: AppBar(
+        title: Text(l.navTrips),
+        actions: [const AlertsBell(), ...action.headerActions(context)],
       ),
+      floatingActionButton: action.fab(context),
       body: RefreshPage(
         onRefresh: () => ref.refresh(ownerTripsProvider(_filter).future),
         children: [
@@ -66,6 +75,8 @@ class _OwnerTripsScreenState extends ConsumerState<OwnerTripsScreen> {
             onRetry: () => ref.invalidate(ownerTripsProvider(_filter)),
             builder: (list) => list.isEmpty
                 ? EmptyState(l.noTripsMatch)
+                : desktop
+                ? TripTable(list)
                 : Column(children: [for (final t in list) OwnerTripTile(t)]),
           ),
         ],
@@ -146,6 +157,111 @@ class _OwnerTripsScreenState extends ConsumerState<OwnerTripsScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// A trip status as a coloured pill: amber when it needs a vehicle, blue when
+/// planned or under way, green once settled, red when cancelled.
+Tone tripStatusTone(String status) => switch (status) {
+  'created' => Tone.warning,
+  'assigned' => Tone.brand,
+  'started' => Tone.brand,
+  'settled' => Tone.success,
+  'cancelled' => Tone.danger,
+  _ => Tone.neutral,
+};
+
+/// Trips as a table on the desktop: route, start, vehicle, driver, customer,
+/// fare and status; a click opens the trip.
+class TripTable extends StatelessWidget {
+  const TripTable(this.trips, {super.key});
+  final List<Trip> trips;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final fmt = context.fmt;
+    const muted = TextStyle(color: TaxcyColors.muted);
+    return DesktopTable(
+      key: const Key('trip-table'),
+      columns: [
+        TableColumn(l.colRoute, flex: 5),
+        TableColumn(l.starts, flex: 3),
+        TableColumn(l.vehicle, flex: 3),
+        TableColumn(l.driver, flex: 3),
+        TableColumn(l.colCustomer, flex: 3),
+        TableColumn(l.colFare, end: true),
+        TableColumn(l.status),
+      ],
+      rows: [
+        for (final t in trips)
+          TableRowData(
+            key: ValueKey('owner-trip-${t.id}'),
+            onTap: () =>
+                openScreen<void>(context, OwnerTripDetailScreen(tripId: t.id)),
+            cells: [
+              Row(
+                children: [
+                  Icon(
+                    t.status == 'started' ? Icons.local_taxi : Icons.route,
+                    size: 18,
+                    color: TaxcyColors.blue700,
+                  ),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: Text(
+                      t.toText == null
+                          ? l.localTrip(from: t.fromText)
+                          : t.routeLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+              Text(fmt.dayTime(t.scheduledStartAt)),
+              Text(
+                t.vehicle == null
+                    ? l.unassigned
+                    : formatRegistration(t.vehicle!.registrationNo),
+                style: t.vehicle == null ? muted : null,
+              ),
+              Text(t.driverName ?? '–', style: muted),
+              Text(
+                t.customerName ?? '–',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: muted,
+              ),
+              Text(
+                fmt.inr(t.quotedFarePaise),
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: ToneChip(
+                      statusLabel(l, t.status),
+                      tone: tripStatusTone(t.status),
+                    ),
+                  ),
+                  if (t.cancellationPending)
+                    const Padding(
+                      padding: EdgeInsets.only(left: 4),
+                      child: Icon(
+                        Icons.hourglass_top,
+                        size: 16,
+                        color: Colors.amber,
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+      ],
     );
   }
 }

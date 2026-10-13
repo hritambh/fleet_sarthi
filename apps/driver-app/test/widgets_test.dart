@@ -24,7 +24,7 @@ void main() {
     expect(devicePlatform, 'ios');
   });
 
-  testWidgets('a member with no role in the fleet is told to ask the owner', (
+  testWidgets('a member with no role gets the get-started screen', (
     tester,
   ) async {
     final h = await Harness.create(
@@ -33,12 +33,17 @@ void main() {
     addTearDown(h.dispose);
     await tester.pumpWidget(h.wrap(const TaxcyDriverApp()));
     await settle(tester);
-    expect(find.text('Not part of a fleet yet'), findsOneWidget);
+    expect(find.text('Welcome to Fleet Sarthi'), findsOneWidget);
   });
 
   testWidgets('trips are grouped: on the road, today, upcoming, recent', (
     tester,
   ) async {
+    // Tall enough for the home's cards and the whole trip list.
+    tester.view
+      ..devicePixelRatio = 1
+      ..physicalSize = const Size(412, 2600);
+    addTearDown(tester.view.reset);
     final h = await Harness.create();
     addTearDown(h.dispose);
     final now = DateTime.now();
@@ -69,7 +74,11 @@ void main() {
     for (final label in ['Today', 'Upcoming', 'Recent']) {
       expect(find.text(label), findsOneWidget);
     }
-    expect(find.text('Pune Station → Mumbai Airport T2'), findsNWidgets(4));
+    // Four list rows, plus the trip in progress and the next trip on top.
+    expect(find.text('Pune Station → Mumbai Airport T2'), findsNWidgets(6));
+    expect(find.byKey(const Key('driver-active-trip')), findsOneWidget);
+    expect(find.byKey(const Key('driver-next-trip')), findsOneWidget);
+    expect(find.textContaining('Starts in'), findsOneWidget);
   });
 
   testWidgets('a second trip can\'t be started while one is on the road', (

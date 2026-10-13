@@ -24,7 +24,8 @@ POST /v1/auth/password/login
 
 - **Reset codes.** `POST /auth/otp/request` sends a 6-digit password-reset code; `POST /auth/password/reset` with `{phone, code, password, deviceId, platform}` sets the new password and returns a session. There's no SMS provider yet: with `SMS_PROVIDER=console` (development and `DEMO_MODE`) the code is printed in the API log (`otp.issued phone=… code=…`). Each code lasts 5 minutes, works once and allows 5 attempts; requests are rate-limited per phone (one per 30 s, 3 per 10 min, 10 per day) and per IP (`OTP_IP_LIMIT_PER_HOUR`). A limited request returns `429` with `details.retryAfterSeconds`.
 - **Tokens.** Send `Authorization: Bearer <accessToken>`. Access tokens last 15 minutes and carry the active org and your roles in it. Refresh tokens are rotated on every `POST /auth/refresh`. Presenting an already-rotated refresh token revokes every token in its family.
-- **Sign-in methods.** Phone + password only; the phone number is the identity. Sign-up needs no code: a number that already has a password gets `ACCOUNT_EXISTS`, and an invited number with no password takes the new password and joins its fleet(s). Sign-ups are limited to 20 per IP per hour. The phone isn't verified, so whoever signs up first with an invited number claims it: fine for demos and pilots, but add SMS verification before real use. Wrong phone and wrong password both give `INVALID_CREDENTIALS`.
+- **Phone OTP (optional).** When the server enables it (`GET /auth/methods`), a number verified by phone.email can sign in without a password (`POST /auth/phone-otp/login`), prove itself at sign-up (`verificationToken`), and reset its password (`POST /auth/password/reset-verified`). See [phone OTP](../phone-otp.md).
+- **Sign-in methods.** Phone + password (plus phone OTP when enabled); the phone number is the identity. Sign-up needs no code: a number that already has a password gets `ACCOUNT_EXISTS`, and an invited number with no password takes the new password and joins its fleet(s). Sign-ups are limited to 20 per IP per hour. The phone isn't verified, so whoever signs up first with an invited number claims it: fine for demos and pilots, but add SMS verification before real use. Wrong phone and wrong password both give `INVALID_CREDENTIALS`.
 - **Sign-up creates the user.** Users with no org call `POST /orgs` (`fleet`, or `dco` for an owner-driver) and get a session scoped to the new org. Invited drivers' memberships activate on their first sign-in. `POST /auth/switch-org` moves a session to another org you belong to.
 
 ## Conventions
@@ -88,19 +89,23 @@ Photos are OCR'd in the background. A disagreement between typed and OCR values 
 
 ### Auth and orgs
 
-| Endpoint                    | Who       | Idempotency-Key | What it does                                                                                                              |
-| --------------------------- | --------- | --------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `POST /auth/otp/request`    | public    |                 | Send a password-reset code by SMS (in development and demo mode it is printed in the API log)                             |
-| `POST /auth/refresh`        | public    |                 | Rotate the refresh token and get a new access token                                                                       |
-| `POST /auth/logout`         | public    |                 | Revoke the refresh token (and every token rotated from it)                                                                |
-| `POST /auth/switch-org`     | signed in |                 | Get a session scoped to another org you belong to                                                                         |
-| `GET /me`                   | signed in |                 | The signed-in user (with `hasPassword`) and their memberships                                                             |
-| `PATCH /me`                 | signed in |                 | Update your profile                                                                                                       |
-| `POST /orgs`                | signed in |                 | Create an organization; you become its owner (and driver, for a DCO)                                                      |
-| `POST /auth/signup`         | public    |                 | Sign up with phone + password (no code); `ACCOUNT_EXISTS` if the number has a password; an invited number joins its fleet |
-| `POST /auth/password/login` | public    |                 | Sign in with phone + password (`INVALID_CREDENTIALS` either way; rate limited)                                            |
-| `POST /auth/password/reset` | public    |                 | New password with a reset code (`/auth/otp/request`); signs out every other session                                       |
-| `POST /me/password`         | signed in |                 | Set a password, or change it (needs the current one)                                                                      |
+| Endpoint                             | Who       | Idempotency-Key | What it does                                                                                                                                                                                             |
+| ------------------------------------ | --------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /auth/otp/request`             | public    |                 | Send a password-reset code by SMS (in development and demo mode it is printed in the API log)                                                                                                            |
+| `POST /auth/refresh`                 | public    |                 | Rotate the refresh token and get a new access token                                                                                                                                                      |
+| `POST /auth/logout`                  | public    |                 | Revoke the refresh token (and every token rotated from it)                                                                                                                                               |
+| `POST /auth/switch-org`              | signed in |                 | Get a session scoped to another org you belong to                                                                                                                                                        |
+| `GET /me`                            | signed in |                 | The signed-in user (with `hasPassword`) and their memberships                                                                                                                                            |
+| `PATCH /me`                          | signed in |                 | Update your profile                                                                                                                                                                                      |
+| `POST /orgs`                         | signed in |                 | Create an organization; you become its owner (and driver, for a DCO)                                                                                                                                     |
+| `GET /auth/methods`                  | public    |                 | Which sign-in methods the server offers: phone OTP (`phoneOtp`) and whether sign-up must verify the number                                                                                               |
+| `POST /auth/phone-otp/check`         | public    |                 | Whether a number has an account, before an OTP log-in (`{exists}`); rate limited                                                                                                                         |
+| `POST /auth/phone-otp/login`         | public    |                 | Sign in with a phone.email verification token; `NOT_FOUND` if the number has no account                                                                                                                  |
+| `POST /auth/password/reset-verified` | public    |                 | New password for the number a verification token proves; signs out every other session                                                                                                                   |
+| `POST /auth/signup`                  | public    |                 | Sign up with phone + password (no code); `ACCOUNT_EXISTS` if the number has a password; an invited number joins its fleet; optional `verificationToken` (required with `SIGNUP_REQUIRES_VERIFIED_PHONE`) |
+| `POST /auth/password/login`          | public    |                 | Sign in with phone + password (`INVALID_CREDENTIALS` either way; rate limited)                                                                                                                           |
+| `POST /auth/password/reset`          | public    |                 | New password with a reset code (`/auth/otp/request`); signs out every other session                                                                                                                      |
+| `POST /me/password`                  | signed in |                 | Set a password, or change it (needs the current one)                                                                                                                                                     |
 
 ### Members
 
@@ -179,6 +184,15 @@ Drivers are added with `POST /drivers`, which also creates their driver profile.
 | `GET /fuel-fills`                | owner, manager         |                 | Fuel fills, newest first                                                         |
 | `POST /fuel-fills/{id}/void`     | owner, manager         |                 | Void a wrong fill; the vehicle audit is recomputed                               |
 | `GET /vehicles/{id}/fuel-cycles` | owner, manager         |                 | A vehicle's fuel cycles, baseline and verdicts                                   |
+
+### Analytics
+
+| Endpoint                                   | Who            | Idempotency-Key | What it does                                                                                                           |
+| ------------------------------------------ | -------------- | --------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `GET /analytics/daily?month=YYYY-MM`       | owner, manager |                 | Fuel bought (L and kg kept apart, plus ₹), revenue and km per vehicle per IST day, and per-trip averages for the month |
+| `GET /analytics/dashboard?date=YYYY-MM-DD` | owner, manager |                 | Cabs and drivers free right now, unassigned trips, and trips completed that day with their gross fare                  |
+
+Revenue is everything billed for a trip: the quoted fare (or the cancellation fare for a cancel-after-start) plus every non-voided charge, tolls and parking included. A trip counts on the IST day it ended (or was cancelled after starting), as in settlement, and its km is end minus start odometer. Fuel is what was bought that day, not what was burned; fuel cost per trip is an estimate (the vehicle's fuel spend per km that month times the trip's km).
 
 ### Telemetry
 

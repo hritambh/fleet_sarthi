@@ -1,111 +1,39 @@
 import { Injectable } from '@nestjs/common';
-import type { AnalyticsVehicle, FuelUnit, MonthlyAnalytics } from '@taxcy/contracts';
-import { istBusinessDate } from '@taxcy/domain';
+import type { DailyAnalytics, DashboardSummary } from '@taxcy/contracts';
+import type { TenantTx } from '@taxcy/db';
+import {
+  buildDailyAnalytics,
+  istBusinessDate,
+  tripClosedAt,
+  tripRevenuePaise,
+  type AnalyticsTrip,
+} from '@taxcy/domain';
 import type { TenantAuth } from '../../platform/auth/auth-context.js';
 import { Db } from '../../platform/prisma.service.js';
 
-const DAY_MS = 86_400_000;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const istDayStart = (date: string) => new Date(`${date}T00:00:00+05:30`);
 
-const istDayStart = (day: string) => new Date(`${day}T00:00:00+05:30`);
-
-/** A fill of CNG is weighed in kilograms; petrol and diesel are measured in litres. */
-const unitFor = (fuel: string): FuelUnit => (fuel === 'cng' ? 'kg' : 'L');
-
-/** A quantity in millilitres (petrol, diesel) or grams (CNG) becomes litres or kg. */
-const toUnit = (quantityMilli: number) => quantityMilli / 1000;
-
-const dayKey = (year: number, month: number, day: number) =>
-  `${String(year)}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-
-/**
- * The IST days of a month that have already happened. A month still running stops at
- * today, so charts do not trail off across days that cannot have data yet.
- */
-function monthDays(year: number, month: number, today: string): string[] {
-  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
-  const days: string[] = [];
-  for (let d = 1; d <= lastDay; d++) {
-    const key = dayKey(year, month, d);
-    if (key > today) break;
-    days.push(key);
-  }
-  return days;
+function nextMonth(month: string): string {
+  const [y, m] = month.split('-').map(Number) as [number, number];
+  return m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, '0')}`;
 }
-
-/** Zero-filled series, one slot per day, so every vehicle covers the whole month. */
-const zeros = (n: number) => Array.from({ length: n }, () => 0);
-
-/** Adds to one day of a series. Reading with `?? 0` keeps this free of assertions. */
-const addAt = (series: number[], i: number, delta: number) => {
-  series[i] = (series[i] ?? 0) + delta;
-};
-
-const divide = (total: number, count: number) => (count === 0 ? null : total / count);
 
 @Injectable()
 export class AnalyticsService {
   constructor(private readonly db: Db) {}
 
-  async monthly(
-    auth: TenantAuth,
-    query: { year: number; month: number },
-  ): Promise<MonthlyAnalytics> {
-    const { year, month } = query;
-    const days = monthDays(year, month, istBusinessDate(new Date()));
-    const slot = new Map(days.map((day, i) => [day, i]));
-    const n = days.length;
-
+  async daily(auth: TenantAuth, month: string): Promise<DailyAnalytics> {
+    const start = istDayStart(`${month}-01`);
+    const end = istDayStart(`${nextMonth(month)}-01`);
     return this.db.tenant(auth.orgId, async (tx) => {
-      const vehicleRows = await tx.vehicle.findMany({
-        orderBy: { registrationNo: 'asc' },
-        select: { id: true, registrationNo: true, make: true, model: true, fuelType: true },
-      });
-      const vehicles: AnalyticsVehicle[] = vehicleRows.map((v) => ({
-        id: v.id,
-        registrationNo: v.registrationNo,
-        make: v.make,
-        model: v.model,
-        fuelType: v.fuelType,
-      }));
-
-      // Filled in from the month's fills: one row per vehicle and unit actually used.
-      const fuel: MonthlyAnalytics['fuel'] = [];
-      const revenue = vehicles.map((v) => ({
-        vehicleId: v.id,
-        billedPaise: zeros(n),
-        collectedPaise: zeros(n),
-      }));
-      const distance = vehicles.map((v) => ({ vehicleId: v.id, km: zeros(n) }));
-      const distanceTotalKm = zeros(n);
-      const perTrip: MonthlyAnalytics['perTrip'] = {
-        trips: zeros(n),
-        activeVehicles: zeros(n),
-        revenuePerTripPaise: zeros(n),
-        kmPerTrip: zeros(n),
-        fuelCostPerTripPaise: zeros(n),
-        tripsPerVehicle: zeros(n),
-      };
-      const result: MonthlyAnalytics = {
-        year,
-        month,
-        days,
-        vehicles,
-        fuel,
-        revenue,
-        distance,
-        distanceTotalKm,
-        perTrip,
-      };
-
-      const first = days[0];
-      const last = days[n - 1];
-      if (first === undefined || last === undefined || vehicles.length === 0) return result;
-
-      const start = istDayStart(first);
-      const end = new Date(istDayStart(last).getTime() + DAY_MS);
-      const rowOf = new Map(vehicles.map((v, i) => [v.id, i]));
-
-      const [fills, trips] = await Promise.all([
+      const [vehicles, trips, fills] = await Promise.all([
+        tx.vehicle.findMany({
+          where: { orgId: tx.orgId },
+          select: { id: true, registrationNo: true, model: true, fuelType: true },
+          orderBy: { registrationNo: 'asc' },
+        }),
+        this.closedTrips(tx, start, end),
         tx.fuelFill.findMany({
           where: { orgId: tx.orgId, voidedAt: null, filledAt: { gte: start, lt: end } },
           select: {
@@ -116,132 +44,147 @@ export class AnalyticsService {
             filledAt: true,
           },
         }),
-        // A trip counts on the IST day it closed, matching how settlements group them.
+      ]);
+      const { rows, perTrip } = buildDailyAnalytics(
+        month,
+        trips,
+        fills.map((f) => ({ ...f, costPaise: Number(f.costPaise) })),
+      );
+      return { month, vehicles, rows, perTrip };
+    });
+  }
+
+  async dashboard(auth: TenantAuth, date: Date, now = new Date()): Promise<DashboardSummary> {
+    const day = date.toISOString().slice(0, 10);
+    const dayStart = istDayStart(day);
+    const dayEnd = new Date(dayStart.getTime() + DAY_MS);
+    const prevStart = new Date(dayStart.getTime() - DAY_MS);
+    const todayStart = istDayStart(istBusinessDate(now));
+    const todayEnd = new Date(todayStart.getTime() + DAY_MS);
+
+    return this.db.tenant(auth.orgId, async (tx) => {
+      const [vehicles, drivers, running, assignedToday, unassigned, closed] = await Promise.all([
+        tx.vehicle.findMany({ where: { orgId: tx.orgId }, select: { id: true, status: true } }),
+        tx.driver.findMany({ where: { orgId: tx.orgId }, select: { id: true, status: true } }),
+        tx.trip.findMany({
+          where: { orgId: tx.orgId, status: 'started' },
+          select: { vehicleId: true, driverId: true },
+        }),
         tx.trip.findMany({
           where: {
             orgId: tx.orgId,
-            vehicleId: { not: null },
-            OR: [
-              { status: { in: ['ended', 'settled'] }, endedAt: { gte: start, lt: end } },
-              {
-                status: 'cancelled',
-                cancelledAt: { gte: start, lt: end },
-                startedAt: { not: null },
-              },
-            ],
+            status: 'assigned',
+            driverId: { not: null },
+            scheduledStartAt: { gte: now, lt: todayEnd },
           },
-          select: {
-            id: true,
-            vehicleId: true,
-            status: true,
-            endedAt: true,
-            cancelledAt: true,
-            quotedFarePaise: true,
-            cancellationFarePaise: true,
-            startOdometerId: true,
-            endOdometerId: true,
-            charges: { where: { voidedAt: null }, select: { amountPaise: true } },
-            collections: { select: { amountPaise: true } },
-          },
+          select: { driverId: true },
         }),
+        tx.trip.count({
+          where: { orgId: tx.orgId, status: 'created' },
+        }),
+        this.closedTrips(tx, prevStart, dayEnd),
       ]);
 
-      const odometerIds = trips
-        .flatMap((t) => [t.startOdometerId, t.endOdometerId])
-        .filter((id): id is string => id !== null);
-      const readings =
-        odometerIds.length === 0
-          ? []
-          : await tx.odometerReading.findMany({
-              where: { id: { in: odometerIds } },
-              select: { id: true, typedKm: true },
-            });
-      const kmAt = new Map(readings.map((r) => [r.id, r.typedKm]));
-
-      const fuelCostByDay = zeros(n);
-      const billedByDay = zeros(n);
-      const kmByDay = zeros(n);
-      const tripsWithKmByDay = zeros(n);
-      const vehiclesByDay = new Map<number, Set<string>>();
-
-      // Fuel counts for the day it was filled, whether or not it was on a trip.
-      const fuelRows = new Map<string, MonthlyAnalytics['fuel'][number]>();
-      for (const fill of fills) {
-        const i = slot.get(istBusinessDate(fill.filledAt));
-        if (i === undefined || !rowOf.has(fill.vehicleId)) continue;
-        const unit = unitFor(fill.fuel);
-        const key = `${fill.vehicleId}:${unit}`;
-        let entry = fuelRows.get(key);
-        if (entry === undefined) {
-          entry = { vehicleId: fill.vehicleId, unit, quantity: zeros(n), costPaise: zeros(n) };
-          fuelRows.set(key, entry);
-        }
-        const cost = Number(fill.costPaise);
-        addAt(entry.quantity, i, toUnit(fill.quantityMilli));
-        addAt(entry.costPaise, i, cost);
-        addAt(fuelCostByDay, i, cost);
-      }
-      // Fleet order, so a chart's colours do not move when a vehicle has no fills.
-      fuel.push(
-        ...[...fuelRows.values()].sort(
-          (a, b) =>
-            (rowOf.get(a.vehicleId) ?? 0) - (rowOf.get(b.vehicleId) ?? 0) ||
-            a.unit.localeCompare(b.unit),
-        ),
+      const activeVehicles = new Set(
+        vehicles.filter((v) => v.status === 'active').map((v) => v.id),
+      );
+      const vehiclesOnTrip = new Set(
+        running
+          .map((t) => t.vehicleId)
+          .filter((id): id is string => !!id && activeVehicles.has(id)),
+      );
+      const activeDrivers = new Set(drivers.filter((d) => d.status === 'active').map((d) => d.id));
+      const driversOnTrip = new Set(
+        running.map((t) => t.driverId).filter((id): id is string => !!id && activeDrivers.has(id)),
+      );
+      const driversAssigned = new Set(
+        assignedToday
+          .map((t) => t.driverId)
+          .filter((id): id is string => !!id && activeDrivers.has(id) && !driversOnTrip.has(id)),
       );
 
-      for (const trip of trips) {
-        const closedAt = trip.endedAt ?? trip.cancelledAt;
-        if (closedAt === null || trip.vehicleId === null) continue;
-        const i = slot.get(istBusinessDate(closedAt));
-        const row = rowOf.get(trip.vehicleId);
-        const rev = row === undefined ? undefined : revenue[row];
-        const dist = row === undefined ? undefined : distance[row];
-        if (i === undefined || rev === undefined || dist === undefined) continue;
-
-        // A cancelled trip earns only its cancellation fare, as in settlements.
-        const fare =
-          trip.status === 'cancelled'
-            ? Number(trip.cancellationFarePaise ?? 0n)
-            : Number(trip.quotedFarePaise);
-        // Every charge is billed to the customer, as in settlements. Who paid it out of
-        // pocket only decides who gets reimbursed, so it does not change revenue.
-        const extras = trip.charges.reduce((sum, c) => sum + Number(c.amountPaise), 0);
-        const billed = fare + extras;
-        const collected = trip.collections.reduce((sum, c) => sum + Number(c.amountPaise), 0);
-
-        addAt(rev.billedPaise, i, billed);
-        addAt(rev.collectedPaise, i, collected);
-        addAt(billedByDay, i, billed);
-
-        const startKm = trip.startOdometerId === null ? undefined : kmAt.get(trip.startOdometerId);
-        const endKm = trip.endOdometerId === null ? undefined : kmAt.get(trip.endOdometerId);
-        if (startKm !== undefined && endKm !== undefined && endKm >= startKm) {
-          const km = endKm - startKm;
-          addAt(dist.km, i, km);
-          addAt(distanceTotalKm, i, km);
-          addAt(kmByDay, i, km);
-          addAt(tripsWithKmByDay, i, 1);
+      let count = 0;
+      let grossPaise = 0;
+      let previousDayCount = 0;
+      for (const t of closed) {
+        const closedAt = tripClosedAt(t);
+        if (!closedAt) continue;
+        if (istBusinessDate(closedAt) === day) {
+          count += 1;
+          grossPaise += tripRevenuePaise(t);
+        } else {
+          previousDayCount += 1;
         }
-
-        addAt(perTrip.trips, i, 1);
-        const seen = vehiclesByDay.get(i) ?? new Set<string>();
-        seen.add(trip.vehicleId);
-        vehiclesByDay.set(i, seen);
       }
 
-      for (let i = 0; i < n; i++) {
-        const tripCount = perTrip.trips[i] ?? 0;
-        const active = vehiclesByDay.get(i)?.size ?? 0;
-        perTrip.activeVehicles[i] = active;
-        perTrip.revenuePerTripPaise[i] = divide(billedByDay[i] ?? 0, tripCount);
-        // Only trips with both odometer readings can contribute a distance.
-        perTrip.kmPerTrip[i] = divide(kmByDay[i] ?? 0, tripsWithKmByDay[i] ?? 0);
-        perTrip.fuelCostPerTripPaise[i] = divide(fuelCostByDay[i] ?? 0, tripCount);
-        perTrip.tripsPerVehicle[i] = divide(tripCount, active);
-      }
+      return {
+        date,
+        cabs: {
+          total: activeVehicles.size,
+          available: activeVehicles.size - vehiclesOnTrip.size,
+          onTrip: vehiclesOnTrip.size,
+          inactive: vehicles.length - activeVehicles.size,
+        },
+        drivers: {
+          total: activeDrivers.size,
+          available: activeDrivers.size - driversOnTrip.size - driversAssigned.size,
+          onTrip: driversOnTrip.size,
+          assigned: driversAssigned.size,
+        },
+        unassigned,
+        completed: { count, grossPaise, previousDayCount },
+      };
+    });
+  }
 
-      return result;
+  /** Trips that closed (ended, or cancelled after starting) in [start, end), with their km. */
+  private async closedTrips(tx: TenantTx, start: Date, end: Date): Promise<AnalyticsTrip[]> {
+    const rows = await tx.trip.findMany({
+      where: {
+        orgId: tx.orgId,
+        OR: [
+          { status: { in: ['ended', 'settled'] }, endedAt: { gte: start, lt: end } },
+          { status: 'cancelled', startedAt: { not: null }, cancelledAt: { gte: start, lt: end } },
+        ],
+      },
+      select: {
+        vehicleId: true,
+        status: true,
+        quotedFarePaise: true,
+        cancellationFarePaise: true,
+        startedAt: true,
+        endedAt: true,
+        cancelledAt: true,
+        startOdometerId: true,
+        endOdometerId: true,
+        charges: { where: { voidedAt: null }, select: { amountPaise: true } },
+      },
+    });
+    const odometerIds = rows.flatMap((r) =>
+      r.startOdometerId && r.endOdometerId ? [r.startOdometerId, r.endOdometerId] : [],
+    );
+    const readings = odometerIds.length
+      ? await tx.odometerReading.findMany({
+          where: { id: { in: odometerIds } },
+          select: { id: true, typedKm: true },
+        })
+      : [];
+    const km = new Map(readings.map((r) => [r.id, r.typedKm]));
+    return rows.map((r) => {
+      const startKm = r.startOdometerId ? km.get(r.startOdometerId) : undefined;
+      const endKm = r.endOdometerId ? km.get(r.endOdometerId) : undefined;
+      return {
+        vehicleId: r.vehicleId,
+        status: r.status,
+        quotedFarePaise: Number(r.quotedFarePaise),
+        cancellationFarePaise:
+          r.cancellationFarePaise === null ? null : Number(r.cancellationFarePaise),
+        startedAt: r.startedAt,
+        endedAt: r.endedAt,
+        cancelledAt: r.cancelledAt,
+        chargesPaise: r.charges.map((c) => Number(c.amountPaise)),
+        km: startKm === undefined || endKm === undefined ? null : endKm - startKm,
+      };
     });
   }
 }

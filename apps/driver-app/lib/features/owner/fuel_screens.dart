@@ -5,29 +5,27 @@ import 'package:intl/intl.dart';
 
 import '../../app/providers.dart';
 import '../../app/theme.dart';
+import '../../core/api/models.dart';
 import '../../core/api/owner_models.dart';
 import '../common/format.dart';
 import 'owner_providers.dart';
 import 'owner_text.dart';
 import 'owner_widgets.dart';
 
-/// Every vehicle with its latest fuel verdict; tap for the full audit.
-class FuelIndexScreen extends ConsumerWidget {
-  const FuelIndexScreen({super.key});
+/// Every vehicle with its latest fuel verdict; tap for the full audit. Shown
+/// under the charts on the Analytics page.
+class FuelAuditList extends ConsumerWidget {
+  const FuelAuditList({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final vehicles = ref.watch(fleetVehiclesProvider);
-    return Scaffold(
-      appBar: AppBar(title: Text(l.fuel)),
-      body: RefreshPage(
-        onRefresh: () async {
-          ref
-            ..invalidate(vehicleAuditProvider)
-            ..invalidate(fleetVehiclesProvider);
-          await ref.read(fleetVehiclesProvider.future);
-        },
+    return SectionCard(
+      key: const Key('fuel-audit'),
+      title: l.fuelAudit,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(l.fuelIntro, style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 8),
@@ -36,6 +34,8 @@ class FuelIndexScreen extends ConsumerWidget {
             onRetry: () => ref.invalidate(fleetVehiclesProvider),
             builder: (list) => list.isEmpty
                 ? EmptyState(l.noVehiclesYet)
+                : isDesktop(context)
+                ? CardGrid(children: [for (final v in list) _FuelCard(v)])
                 : Column(
                     children: [
                       for (final v in list)
@@ -60,6 +60,94 @@ class FuelIndexScreen extends ConsumerWidget {
                   ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A vehicle's fuel on the desktop: its plate, its usual efficiency in large
+/// type and the latest cycle's verdict, with a red edge when it's flagged.
+class _FuelCard extends ConsumerWidget {
+  const _FuelCard(this.v);
+  final Vehicle v;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final audit = ref.watch(vehicleAuditProvider(v.id)).value;
+    final flagged = audit?.cycles.lastOrNull?.verdict == 'flagged';
+    final usual = audit?.baselineMean == null
+        ? '–'
+        : fuelMetricText(context.fmt, audit!, audit.baselineMean);
+    return Card(
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        key: ValueKey('fuel-vehicle-${v.id}'),
+        onTap: () =>
+            openScreen<void>(context, VehicleFuelScreen(vehicleId: v.id)),
+        child: Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(
+                color: flagged ? Colors.red.shade600 : TaxcyColors.blue200,
+                width: 3,
+              ),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Flexible(
+                    child: NumberPlate(formatRegistration(v.registrationNo)),
+                  ),
+                  const SizedBox(width: 8),
+                  const Spacer(),
+                  _LatestVerdict(v.id),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                '${v.make} ${v.model} · ${fuelName(l, v.fuelType)}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: TaxcyColors.muted),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const Icon(
+                    Icons.local_gas_station,
+                    color: TaxcyColors.blue700,
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      usual,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                        color: TaxcyColors.blue950,
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  const Icon(Icons.chevron_right, color: TaxcyColors.muted),
+                ],
+              ),
+              Text(
+                l.usualEfficiency,
+                style: const TextStyle(color: TaxcyColors.muted, fontSize: 12),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

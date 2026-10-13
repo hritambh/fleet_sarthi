@@ -1,81 +1,84 @@
 import { z } from 'zod';
-import { Id, Paise } from '../common.js';
+import { CalendarDate, Id, Paise } from '../common.js';
 import { access, defineRoute } from '../http.js';
 import { FuelType } from './fleet.js';
 
-/** Fuel is measured in litres, except CNG which is weighed in kilograms. */
-export const FuelUnit = z.enum(['L', 'kg']);
-export type FuelUnit = z.infer<typeof FuelUnit>;
-
-export const AnalyticsVehicle = z.object({
-  id: Id,
-  registrationNo: z.string(),
-  make: z.string(),
-  model: z.string(),
-  fuelType: FuelType,
+/** One vehicle on one IST day. Only days with activity are listed. */
+export const AnalyticsDayRow = z.object({
+  date: z.iso.date(),
+  vehicleId: Id,
+  /** Petrol and diesel bought, in millilitres. */
+  fuelLitresMilli: z.number().int(),
+  /** CNG bought, in grams. */
+  fuelKgMilli: z.number().int(),
+  fuelCostPaise: Paise,
+  /** Fare plus every charge (tolls and parking included) of trips closed that day. */
+  revenuePaise: Paise,
+  /** Odometer km of trips closed that day. */
+  km: z.number().int(),
+  trips: z.number().int(),
 });
-export type AnalyticsVehicle = z.infer<typeof AnalyticsVehicle>;
+export type AnalyticsDayRow = z.infer<typeof AnalyticsDayRow>;
 
-/**
- * Every series below is index-aligned with `days`, so a chart can read a vehicle's
- * value for day i without a lookup. Days with nothing recorded are 0, not a gap;
- * an average with no trips to divide by is null so charts can break the line.
- */
-export const MonthlyAnalytics = z.object({
-  year: z.number().int(),
-  /** 1-12. */
-  month: z.number().int(),
-  /** IST calendar days in the month, up to today when the month is still running. */
-  days: z.array(z.iso.date()),
-  vehicles: z.array(AnalyticsVehicle),
-  /**
-   * Fuel put into each vehicle per day. The unit comes from the fill, not the vehicle,
-   * so a bifuel (petrol + CNG) vehicle has one row per unit it was actually filled with.
-   * Only vehicles filled during the month appear here.
-   */
-  fuel: z.array(
-    z.object({
-      vehicleId: Id,
-      unit: FuelUnit,
-      quantity: z.array(z.number()),
-      costPaise: z.array(Paise),
-    }),
+export const DailyAnalytics = z.object({
+  month: z.string(),
+  vehicles: z.array(
+    z.object({ id: Id, registrationNo: z.string(), model: z.string(), fuelType: FuelType }),
   ),
-  /** What each vehicle earned per day: billed to the customer, and actually collected. */
-  revenue: z.array(
-    z.object({
-      vehicleId: Id,
-      billedPaise: z.array(Paise),
-      collectedPaise: z.array(Paise),
-    }),
-  ),
-  /** Distance each vehicle covered per day, from its trip odometer readings. */
-  distance: z.array(z.object({ vehicleId: Id, km: z.array(z.number()) })),
-  /** All vehicles summed, per day. */
-  distanceTotalKm: z.array(z.number()),
-  /** Fleet-wide averages per trip, per day. Null where there were no trips. */
+  rows: z.array(AnalyticsDayRow),
   perTrip: z.object({
-    trips: z.array(z.number().int()),
-    activeVehicles: z.array(z.number().int()),
-    revenuePerTripPaise: z.array(z.number().nullable()),
-    kmPerTrip: z.array(z.number().nullable()),
-    fuelCostPerTripPaise: z.array(z.number().nullable()),
-    tripsPerVehicle: z.array(z.number().nullable()),
+    trips: z.number().int(),
+    kmAvg: z.number().int().nullable(),
+    revenueAvgPaise: Paise.nullable(),
+    /** Estimated: the vehicle's fuel spend per km this month times the trip's km. */
+    fuelCostAvgPaise: Paise.nullable(),
   }),
 });
-export type MonthlyAnalytics = z.infer<typeof MonthlyAnalytics>;
+export type DailyAnalytics = z.infer<typeof DailyAnalytics>;
+
+export const DashboardSummary = z.object({
+  date: CalendarDate,
+  /** Right now, whatever the date. */
+  cabs: z.object({
+    total: z.number().int(),
+    available: z.number().int(),
+    onTrip: z.number().int(),
+    inactive: z.number().int(),
+  }),
+  /** Right now, whatever the date. */
+  drivers: z.object({
+    total: z.number().int(),
+    available: z.number().int(),
+    onTrip: z.number().int(),
+    assigned: z.number().int(),
+  }),
+  /** Trips not yet assigned a driver and vehicle (status "created"), overdue ones included. */
+  unassigned: z.number().int(),
+  completed: z.object({
+    count: z.number().int(),
+    grossPaise: Paise,
+    previousDayCount: z.number().int(),
+  }),
+});
+export type DashboardSummary = z.infer<typeof DashboardSummary>;
 
 export const analyticsRoutes = {
-  monthly: defineRoute({
+  daily: defineRoute({
     method: 'GET',
-    path: '/analytics/monthly',
-    summary: 'Daily fuel, revenue, distance and per-trip averages for one IST month',
+    path: '/analytics/daily',
+    summary: 'Fuel bought, revenue and km per vehicle per IST day for a month',
     tag: 'analytics',
     access: access.staff,
-    query: z.object({
-      year: z.coerce.number().int().min(2000).max(2100),
-      month: z.coerce.number().int().min(1).max(12),
-    }),
-    response: MonthlyAnalytics,
+    query: z.object({ month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/) }),
+    response: DailyAnalytics,
+  }),
+  dashboard: defineRoute({
+    method: 'GET',
+    path: '/analytics/dashboard',
+    summary: "The owner dashboard's headline figures for an IST day",
+    tag: 'analytics',
+    access: access.staff,
+    query: z.object({ date: CalendarDate }),
+    response: DashboardSummary,
   }),
 };

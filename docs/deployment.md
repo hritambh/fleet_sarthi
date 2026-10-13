@@ -3,7 +3,7 @@
 This page covers two things:
 
 1. **Building the Android app** (`fleet-sarthi-<version>.apk`) pointed at any API, and installing it on a phone.
-2. **Hosting the backend and admin web for free** on [Render](https://render.com), with Neon (Postgres + PostGIS), Render Key Value (Redis) and Backblaze B2 (photos).
+2. **Hosting the backend and the web app for free** on [Render](https://render.com), with Neon (Postgres + PostGIS), Render Key Value (Redis) and Backblaze B2 (photos).
 
 The free stack is meant for demos, pilots and testing, not for real fleets: it sleeps when idle, has small quotas, and logs password-reset codes instead of sending SMS. [Moving beyond free](#moving-beyond-the-free-tier) lists what to change for real users.
 
@@ -57,7 +57,27 @@ dist/driver-app/fleet-sarthi-0.1.0+76.aab              with --aab
 
 A first build takes about 5 minutes (Gradle downloads); later builds about 1 minute.
 
-For a laptop on your Wi-Fi (plain `http://192.168.x.x:3000`), don't build a release APK: use a debug run, which allows cleartext HTTP, as in [getting started](getting-started.md#step-10-run-the-driver-app): `flutter run --dart-define=API_URL=http://<LAN-IP>:3000`.
+### Rebuilding after a code change
+
+1. **Commit first.** The build number defaults to the git commit count, and Android won't install a lower build number over a higher one. Committing keeps each build's number at least as high as the one on the phone.
+2. Build from the repo root: `API_URL=https://taxcy-api.onrender.com bun run build:apk -- --split`.
+3. Install `dist/driver-app/fleet-sarthi-<version>-arm64-v8a.apk` (send it to the phone, or `adb install -r …`). It's signed with the same upload key, so it updates the installed app and keeps its data.
+
+Only changes under `apps/driver-app` need a new APK. API changes reach existing installs once Render redeploys after a push, and Render rebuilds the web app (`taxcy-web`) by itself when `apps/driver-app` changes.
+
+### Testing against your laptop
+
+Release builds only accept `https://`, so to point a phone at the API on your laptop (`http://<LAN-IP>:3000`, same Wi-Fi), build a debug APK, which allows plain HTTP:
+
+```bash
+cd apps/driver-app
+flutter build apk --debug --dart-define=API_URL=http://<LAN-IP>:3000
+# output: build/app/outputs/flutter-apk/app-debug.apk (large, ~160 MB)
+```
+
+Or run it straight on a USB-connected phone with `flutter run --dart-define=API_URL=http://<LAN-IP>:3000`. Either way, set `S3_PUBLIC_ENDPOINT=http://<LAN-IP>:9000` in the root `.env` and restart `bun run dev` so photo links work from the phone, as in [getting started](getting-started.md#step-10-sign-in-as-a-driver). On macOS, `ipconfig getifaddr en0` prints the LAN IP; if the phone can't connect, allow incoming connections for `node` and Docker in the macOS firewall.
+
+A debug build is signed with your machine's debug key, not the upload key, so uninstall the release app before installing it (and the other way round).
 
 ### Signing
 
@@ -119,16 +139,16 @@ The release build was verified on this repo (Flutter 3.38.5, AGP 8.11, `minSdk 2
 
 Researched in October 2026. Free tiers change often, so check each provider's pricing page before relying on a number.
 
-| Piece                                    | Recommended                                                 | Free limits that matter                                                                                                                                                                                          |
-| ---------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| API (NestJS)                             | **Render free web service** (`taxcy-api`)                   | 512 MB RAM, 0.1 CPU. **Sleeps after 15 min without requests; waking takes about a minute.** 750 instance-hours per workspace per month. No pre-deploy command, no shell, no background workers, single instance. |
-| Background jobs                          | **Inside the API** (`JOBS_MODE=in-process`)                 | Render has no free background worker. Jobs only run while the API is awake (see [gotchas](#gotchas-of-the-free-stack)).                                                                                          |
-| Admin web                                | **Render free static site** (`taxcy-admin`)                 | Global CDN, custom domains. Counts against the workspace's outbound bandwidth (reported cut to **5 GB/month** on the Hobby plan from 1 Aug 2026).                                                                |
-| Postgres + PostGIS                       | **Neon free**                                               | 0.5 GB storage per project, **100 CU-hours/month** (0.25 CU minimum, so about 400 awake hours), scales to zero after 5 min idle. PostGIS and `btree_gist` supported. Region: Singapore (`aws-ap-southeast-1`).   |
-| Redis (reset codes, rate limits, BullMQ) | **Render Key Value free** (`taxcy-redis`)                   | 25 MB RAM, 50 connections (the API uses about 17), **in memory only: data is lost when it restarts**. Same region as the API, private network only.                                                              |
-| Photos (S3 API)                          | **Backblaze B2 free**                                       | First **10 GB stored free**, downloads free up to 3× the average data stored, Class A/B/C API calls free on pay-as-you-go. **No Asia region**: the region (US or EU) is chosen once per account at sign-up.      |
-| SMS                                      | **None (demo mode)**: reset codes are read from the API log | See [Part 4](#part-4-sign-in-on-a-free-deployment). India requires DLT registration for SMS, and no SMS gateway is free.                                                                                         |
-| Errors (optional)                        | Sentry free (Developer plan)                                | Set `SENTRY_DSN`; empty disables it.                                                                                                                                                                             |
+| Piece                                    | Recommended                                                 | Free limits that matter                                                                                                                                                                                                                                        |
+| ---------------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| API (NestJS)                             | **Render free web service** (`taxcy-api`)                   | 512 MB RAM, 0.1 CPU. **Sleeps after 15 min without requests; waking takes about a minute.** 750 instance-hours per workspace per month. No pre-deploy command, no shell, no background workers, single instance.                                               |
+| Background jobs                          | **Inside the API** (`JOBS_MODE=in-process`)                 | Render has no free background worker. Jobs only run while the API is awake (see [gotchas](#gotchas-of-the-free-stack)).                                                                                                                                        |
+| Web app (Flutter)                        | **Render free static site** (`taxcy-web`)                   | The Flutter app built for the browser (owner and driver modes). Global CDN, custom domains. Each build fetches the Flutter SDK (~5 min). Counts against the workspace's outbound bandwidth (reported cut to **5 GB/month** on the Hobby plan from 1 Aug 2026). |
+| Postgres + PostGIS                       | **Neon free**                                               | 0.5 GB storage per project, **100 CU-hours/month** (0.25 CU minimum, so about 400 awake hours), scales to zero after 5 min idle. PostGIS and `btree_gist` supported. Region: Singapore (`aws-ap-southeast-1`).                                                 |
+| Redis (reset codes, rate limits, BullMQ) | **Render Key Value free** (`taxcy-redis`)                   | 25 MB RAM, 50 connections (the API uses about 17), **in memory only: data is lost when it restarts**. Same region as the API, private network only.                                                                                                            |
+| Photos (S3 API)                          | **Backblaze B2 free**                                       | First **10 GB stored free**, downloads free up to 3× the average data stored, Class A/B/C API calls free on pay-as-you-go. **No Asia region**: the region (US or EU) is chosen once per account at sign-up.                                                    |
+| SMS                                      | **None (demo mode)**: reset codes are read from the API log | See [Part 4](#part-4-sign-in-on-a-free-deployment). India requires DLT registration for SMS, and no SMS gateway is free.                                                                                                                                       |
+| Errors (optional)                        | Sentry free (Developer plan)                                | Set `SENTRY_DSN`; empty disables it.                                                                                                                                                                                                                           |
 
 Why these choices:
 
@@ -138,10 +158,10 @@ Why these choices:
 
 ### Gotchas of the free stack
 
-- **Cold starts.** After 15 idle minutes the API sleeps. The next request waits for a wake-up (about a minute, plus a few seconds for the start script's role and migration check). The admin web and app show a network error or spin meanwhile; retry. Open `https://<api>/v1/health/live` a minute before a demo.
+- **Cold starts.** After 15 idle minutes the API sleeps. The next request waits for a wake-up (about a minute, plus a few seconds for the start script's role and migration check). The web app and APK show a network error or spin meanwhile; retry. Open `https://<api>/v1/health/live` a minute before a demo.
 - **Jobs pause while the API sleeps.** Outbox events (photo OCR, fuel audit, trip close) are picked up when it wakes. The daily document-expiry scan (06:00 IST) runs late, when the API next wakes.
 - **Neon compute hours vs keeping the API awake.** While awake, the API's outbox relay queries Postgres every second, so Neon never scales to zero. With the API sleeping when idle that's fine; but an uptime pinger that keeps the API awake 24/7 would burn Neon's 100 CU-hours in about 16 days. Don't use one on the free plan.
-- **Render bandwidth.** Photos go straight between phones and B2 (signed URLs), not through Render. API JSON and the admin web's assets count against Render's monthly bandwidth; if it runs out with no card on file, Render suspends free services until the month ends.
+- **Render bandwidth.** Photos go straight between phones and B2 (signed URLs), not through Render. API JSON and the web app's assets count against Render's monthly bandwidth; if it runs out with no card on file, Render suspends free services until the month ends.
 - **One API instance only.** In-process jobs assume a single instance (Render free never scales out). Before moving to several instances, switch to `JOBS_MODE=external` and run `apps/workers` as a worker service.
 - **Client IPs.** Render's proxy is in front of the API and the API doesn't trust `X-Forwarded-For`, so every client looks like the same few proxy IPs. The per-IP limits (reset codes `OTP_IP_LIMIT_PER_HOUR`, 20 sign-ups per hour, 100 logins per hour) are therefore shared by everyone; the Blueprint raises it to 120. Per-phone limits (1 per 30 s, 3 per 10 min, 10 per day) still apply.
 - **Logs are short-lived** on the free plan, and in demo mode they contain password-reset codes. Treat log access as admin access.
@@ -155,13 +175,13 @@ What gets created:
 | Piece         | Where                             | Talks to                                                 |
 | ------------- | --------------------------------- | -------------------------------------------------------- |
 | `taxcy-api`   | Render web service, Singapore     | Neon (TLS), `taxcy-redis` (private network), B2 (S3 API) |
-| `taxcy-admin` | Render static site (global CDN)   | `taxcy-api` from the browser; B2 through signed URLs     |
+| `taxcy-web`   | Render static site (global CDN)   | `taxcy-api` from the browser; B2 through signed URLs     |
 | `taxcy-redis` | Render Key Value, Singapore       | only `taxcy-api`                                         |
 | Postgres      | Neon, Singapore                   | only `taxcy-api`                                         |
 | Photos        | Backblaze B2 bucket `taxcy-media` | phones and browsers upload/download with signed URLs     |
 | The app       | APK on phones                     | `taxcy-api`, B2                                          |
 
-`render.yaml` at the repo root is the [Blueprint](https://render.com/docs/infrastructure-as-code). It defines `taxcy-api`, `taxcy-admin` and `taxcy-redis`; Neon and B2 are created by hand first.
+`render.yaml` at the repo root is the [Blueprint](https://render.com/docs/infrastructure-as-code). It defines `taxcy-api`, `taxcy-web` and `taxcy-redis`; Neon and B2 are created by hand first.
 
 ### Step 1: Create the Neon database
 
@@ -202,15 +222,15 @@ PostGIS and `btree_gist` are created by the first migration; Neon allows that fo
 
    Don't use the account's master application key: B2's S3 API rejects it.
 
-3. **CORS rules**, so browsers can upload to signed URLs. Phones don't need CORS, and the admin web only shows photos through `<img>` links, so this matters once a browser uploads (the [driver app on the web](#the-driver-app-on-the-web-optional-not-in-the-blueprint)). Setting it now saves a debugging session later.
+3. **CORS rules** (required for the web app). The Flutter web app downloads photos with JavaScript requests and, in driver mode, uploads them to signed URLs, so the browser needs the bucket to allow the web app's origin. The APK doesn't need CORS.
 
-   B2 supports S3's `PutBucketCors`, so the rules use the same format as `infra/s3/cors.json` (local RustFS). Save as `b2-cors.json`, with your admin web URL (and the driver web app's, if you host it):
+   B2 supports S3's `PutBucketCors`, so the rules use the same format as `infra/s3/cors.json` (local RustFS). Save as `b2-cors.json`, with your web app's URL (and any custom domain):
 
    ```json
    {
      "CORSRules": [
        {
-         "AllowedOrigins": ["https://taxcy-admin.onrender.com"],
+         "AllowedOrigins": ["https://taxcy-web.onrender.com"],
          "AllowedMethods": ["GET", "PUT", "HEAD"],
          "AllowedHeaders": ["*"],
          "ExposeHeaders": ["ETag"],
@@ -241,37 +261,42 @@ The API's S3 client sends checksums only when an operation requires them (`reque
 ### Step 3: Push the code and create the Blueprint
 
 1. Push this repo (with `render.yaml`) to GitHub or GitLab.
-2. In Render: **New → Blueprint**, connect your Git provider, pick the repo and branch (`main`). Render reads `render.yaml` and lists `taxcy-api`, `taxcy-admin` and `taxcy-redis`.
-3. Render asks for every variable marked `sync: false`. Fill them in as below (you can leave the optional ones empty), then **Apply**.
+2. In Render: **New → Blueprint**, connect your Git provider, pick the repo and branch (`main`). Render reads `render.yaml` and lists `taxcy-api`, `taxcy-web` and `taxcy-redis`.
+3. Render asks for every variable marked `sync: false`: only secrets and your own accounts' values (database URLs, B2 endpoint and keys, optional extras). Fill them in as below (you can leave the optional ones empty), then **Apply**.
+4. **Turn on Auto Sync:** Render → **Blueprints** → this Blueprint → **Settings** → **Auto Sync: Yes**. Then every push to `main` also applies changes to `render.yaml`, such as a new variable or a changed URL, so you don't add them by hand.
 
-Render then creates the Key Value instance, builds both services (about 5 minutes the first time) and starts the API.
+Render then creates the Key Value instance, builds both services (about 5 minutes each; the web app's build downloads the Flutter SDK every time) and starts the API.
 
-The service URLs are `https://<name>.onrender.com`. If a name is taken, Render adds a suffix; check the real URLs on each service's page and use those wherever this guide says `taxcy-api.onrender.com` / `taxcy-admin.onrender.com`.
+**What Render sets by itself:** everything in `render.yaml` with a `value`, `generateValue` or `fromService`: the services' URLs (`API_URL` on `taxcy-web`, `CORS_ORIGINS` on `taxcy-api`), the Redis URL, the JWT secret, and the modes and limits. These are applied on every Blueprint sync. Variables marked `sync: false` are asked for only when the Blueprint is created; Render never changes them afterwards, so a **new** `sync: false` variable added later must be set in the service's **Environment** tab.
+
+The service URLs are `https://<name>.onrender.com`, and `render.yaml` assumes `taxcy-api` and `taxcy-web`. If a name was taken, Render adds a suffix: check the real URLs on each service's page and change `API_URL` and `CORS_ORIGINS` in `render.yaml` to match (then push; with Auto Sync, Render applies them). A missing `https://` or a trailing `/` is forgiven by both.
 
 ### Step 4: Environment variables
 
 **`taxcy-api`**
 
-| Variable                                    | Where the value comes from                                                                                                                                                                                                                                                                 |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `DATABASE_MIGRATION_URL`                    | Neon owner URL (Step 1.2)                                                                                                                                                                                                                                                                  |
-| `DATABASE_URL`                              | Neon app URL with `taxcy_api` and your generated password (Step 1.3)                                                                                                                                                                                                                       |
-| `S3_ENDPOINT`                               | The bucket's **Endpoint** with `https://`, e.g. `https://s3.eu-central-003.backblazeb2.com` (Step 2.1)                                                                                                                                                                                     |
-| `S3_REGION`                                 | The middle part of that endpoint, e.g. `eu-central-003` (Step 2.1). It must match: B2 rejects signatures made for another region.                                                                                                                                                          |
-| `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` | B2 application key: `keyID` / `applicationKey` (Step 2.2)                                                                                                                                                                                                                                  |
-| `CORS_ORIGINS`                              | Admin web URL, e.g. `https://taxcy-admin.onrender.com`; comma-separate more (a hosted driver web app, a custom domain). No trailing slash.                                                                                                                                                 |
-| `SENTRY_DSN`                                | Optional; Sentry project DSN. Empty: Sentry off.                                                                                                                                                                                                                                           |
-| Set by the Blueprint                        | `REDIS_URL` (from `taxcy-redis`), `JWT_ACCESS_SECRET` (generated by Render), `NODE_ENV=production`, `JOBS_MODE=in-process`, `SMS_PROVIDER=console`, `DEMO_MODE=true`, `S3_BUCKET=taxcy-media`, `OTP_IP_LIMIT_PER_HOUR=120`, `SEED_DEMO_DATA=false`, `NODE_VERSION=24`, `BUN_VERSION=1.4.2` |
+| Variable                                                                          | Where the value comes from                                                                                                                                                                                                                                                                                                                                                                      |
+| --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_MIGRATION_URL`                                                          | Neon owner URL (Step 1.2)                                                                                                                                                                                                                                                                                                                                                                       |
+| `DATABASE_URL`                                                                    | Neon app URL with `taxcy_api` and your generated password (Step 1.3)                                                                                                                                                                                                                                                                                                                            |
+| `S3_ENDPOINT`                                                                     | The bucket's **Endpoint** with `https://`, e.g. `https://s3.eu-central-003.backblazeb2.com` (Step 2.1)                                                                                                                                                                                                                                                                                          |
+| `S3_REGION`                                                                       | The middle part of that endpoint, e.g. `eu-central-003` (Step 2.1). It must match: B2 rejects signatures made for another region.                                                                                                                                                                                                                                                               |
+| `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY`                                       | B2 application key: `keyID` / `applicationKey` (Step 2.2)                                                                                                                                                                                                                                                                                                                                       |
+| `SENTRY_DSN`                                                                      | Optional; Sentry project DSN. Empty: Sentry off.                                                                                                                                                                                                                                                                                                                                                |
+| `MASTER_PASSWORD`                                                                 | Optional, testing only: a password of 8+ characters that signs in as any user ([below](#master-password-testing-only)). Empty: off.                                                                                                                                                                                                                                                             |
+| `PHONE_OTP_PROVIDER` / `PHONE_EMAIL_CLIENT_ID` / `SIGNUP_REQUIRES_VERIFIED_PHONE` | Optional phone OTP via phone.email: `phone_email`, your client id, `true`/`false`. Set here in the dashboard; Blueprint syncs leave them alone. Empty: off. See [phone OTP](phone-otp.md).                                                                                                                                                                                                      |
+| Set by the Blueprint                                                              | `CORS_ORIGINS=https://taxcy-web.onrender.com` (add custom domains comma-separated in `render.yaml`), `REDIS_URL` (from `taxcy-redis`), `JWT_ACCESS_SECRET` (generated by Render), `NODE_ENV=production`, `JOBS_MODE=in-process`, `SMS_PROVIDER=console`, `DEMO_MODE=true`, `S3_BUCKET=taxcy-media`, `OTP_IP_LIMIT_PER_HOUR=120`, `SEED_DEMO_DATA=false`, `NODE_VERSION=24`, `BUN_VERSION=1.4.2` |
 
 `PORT` is set by Render and read by the API. `S3_PUBLIC_ENDPOINT` isn't needed (B2's endpoint is public).
 
-**`taxcy-admin`**
+**`taxcy-web`**
 
-| Variable       | Value                                                                                                                                                                |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `VITE_API_URL` | The API's URL, e.g. `https://taxcy-api.onrender.com` (no `/v1`). Read **at build time**: after changing it, **Manual Deploy → Clear build cache & deploy** the site. |
+| Variable          | Value                                                                                                                                                                                 |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `API_URL`         | Set by the Blueprint: `https://taxcy-api.onrender.com` (no `/v1`). Compiled in **at build time** (`--dart-define`); a change applies on the site's next deploy.                       |
+| `FLUTTER_VERSION` | Set by the Blueprint (`3.38.5`): the Flutter SDK tag `infra/render/build-web.sh` clones. Keep it in step with the version the app is developed and tested with (`flutter --version`). |
 
-If you fill `CORS_ORIGINS` or `VITE_API_URL` before you know the final URLs, fix them afterwards in each service's **Environment** tab; the API restarts by itself, the static site needs a redeploy.
+If a Blueprint was created before these URLs were in `render.yaml`, sync it once (Blueprint → **Manual Sync**, or turn on Auto Sync and push) to apply them. Values typed into the **Environment** tab by hand are overwritten by the Blueprint's on the next sync.
 
 ### Step 5: Check the deployment
 
@@ -293,7 +318,7 @@ The seed creates an owner, a manager, three drivers and vehicles, and six weeks 
 
 The seed is safe to re-run: it does nothing if the demo org exists. Alternatively run it from your laptop against Neon and B2: put the Neon and B2 values in `.env` (keeping `REDIS_URL` pointed at your local Redis) and run `bun run db:seed`.
 
-Seeded phone numbers: owner `9000000001`, manager `9000000002`, drivers `9000000011`–`9000000013`, all with the password `demo1234`.
+Seeded phone numbers: owner `9000000001`, manager `9000000002`, drivers `9000000011`–`9000000013`, all with the password `12345678`.
 
 ### Step 7: Build the APK for this API
 
@@ -305,29 +330,34 @@ Then install it as in [Part 1](#install-on-a-phone).
 
 ### Custom domains (optional)
 
-Both services can use your own domain on the free plan (**Settings → Custom Domains**, then a CNAME at your DNS provider; Render issues the certificate). Afterwards update: `CORS_ORIGINS` (API), `VITE_API_URL` (admin, then redeploy), the B2 CORS rules, and rebuild the APK if the API's domain changed.
+Both services can use your own domain on the free plan (**Settings → Custom Domains**, then a CNAME at your DNS provider; Render issues the certificate). Afterwards update: `CORS_ORIGINS` (API), `API_URL` (web app, then redeploy), the B2 CORS rules, and rebuild the APK if the API's domain changed.
 
 ### Updating
 
-Every push to `main` redeploys (`autoDeployTrigger: commit`); build filters skip the API for admin-only or app-only changes and vice versa. New migrations are applied by the start script on the next start. Locally, `bun run db:deploy` does the same (role check + `prisma migrate deploy`) against whatever `.env` points at.
+Every push to `main` redeploys (`autoDeployTrigger: commit`); build filters skip the API for app-only changes and the web app for anything outside `apps/driver-app`. New migrations are applied by the start script on the next start. Locally, `bun run db:deploy` does the same (role check + `prisma migrate deploy`) against whatever `.env` points at.
 
-### The driver app on the web (optional, not in the Blueprint)
+### The web app
 
-Render's build image has no Flutter SDK, so the Blueprint doesn't host the driver app's web build. To host it anyway, build it locally and upload the static files to any static host (for example a second Render static site deployed from a branch that contains the build, or Cloudflare Pages: `npx wrangler pages deploy apps/driver-app/build/web`):
+`taxcy-web` is the Flutter app (`apps/driver-app`) built for the browser: the same screens as the APK, with owner mode and driver mode. Render's build image has no Flutter, so `infra/render/build-web.sh` clones the SDK at `FLUTTER_VERSION`, then runs `flutter build web --release --dart-define=API_URL=…`. The SQLite WebAssembly files the app's local database needs (`web/sqlite3.wasm`, `web/drift_worker.js`) are committed.
+
+To build or try it locally:
 
 ```bash
 cd apps/driver-app
 flutter build web --release --dart-define=API_URL=https://taxcy-api.onrender.com
-# output: apps/driver-app/build/web (includes sqlite3.wasm and drift_worker.js)
+# output: apps/driver-app/build/web; serve it with any static server, e.g.
+npx serve build/web
 ```
 
-Add its origin to the API's `CORS_ORIGINS`, and the B2 CORS rules (Step 2.3).
+In a browser, driver mode works while the tab is open: GPS is recorded only while the page is visible, and photos come from the browser's camera or file picker. Drivers on the road should use the APK, which records in the background.
 
 ---
 
 ## Part 4: Sign-in on a free deployment
 
 Everyone signs in with **mobile number + password**. New users tap **Sign up** (number, password, optional name; no code). An invited driver or manager who has no password yet signs up with the invited number, which sets their password and joins them to the fleet.
+
+To add **log in with OTP**, verified sign-up and forgot password by OTP, set up [phone OTP](phone-otp.md) (phone.email; Android, iOS and the web app): `PHONE_OTP_PROVIDER=phone_email` and `PHONE_EMAIL_CLIENT_ID` on `taxcy-api`. No app rebuild is needed.
 
 ### Password-reset codes (demo mode)
 
@@ -336,8 +366,18 @@ Only **Forgot password?** needs a code sent to the phone. There's no SMS provide
 So the free deployment runs in **demo mode**:
 
 - `SMS_PROVIDER=console` writes each reset code to the API log instead of sending it. In production (`NODE_ENV=production`) the API **refuses to start** with `console` unless `DEMO_MODE=true` is set explicitly, and then logs a `DEMO_MODE: SMS is not sent…` warning at every start.
-- To reset a password: tap **Forgot password?** in the admin web or app and request a code, then open Render → `taxcy-api` → **Logs**, search for `otp.issued`, and read the line `otp.issued phone=+91… code=123456`. Enter it with the new password; other sessions are signed out.
-- Signed in, change the password under **My account** (admin web) or the account screen (app).
+- To reset a password: tap **Forgot password?** in the app (web or APK) and request a code, then open Render → `taxcy-api` → **Logs**, search for `otp.issued`, and read the line `otp.issued phone=+91… code=123456`. Enter it with the new password; other sessions are signed out.
+- Signed in, change the password under **More → Account security** (owner mode) or the menu's **Account security** (driver mode).
+
+### Master password (testing only)
+
+Set `MASTER_PASSWORD` (8+ characters) on the API to test as anyone without knowing their password:
+
+- **Sign in as anyone:** enter any existing user's number and the master password. It doesn't create accounts, and the usual sign-in rate limits apply.
+- **Reset anyone's password:** sign in as them with the master password, then **Account security → Change password** with the master password as the current password. (The **Forgot password?** form still needs the 6-digit code.)
+- Every use is logged as a warning, `auth.master_password_used action=login phone=+91…`, and the API warns at startup while it's set. In production it starts only with `DEMO_MODE=true`.
+
+Whoever knows it can be anyone, so keep it out of chats and screenshots, change it if it leaks, and leave it empty before real users arrive.
 
 Anyone who can read the API's logs can reset anyone's password, so demo mode is only for demos with test data. Sign-up doesn't verify the phone either: whoever signs up first with an invited number claims it. For real users, implement an `SmsProvider` (`apps/api/src/modules/identity/sms.provider.ts`) for your gateway, add it to the `SMS_PROVIDER` enum in `config.ts`, remove `DEMO_MODE`, and add SMS verification to sign-up.
 
@@ -359,8 +399,10 @@ Anyone who can read the API's logs can reset anyone's password, so demo mode is 
 | Neon: `password authentication failed for user "taxcy_api"`                                                     | The password in `DATABASE_URL` has characters that need URL-escaping; use `openssl rand -hex 24`. The start script resets the role's password to whatever `DATABASE_URL` holds on every start.                                                                                                |
 | Neon: SSL / `channel_binding` errors                                                                            | Keep `sslmode=require`; if a client complains about `channel_binding=require`, drop that parameter from the URL.                                                                                                                                                                              |
 | Prisma: `P3009 migrate found failed migrations`                                                                 | A migration failed half-way. Read the API log, fix the cause, then mark it with `prisma migrate resolve` from your laptop (`cd libs/db`, `DATABASE_MIGRATION_URL=… node_modules/.bin/prisma migrate resolve --rolled-back <name>`).                                                           |
-| Admin web: `Failed to fetch` / CORS error in the browser console                                                | `CORS_ORIGINS` on the API must contain the admin URL exactly (scheme, host, no trailing slash); `VITE_API_URL` must be the API URL, and the site must be redeployed after changing it.                                                                                                        |
-| Admin web: 404 on refresh of a deep link                                                                        | The `/* → /index.html` rewrite is missing; it's in `render.yaml` (`routes`). Re-sync the Blueprint.                                                                                                                                                                                           |
+| Web app: `Failed to fetch` / CORS error in the browser console                                                  | `CORS_ORIGINS` on the API must contain the web app's URL exactly (scheme, host, no trailing slash); `API_URL` on `taxcy-web` must be the API URL, and the site must be redeployed after changing it.                                                                                          |
+| Web app: 404 on refresh of a deep link                                                                          | The `/* → /index.html` rewrite is missing; it's in `render.yaml` (`routes`). Re-sync the Blueprint.                                                                                                                                                                                           |
+| Web app: photos don't load (CORS error on `*.backblazeb2.com`)                                                  | The web app downloads photos with JavaScript, so the bucket's CORS rules must allow its origin (Step 2.3).                                                                                                                                                                                    |
+| `taxcy-web` build fails at `git clone … flutter` or `API_URL`                                                   | `FLUTTER_VERSION` must be a Flutter release tag (e.g. `3.38.5`), and `API_URL` must be set on the service.                                                                                                                                                                                    |
 | Browser upload fails with a CORS error on `*.backblazeb2.com`                                                   | Add the page's origin to the bucket's CORS rules (Step 2.3), applied to the **S3 Compatible API**.                                                                                                                                                                                            |
 | B2: `SignatureDoesNotMatch` / `InvalidAccessKeyId` / `AuthorizationHeaderMalformed`                             | `S3_REGION` doesn't match the endpoint's region, or the key is the account's master key (B2's S3 API doesn't accept it). Create a bucket-scoped application key.                                                                                                                              |
 | B2: `Unsupported header 'x-amz-checksum-…'` / uploads fail with 400                                             | An S3 client is using the AWS SDK's default checksums. `apps/api/src/platform/s3.service.ts` sets `requestChecksumCalculation` and `responseChecksumValidation` to `WHEN_REQUIRED`; keep that if you add another S3 client.                                                                   |
@@ -370,6 +412,7 @@ Anyone who can read the API's logs can reset anyone's password, so demo mode is 
 ## Moving beyond the free tier
 
 - **SMS:** implement a real `SmsProvider`, set `SMS_PROVIDER` to it, remove `DEMO_MODE`, and verify the phone at sign-up.
+- **Master password:** empty `MASTER_PASSWORD` (production refuses it without `DEMO_MODE` anyway).
 - **Always-on API:** a paid Render instance (no sleep; enables `preDeployCommand`, where `bun run db:deploy` could move from the start script).
 - **Jobs:** `JOBS_MODE=external` plus a Render background worker running `apps/workers` (`node apps/workers/dist/main.js`), so the API can scale to more instances. Bull Board is then on the worker's `WORKERS_DASHBOARD_PORT`; don't expose it publicly without auth.
 - **Redis:** a persistent Key Value plan (BullMQ needs `maxmemory-policy noeviction`, already set).

@@ -174,14 +174,16 @@ void main() {
       expect(trips, findsOneWidget);
     });
 
-    testWidgets('no role in any fleet yet: told to ask the owner', (
+    testWidgets('no role in any fleet yet: offered driving or a fleet', (
       tester,
     ) async {
       final h = await signedOut(tester);
       h.auth.roles = const [];
       await fill(tester);
       await tapKey(tester, _submit);
-      expect(find.text('Not part of a fleet yet'), findsOneWidget);
+      expect(find.text('Welcome to Fleet Sarthi'), findsOneWidget);
+      expect(find.byKey(const Key('check-again')), findsOneWidget);
+      expect(find.byKey(const Key('set-up-fleet')), findsOneWidget);
     });
 
     testWidgets('an existing account is offered log in or reset', (

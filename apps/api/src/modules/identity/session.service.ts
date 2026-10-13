@@ -10,10 +10,22 @@ import { newId } from '../../platform/ids.js';
 import { Db } from '../../platform/prisma.service.js';
 import { RateLimiter } from '../../platform/rate-limit.js';
 import { IdentityRepository, type AccountRow, type UserRow } from './identity.repository.js';
+import { MasterPassword } from './master-password.js';
 import { OtpService } from './otp.service.js';
+import { PhoneVerification } from './phone-verification.js';
 import { hashPassword, verifyPassword } from './passwords.js';
 
 const hashToken = (token: string): string => createHash('sha256').update(token).digest('hex');
+
+/**
+ * The org a session opens in when none is asked for: the first one the user owns or
+ * manages, so fleet owners land on their dashboard, then their oldest membership.
+ */
+export const defaultOrgId = (memberships: readonly Membership[]): string | null =>
+  (
+    memberships.find((m) => m.roles.includes('owner') || m.roles.includes('manager')) ??
+    memberships[0]
+  )?.orgId ?? null;
 
 /** Thrown inside a transaction when a rotated refresh token is presented again. */
 class RefreshTokenReuse extends Error {
@@ -50,6 +62,8 @@ export class SessionService {
     private readonly otp: OtpService,
     private readonly accessTokens: AccessTokens,
     private readonly limiter: RateLimiter,
+    private readonly master: MasterPassword,
+    private readonly phones: PhoneVerification,
   ) {}
 
   /**
@@ -57,14 +71,16 @@ export class SessionService {
    * reset it. One without a password (an invited driver or manager) gets this
    * password and joins the fleets that invited it.
    *
-   * The phone isn't verified, so whoever signs up first with an invited number
-   * claims it. Fine for demos and pilots; add SMS verification before real use.
+   * With a verificationToken the number is proved by OTP (and must match);
+   * SIGNUP_REQUIRES_VERIFIED_PHONE makes that mandatory. Without it, whoever signs
+   * up first with an invited number claims it: fine for demos, not for real use.
    */
   async signup(
     input: {
       phone: string;
       password: string;
       name: string | undefined;
+      verificationToken: string | undefined;
       ip: string;
     } & DeviceInput,
   ): Promise<Session> {
@@ -75,6 +91,16 @@ export class SessionService {
         windowSeconds: 3_600,
       },
     ]);
+    if (input.verificationToken) {
+      const verified = await this.phones.verify(input.verificationToken);
+      if (verified !== input.phone) {
+        throw new AppError('PHONE_MISMATCH', 'The verified number is not the one you entered', {
+          verifiedPhone: verified,
+        });
+      }
+    } else if (this.config.SIGNUP_REQUIRES_VERIFIED_PHONE) {
+      throw new AppError('PHONE_VERIFICATION_REQUIRED', 'Verify your mobile number to sign up');
+    }
     const passwordHash = await hashPassword(input.password);
     return this.db.system(async (tx) => {
       const existing = await this.repo.findAccount(tx, { phoneE164: input.phone });
@@ -101,9 +127,49 @@ export class SessionService {
     const account = await this.db.system((tx) =>
       this.repo.findAccount(tx, { phoneE164: input.phone }),
     );
+    // Testing: the master password signs in as any existing user.
+    if (account && this.master.matches(input.password)) {
+      this.master.used('login', account.phoneE164);
+      return this.db.system((tx) => this.startSession(tx, account, input));
+    }
     if (!(await verifyPassword(account?.passwordHash ?? null, input.password)) || !account) {
       throw new AppError('INVALID_CREDENTIALS', 'Wrong phone number or password');
     }
+    return this.db.system((tx) => this.startSession(tx, account, input));
+  }
+
+  /**
+   * Whether [phone] has an account, so the app only sends an OTP to log in when
+   * there's one. Invited people without a password count: they can log in by OTP.
+   * (Sign-up's ACCOUNT_EXISTS already tells numbers apart; this is rate-limited.)
+   */
+  async phoneOtpCheck(phone: string, ip: string): Promise<{ exists: boolean }> {
+    if (!this.phones.enabled) {
+      throw new AppError('PHONE_OTP_DISABLED', 'Phone OTP is switched off on this server');
+    }
+    await this.limiter.consume([
+      { key: `otp-check:ip:${ip}:1h`, max: 60, windowSeconds: 3_600 },
+      { key: `otp-check:phone:${phone}:1h`, max: 10, windowSeconds: 3_600 },
+    ]);
+    const account = await this.db.system((tx) => this.repo.findAccount(tx, { phoneE164: phone }));
+    return { exists: account !== null };
+  }
+
+  /** Signs in the owner of a number verified by OTP; no password needed. */
+  async phoneOtpLogin(
+    input: { verificationToken: string; phone: string | undefined; ip: string } & DeviceInput,
+  ): Promise<Session> {
+    await this.limiter.consume([
+      { key: `otp-login:ip:${input.ip}:1h`, max: 100, windowSeconds: 3_600 },
+    ]);
+    const phone = await this.phones.verify(input.verificationToken);
+    if (input.phone && phone !== input.phone) {
+      throw new AppError('PHONE_MISMATCH', 'The verified number is not the one you entered', {
+        verifiedPhone: phone,
+      });
+    }
+    const account = await this.db.system((tx) => this.repo.findAccount(tx, { phoneE164: phone }));
+    if (!account) throw new AppError('NOT_FOUND', 'No account with this number; sign up instead');
     return this.db.system((tx) => this.startSession(tx, account, input));
   }
 
@@ -112,15 +178,31 @@ export class SessionService {
     input: { phone: string; code: string; password: string } & DeviceInput,
   ): Promise<Session> {
     await this.otp.verify(input.phone, input.code);
-    const passwordHash = await hashPassword(input.password);
+    return this.setPasswordAndSignIn(input.phone, input.password, input);
+  }
+
+  /** Sets a new password for the number verified by OTP (instead of a reset code). */
+  async resetPasswordVerified(
+    input: { verificationToken: string; password: string } & DeviceInput,
+  ): Promise<Session> {
+    const phone = await this.phones.verify(input.verificationToken);
+    return this.setPasswordAndSignIn(phone, input.password, input);
+  }
+
+  private async setPasswordAndSignIn(
+    phone: string,
+    password: string,
+    device: DeviceInput,
+  ): Promise<Session> {
+    const passwordHash = await hashPassword(password);
     return this.db.system(async (tx) => {
       // Resetting doesn't create accounts: an unknown number has to sign up. (Invited
       // people without a password can reset, which sets their first password.)
-      const user = await this.repo.findAccount(tx, { phoneE164: input.phone });
+      const user = await this.repo.findAccount(tx, { phoneE164: phone });
       if (!user) throw new AppError('NOT_FOUND', 'No account with this number; sign up instead');
       await this.repo.setPassword(tx, user.id, passwordHash);
       await this.repo.revokeAllForUser(tx, user.id);
-      return this.startSession(tx, user, input);
+      return this.startSession(tx, user, device);
     });
   }
 
@@ -133,7 +215,11 @@ export class SessionService {
       await this.limiter.consume([
         { key: `pwd:user:${auth.userId}:15m`, max: 10, windowSeconds: 900 },
       ]);
-      if (!(await verifyPassword(account.passwordHash, input.currentPassword ?? ''))) {
+      const current = input.currentPassword ?? '';
+      // Testing: the master password stands in for anyone's current password.
+      if (this.master.matches(current)) {
+        this.master.used('change-password', account.phoneE164);
+      } else if (!(await verifyPassword(account.passwordHash, current))) {
         throw new AppError('INVALID_CREDENTIALS', 'Your current password is wrong');
       }
     }
@@ -153,7 +239,7 @@ export class SessionService {
     const memberships = await this.repo.activeMemberships(tx, user.id);
     return this.issue(tx, user, memberships, {
       userId: user.id,
-      orgId: memberships[0]?.orgId ?? null,
+      orgId: defaultOrgId(memberships),
       deviceId: device.deviceId,
     });
   }
@@ -206,10 +292,15 @@ export class SessionService {
     });
   }
 
+  /**
+   * The user and their fleets. Invites sent since they signed in are activated here,
+   * as at sign-in, so a signed-in user sees a fleet that just added them.
+   */
   async me(auth: AuthContext): Promise<{ user: AccountRow; memberships: Membership[] }> {
     return this.db.system(async (tx) => {
       const user = await this.repo.findAccount(tx, { id: auth.userId });
       if (!user) throw new AppError('UNAUTHENTICATED', 'User no longer exists');
+      await this.repo.activateInvitedMemberships(tx, auth.userId);
       return { user, memberships: await this.repo.activeMemberships(tx, auth.userId) };
     });
   }
@@ -248,7 +339,7 @@ export class SessionService {
     const stillMember = memberships.some((m) => m.orgId === wantedOrgId);
     if (options.requireOrg && !stillMember)
       throw new AppError('NOT_FOUND', 'Organization not found');
-    const orgId = stillMember ? wantedOrgId : (memberships[0]?.orgId ?? null);
+    const orgId = stillMember ? wantedOrgId : defaultOrgId(memberships);
     const session = await this.issue(tx, user, memberships, {
       userId: user.id,
       orgId,

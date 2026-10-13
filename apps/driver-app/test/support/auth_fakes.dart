@@ -1,8 +1,10 @@
+import 'package:flutter/widgets.dart';
 import 'package:taxcy_driver/core/api/api.dart';
 import 'package:taxcy_driver/core/api/auth_api.dart';
 import 'package:taxcy_driver/core/api/auth_models.dart';
 import 'package:taxcy_driver/core/api/json.dart';
 import 'package:taxcy_driver/core/api/models.dart';
+import 'package:taxcy_driver/features/login/phone_verification.dart';
 
 import 'fakes.dart';
 
@@ -60,12 +62,58 @@ class FakeAuthApi implements AuthApi {
     required String password,
     required DeviceInfo device,
     String? name,
+    String? verificationToken,
   }) async {
     _record('signUp', {
       'phone': phone,
       'password': password,
       'name': name,
+      'verificationToken': ?verificationToken,
       'platform': device.platform,
+    });
+    return _session();
+  }
+
+  /// What GET /auth/methods answers; passwords only by default.
+  AuthMethods authMethods = AuthMethods.none;
+
+  @override
+  Future<AuthMethods> methods() async {
+    _record('methods');
+    return authMethods;
+  }
+
+  /// What POST /auth/phone-otp/check answers.
+  bool accountExists = true;
+
+  @override
+  Future<bool> phoneOtpCheck(String phone) async {
+    _record('phoneOtpCheck', {'phone': phone});
+    return accountExists;
+  }
+
+  @override
+  Future<Session> phoneOtpLogin({
+    required String verificationToken,
+    required DeviceInfo device,
+    String? phone,
+  }) async {
+    _record('phoneOtpLogin', {
+      'verificationToken': verificationToken,
+      'phone': ?phone,
+    });
+    return _session();
+  }
+
+  @override
+  Future<Session> resetPasswordVerified({
+    required String verificationToken,
+    required String password,
+    required DeviceInfo device,
+  }) async {
+    _record('resetPasswordVerified', {
+      'verificationToken': verificationToken,
+      'password': password,
     });
     return _session();
   }
@@ -112,4 +160,66 @@ class FakeAuthApi implements AuthApi {
 
   @override
   Future<void> logout(String refreshToken) async => _record('logout');
+
+  /// What GET /me lists; [switchOrg] and [createOrg] use it for the session
+  /// they return.
+  List<Membership> currentMemberships = const [];
+
+  Session _sessionIn(String orgId) => Session.fromJson({
+    ...sessionJson(roles: roles),
+    'activeOrgId': orgId,
+    'memberships': currentMemberships.map((m) => m.toJson()).toList(),
+  });
+
+  @override
+  Future<List<Membership>> memberships() async {
+    _record('memberships');
+    return currentMemberships;
+  }
+
+  @override
+  Future<Session> switchOrg(String orgId) async {
+    _record('switchOrg', {'orgId': orgId});
+    return _sessionIn(orgId);
+  }
+
+  @override
+  Future<Session> createOrg({
+    required String name,
+    required String kind,
+  }) async {
+    _record('createOrg', {'name': name, 'kind': kind});
+    const orgId = '0199c7a2-0000-7000-8000-000000000777';
+    currentMemberships = [
+      ...currentMemberships,
+      Membership(
+        orgId: orgId,
+        orgName: name,
+        roles: ['owner', if (kind == 'dco') 'driver'],
+      ),
+    ];
+    return _sessionIn(orgId);
+  }
+}
+
+/// Stands in for phone.email's OTP screen: answers [token] (null = the user
+/// backed out) and records the number hint it was given.
+class FakePhoneVerifier implements PhoneVerifier {
+  String? token = 'stub:+919000000011';
+  bool supported = true;
+  final hints = <String>[];
+
+  @override
+  bool supports(PhoneOtpMethod otp) => supported;
+
+  @override
+  Future<String?> verify(
+    BuildContext context,
+    PhoneOtpMethod otp, {
+    required String deviceId,
+    String phoneHint = '',
+  }) async {
+    hints.add(phoneHint);
+    return token;
+  }
 }

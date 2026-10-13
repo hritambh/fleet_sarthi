@@ -11,11 +11,14 @@ import '../core/auth/session_store.dart';
 import '../core/db/database.dart';
 import '../core/location/gps.dart';
 import '../core/media/camera_capture.dart';
+import '../core/media/file_pick.dart';
 import '../core/media/photo_store.dart';
 import '../core/media/photo_store_platform.dart';
 import '../core/repositories/fuel_repository.dart';
 import '../core/repositories/trips_repository.dart';
 import '../core/sync/sync_engine.dart';
+import 'preferences.dart';
+import 'workspaces.dart';
 
 /// API server root, set at build time with `--dart-define=API_URL=...`. Defaults to
 /// the local API as seen from an Android emulator, or from the browser on the web.
@@ -105,6 +108,12 @@ final photoCaptureProvider = Provider<PhotoCapture>((ref) {
   return (context, kind) => captureWithCamera(context, kind, store);
 });
 
+/// How documents are picked from files; tests replace it with a fake.
+final filePickProvider = Provider<FilePick>((ref) {
+  final store = ref.watch(photoStoreProvider);
+  return (kind) => pickDocumentFiles(store, kind);
+});
+
 /// Whether to run background sync and GPS (off in widget tests).
 final backgroundWorkProvider = Provider<bool>((ref) => true);
 
@@ -177,11 +186,39 @@ class AuthController extends AsyncNotifier<Session?> {
     required String phone,
     required String password,
     String? name,
+    String? verificationToken,
   }) async => _signedIn(
     await _api.signUp(
       phone: phone,
       password: password,
       name: name,
+      verificationToken: verificationToken,
+      device: await _device(),
+    ),
+  );
+
+  /// Whether [phone] has an account to log in to with an OTP.
+  Future<bool> phoneOtpCheck(String phone) => _api.phoneOtpCheck(phone);
+
+  /// Signs in with a number verified by OTP (no password); [phone] is the
+  /// number entered, which the verified one must match.
+  Future<void> phoneOtpLogin(String verificationToken, {String? phone}) async =>
+      _signedIn(
+        await _api.phoneOtpLogin(
+          verificationToken: verificationToken,
+          phone: phone,
+          device: await _device(),
+        ),
+      );
+
+  /// Sets a new password for the number verified by OTP, and signs in.
+  Future<void> resetPasswordVerified({
+    required String verificationToken,
+    required String password,
+  }) async => _signedIn(
+    await _api.resetPasswordVerified(
+      verificationToken: verificationToken,
+      password: password,
       device: await _device(),
     ),
   );
@@ -198,6 +235,66 @@ class AuthController extends AsyncNotifier<Session?> {
       device: await _device(),
     ),
   );
+
+  /// Opens [workspace]: its owner or driver screens, in its fleet. Moving to
+  /// another fleet gets a session there and clears this device's trips and
+  /// queue, which belong to the old fleet; it throws [UnsyncedWorkException]
+  /// while some of that hasn't reached the server.
+  Future<void> open(Workspace workspace) async {
+    final session = state.value;
+    if (session == null) return;
+    if (workspace.orgId != session.activeOrgId) {
+      await _leaveFleet();
+      await _signedIn(await _api.switchOrg(workspace.orgId));
+    }
+    ref.read(appModeProvider.notifier).set(workspace.mode);
+  }
+
+  /// Creates a fleet the user owns and opens it in owner mode. [alsoDrives]
+  /// makes it a DCO (owner-driver), so they can drive its vehicles too.
+  Future<void> createFleet({
+    required String name,
+    required bool alsoDrives,
+  }) async {
+    await _leaveFleet();
+    await _signedIn(
+      await _api.createOrg(name: name, kind: alsoDrives ? 'dco' : 'fleet'),
+    );
+    ref.read(appModeProvider.notifier).set(AppMode.owner);
+  }
+
+  /// Picks up fleets that added this user since they signed in. Someone who
+  /// had none is taken into the first (one they run, else one they drive
+  /// for). False when there's still none.
+  Future<bool> refreshFleets() async {
+    final session = state.value;
+    if (session == null) return false;
+    final updated = session.withMemberships(await _api.memberships());
+    final workspaces = workspacesFor(updated);
+    if (workspaces.isEmpty) return false;
+    if (session.activeOrgId != null) {
+      await _signedIn(updated);
+    } else {
+      await open(workspaces.first);
+    }
+    return true;
+  }
+
+  /// Sends what's waiting, then clears this fleet's data off the device.
+  Future<void> _leaveFleet() async {
+    final db = ref.read(databaseProvider);
+    if (ref.read(backgroundWorkProvider)) {
+      try {
+        await ref.read(syncEngineProvider).syncNow();
+      } on Object {
+        // Offline: the count below decides.
+      }
+    }
+    final left = await db.unsyncedWork();
+    if (left > 0) throw UnsyncedWorkException(left);
+    await ref.read(gpsRecorderProvider).stop();
+    await db.clearAll();
+  }
 
   Future<void> signOut() async {
     final store = ref.read(sessionStoreProvider);

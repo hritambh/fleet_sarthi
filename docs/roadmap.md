@@ -25,7 +25,7 @@ Each milestone ends with lint, typecheck and tests passing, a summary of what ch
 
 ## Changes
 
-- **2026-10-12: phone + password only.** Google sign-in and SMS-code login were removed, along with `GET /auth/config` and the `users.email` / `google_sub` columns (migration `20261012000000_drop_google_sign_in`). Everyone signs in with mobile number + password; sign-up needs no code; a forgotten password is reset with a code sent through the `SmsProvider` (printed in the API log with `SMS_PROVIDER=console`). Demo people have the password `demo1234`. See [D14](decisions.md).
+- **2026-10-12: phone + password only.** Google sign-in and SMS-code login were removed, along with `GET /auth/config` and the `users.email` / `google_sub` columns (migration `20261012000000_drop_google_sign_in`). Everyone signs in with mobile number + password; sign-up needs no code; a forgotten password is reset with a code sent through the `SmsProvider` (printed in the API log with `SMS_PROVIDER=console`). Demo people have the password `demo1234` (changed to `12345678` the same day). See [D14](decisions.md).
 
 ## Known gaps (found while building M1.7–M1.8)
 
@@ -43,16 +43,12 @@ Each milestone ends with lint, typecheck and tests passing, a summary of what ch
   - the browser build is for demos: GPS records only while the tab is open, and the location's "mock" flag is never set
   - conflict notices aren't kept as a history
   - fills and collections recorded offline don't show in a list
-  - no org switching (in either mode)
   - owner mode is online-only; nothing is cached for offline viewing
-  - owner mode has no map pin picker when creating a trip (the admin web has one), and the fuel chart shows the usual figure but not the ± tolerance band
+  - the fuel chart shows the usual figure but not the ± tolerance band
   - photos in owner mode load from signed S3 URLs; in the browser build the bucket must allow the page's origin (as for uploads)
   - only English and Hindi so far; adding a language is a new ARB file (see development.md)
   - the first sync after a fresh sign-in can mislabel an older cancelled trip as reassigned (the server's "recent" window is 2 days)
-- **Admin web:**
-  - no browser-level end-to-end tests
-  - light mode only
-  - no address search (map pins are manual)
+- **Web:** the app's browser build has no end-to-end tests, and there's no address search (map pins are manual)
 
 ## Later (out of scope for now)
 

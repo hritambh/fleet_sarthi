@@ -8,11 +8,19 @@ import { AnalyticsService } from './analytics.service.js';
 export class AnalyticsController {
   constructor(private readonly analytics: AnalyticsService) {}
 
-  @Route(r.monthly)
-  monthly(
+  @Route(r.daily)
+  daily(
     @Tenant() a: TenantAuth,
-    @Input() { query }: RouteInput<typeof r.monthly>,
-  ): Promise<RouteOutput<typeof r.monthly>> {
-    return this.analytics.monthly(a, query);
+    @Input() { query }: RouteInput<typeof r.daily>,
+  ): Promise<RouteOutput<typeof r.daily>> {
+    return this.analytics.daily(a, query.month);
+  }
+
+  @Route(r.dashboard)
+  dashboard(
+    @Tenant() a: TenantAuth,
+    @Input() { query }: RouteInput<typeof r.dashboard>,
+  ): Promise<RouteOutput<typeof r.dashboard>> {
+    return this.analytics.dashboard(a, query.date);
   }
 }

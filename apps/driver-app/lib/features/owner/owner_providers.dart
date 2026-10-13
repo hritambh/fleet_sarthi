@@ -31,6 +31,21 @@ final distanceCheckProvider = FutureProvider.autoDispose
       (ref, id) => ref.watch(ownerApiProvider).distanceCheck(id),
     );
 
+typedef AvailabilityQuery = ({
+  DateTime from,
+  DateTime to,
+  String? excludeTripId,
+});
+
+/// Who is already booked during a trip's window (for the vehicle and driver
+/// pickers).
+final availabilityProvider = FutureProvider.autoDispose
+    .family<Availability, AvailabilityQuery>(
+      (ref, q) => ref
+          .watch(ownerApiProvider)
+          .availability(q.from, q.to, excludeTripId: q.excludeTripId),
+    );
+
 /// All vehicles, active and inactive.
 final fleetVehiclesProvider = FutureProvider.autoDispose<List<Vehicle>>(
   (ref) => ref.watch(ownerApiProvider).vehicles(),
@@ -89,13 +104,61 @@ final vehicleAuditProvider = FutureProvider.autoDispose
       (ref, vehicleId) => ref.watch(ownerApiProvider).vehicleAudit(vehicleId),
     );
 
-typedef AlertQuery = ({String? status, String? kind, String? tripId});
+/// Per-vehicle, per-day analytics for a month (YYYY-MM).
+final dailyAnalyticsProvider = FutureProvider.autoDispose
+    .family<DailyAnalytics, String>(
+      (ref, month) => ref.watch(ownerApiProvider).dailyAnalytics(month),
+    );
+
+/// The dashboard's headline figures for an IST day (YYYY-MM-DD).
+final dashboardSummaryProvider = FutureProvider.autoDispose
+    .family<DashboardSummary, String>(
+      (ref, date) => ref.watch(ownerApiProvider).dashboard(date),
+    );
+
+/// Alert filters; each is null or a sorted comma-separated list (see
+/// [alertQuery]), so equal filters share one provider.
+typedef AlertQuery = ({
+  String? status,
+  String? kind,
+  String? severity,
+  String? vehicleId,
+  String? driverId,
+  String? tripId,
+});
+
+AlertQuery alertQuery({
+  Set<String> statuses = const {},
+  Set<String> kinds = const {},
+  Set<String> severities = const {},
+  Set<String> vehicleIds = const {},
+  Set<String> driverIds = const {},
+  String? tripId,
+}) {
+  String? csv(Set<String> values) =>
+      values.isEmpty ? null : (values.toList()..sort()).join(',');
+  return (
+    status: csv(statuses),
+    kind: csv(kinds),
+    severity: csv(severities),
+    vehicleId: csv(vehicleIds),
+    driverId: csv(driverIds),
+    tripId: tripId,
+  );
+}
 
 final alertsProvider = FutureProvider.autoDispose
     .family<List<Alert>, AlertQuery>(
       (ref, q) => ref
           .watch(ownerApiProvider)
-          .alerts(status: q.status, kind: q.kind, tripId: q.tripId),
+          .alerts(
+            status: q.status,
+            kind: q.kind,
+            severity: q.severity,
+            vehicleId: q.vehicleId,
+            driverId: q.driverId,
+            tripId: q.tripId,
+          ),
     );
 
 final alertSummaryProvider = FutureProvider.autoDispose<AlertSummary>(
@@ -134,13 +197,17 @@ void refreshAfter(WidgetRef ref, Set<OwnerArea> areas) {
         ref
           ..invalidate(ownerTripsProvider)
           ..invalidate(ownerTripProvider)
-          ..invalidate(tripEventsProvider);
+          ..invalidate(tripEventsProvider)
+          ..invalidate(availabilityProvider)
+          ..invalidate(dashboardSummaryProvider)
+          ..invalidate(dailyAnalyticsProvider);
       case OwnerArea.fleet:
         ref
           ..invalidate(fleetVehiclesProvider)
           ..invalidate(fleetVehicleProvider)
           ..invalidate(driversProvider)
-          ..invalidate(membersProvider);
+          ..invalidate(membersProvider)
+          ..invalidate(dashboardSummaryProvider);
       case OwnerArea.documents:
         ref.invalidate(documentsProvider);
       case OwnerArea.settings:
@@ -150,7 +217,8 @@ void refreshAfter(WidgetRef ref, Set<OwnerArea> areas) {
       case OwnerArea.fuel:
         ref
           ..invalidate(fuelFillsProvider)
-          ..invalidate(vehicleAuditProvider);
+          ..invalidate(vehicleAuditProvider)
+          ..invalidate(dailyAnalyticsProvider);
       case OwnerArea.alerts:
         ref
           ..invalidate(alertsProvider)

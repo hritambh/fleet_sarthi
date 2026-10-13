@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/preferences.dart';
 import '../../app/providers.dart';
-import '../../app/theme.dart';
 import '../../core/repositories/trips_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../account/account_security_screen.dart';
@@ -12,8 +10,10 @@ import '../common/format.dart';
 import '../common/language_picker.dart';
 import '../common/widgets.dart';
 import '../fuel/fuel_fill_screen.dart';
+import 'driver_home.dart';
+import 'driver_summary.dart';
 import 'new_trip_screen.dart';
-import 'trip_detail_screen.dart';
+import '../workspaces/workspace_switcher.dart';
 
 enum TripGroup { onTheRoad, today, upcoming, recent }
 
@@ -82,7 +82,7 @@ class TripsScreen extends ConsumerWidget {
           PopupMenuButton<String>(
             key: const Key('driver-menu'),
             onSelected: (value) => switch (value) {
-              'owner' => ref.read(appModeProvider.notifier).set(AppMode.owner),
+              'workspace' => showWorkspaceSwitcher(context, ref),
               'language' => showLanguagePicker(context, ref),
               'security' => Navigator.of(context).push(
                 MaterialPageRoute<void>(
@@ -93,12 +93,11 @@ class TripsScreen extends ConsumerWidget {
               _ => null,
             },
             itemBuilder: (_) => [
-              if (ref.read(authProvider).value?.isStaff ?? false)
-                PopupMenuItem(
-                  key: const Key('switch-to-owner'),
-                  value: 'owner',
-                  child: Text(l.ownerMode),
-                ),
+              PopupMenuItem(
+                key: const Key('switch-workspace'),
+                value: 'workspace',
+                child: Text(l.switchWorkspace),
+              ),
               PopupMenuItem(value: 'language', child: Text(l.language)),
               PopupMenuItem(
                 key: const Key('driver-account-security'),
@@ -128,31 +127,41 @@ class TripsScreen extends ConsumerWidget {
                 ),
                 data: (list) {
                   final groups = groupTrips(list);
-                  if (groups.isEmpty) {
-                    return ListView(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(32),
-                          child: Text(
-                            l.noTripsYet,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    );
-                  }
+                  final summary = summariseDriverDay(list);
+                  final l = context.l10n;
                   return ListView(
+                    padding: const EdgeInsets.only(bottom: 96),
                     children: [
-                      for (final entry in groups.entries) ...[
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-                          child: Text(
-                            tripGroupLabel(l, entry.key),
-                            style: Theme.of(context).textTheme.titleSmall,
+                      // A readable column on a wide screen (the web app).
+                      for (final child in [
+                        const DriverHeader(),
+                        if (summary.onTheRoad != null)
+                          ActiveTripCard(summary.onTheRoad!),
+                        if (summary.next != null) NextTripCard(summary.next!),
+                        DriverStatsCard(
+                          title: l.todayAtAGlance,
+                          stats: summary.today,
+                          showTotal: true,
+                        ),
+                        const DriverQuickActions(),
+                        if (groups.isEmpty) const DriverEmptyState(),
+                        for (final entry in groups.entries) ...[
+                          TripSectionHeader(tripGroupLabel(l, entry.key)),
+                          for (final view in entry.value) DriverTripTile(view),
+                        ],
+                        if (summary.week.tripsDone > 0)
+                          DriverStatsCard(
+                            title: l.lastSevenDays,
+                            stats: summary.week,
+                          ),
+                      ])
+                        Align(
+                          alignment: Alignment.topCenter,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 720),
+                            child: child,
                           ),
                         ),
-                        for (final view in entry.value) _TripTile(view),
-                      ],
                     ],
                   );
                 },
@@ -160,52 +169,6 @@ class TripsScreen extends ConsumerWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _TripTile extends StatelessWidget {
-  const _TripTile(this.view);
-  final TripView view;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = view.trip;
-    final l = context.l10n;
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: t.status == 'started'
-              ? TaxcyColors.blue700
-              : TaxcyColors.blue50,
-          foregroundColor: t.status == 'started'
-              ? Colors.white
-              : TaxcyColors.blue700,
-          child: Icon(
-            t.status == 'started' ? Icons.local_taxi : Icons.route,
-            size: 20,
-          ),
-        ),
-        title: Text(
-          t.routeLabel,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text(
-          [
-            context.fmt.dayTime(t.scheduledStartAt),
-            if (t.vehicle != null) t.vehicle!.registrationNo,
-            if (view.conflict != null)
-              '⚠ ${view.conflict == 'TRIP_CANCELLED' ? l.conflictCancelledShort : l.conflictReassignedShort}',
-          ].join(' · '),
-        ),
-        trailing: StatusChip(t.status),
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            builder: (_) => TripDetailScreen(tripId: t.id),
-          ),
-        ),
       ),
     );
   }

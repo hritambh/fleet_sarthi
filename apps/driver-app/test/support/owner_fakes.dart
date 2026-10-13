@@ -912,17 +912,124 @@ class FakeOwnerApi implements OwnerApi {
   Future<List<Alert>> alerts({
     String? status,
     String? kind,
-    String? tripId,
+    String? severity,
     String? vehicleId,
+    String? driverId,
+    String? tripId,
     int limit = 200,
   }) async {
-    _record('alerts', {'status': status, 'kind': kind, 'tripId': tripId});
+    _record('alerts', {
+      'status': status,
+      'kind': kind,
+      'severity': severity,
+      'vehicleId': vehicleId,
+      'driverId': driverId,
+      'tripId': tripId,
+    });
+    bool any(String? list, Object? value) =>
+        list == null || list.split(',').contains(value);
+    final subjects = {...?vehicleId?.split(','), ...?driverId?.split(',')};
     return alertList
-        .where((a) => status == null || a['status'] == status)
-        .where((a) => kind == null || a['kind'] == kind)
+        .where((a) => any(status, a['status']))
+        .where((a) => any(kind, a['kind']))
+        .where((a) => any(severity, a['severity']))
+        .where(
+          (a) =>
+              subjects.isEmpty ||
+              subjects.contains(a['vehicleId']) ||
+              subjects.contains(a['driverId']),
+        )
         .where((a) => tripId == null || a['tripId'] == tripId)
         .map(Alert.fromJson)
         .toList();
+  }
+
+  /// Serve signed file URLs (otherwise [mediaUrl] fails, as for photos).
+  bool serveMediaUrls = false;
+
+  /// Who is booked, served for every window by [availability].
+  JsonMap availabilityJson = {'vehicles': [], 'drivers': []};
+
+  @override
+  Future<Availability> availability(
+    DateTime from,
+    DateTime to, {
+    String? excludeTripId,
+  }) async {
+    _record('availability', {
+      'from': from.toUtc().toIso8601String(),
+      'to': to.toUtc().toIso8601String(),
+      'excludeTripId': ?excludeTripId,
+    });
+    return Availability.fromJson(availabilityJson);
+  }
+
+  /// Served for every month by [dailyAnalytics].
+  JsonMap analyticsJson = {
+    'month': '2026-10',
+    'vehicles': [
+      {
+        'id': vehicleId,
+        'registrationNo': 'MH12AB1234',
+        'model': 'Innova Crysta',
+        'fuelType': 'diesel',
+      },
+      {
+        'id': vehicle2Id,
+        'registrationNo': 'MH12CD5678',
+        'model': 'Dzire',
+        'fuelType': 'cng',
+      },
+    ],
+    'rows': [
+      {
+        'date': '2026-10-05',
+        'vehicleId': vehicleId,
+        'fuelLitresMilli': 30000,
+        'fuelKgMilli': 0,
+        'fuelCostPaise': 270000,
+        'revenuePaise': 525000,
+        'km': 400,
+        'trips': 2,
+      },
+      {
+        'date': '2026-10-06',
+        'vehicleId': vehicle2Id,
+        'fuelLitresMilli': 0,
+        'fuelKgMilli': 8000,
+        'fuelCostPaise': 70000,
+        'revenuePaise': 150000,
+        'km': 120,
+        'trips': 1,
+      },
+    ],
+    'perTrip': {
+      'trips': 3,
+      'kmAvg': 173,
+      'revenueAvgPaise': 225000,
+      'fuelCostAvgPaise': 113333,
+    },
+  };
+
+  /// Served for every date by [dashboard].
+  JsonMap dashboardJson = {
+    'date': '2026-10-10',
+    'cabs': {'total': 2, 'available': 1, 'onTrip': 1, 'inactive': 0},
+    'drivers': {'total': 2, 'available': 1, 'onTrip': 1, 'assigned': 0},
+    'unassigned': 1,
+    'completed': {'count': 3, 'grossPaise': 675000, 'previousDayCount': 2},
+  };
+
+  @override
+  Future<DailyAnalytics> dailyAnalytics(String month) async {
+    _record('dailyAnalytics', {'month': month});
+    return DailyAnalytics.fromJson({...analyticsJson, 'month': month});
+  }
+
+  @override
+  Future<DashboardSummary> dashboard(String date) async {
+    _record('dashboard', {'date': date});
+    return DashboardSummary.fromJson({...dashboardJson, 'date': date});
   }
 
   @override
@@ -1015,6 +1122,10 @@ class FakeOwnerApi implements OwnerApi {
   @override
   Future<MediaUrl> mediaUrl(String mediaId) async {
     _record('mediaUrl', {'id': mediaId});
-    throw StateError('no photos in tests');
+    if (!serveMediaUrls) throw StateError('no photos in tests');
+    return MediaUrl(
+      url: 'https://files.test/$mediaId',
+      expiresAt: DateTime.utc(2030),
+    );
   }
 }

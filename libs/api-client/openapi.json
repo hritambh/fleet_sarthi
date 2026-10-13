@@ -90,6 +90,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -199,6 +203,655 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
+                            "RATE_LIMITED",
+                            "UPLOAD_NOT_FOUND",
+                            "UPLOAD_MISMATCH",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {},
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["code", "message"]
+                    }
+                  },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/methods": {
+      "get": {
+        "operationId": "getAuthMethods",
+        "summary": "Which sign-in methods this server offers (phone OTP, verified sign-up)",
+        "tags": ["auth"],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "phoneOtp": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "provider": {
+                              "type": "string",
+                              "enum": ["phone_email", "stub"]
+                            },
+                            "clientId": {
+                              "type": ["string", "null"]
+                            }
+                          },
+                          "required": ["provider", "clientId"]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "signupRequiresVerifiedPhone": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": ["phoneOtp", "signupRequiresVerifiedPhone"]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_FAILED",
+                            "UNAUTHENTICATED",
+                            "TOKEN_EXPIRED",
+                            "FORBIDDEN_ROLE",
+                            "NO_ACTIVE_ORG",
+                            "NOT_FOUND",
+                            "ILLEGAL_TRANSITION",
+                            "TRIP_CANCELLED",
+                            "TRIP_REASSIGNED",
+                            "VEHICLE_BUSY",
+                            "DRIVER_BUSY",
+                            "DRIVER_ON_TRIP",
+                            "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
+                            "CANCELLATION_PENDING",
+                            "ALREADY_SETTLED",
+                            "IDEMPOTENCY_CONFLICT",
+                            "IDEMPOTENCY_KEY_REQUIRED",
+                            "VERSION_CONFLICT",
+                            "CONFLICT",
+                            "FUEL_TYPE_MISMATCH",
+                            "ODOMETER_BEFORE_START",
+                            "OTP_INVALID",
+                            "OTP_EXPIRED",
+                            "INVALID_CREDENTIALS",
+                            "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
+                            "RATE_LIMITED",
+                            "UPLOAD_NOT_FOUND",
+                            "UPLOAD_MISMATCH",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {},
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["code", "message"]
+                    }
+                  },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/phone-otp/check": {
+      "post": {
+        "operationId": "postAuthPhoneotpCheck",
+        "summary": "Whether a number has an account (including invited people who have not signed up), before sending an OTP to log in",
+        "tags": ["auth"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "phone": {
+                    "type": "string",
+                    "pattern": "^\\+91[6-9]\\d{9}$"
+                  }
+                },
+                "required": ["phone"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "exists": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": ["exists"]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_FAILED",
+                            "UNAUTHENTICATED",
+                            "TOKEN_EXPIRED",
+                            "FORBIDDEN_ROLE",
+                            "NO_ACTIVE_ORG",
+                            "NOT_FOUND",
+                            "ILLEGAL_TRANSITION",
+                            "TRIP_CANCELLED",
+                            "TRIP_REASSIGNED",
+                            "VEHICLE_BUSY",
+                            "DRIVER_BUSY",
+                            "DRIVER_ON_TRIP",
+                            "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
+                            "CANCELLATION_PENDING",
+                            "ALREADY_SETTLED",
+                            "IDEMPOTENCY_CONFLICT",
+                            "IDEMPOTENCY_KEY_REQUIRED",
+                            "VERSION_CONFLICT",
+                            "CONFLICT",
+                            "FUEL_TYPE_MISMATCH",
+                            "ODOMETER_BEFORE_START",
+                            "OTP_INVALID",
+                            "OTP_EXPIRED",
+                            "INVALID_CREDENTIALS",
+                            "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
+                            "RATE_LIMITED",
+                            "UPLOAD_NOT_FOUND",
+                            "UPLOAD_MISMATCH",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {},
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["code", "message"]
+                    }
+                  },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/phone-otp/login": {
+      "post": {
+        "operationId": "postAuthPhoneotpLogin",
+        "summary": "Sign in with a phone verified by OTP (no password). NOT_FOUND when the number has no account; sign up instead",
+        "tags": ["auth"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "verificationToken": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "phone": {
+                    "type": "string",
+                    "pattern": "^\\+91[6-9]\\d{9}$"
+                  },
+                  "deviceId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "platform": {
+                    "type": "string",
+                    "enum": ["android", "ios", "web"]
+                  },
+                  "appVersion": {
+                    "type": "string",
+                    "maxLength": 40
+                  }
+                },
+                "required": ["verificationToken", "deviceId", "platform"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "accessToken": {
+                      "type": "string"
+                    },
+                    "accessTokenExpiresAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    "refreshToken": {
+                      "type": "string"
+                    },
+                    "refreshTokenExpiresAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "phone": {
+                          "type": "string",
+                          "pattern": "^\\+91[6-9]\\d{9}$"
+                        },
+                        "name": {
+                          "type": ["string", "null"]
+                        }
+                      },
+                      "required": ["id", "phone", "name"]
+                    },
+                    "activeOrgId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "memberships": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "orgId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "orgName": {
+                            "type": "string"
+                          },
+                          "orgKind": {
+                            "type": "string",
+                            "enum": ["fleet", "dco"]
+                          },
+                          "roles": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": ["owner", "manager", "driver"]
+                            }
+                          }
+                        },
+                        "required": ["orgId", "orgName", "orgKind", "roles"]
+                      }
+                    }
+                  },
+                  "required": [
+                    "accessToken",
+                    "accessTokenExpiresAt",
+                    "refreshToken",
+                    "refreshTokenExpiresAt",
+                    "user",
+                    "activeOrgId",
+                    "memberships"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_FAILED",
+                            "UNAUTHENTICATED",
+                            "TOKEN_EXPIRED",
+                            "FORBIDDEN_ROLE",
+                            "NO_ACTIVE_ORG",
+                            "NOT_FOUND",
+                            "ILLEGAL_TRANSITION",
+                            "TRIP_CANCELLED",
+                            "TRIP_REASSIGNED",
+                            "VEHICLE_BUSY",
+                            "DRIVER_BUSY",
+                            "DRIVER_ON_TRIP",
+                            "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
+                            "CANCELLATION_PENDING",
+                            "ALREADY_SETTLED",
+                            "IDEMPOTENCY_CONFLICT",
+                            "IDEMPOTENCY_KEY_REQUIRED",
+                            "VERSION_CONFLICT",
+                            "CONFLICT",
+                            "FUEL_TYPE_MISMATCH",
+                            "ODOMETER_BEFORE_START",
+                            "OTP_INVALID",
+                            "OTP_EXPIRED",
+                            "INVALID_CREDENTIALS",
+                            "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
+                            "RATE_LIMITED",
+                            "UPLOAD_NOT_FOUND",
+                            "UPLOAD_MISMATCH",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {},
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["code", "message"]
+                    }
+                  },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/password/reset-verified": {
+      "post": {
+        "operationId": "postAuthPasswordResetverified",
+        "summary": "Set a new password for the number verified by OTP; signs out every other session",
+        "tags": ["auth"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "verificationToken": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 8,
+                    "maxLength": 128
+                  },
+                  "deviceId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "platform": {
+                    "type": "string",
+                    "enum": ["android", "ios", "web"]
+                  },
+                  "appVersion": {
+                    "type": "string",
+                    "maxLength": 40
+                  }
+                },
+                "required": ["verificationToken", "password", "deviceId", "platform"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "accessToken": {
+                      "type": "string"
+                    },
+                    "accessTokenExpiresAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    "refreshToken": {
+                      "type": "string"
+                    },
+                    "refreshTokenExpiresAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "phone": {
+                          "type": "string",
+                          "pattern": "^\\+91[6-9]\\d{9}$"
+                        },
+                        "name": {
+                          "type": ["string", "null"]
+                        }
+                      },
+                      "required": ["id", "phone", "name"]
+                    },
+                    "activeOrgId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "memberships": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "orgId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "orgName": {
+                            "type": "string"
+                          },
+                          "orgKind": {
+                            "type": "string",
+                            "enum": ["fleet", "dco"]
+                          },
+                          "roles": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": ["owner", "manager", "driver"]
+                            }
+                          }
+                        },
+                        "required": ["orgId", "orgName", "orgKind", "roles"]
+                      }
+                    }
+                  },
+                  "required": [
+                    "accessToken",
+                    "accessTokenExpiresAt",
+                    "refreshToken",
+                    "refreshTokenExpiresAt",
+                    "user",
+                    "activeOrgId",
+                    "memberships"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_FAILED",
+                            "UNAUTHENTICATED",
+                            "TOKEN_EXPIRED",
+                            "FORBIDDEN_ROLE",
+                            "NO_ACTIVE_ORG",
+                            "NOT_FOUND",
+                            "ILLEGAL_TRANSITION",
+                            "TRIP_CANCELLED",
+                            "TRIP_REASSIGNED",
+                            "VEHICLE_BUSY",
+                            "DRIVER_BUSY",
+                            "DRIVER_ON_TRIP",
+                            "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
+                            "CANCELLATION_PENDING",
+                            "ALREADY_SETTLED",
+                            "IDEMPOTENCY_CONFLICT",
+                            "IDEMPOTENCY_KEY_REQUIRED",
+                            "VERSION_CONFLICT",
+                            "CONFLICT",
+                            "FUEL_TYPE_MISMATCH",
+                            "ODOMETER_BEFORE_START",
+                            "OTP_INVALID",
+                            "OTP_EXPIRED",
+                            "INVALID_CREDENTIALS",
+                            "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -314,6 +967,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -366,6 +1023,11 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 100
+                  },
+                  "verificationToken": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
                   },
                   "deviceId": {
                     "type": "string",
@@ -524,6 +1186,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -729,6 +1395,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -938,6 +1608,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -1036,6 +1710,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -1224,6 +1902,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -1319,6 +2001,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -1511,6 +2197,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -1665,6 +2355,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -1780,6 +2474,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -1976,6 +2674,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -2098,6 +2800,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -2240,6 +2946,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -2371,6 +3081,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -2601,6 +3315,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -2732,6 +3450,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -2839,6 +3561,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -3031,6 +3757,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -3262,6 +3992,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -3452,6 +4186,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -3689,6 +4427,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -3902,6 +4644,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -4006,6 +4752,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -4263,6 +5013,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -4536,6 +5290,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -4791,6 +5549,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -5066,6 +5828,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -5344,6 +6110,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -5713,6 +6483,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -5859,6 +6633,26 @@
                           }
                         ]
                       },
+                      "mediaContentType": {
+                        "type": ["string", "null"]
+                      },
+                      "files": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "mediaId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "contentType": {
+                              "type": "string"
+                            }
+                          },
+                          "required": ["mediaId", "contentType"]
+                        }
+                      },
                       "supersededBy": {
                         "anyOf": [
                           {
@@ -5895,6 +6689,8 @@
                       "validFrom",
                       "expiresOn",
                       "mediaId",
+                      "mediaContentType",
+                      "files",
                       "supersededBy",
                       "daysLeft",
                       "status",
@@ -5946,6 +6742,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -6000,6 +6800,15 @@
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "mediaIds": {
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    }
                   },
                   "docType": {
                     "type": "string",
@@ -6095,6 +6904,26 @@
                         }
                       ]
                     },
+                    "mediaContentType": {
+                      "type": ["string", "null"]
+                    },
+                    "files": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "mediaId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "contentType": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["mediaId", "contentType"]
+                      }
+                    },
                     "supersededBy": {
                       "anyOf": [
                         {
@@ -6131,6 +6960,8 @@
                     "validFrom",
                     "expiresOn",
                     "mediaId",
+                    "mediaContentType",
+                    "files",
                     "supersededBy",
                     "daysLeft",
                     "status",
@@ -6181,6 +7012,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -6249,6 +7084,15 @@
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "mediaIds": {
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    }
                   }
                 },
                 "required": ["expiresOn"]
@@ -6330,6 +7174,26 @@
                         }
                       ]
                     },
+                    "mediaContentType": {
+                      "type": ["string", "null"]
+                    },
+                    "files": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "mediaId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "contentType": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["mediaId", "contentType"]
+                      }
+                    },
                     "supersededBy": {
                       "anyOf": [
                         {
@@ -6366,6 +7230,8 @@
                     "validFrom",
                     "expiresOn",
                     "mediaId",
+                    "mediaContentType",
+                    "files",
                     "supersededBy",
                     "daysLeft",
                     "status",
@@ -6416,6 +7282,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -6544,6 +7414,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -6718,6 +7592,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -6891,6 +7769,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -7163,6 +8045,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -7241,6 +8127,14 @@
               "type": "string",
               "format": "date-time",
               "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+            }
+          },
+          {
+            "name": "overlapping",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           },
           {
@@ -7983,6 +8877,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -8885,6 +9783,190 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
+                            "RATE_LIMITED",
+                            "UPLOAD_NOT_FOUND",
+                            "UPLOAD_MISMATCH",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {},
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["code", "message"]
+                    }
+                  },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/availability": {
+      "get": {
+        "operationId": "getAvailability",
+        "summary": "Vehicles and drivers already booked (assigned or started trips) during [from, to), optionally ignoring one trip",
+        "tags": ["trips"],
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+            }
+          },
+          {
+            "name": "excludeTripId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "vehicles": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "tripId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "from": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                          },
+                          "to": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                          }
+                        },
+                        "required": ["id", "tripId", "from", "to"]
+                      }
+                    },
+                    "drivers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "tripId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "from": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                          },
+                          "to": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                          }
+                        },
+                        "required": ["id", "tripId", "from", "to"]
+                      }
+                    }
+                  },
+                  "required": ["vehicles", "drivers"]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_FAILED",
+                            "UNAUTHENTICATED",
+                            "TOKEN_EXPIRED",
+                            "FORBIDDEN_ROLE",
+                            "NO_ACTIVE_ORG",
+                            "NOT_FOUND",
+                            "ILLEGAL_TRANSITION",
+                            "TRIP_CANCELLED",
+                            "TRIP_REASSIGNED",
+                            "VEHICLE_BUSY",
+                            "DRIVER_BUSY",
+                            "DRIVER_ON_TRIP",
+                            "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
+                            "CANCELLATION_PENDING",
+                            "ALREADY_SETTLED",
+                            "IDEMPOTENCY_CONFLICT",
+                            "IDEMPOTENCY_KEY_REQUIRED",
+                            "VERSION_CONFLICT",
+                            "CONFLICT",
+                            "FUEL_TYPE_MISMATCH",
+                            "ODOMETER_BEFORE_START",
+                            "OTP_INVALID",
+                            "OTP_EXPIRED",
+                            "INVALID_CREDENTIALS",
+                            "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -9652,6 +10734,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -10544,6 +11630,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -10745,6 +11835,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -11545,6 +12639,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -12321,6 +13419,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -13142,6 +14244,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -14041,6 +15147,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -14836,6 +15946,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -15667,6 +16781,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -16466,6 +17584,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -17261,6 +18383,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -18037,6 +19163,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -18852,6 +19982,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -19629,6 +20763,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -20399,6 +21537,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -20750,6 +21892,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -21062,6 +22208,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -21343,6 +22493,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -21587,6 +22741,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -21761,6 +22919,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -21905,6 +23067,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -22081,6 +23247,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -22885,6 +24055,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -23088,6 +24262,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -23610,6 +24788,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -24141,6 +25323,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -24177,8 +25363,13 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string",
-              "enum": ["open", "acknowledged", "resolved", "dismissed"]
+              "minItems": 1,
+              "maxItems": 50,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["open", "acknowledged", "resolved", "dismissed"]
+              }
             }
           },
           {
@@ -24186,16 +25377,35 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string",
-              "enum": [
-                "fuel_efficiency_low",
-                "fuel_cost_high",
-                "odo_gps_mismatch",
-                "document_expiring",
-                "document_expired",
-                "cancellation_requested",
-                "gps_coverage_low"
-              ]
+              "minItems": 1,
+              "maxItems": 50,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "fuel_efficiency_low",
+                  "fuel_cost_high",
+                  "odo_gps_mismatch",
+                  "document_expiring",
+                  "document_expired",
+                  "cancellation_requested",
+                  "gps_coverage_low"
+                ]
+              }
+            }
+          },
+          {
+            "name": "severity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "minItems": 1,
+              "maxItems": 50,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["info", "warning", "critical"]
+              }
             }
           },
           {
@@ -24203,9 +25413,29 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              "minItems": 1,
+              "maxItems": 50,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              }
+            }
+          },
+          {
+            "name": "driverId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "minItems": 1,
+              "maxItems": 50,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              }
             }
           },
           {
@@ -24747,6 +25977,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -24859,6 +26093,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -25436,6 +26674,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -25646,6 +26888,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -25870,6 +27116,10 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
@@ -25895,30 +27145,19 @@
         }
       }
     },
-    "/analytics/monthly": {
+    "/analytics/daily": {
       "get": {
-        "operationId": "getAnalyticsMonthly",
-        "summary": "Daily fuel, revenue, distance and per-trip averages for one IST month",
+        "operationId": "getAnalyticsDaily",
+        "summary": "Fuel bought, revenue and km per vehicle per IST day for a month",
         "tags": ["analytics"],
         "parameters": [
-          {
-            "name": "year",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "minimum": 2000,
-              "maximum": 2100
-            }
-          },
           {
             "name": "month",
             "in": "query",
             "required": true,
             "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 12
+              "type": "string",
+              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
             }
           }
         ],
@@ -25931,23 +27170,8 @@
                   "$schema": "https://json-schema.org/draft/2020-12/schema",
                   "type": "object",
                   "properties": {
-                    "year": {
-                      "type": "integer",
-                      "minimum": -9007199254740991,
-                      "maximum": 9007199254740991
-                    },
                     "month": {
-                      "type": "integer",
-                      "minimum": -9007199254740991,
-                      "maximum": 9007199254740991
-                    },
-                    "days": {
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "date",
-                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
-                      }
+                      "type": "string"
                     },
                     "vehicles": {
                       "type": "array",
@@ -25962,9 +27186,6 @@
                           "registrationNo": {
                             "type": "string"
                           },
-                          "make": {
-                            "type": "string"
-                          },
                           "model": {
                             "type": "string"
                           },
@@ -25973,162 +27194,116 @@
                             "enum": ["petrol", "diesel", "cng", "petrol_cng"]
                           }
                         },
-                        "required": ["id", "registrationNo", "make", "model", "fuelType"]
+                        "required": ["id", "registrationNo", "model", "fuelType"]
                       }
                     },
-                    "fuel": {
+                    "rows": {
                       "type": "array",
                       "items": {
                         "type": "object",
                         "properties": {
+                          "date": {
+                            "type": "string",
+                            "format": "date",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                          },
                           "vehicleId": {
                             "type": "string",
                             "format": "uuid",
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                           },
-                          "unit": {
-                            "type": "string",
-                            "enum": ["L", "kg"]
+                          "fuelLitresMilli": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
                           },
-                          "quantity": {
-                            "type": "array",
-                            "items": {
-                              "type": "number"
-                            }
+                          "fuelKgMilli": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
                           },
-                          "costPaise": {
-                            "type": "array",
-                            "items": {
-                              "type": "integer",
-                              "minimum": 0,
-                              "maximum": 9007199254740991
-                            }
-                          }
-                        },
-                        "required": ["vehicleId", "unit", "quantity", "costPaise"]
-                      }
-                    },
-                    "revenue": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "vehicleId": {
-                            "type": "string",
-                            "format": "uuid",
-                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          "fuelCostPaise": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
                           },
-                          "billedPaise": {
-                            "type": "array",
-                            "items": {
-                              "type": "integer",
-                              "minimum": 0,
-                              "maximum": 9007199254740991
-                            }
-                          },
-                          "collectedPaise": {
-                            "type": "array",
-                            "items": {
-                              "type": "integer",
-                              "minimum": 0,
-                              "maximum": 9007199254740991
-                            }
-                          }
-                        },
-                        "required": ["vehicleId", "billedPaise", "collectedPaise"]
-                      }
-                    },
-                    "distance": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "vehicleId": {
-                            "type": "string",
-                            "format": "uuid",
-                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          "revenuePaise": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
                           },
                           "km": {
-                            "type": "array",
-                            "items": {
-                              "type": "number"
-                            }
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "trips": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
                           }
                         },
-                        "required": ["vehicleId", "km"]
-                      }
-                    },
-                    "distanceTotalKm": {
-                      "type": "array",
-                      "items": {
-                        "type": "number"
+                        "required": [
+                          "date",
+                          "vehicleId",
+                          "fuelLitresMilli",
+                          "fuelKgMilli",
+                          "fuelCostPaise",
+                          "revenuePaise",
+                          "km",
+                          "trips"
+                        ]
                       }
                     },
                     "perTrip": {
                       "type": "object",
                       "properties": {
                         "trips": {
-                          "type": "array",
-                          "items": {
-                            "type": "integer",
-                            "minimum": -9007199254740991,
-                            "maximum": 9007199254740991
-                          }
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
                         },
-                        "activeVehicles": {
-                          "type": "array",
-                          "items": {
-                            "type": "integer",
-                            "minimum": -9007199254740991,
-                            "maximum": 9007199254740991
-                          }
+                        "kmAvg": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
                         },
-                        "revenuePerTripPaise": {
-                          "type": "array",
-                          "items": {
-                            "type": ["number", "null"]
-                          }
+                        "revenueAvgPaise": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
                         },
-                        "kmPerTrip": {
-                          "type": "array",
-                          "items": {
-                            "type": ["number", "null"]
-                          }
-                        },
-                        "fuelCostPerTripPaise": {
-                          "type": "array",
-                          "items": {
-                            "type": ["number", "null"]
-                          }
-                        },
-                        "tripsPerVehicle": {
-                          "type": "array",
-                          "items": {
-                            "type": ["number", "null"]
-                          }
+                        "fuelCostAvgPaise": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
                         }
                       },
-                      "required": [
-                        "trips",
-                        "activeVehicles",
-                        "revenuePerTripPaise",
-                        "kmPerTrip",
-                        "fuelCostPerTripPaise",
-                        "tripsPerVehicle"
-                      ]
+                      "required": ["trips", "kmAvg", "revenueAvgPaise", "fuelCostAvgPaise"]
                     }
                   },
-                  "required": [
-                    "year",
-                    "month",
-                    "days",
-                    "vehicles",
-                    "fuel",
-                    "revenue",
-                    "distance",
-                    "distanceTotalKm",
-                    "perTrip"
-                  ]
+                  "required": ["month", "vehicles", "rows", "perTrip"]
                 }
               }
             }
@@ -26174,6 +27349,195 @@
                             "OTP_EXPIRED",
                             "INVALID_CREDENTIALS",
                             "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
+                            "RATE_LIMITED",
+                            "UPLOAD_NOT_FOUND",
+                            "UPLOAD_MISMATCH",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {},
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["code", "message"]
+                    }
+                  },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics/dashboard": {
+      "get": {
+        "operationId": "getAnalyticsDashboard",
+        "summary": "The owner dashboard's headline figures for an IST day",
+        "tags": ["analytics"],
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "date": {
+                      "type": "string",
+                      "format": "date",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                    },
+                    "cabs": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "available": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "onTrip": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "inactive": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": ["total", "available", "onTrip", "inactive"]
+                    },
+                    "drivers": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "available": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "onTrip": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "assigned": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": ["total", "available", "onTrip", "assigned"]
+                    },
+                    "unassigned": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "completed": {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "grossPaise": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "previousDayCount": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": ["count", "grossPaise", "previousDayCount"]
+                    }
+                  },
+                  "required": ["date", "cabs", "drivers", "unassigned", "completed"]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_FAILED",
+                            "UNAUTHENTICATED",
+                            "TOKEN_EXPIRED",
+                            "FORBIDDEN_ROLE",
+                            "NO_ACTIVE_ORG",
+                            "NOT_FOUND",
+                            "ILLEGAL_TRANSITION",
+                            "TRIP_CANCELLED",
+                            "TRIP_REASSIGNED",
+                            "VEHICLE_BUSY",
+                            "DRIVER_BUSY",
+                            "DRIVER_ON_TRIP",
+                            "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
+                            "CANCELLATION_PENDING",
+                            "ALREADY_SETTLED",
+                            "IDEMPOTENCY_CONFLICT",
+                            "IDEMPOTENCY_KEY_REQUIRED",
+                            "VERSION_CONFLICT",
+                            "CONFLICT",
+                            "FUEL_TYPE_MISMATCH",
+                            "ODOMETER_BEFORE_START",
+                            "OTP_INVALID",
+                            "OTP_EXPIRED",
+                            "INVALID_CREDENTIALS",
+                            "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
                             "RATE_LIMITED",
                             "UPLOAD_NOT_FOUND",
                             "UPLOAD_MISMATCH",
