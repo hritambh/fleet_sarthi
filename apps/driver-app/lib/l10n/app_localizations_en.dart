@@ -1349,14 +1349,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Use a registration number like MH 12 AB 1234';
 
   @override
-  String get knownModel => 'Known model';
-
-  @override
-  String get knownModelHint =>
-      'Picking one seeds the fuel baseline for a new vehicle';
+  String get brand => 'Brand';
 
   @override
   String get otherModel => 'Other / not listed';
+
+  @override
+  String get catalogUnavailable =>
+      'Couldn\'t load the list; type it in instead';
+
+  @override
+  String get cabModelsGroup => 'Common cab models';
+
+  @override
+  String get indiaModelsGroup => 'Others sold in India';
 
   @override
   String get make => 'Make';

@@ -750,17 +750,60 @@ class FakeOwnerApi implements OwnerApi {
     return Vehicle.fromJson({...vehicleJson(id: id), ...body});
   }
 
+  /// The cab shortlist the dropdowns lead with. Set to `[]` to stand in for a
+  /// fleet whose known-model list hasn't been seeded.
+  List<VehicleModel> cabModelList = [
+    VehicleModel.fromJson({
+      'id': '0199c7a2-0000-7000-8000-000000000a02',
+      'make': 'Maruti Suzuki',
+      'model': 'Dzire',
+      'fuelType': 'cng',
+    }),
+    VehicleModel.fromJson({
+      'id': '0199c7a2-0000-7000-8000-000000000a01',
+      'make': 'Maruti Suzuki',
+      'model': 'Ertiga',
+      'fuelType': 'petrol_cng',
+    }),
+    VehicleModel.fromJson({
+      'id': '0199c7a2-0000-7000-8000-000000000a03',
+      'make': 'Tata',
+      'model': 'Tiago',
+      'fuelType': 'cng',
+    }),
+  ];
+
   @override
   Future<List<VehicleModel>> vehicleModels() async {
     _record('vehicleModels');
-    return [
-      VehicleModel.fromJson({
-        'id': '0199c7a2-0000-7000-8000-000000000a01',
-        'make': 'Maruti',
-        'model': 'Ertiga',
-        'fuelType': 'petrol_cng',
-      }),
-    ];
+    return cabModelList;
+  }
+
+  /// What the public catalogue offers in tests. Set to `[]` to stand in for a
+  /// catalogue that can't be reached, which hands the form back to text fields.
+  List<CatalogBrand> catalogBrandList = [
+    const CatalogBrand(id: 'Q963718', name: 'Maruti Suzuki'),
+    const CatalogBrand(id: 'Q188514', name: 'Tata Motors Limited'),
+    // Sold in India, but not on the cab shortlist.
+    const CatalogBrand(id: 'Q55931', name: 'Hyundai'),
+  ];
+
+  Map<String, List<String>> catalogModelsByBrand = {
+    'Q963718': ['Ertiga', 'Swift', 'Wagon R'],
+    'Q188514': ['Nexon', 'Tiago'],
+    'Q55931': ['Aura', 'Creta', 'Venue'],
+  };
+
+  @override
+  Future<List<CatalogBrand>> catalogBrands() async {
+    _record('catalogBrands');
+    return catalogBrandList;
+  }
+
+  @override
+  Future<List<String>> catalogModels(String brandId) async {
+    _record('catalogModels');
+    return catalogModelsByBrand[brandId] ?? const [];
   }
 
   @override

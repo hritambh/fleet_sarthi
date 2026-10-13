@@ -7,6 +7,7 @@ import { DocumentsService } from './documents.service.js';
 import { FleetRepository } from './fleet.repository.js';
 import { FleetService } from './fleet.service.js';
 import { SettingsService } from './settings.service.js';
+import { VehicleCatalogService } from './vehicle-catalog.service.js';
 
 @Controller()
 export class FleetController {
@@ -16,6 +17,7 @@ export class FleetController {
     private readonly repo: FleetRepository,
     private readonly documents: DocumentsService,
     private readonly settings: SettingsService,
+    private readonly catalog: VehicleCatalogService,
   ) {}
 
   @Route(r.listVehicles)
@@ -75,6 +77,18 @@ export class FleetController {
         orderBy: [{ make: 'asc' }, { model: 'asc' }],
       }),
     );
+  }
+
+  @Route(r.listCatalogBrands)
+  listCatalogBrands(): Promise<RouteOutput<typeof r.listCatalogBrands>> {
+    return this.catalog.brands();
+  }
+
+  @Route(r.listCatalogModels)
+  listCatalogModels(
+    @Input() { query }: RouteInput<typeof r.listCatalogModels>,
+  ): Promise<RouteOutput<typeof r.listCatalogModels>> {
+    return this.catalog.models(query.brand);
   }
 
   @Route(r.listDrivers)

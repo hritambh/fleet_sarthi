@@ -68,6 +68,16 @@ const Env = z
     OCR_PROVIDER: z.enum(['stub']).default('stub'),
 
     /**
+     * SPARQL endpoint of the public vehicle catalogue that fills the add-vehicle
+     * form's brand and model dropdowns. Overridable for tests and for a mirror.
+     */
+    VEHICLE_CATALOG_URL: z.url().default('https://query.wikidata.org/sparql'),
+    /** MediaWiki API whose category tree decides which cars are on sale here. */
+    VEHICLE_CATALOG_WIKI_URL: z.url().default('https://en.wikipedia.org/w/api.php'),
+    /** The category that scopes the catalogue to one market. */
+    VEHICLE_CATALOG_CATEGORY: z.string().min(1).default('Cars of India'),
+
+    /**
      * Where background jobs (outbox relay, queue workers, schedules) run. `external`:
      * the workers app. `in-process`: inside the API, for hosts with no free background
      * worker (Render's free plan); run one API instance and no workers app then.

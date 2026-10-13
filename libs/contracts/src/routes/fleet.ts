@@ -36,6 +36,16 @@ export const VehicleModel = z.object({
   fuelType: FuelType,
 });
 
+/**
+ * A brand in the public vehicle catalogue. The id is the upstream provider's own
+ * identifier, opaque to the client, and is what `/vehicle-catalog/models` takes.
+ */
+export const CatalogBrand = z.object({ id: z.string(), name: z.string() });
+export type CatalogBrand = z.infer<typeof CatalogBrand>;
+
+export const CatalogModel = z.object({ name: z.string() });
+export type CatalogModel = z.infer<typeof CatalogModel>;
+
 const VehicleInput = z.object({
   registrationNo: RegistrationNo,
   make: z.string().trim().min(1).max(50),
@@ -194,6 +204,23 @@ export const fleetRoutes = {
     tag: 'fleet',
     access: access.anyMember,
     response: z.array(VehicleModel),
+  }),
+  listCatalogBrands: defineRoute({
+    method: 'GET',
+    path: '/vehicle-catalog/brands',
+    summary: 'Vehicle brands from the public vehicle catalogue, for the add-vehicle form',
+    tag: 'fleet',
+    access: access.anyMember,
+    response: z.array(CatalogBrand),
+  }),
+  listCatalogModels: defineRoute({
+    method: 'GET',
+    path: '/vehicle-catalog/models',
+    summary: 'Models of one catalogue brand',
+    tag: 'fleet',
+    access: access.anyMember,
+    query: z.object({ brand: z.string().min(1).max(64) }),
+    response: z.array(CatalogModel),
   }),
   listDrivers: defineRoute({
     method: 'GET',

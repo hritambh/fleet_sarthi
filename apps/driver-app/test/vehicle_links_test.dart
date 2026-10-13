@@ -47,6 +47,17 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  /// Picks a brand and then one of its models from the catalogue dropdowns,
+  /// which is how the add-vehicle form fills the make and model.
+  Future<void> pick(WidgetTester tester, String key, String option) async {
+    final field = find.byKey(Key(key));
+    await tester.ensureVisible(field);
+    await tester.tap(field);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(option).last);
+    await tester.pumpAndSettle();
+  }
+
   group('edit sheets', () {
     testWidgets("a vehicle's drivers are shown and replaced from the sheet", (
       tester,
@@ -167,8 +178,8 @@ void main() {
         find.byKey(const Key('vehicle-registrationNo')),
         'MH12EF9012',
       );
-      await tester.enterText(find.byKey(const Key('vehicle-make')), 'Maruti');
-      await tester.enterText(find.byKey(const Key('vehicle-model')), 'Ertiga');
+      await pick(tester, 'vehicle-brand', 'Maruti Suzuki');
+      await pick(tester, 'vehicle-model-pick', 'Ertiga');
       await tester.tap(find.byKey(const Key('vehicle-drivers')));
       await tester.pumpAndSettle();
       // Every driver starts ticked; untick Ramesh.
@@ -195,8 +206,8 @@ void main() {
         find.byKey(const Key('vehicle-registrationNo')),
         'MH12EF9012',
       );
-      await tester.enterText(find.byKey(const Key('vehicle-make')), 'Maruti');
-      await tester.enterText(find.byKey(const Key('vehicle-model')), 'Ertiga');
+      await pick(tester, 'vehicle-brand', 'Maruti Suzuki');
+      await pick(tester, 'vehicle-model-pick', 'Ertiga');
       await tester.ensureVisible(find.byKey(const Key('vehicle-save')));
       await tester.tap(find.byKey(const Key('vehicle-save')));
       await settle(tester);

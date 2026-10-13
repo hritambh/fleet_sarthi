@@ -25,6 +25,18 @@ class VehicleModel {
   final String fuelType;
 }
 
+/// A brand in the public vehicle catalogue (`/vehicle-catalog/brands`). [id] is
+/// the upstream provider's own identifier and is what asks for its models.
+class CatalogBrand {
+  const CatalogBrand({required this.id, required this.name});
+
+  factory CatalogBrand.fromJson(JsonMap json) =>
+      CatalogBrand(id: json.str('id'), name: json.str('name'));
+
+  final String id;
+  final String name;
+}
+
 /// How a driver is paid in settlements (libs/contracts PayRule).
 class PayRule {
   const PayRule({

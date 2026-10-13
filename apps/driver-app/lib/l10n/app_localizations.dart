@@ -2464,23 +2464,35 @@ abstract class AppLocalizations {
   /// **'Use a registration number like MH 12 AB 1234'**
   String get registrationInvalid;
 
-  /// No description provided for @knownModel.
+  /// No description provided for @brand.
   ///
   /// In en, this message translates to:
-  /// **'Known model'**
-  String get knownModel;
-
-  /// No description provided for @knownModelHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Picking one seeds the fuel baseline for a new vehicle'**
-  String get knownModelHint;
+  /// **'Brand'**
+  String get brand;
 
   /// No description provided for @otherModel.
   ///
   /// In en, this message translates to:
   /// **'Other / not listed'**
   String get otherModel;
+
+  /// No description provided for @catalogUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the list; type it in instead'**
+  String get catalogUnavailable;
+
+  /// No description provided for @cabModelsGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Common cab models'**
+  String get cabModelsGroup;
+
+  /// No description provided for @indiaModelsGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Others sold in India'**
+  String get indiaModelsGroup;
 
   /// No description provided for @make.
   ///

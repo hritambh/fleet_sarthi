@@ -59,6 +59,17 @@ final vehicleModelsProvider = FutureProvider.autoDispose<List<VehicleModel>>(
   (ref) => ref.watch(ownerApiProvider).vehicleModels(),
 );
 
+/// Brands from the public vehicle catalogue. Cached by the API for a week, so
+/// this is kept alive for the session rather than refetched per form.
+final catalogBrandsProvider = FutureProvider<List<CatalogBrand>>(
+  (ref) => ref.watch(ownerApiProvider).catalogBrands(),
+);
+
+/// Model names of one catalogue brand, by brand id.
+final catalogModelsProvider = FutureProvider.family<List<String>, String>(
+  (ref, brandId) => ref.watch(ownerApiProvider).catalogModels(brandId),
+);
+
 final driversProvider = FutureProvider.autoDispose<List<Driver>>(
   (ref) => ref.watch(ownerApiProvider).drivers(),
 );

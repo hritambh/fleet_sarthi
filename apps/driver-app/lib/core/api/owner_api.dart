@@ -108,6 +108,12 @@ abstract class OwnerApi {
   /// Replaces the drivers who may drive vehicle [id].
   Future<Vehicle> setVehicleDrivers(String id, List<String> driverIds);
   Future<List<VehicleModel>> vehicleModels();
+
+  /// Brands in the public vehicle catalogue, for the add-vehicle form.
+  Future<List<CatalogBrand>> catalogBrands();
+
+  /// Model names of one catalogue brand, by the id [catalogBrands] gave for it.
+  Future<List<String>> catalogModels(String brandId);
   Future<List<Driver>> drivers({String? status});
   Future<Driver> inviteDriver({
     required String name,
@@ -367,6 +373,17 @@ class HttpOwnerApi implements OwnerApi {
   @override
   Future<List<VehicleModel>> vehicleModels() async =>
       (await _list('/vehicle-models')).map(VehicleModel.fromJson).toList();
+
+  @override
+  Future<List<CatalogBrand>> catalogBrands() async => (await _list(
+    '/vehicle-catalog/brands',
+  )).map(CatalogBrand.fromJson).toList();
+
+  @override
+  Future<List<String>> catalogModels(String brandId) async => (await _list(
+    '/vehicle-catalog/models',
+    {'brand': brandId},
+  )).map((m) => m.str('name')).toList();
 
   @override
   Future<List<Driver>> drivers({String? status}) async => (await _list(

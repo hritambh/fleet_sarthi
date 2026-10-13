@@ -45,6 +45,8 @@ export const ErrorCode = z.enum([
   'RATE_LIMITED',
   'UPLOAD_NOT_FOUND',
   'UPLOAD_MISMATCH',
+  /** The public vehicle catalogue couldn't be reached; type the make and model instead. */
+  'CATALOG_UNAVAILABLE',
   'INTERNAL',
 ]);
 export type ErrorCode = z.infer<typeof ErrorCode>;

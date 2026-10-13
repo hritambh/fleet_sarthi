@@ -1345,14 +1345,19 @@ class AppLocalizationsHi extends AppLocalizations {
   String get registrationInvalid => 'रजिस्ट्रेशन नंबर MH 12 AB 1234 जैसा लिखें';
 
   @override
-  String get knownModel => 'जाना-पहचाना मॉडल';
-
-  @override
-  String get knownModelHint =>
-      'चुनने से नई गाड़ी का फ़्यूल औसत पहले से तय हो जाता है';
+  String get brand => 'ब्रांड';
 
   @override
   String get otherModel => 'दूसरा / सूची में नहीं';
+
+  @override
+  String get catalogUnavailable => 'सूची लोड नहीं हो पाई; खुद लिख दें';
+
+  @override
+  String get cabModelsGroup => 'आम टैक्सी मॉडल';
+
+  @override
+  String get indiaModelsGroup => 'भारत में मिलने वाली दूसरी गाड़ियाँ';
 
   @override
   String get make => 'कंपनी';

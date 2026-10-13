@@ -449,6 +449,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/vehicle-catalog/brands': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Vehicle brands from the public vehicle catalogue, for the add-vehicle form */
+    get: operations['getVehiclecatalogBrands'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/vehicle-catalog/models': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Models of one catalogue brand */
+    get: operations['getVehiclecatalogModels'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/drivers': {
     parameters: {
       query?: never;
@@ -1231,6 +1265,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -1314,6 +1349,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -1393,6 +1429,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -1473,6 +1510,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -1579,6 +1617,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -1685,6 +1724,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -1766,6 +1806,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -1874,6 +1915,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -1980,6 +2022,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -2087,6 +2130,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -2164,6 +2208,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -2264,6 +2309,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -2340,6 +2386,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -2442,6 +2489,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -2532,6 +2580,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -2615,6 +2664,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -2718,6 +2768,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -2802,6 +2853,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -2893,6 +2945,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -2979,6 +3032,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -3090,6 +3144,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -3175,6 +3230,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -3254,6 +3310,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -3348,6 +3405,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -3455,6 +3513,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -3549,6 +3608,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -3659,6 +3719,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -3759,6 +3820,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -3838,6 +3900,160 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
+                | 'INTERNAL';
+              message: string;
+              details?: unknown;
+              requestId?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  getVehiclecatalogBrands: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            id: string;
+            name: string;
+          }[];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            error: {
+              /** @enum {string} */
+              code:
+                | 'VALIDATION_FAILED'
+                | 'UNAUTHENTICATED'
+                | 'TOKEN_EXPIRED'
+                | 'FORBIDDEN_ROLE'
+                | 'NO_ACTIVE_ORG'
+                | 'NOT_FOUND'
+                | 'ILLEGAL_TRANSITION'
+                | 'TRIP_CANCELLED'
+                | 'TRIP_REASSIGNED'
+                | 'VEHICLE_BUSY'
+                | 'DRIVER_BUSY'
+                | 'DRIVER_ON_TRIP'
+                | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
+                | 'CANCELLATION_PENDING'
+                | 'ALREADY_SETTLED'
+                | 'IDEMPOTENCY_CONFLICT'
+                | 'IDEMPOTENCY_KEY_REQUIRED'
+                | 'VERSION_CONFLICT'
+                | 'CONFLICT'
+                | 'FUEL_TYPE_MISMATCH'
+                | 'ODOMETER_BEFORE_START'
+                | 'OTP_INVALID'
+                | 'OTP_EXPIRED'
+                | 'INVALID_CREDENTIALS'
+                | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
+                | 'RATE_LIMITED'
+                | 'UPLOAD_NOT_FOUND'
+                | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
+                | 'INTERNAL';
+              message: string;
+              details?: unknown;
+              requestId?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  getVehiclecatalogModels: {
+    parameters: {
+      query: {
+        brand: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            name: string;
+          }[];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            error: {
+              /** @enum {string} */
+              code:
+                | 'VALIDATION_FAILED'
+                | 'UNAUTHENTICATED'
+                | 'TOKEN_EXPIRED'
+                | 'FORBIDDEN_ROLE'
+                | 'NO_ACTIVE_ORG'
+                | 'NOT_FOUND'
+                | 'ILLEGAL_TRANSITION'
+                | 'TRIP_CANCELLED'
+                | 'TRIP_REASSIGNED'
+                | 'VEHICLE_BUSY'
+                | 'DRIVER_BUSY'
+                | 'DRIVER_ON_TRIP'
+                | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
+                | 'CANCELLATION_PENDING'
+                | 'ALREADY_SETTLED'
+                | 'IDEMPOTENCY_CONFLICT'
+                | 'IDEMPOTENCY_KEY_REQUIRED'
+                | 'VERSION_CONFLICT'
+                | 'CONFLICT'
+                | 'FUEL_TYPE_MISMATCH'
+                | 'ODOMETER_BEFORE_START'
+                | 'OTP_INVALID'
+                | 'OTP_EXPIRED'
+                | 'INVALID_CREDENTIALS'
+                | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
+                | 'RATE_LIMITED'
+                | 'UPLOAD_NOT_FOUND'
+                | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -3965,6 +4181,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -4098,6 +4315,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -4225,6 +4443,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -4360,6 +4579,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -4493,6 +4713,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -4660,6 +4881,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -4761,6 +4983,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -4876,6 +5099,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -4987,6 +5211,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -5066,6 +5291,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -5156,6 +5382,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -5259,6 +5486,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -5397,6 +5625,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -5636,6 +5865,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -5904,6 +6134,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -6001,6 +6232,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -6234,6 +6466,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -6498,6 +6731,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -6590,6 +6824,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -6834,6 +7069,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -7069,6 +7305,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -7320,6 +7557,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -7600,6 +7838,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -7841,6 +8080,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -8095,6 +8335,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -8338,6 +8579,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -8579,6 +8821,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -8814,6 +9057,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -9068,6 +9312,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -9302,6 +9547,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -9535,6 +9781,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -9648,6 +9895,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -9787,6 +10035,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -9901,6 +10150,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -10015,6 +10265,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -10110,6 +10361,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -10197,6 +10449,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -10284,6 +10537,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -10530,6 +10784,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -10623,6 +10878,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -10815,6 +11071,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -11009,6 +11266,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -11226,6 +11484,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -11305,6 +11564,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -11516,6 +11776,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -11621,6 +11882,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -11734,6 +11996,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -11836,6 +12099,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;
@@ -11931,6 +12195,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
               details?: unknown;

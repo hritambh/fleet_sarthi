@@ -3,10 +3,11 @@
 // Run with `bun run db:seed` (see seed-cli.ts). Safe to re-run: exits if the demo org exists.
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import type { INestApplicationContext } from '@nestjs/common';
-import { istBusinessDate } from '@taxcy/domain';
+import { istBusinessDate, trackFor } from '@taxcy/domain';
 import { createHash } from 'node:crypto';
 import type { TenantAuth } from '../platform/auth/auth-context.js';
 import { newId } from '../platform/ids.js';
+import { CAB_MODELS } from './cab-models.js';
 import { JobDispatcher } from '../platform/jobs/job-dispatcher.js';
 import type { JobEvent } from '../platform/jobs/on-job.js';
 import { OutboxRelay } from '../platform/jobs/outbox-relay.js';
@@ -124,6 +125,9 @@ class Seeder {
   }
 
   async run(): Promise<void> {
+    // Reference data every fleet gets, and the one part of the seed that is
+    // topped up on a re-run: new cab models reach a database seeded earlier.
+    await this.referenceData();
     const existing = await this.db.system((tx) =>
       tx.user.findUnique({ where: { phoneE164: OWNER.phone }, include: { memberships: true } }),
     );
@@ -136,7 +140,6 @@ class Seeder {
       return;
     }
 
-    await this.referenceData();
     const { owner, orgId } = await this.org();
     const fleet = [];
     for (const pair of PAIRS) {
@@ -319,37 +322,19 @@ class Seeder {
     );
   }
 
+  /**
+   * The cab models every fleet sees in the add-vehicle dropdowns, with a fuel
+   * baseline each. Reference data, not demo data, and safe to re-run: a model
+   * already there is left alone, so an edited baseline survives a re-seed.
+   */
   private async referenceData(): Promise<void> {
     await this.db.system(async (tx) => {
-      const models = [
-        {
-          make: 'Toyota',
-          model: 'Innova Crysta',
-          fuelType: 'diesel',
-          track: 'diesel',
-          mean: 11.5,
-          std: 1.0,
-        },
-        {
-          make: 'Maruti Suzuki',
-          model: 'Dzire',
-          fuelType: 'cng',
-          track: 'cng',
-          mean: 24,
-          std: 2.0,
-        },
-        { make: 'Toyota', model: 'Etios', fuelType: 'petrol', track: 'petrol', mean: 14, std: 1.3 },
-        {
-          make: 'Maruti Suzuki',
-          model: 'Ertiga',
-          fuelType: 'petrol_cng',
-          track: 'bifuel_cost',
-          mean: 420,
-          std: 40,
-        },
-      ] as const;
-      for (const m of models) {
-        if (await tx.vehicleModel.count({ where: { orgId: null, model: m.model } })) continue;
+      let added = 0;
+      for (const m of CAB_MODELS) {
+        const exists = await tx.vehicleModel.count({
+          where: { orgId: null, make: m.make, model: m.model },
+        });
+        if (exists) continue;
         const id = newId();
         await tx.vehicleModel.create({
           data: { id, make: m.make, model: m.model, fuelType: m.fuelType },
@@ -358,12 +343,14 @@ class Seeder {
           data: {
             id: newId(),
             vehicleModelId: id,
-            track: m.track,
+            track: trackFor(m.fuelType),
             meanValue: m.mean,
             stdValue: m.std,
           },
         });
+        added += 1;
       }
+      if (added) log(`${added} cab models added to the known-model list`);
     });
   }
 

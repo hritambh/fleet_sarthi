@@ -7,6 +7,7 @@ import '../../app/theme.dart';
 import '../../core/api/models.dart';
 import '../../core/api/owner_api.dart';
 import '../../core/api/owner_models.dart';
+import '../../l10n/app_localizations.dart';
 import '../common/format.dart';
 import 'documents_screen.dart';
 import 'fuel_screens.dart';
@@ -15,6 +16,7 @@ import 'owner_providers.dart';
 import 'owner_text.dart';
 import 'alerts_inbox.dart';
 import 'owner_widgets.dart';
+import 'vehicle_catalog.dart';
 import 'trips/owner_trips_screen.dart';
 import 'trip_schedule.dart';
 
@@ -205,6 +207,10 @@ class _VehicleCard extends StatelessWidget {
   }
 }
 
+/// The "Other / not listed" choice, as a dropdown value no brand can collide
+/// with. A heading's value is built from it too, so every item stays distinct.
+const _otherOption = '__other__';
+
 /// The body for POST/PATCH /vehicles, or the problem with the input.
 ({Map<String, Object?>? body, String? problem}) vehicleBody(
   String Function(String key) text, {
@@ -262,6 +268,13 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
   late String _fuelType = widget.vehicle?.fuelType ?? 'diesel';
   late String? _modelId = widget.vehicle?.vehicleModelId;
   late String _status = widget.vehicle?.status ?? 'active';
+
+  /// Set when the owner picks "Other" for the brand or the model, which hands
+  /// that field back to them as free text. The make and model controllers stay
+  /// the source of truth either way; the dropdowns write into them, and the
+  /// dropdowns read their own value back out of them.
+  bool _ownBrand = false;
+  bool _ownModel = false;
 
   /// Drivers to link when adding; an existing vehicle's are edited on its page.
   /// Null until the owner changes it: every active driver.
@@ -322,6 +335,180 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
     }
   }
 
+  TextField _field(
+    String key,
+    String label, {
+    TextInputType? keyboard,
+    String? helper,
+  }) => TextField(
+    key: Key('vehicle-$key'),
+    controller: _fields[key],
+    keyboardType: keyboard,
+    inputFormatters: keyboard == TextInputType.number
+        ? [FilteringTextInputFormatter.digitsOnly]
+        : null,
+    textCapitalization: key == 'registrationNo'
+        ? TextCapitalization.characters
+        : TextCapitalization.words,
+    decoration: InputDecoration(labelText: label, helperText: helper),
+  );
+
+  /// Brand, then model. Both dropdowns lead with the cars Indian fleets
+  /// actually run as cabs — the known-model list (`/vehicle-models`), which
+  /// also carries each one's fuel type and seeds its fuel baseline — and follow
+  /// it with the rest of what is sold in India, from the public catalogue
+  /// (`/vehicle-catalog/*`). "Other" hands the field back as free text, so a
+  /// vehicle can always be added even with both lists empty.
+  ///
+  /// The make and model text controllers stay the form's source of truth: the
+  /// dropdowns write into them and read their own selection back out, which is
+  /// how editing a vehicle opens on the brand and model it was saved with.
+  List<Widget> _brandAndModel(AppLocalizations l, List<VehicleModel> cabs) {
+    final brands = ref.watch(catalogBrandsProvider);
+    final brandList = brands.value ?? const <CatalogBrand>[];
+    final cabMakes = <String>{for (final m in cabs) m.make}.toList()..sort();
+    // The wider list, less the brands the cab list already offers.
+    final otherBrands = [
+      for (final b in brandList)
+        if (!cabMakes.any((make) => sameMake(make, b.name))) b.name,
+    ];
+
+    final typedMake = _fields['make']!.text;
+    final make = _ownBrand
+        ? null
+        : [
+            ...cabMakes,
+            ...otherBrands,
+          ].where((n) => sameMake(n, typedMake)).firstOrNull;
+
+    final cabModels = make == null
+        ? const <VehicleModel>[]
+        : [
+            for (final m in cabs)
+              if (sameMake(m.make, make)) m,
+          ];
+    // The chosen brand in the wider catalogue, which is what lists its models.
+    final catalogBrand = make == null ? null : brandForMake(brandList, make);
+    final catalogModels = catalogBrand == null
+        ? null
+        : ref.watch(catalogModelsProvider(catalogBrand.id));
+    final otherModels = [
+      for (final name in catalogModels?.value ?? const <String>[])
+        if (!cabModels.any((m) => sameName(m.model, name))) name,
+    ];
+
+    final typedModel = _fields['model']!.text;
+    final model = _ownModel || make == null
+        ? null
+        : [
+            ...cabModels.map((m) => m.model),
+            ...otherModels,
+          ].where((n) => sameName(n, typedModel)).firstOrNull;
+
+    void chooseBrand(String? value) => setState(() {
+      _ownBrand = value == _otherOption;
+      _ownModel = false;
+      _modelId = null;
+      _fields['model']!.clear();
+      if (!_ownBrand && value != null) _fields['make']!.text = value;
+    });
+
+    void chooseModel(String? value) => setState(() {
+      _ownModel = value == _otherOption;
+      if (_ownModel || value == null) return;
+      _fields['model']!.text = value;
+      // A cab-list model brings its id, which seeds the fuel baseline, and the
+      // fuel type it is usually bought as.
+      final row = cabModels.where((m) => m.model == value).firstOrNull;
+      _modelId = row?.id;
+      if (row != null) _fuelType = row.fuelType;
+    });
+
+    return [
+      _picker(
+        key: 'vehicle-brand',
+        label: l.brand,
+        value: _ownBrand ? _otherOption : make,
+        groups: [
+          (l.cabModelsGroup, cabMakes),
+          (l.indiaModelsGroup, otherBrands),
+        ],
+        other: l.otherModel,
+        helper: brands.hasError ? l.catalogUnavailable : null,
+        onChanged: chooseBrand,
+      ),
+      if (_ownBrand ||
+          (!brands.isLoading && brandList.isEmpty && cabMakes.isEmpty)) ...[
+        const SizedBox(height: 12),
+        _field('make', l.make),
+      ],
+      const SizedBox(height: 12),
+      if (make != null)
+        _picker(
+          key: 'vehicle-model-pick',
+          label: l.model,
+          value: _ownModel ? _otherOption : model,
+          groups: [
+            (l.cabModelsGroup, [for (final m in cabModels) m.model]),
+            (l.indiaModelsGroup, otherModels),
+          ],
+          other: l.otherModel,
+          helper: catalogModels?.hasError ?? false
+              ? l.catalogUnavailable
+              : null,
+          onChanged: chooseModel,
+        ),
+      if (make == null || _ownModel) ...[
+        if (make != null) const SizedBox(height: 12),
+        _field('model', l.model),
+      ],
+    ];
+  }
+
+  /// A dropdown over named groups of options, each group under a heading that
+  /// only appears when more than one group has anything in it, with "Other"
+  /// last. [key] stays put while the shown value changes, which a FormField
+  /// only picks up from a fresh key of its own.
+  Widget _picker({
+    required String key,
+    required String label,
+    required String? value,
+    required List<(String, List<String>)> groups,
+    required String other,
+    required String? helper,
+    required void Function(String?) onChanged,
+  }) {
+    final filled = groups.where((g) => g.$2.isNotEmpty).toList();
+    final headings = filled.length > 1;
+    var heading = 0;
+    return KeyedSubtree(
+      key: Key(key),
+      child: DropdownButtonFormField<String?>(
+        key: ValueKey('$key-$value'),
+        initialValue: value,
+        isExpanded: true,
+        decoration: InputDecoration(labelText: label, helperText: helper),
+        items: [
+          for (final (name, options) in filled) ...[
+            if (headings)
+              DropdownMenuItem<String?>(
+                enabled: false,
+                value: '$_otherOption-heading-${heading++}',
+                child: Text(
+                  name,
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+              ),
+            for (final option in options)
+              DropdownMenuItem<String?>(value: option, child: Text(option)),
+          ],
+          DropdownMenuItem<String?>(value: _otherOption, child: Text(other)),
+        ],
+        onChanged: onChanged,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -329,23 +516,6 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
     final drivers = widget.vehicle == null
         ? ref.watch(driversProvider).value ?? const <Driver>[]
         : const <Driver>[];
-    TextField field(
-      String key,
-      String label, {
-      TextInputType? keyboard,
-      String? helper,
-    }) => TextField(
-      key: Key('vehicle-$key'),
-      controller: _fields[key],
-      keyboardType: keyboard,
-      inputFormatters: keyboard == TextInputType.number
-          ? [FilteringTextInputFormatter.digitsOnly]
-          : null,
-      textCapitalization: key == 'registrationNo'
-          ? TextCapitalization.characters
-          : TextCapitalization.words,
-      decoration: InputDecoration(labelText: label, helperText: helper),
-    );
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.vehicle == null ? l.addVehicle : l.editVehicle),
@@ -357,41 +527,9 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                field('registrationNo', l.registrationNumber),
+                _field('registrationNo', l.registrationNumber),
                 const SizedBox(height: 12),
-                DropdownButtonFormField<String?>(
-                  initialValue: models.any((m) => m.id == _modelId)
-                      ? _modelId
-                      : null,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    labelText: l.knownModel,
-                    helperText: l.knownModelHint,
-                  ),
-                  items: [
-                    DropdownMenuItem<String?>(child: Text(l.otherModel)),
-                    for (final m in models)
-                      DropdownMenuItem<String?>(
-                        value: m.id,
-                        child: Text(
-                          '${m.make} ${m.model} (${fuelName(l, m.fuelType)})',
-                        ),
-                      ),
-                  ],
-                  onChanged: (id) => setState(() {
-                    _modelId = id;
-                    final m = models.where((m) => m.id == id).firstOrNull;
-                    if (m != null) {
-                      _fields['make']!.text = m.make;
-                      _fields['model']!.text = m.model;
-                      _fuelType = m.fuelType;
-                    }
-                  }),
-                ),
-                const SizedBox(height: 12),
-                field('make', l.make),
-                const SizedBox(height: 12),
-                field('model', l.model),
+                ..._brandAndModel(l, models),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   key: ValueKey('fuel-$_fuelType'),
@@ -405,9 +543,9 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
                   onChanged: (v) => setState(() => _fuelType = v ?? _fuelType),
                 ),
                 const SizedBox(height: 12),
-                field('year', l.year, keyboard: TextInputType.number),
+                _field('year', l.year, keyboard: TextInputType.number),
                 const SizedBox(height: 12),
-                field(
+                _field(
                   'odometer',
                   l.currentOdometer,
                   keyboard: TextInputType.number,
