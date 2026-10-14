@@ -251,6 +251,36 @@ export class VehicleCatalogService {
     return [...models];
   }
 
+  /**
+   * Fills the cache so the first owner to open the add-vehicle form after a
+   * deploy doesn't wait out a cold build. Called from the API's bootstrap once
+   * it is listening — deliberately not an onApplicationBootstrap hook, because
+   * the workers and the seed CLIs load this module too and would each rebuild
+   * it, and the reference CLI runs before the API starts.
+   *
+   * Never fatal: a failure leaves the cache cold and the request path builds it.
+   */
+  async warm(): Promise<void> {
+    if (this.config.NODE_ENV === 'test') return;
+    try {
+      await this.catalogue();
+    } catch {
+      this.logger.warn('could not warm the vehicle catalogue; it will build on first use');
+    }
+  }
+
+  /**
+   * Rebuilds from the two APIs and replaces the cached copy, whether or not it
+   * had expired. Runs weekly, inside the cache's own week, so the TTL never
+   * lapses under a request.
+   */
+  async refresh(): Promise<Catalogue> {
+    const built = await this.build();
+    this.memo = built;
+    await this.store(built);
+    return built;
+  }
+
   /** The built catalogue, from this process, else Redis, else the two APIs. */
   private async catalogue(): Promise<Catalogue> {
     if (this.memo !== null) return this.memo;
@@ -262,10 +292,14 @@ export class VehicleCatalogService {
     }
     const built = await this.build();
     this.memo = built;
-    await this.redis.client
-      .set(CACHE_KEY, JSON.stringify(built), 'EX', CACHE_TTL_SECONDS)
-      .catch(() => null);
+    await this.store(built);
     return built;
+  }
+
+  private async store(catalogue: Catalogue): Promise<void> {
+    await this.redis.client
+      .set(CACHE_KEY, JSON.stringify(catalogue), 'EX', CACHE_TTL_SECONDS)
+      .catch(() => null);
   }
 
   private async build(): Promise<Catalogue> {

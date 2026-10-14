@@ -3,11 +3,11 @@
 // Run with `bun run db:seed` (see seed-cli.ts). Safe to re-run: exits if the demo org exists.
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import type { INestApplicationContext } from '@nestjs/common';
-import { istBusinessDate, trackFor } from '@taxcy/domain';
+import { istBusinessDate } from '@taxcy/domain';
 import { createHash } from 'node:crypto';
 import type { TenantAuth } from '../platform/auth/auth-context.js';
 import { newId } from '../platform/ids.js';
-import { CAB_MODELS } from './cab-models.js';
+import { loadReferenceData } from './reference-data.js';
 import { JobDispatcher } from '../platform/jobs/job-dispatcher.js';
 import type { JobEvent } from '../platform/jobs/on-job.js';
 import { OutboxRelay } from '../platform/jobs/outbox-relay.js';
@@ -322,36 +322,9 @@ class Seeder {
     );
   }
 
-  /**
-   * The cab models every fleet sees in the add-vehicle dropdowns, with a fuel
-   * baseline each. Reference data, not demo data, and safe to re-run: a model
-   * already there is left alone, so an edited baseline survives a re-seed.
-   */
   private async referenceData(): Promise<void> {
-    await this.db.system(async (tx) => {
-      let added = 0;
-      for (const m of CAB_MODELS) {
-        const exists = await tx.vehicleModel.count({
-          where: { orgId: null, make: m.make, model: m.model },
-        });
-        if (exists) continue;
-        const id = newId();
-        await tx.vehicleModel.create({
-          data: { id, make: m.make, model: m.model, fuelType: m.fuelType },
-        });
-        await tx.fuelBaselineDefault.create({
-          data: {
-            id: newId(),
-            vehicleModelId: id,
-            track: trackFor(m.fuelType),
-            meanValue: m.mean,
-            stdValue: m.std,
-          },
-        });
-        added += 1;
-      }
-      if (added) log(`${added} cab models added to the known-model list`);
-    });
+    const added = await loadReferenceData(this.db);
+    if (added) log(`${added} cab models added to the known-model list`);
   }
 
   private async org(): Promise<{ owner: TenantAuth; orgId: string }> {

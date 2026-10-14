@@ -12,6 +12,7 @@
     "test": "vitest run --passWithNoTests",
     "test:integration": "vitest run --config vitest.int.config.ts",
     "seed": "node --env-file-if-exists=../../.env --enable-source-maps dist/seed/seed-cli.js",
+    "reference": "node --env-file-if-exists=../../.env --enable-source-maps dist/seed/reference-cli.js",
     "seed:analytics": "node --env-file-if-exists=../../.env --enable-source-maps dist/seed/analytics-seed-cli.js"
   },
   "dependencies": {

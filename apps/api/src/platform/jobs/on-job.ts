@@ -25,4 +25,9 @@ export const SCHEDULES: readonly { topic: string; pattern: string; description: 
     pattern: '30 0 * * *',
     description: 'Document expiry alerts, 06:00 IST',
   },
+  {
+    topic: 'fleet.vehicle_catalog_refresh',
+    pattern: '0 20 * * 0',
+    description: 'Rebuild the public vehicle catalogue, Monday 01:30 IST',
+  },
 ];

@@ -307,7 +307,14 @@ curl https://taxcy-api.onrender.com/v1/health/ready
 
 Render's health check uses `/v1/health/live` (process up). `/v1/health/ready` also checks Postgres, Redis and B2, so it's the one to try when something is misconfigured. API docs are at `https://taxcy-api.onrender.com/docs`.
 
-In the API's **Logs** you should see, in order: `db:roles: …`, Prisma applying migrations (or `No pending migrations to apply.`), the `DEMO_MODE: SMS is not sent…` warning, and `jobs: started (in-process); queues [media, fleet, fuel, telemetry, trip]…`.
+In the API's **Logs** you should see, in order: `db:roles: …`, Prisma applying migrations (or `No pending migrations to apply.`), `reference data: … cab models added` (or `already up to date`), the `DEMO_MODE: SMS is not sent…` warning, `jobs: started (in-process); queues [media, fleet, fuel, telemetry, trip]…`, and about half a minute later `vehicle catalogue built: … brands, … models`.
+
+### Reference data and the vehicle catalogue
+
+Two things fill the add-vehicle form's brand and model dropdowns, and both look after themselves on every deploy:
+
+- **The cab shortlist** (the cars Indian fleets run as cabs, with a fuel baseline each) is reference data, not demo data. `start-api.sh` loads it on every start through `dist/seed/reference-cli.js`, regardless of `SEED_DEMO_DATA`. It is idempotent — one query, then inserts only what is missing — so a model added to `apps/api/src/seed/cab-models.ts` reaches production with the next deploy, and a baseline someone has tuned is left alone. Locally: `bun run db:reference`.
+- **The wider India list** is built from Wikipedia and Wikidata and cached in Redis for a week. A cold build takes about half a minute, so the API warms it in the background once it is listening (never blocking the health check), and the `fleet.vehicle_catalog_refresh` schedule rebuilds it weekly, inside that week, so the cache never expires while someone is waiting. If both fail, the form falls back to typing the make and model in.
 
 ### Step 6 (optional): Load the demo fleet
 

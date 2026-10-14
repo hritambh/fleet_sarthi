@@ -5,6 +5,7 @@ import { FleetController } from './fleet.controller.js';
 import { FleetRepository } from './fleet.repository.js';
 import { FleetService } from './fleet.service.js';
 import { SettingsService } from './settings.service.js';
+import { VehicleCatalogJob } from './vehicle-catalog.job.js';
 import { VehicleCatalogService } from './vehicle-catalog.service.js';
 
 @Module({
@@ -15,6 +16,7 @@ import { VehicleCatalogService } from './vehicle-catalog.service.js';
     DocumentsService,
     SettingsService,
     VehicleCatalogService,
+    VehicleCatalogJob,
     DocumentExpiryJob,
   ],
   exports: [FleetRepository, FleetService, SettingsService],
