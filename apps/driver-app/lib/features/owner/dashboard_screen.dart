@@ -12,6 +12,7 @@ import '../common/magnetic_field_background.dart';
 import '../common/widgets.dart';
 import 'alerts_inbox.dart';
 import 'alerts_screen.dart';
+import 'cab_timeline.dart';
 import 'owner_providers.dart';
 import 'owner_text.dart';
 import 'owner_widgets.dart';
@@ -25,8 +26,9 @@ const _severityOrder = {'critical': 0, 'warning': 1, 'info': 2};
 
 enum _Day { today, yesterday, custom }
 
-/// A day at a glance: headline cards (cabs and drivers free right now, the
-/// unassigned queue, completed trips and gross fare), the quick operations hub
+/// A day at a glance: headline cards (cabs and drivers free right now, each
+/// cab's day as a free/busy timeline, the unassigned queue, completed trips
+/// and gross fare), the quick operations hub
 /// (add a trip, driver or cab; assign a waiting trip), that day's scheduled
 /// rides and the most urgent open alerts. The date switch picks the day. On a
 /// desktop-sized screen: a greeting and two columns.
@@ -45,6 +47,13 @@ class DashboardScreen extends ConsumerStatefulWidget {
   }
 
   static TripFilter todayFilter([DateTime? now]) => dayFilter(istToday(now));
+
+  /// Trips overlapping the IST day, for the cabs' timelines (a trip from
+  /// the night before still holds its cab after midnight).
+  static TripFilter timelineFilter(String date) {
+    final (from, to) = istDayRange(date);
+    return TripFilter(from: from, to: to, overlapping: true);
+  }
 
   @override
   ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
@@ -110,10 +119,35 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       onSelectionChanged: (s) => _pickDay(s.first),
     );
 
+    // Each cab's day; until both lists load, the cabs card shows its plain
+    // progress and footer instead.
+    final timelineFilter = DashboardScreen.timelineFilter(date);
+    final dayTrips = ref.watch(ownerTripsProvider(timelineFilter)).value;
+    final vehicles = ref.watch(fleetVehiclesProvider).value;
+    final clock = widget.now ?? DateTime.now();
+    final (dayStart, dayEnd) = istDayRange(date);
+    final cabs = dayTrips == null || vehicles == null || vehicles.isEmpty
+        ? null
+        : cabDays(
+            vehicles: vehicles,
+            trips: dayTrips,
+            dayStart: dayStart,
+            now: clock,
+          );
+    final nowAt = clock.isBefore(dayStart) || !clock.isBefore(dayEnd)
+        ? null
+        : clock.difference(dayStart).inMilliseconds /
+              const Duration(days: 1).inMilliseconds;
+
     final cards = AsyncView(
       value: headline,
       onRetry: () => ref.invalidate(dashboardSummaryProvider(date)),
-      builder: (s) => _HeadlineCards(s, onOpenTrips: widget.onOpenTrips),
+      builder: (s) => _HeadlineCards(
+        s,
+        cabs: cabs,
+        nowAt: nowAt,
+        onOpenTrips: widget.onOpenTrips,
+      ),
     );
 
     const hub = _QuickOpsHub();
@@ -177,6 +211,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ..invalidate(dashboardSummaryProvider(date))
         ..invalidate(alertsProvider(_openAlerts))
         ..invalidate(driversProvider)
+        ..invalidate(fleetVehiclesProvider)
+        ..invalidate(ownerTripsProvider(timelineFilter))
         ..invalidate(ownerTripsProvider(filter));
       await ref.read(ownerTripsProvider(filter).future);
     }
@@ -288,8 +324,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
 /// The four headline cards: in a row on the desktop, a 2×2 grid on phones.
 class _HeadlineCards extends StatelessWidget {
-  const _HeadlineCards(this.s, {required this.onOpenTrips});
+  const _HeadlineCards(
+    this.s, {
+    required this.cabs,
+    required this.nowAt,
+    required this.onOpenTrips,
+  });
   final DashboardSummary s;
+
+  /// Each cab's day for the cabs card; null while loading.
+  final List<CabDay>? cabs;
+
+  /// Now as a share of the day, when the day is today.
+  final double? nowAt;
   final VoidCallback onOpenTrips;
 
   @override
@@ -298,6 +345,7 @@ class _HeadlineCards extends StatelessWidget {
     final fmt = context.fmt;
     double? share(int part, int total) => total == 0 ? null : part / total;
     final change = s.completedChangePercent;
+    final free = cabs == null ? null : freeShare(cabs!);
     final cards = [
       KpiCard(
         key: const Key('kpi-cabs'),
@@ -313,6 +361,8 @@ class _HeadlineCards extends StatelessWidget {
               ),
         progress: share(s.cabsAvailable, s.cabsTotal),
         footer: l.cabsFooter(onTrip: s.cabsOnTrip, inactive: s.cabsInactive),
+        badge: free == null ? null : _FreeBadge(free),
+        detail: cabs == null ? null : _CabTimelines(cabs!, nowAt: nowAt),
         onTap: () => openScreen<void>(context, const VehiclesScreen()),
       ),
       KpiCard(
@@ -375,6 +425,115 @@ class _HeadlineCards extends StatelessWidget {
         const SizedBox(height: 8),
         row(cards.sublist(2), 8),
       ],
+    );
+  }
+}
+
+/// The share of the day the active cabs are free, as a ring and a percent.
+class _FreeBadge extends StatelessWidget {
+  const _FreeBadge(this.free);
+
+  final double free;
+
+  @override
+  Widget build(BuildContext context) {
+    final percent = (free * 100).round();
+    // Just the ring and number, so it fits a phone's half-width card; the
+    // words are for screen readers and the tooltip.
+    return Tooltip(
+      message: context.l10n.percentFree(percent: percent),
+      child: Semantics(
+        label: context.l10n.percentFree(percent: percent),
+        excludeSemantics: true,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerRight,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FreeShareRing(free: free, size: 18),
+              const SizedBox(width: 6),
+              Text(
+                '$percent%',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF15803D),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Each cab's day as a line, green where free and red where a trip holds
+/// it, in a fixed height so the card keeps its size: up to four cabs, or
+/// three and "+N more".
+class _CabTimelines extends StatelessWidget {
+  const _CabTimelines(this.days, {required this.nowAt});
+
+  final List<CabDay> days;
+  final double? nowAt;
+
+  static const _rows = 4;
+  static const _rowHeight = 12.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final shown = days.length > _rows ? days.take(_rows - 1) : days;
+    const label = TextStyle(
+      fontSize: 10,
+      height: 1.1,
+      fontWeight: FontWeight.w600,
+      color: TaxcyColors.muted,
+    );
+    return SizedBox(
+      key: const Key('cab-timelines'),
+      height: _rows * _rowHeight,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final day in shown)
+            SizedBox(
+              height: _rowHeight,
+              child: Semantics(
+                label: l.cabHoursFree(
+                  reg: day.registrationNo,
+                  hours: ((1 - day.busyShare) * 24).round(),
+                ),
+                excludeSemantics: true,
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 62,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(day.registrationNo, style: label),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: CabDayBar(day: day, nowAt: nowAt),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          if (days.length > _rows)
+            SizedBox(
+              height: _rowHeight,
+              child: Text(
+                l.moreCabs(count: days.length - (_rows - 1)),
+                style: label.copyWith(color: TaxcyColors.blue700),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

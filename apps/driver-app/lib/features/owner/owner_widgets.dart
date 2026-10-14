@@ -370,6 +370,8 @@ class KpiCard extends StatelessWidget {
     this.footer,
     this.link,
     this.highlight = false,
+    this.badge,
+    this.detail,
     this.onTap,
     super.key,
   });
@@ -388,6 +390,12 @@ class KpiCard extends StatelessWidget {
   /// A call to action at the bottom, e.g. "Resolve queue".
   final String? link;
   final bool highlight;
+
+  /// Shown top right instead of [pill].
+  final Widget? badge;
+
+  /// Shown under the value instead of [progress] and [footer].
+  final Widget? detail;
   final VoidCallback? onTap;
 
   static const _orange = Color(0xFFF08A24);
@@ -424,7 +432,9 @@ class KpiCard extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  if (pill != null)
+                  if (badge case final badge?)
+                    Flexible(child: badge)
+                  else if (pill != null)
                     Flexible(
                       child: Container(
                         padding: const EdgeInsets.symmetric(
@@ -482,7 +492,10 @@ class KpiCard extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              if (progress != null) ...[
+              if (detail case final detail?) ...[
+                const SizedBox(height: 10),
+                detail,
+              ] else if (progress != null) ...[
                 const SizedBox(height: 10),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(999),
@@ -494,7 +507,7 @@ class KpiCard extends StatelessWidget {
                   ),
                 ),
               ],
-              if (footer != null) ...[
+              if (detail == null && footer != null) ...[
                 const SizedBox(height: 8),
                 Text(
                   footer!,

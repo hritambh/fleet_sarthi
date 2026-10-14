@@ -6649,6 +6649,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'3 changes waiting to sync'**
   String get welcomeUcOfflineWaiting;
+
+  /// Share of the day the active cabs are free.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% free'**
+  String percentFree({required int percent});
+
+  /// Screen-reader label for a cab's day timeline.
+  ///
+  /// In en, this message translates to:
+  /// **'{reg}: {hours} h free'**
+  String cabHoursFree({required String reg, required int hours});
+
+  /// No description provided for @moreCabs.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more'**
+  String moreCabs({required int count});
 }
 
 class _AppLocalizationsDelegate

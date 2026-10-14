@@ -1079,5 +1079,8 @@
   "welcomeUcOfflineTrip": "ट्रिप चल रही है · पुणे → लोनावला",
   "welcomeUcOfflineFuel": "ईंधन फ़िल सेव · ₹2,150",
   "welcomeUcOfflineCash": "कैश मिला · ₹1,200",
-  "welcomeUcOfflineWaiting": "3 बदलाव सिंक होने बाकी"
+  "welcomeUcOfflineWaiting": "3 बदलाव सिंक होने बाकी",
+  "percentFree": "{percent}% ख़ाली",
+  "cabHoursFree": "{reg}: {hours} घंटे ख़ाली",
+  "moreCabs": "+{count} और"
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:taxcy_driver/app/app.dart';
+import 'package:taxcy_driver/core/api/json.dart';
 import 'package:taxcy_driver/core/api/models.dart';
 import 'package:taxcy_driver/features/owner/alerts_screen.dart';
 import 'package:taxcy_driver/features/owner/analytics_screen.dart';
@@ -92,8 +93,9 @@ void main() {
       await settle(tester);
       expect(h.owner.last('dashboard').args['date'], '2026-10-10');
       expect(rich('1 / 2'), findsNWidgets(2));
-      expect(find.text('50% ready'), findsOneWidget);
-      expect(find.text('1 on trip · 0 inactive'), findsOneWidget);
+      // The cabs card shows each cab's day instead of a bar and footer.
+      expect(find.byKey(const Key('cab-timelines')), findsOneWidget);
+      expect(find.text('50% ready'), findsNothing);
       expect(find.text('1 on trip · 0 assigned'), findsOneWidget);
       expect(rich('1 pending'), findsOneWidget);
       expect(find.text('Needs cab'), findsOneWidget);
@@ -105,6 +107,97 @@ void main() {
       await settle(tester);
       expect(h.owner.last('dashboard').args['date'], '2026-10-09');
       expect(h.owner.last('trips').args['from'], '2026-10-08T18:30:00.000Z');
+    });
+
+    testWidgets('the cabs card shows each cab\'s day, free and booked', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      final h = await owner(tester);
+      // MH12AB1234 booked 09:00–11:00 IST; MH12CD5678 free all day.
+      h.owner.tripsById
+        ..clear()
+        ..['t1'] = {
+          ...tripJson(
+            id: 't1',
+            scheduledStartAt: DateTime.utc(2026, 10, 10, 3, 30),
+          ),
+          'scheduledEndAt': '2026-10-10T05:30:00.000Z',
+        };
+      await tester.pumpWidget(
+        h.screen(DashboardScreen(onOpenTrips: () {}, now: now)),
+      );
+      await settle(tester);
+      final card = find.byKey(const Key('kpi-cabs'));
+      expect(
+        find.descendant(of: card, matching: find.text('MH12AB1234')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: card, matching: find.text('MH12CD5678')),
+        findsOneWidget,
+      );
+      // 2 of 48 cab-hours booked.
+      expect(find.text('96%'), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('96% free')), findsOneWidget);
+      expect(
+        find.bySemanticsLabel(RegExp('MH12AB1234: 22 h free')),
+        findsOneWidget,
+      );
+      expect(
+        h.owner.calls.where(
+          (c) => c.name == 'trips' && c.args['overlapping'] == 'true',
+        ),
+        isNotEmpty,
+      );
+      semantics.dispose();
+    });
+
+    testWidgets('with many cabs the card keeps its size: "+N more"', (
+      tester,
+    ) async {
+      Future<Size> cabsCard(List<JsonMap> vehicles) async {
+        final h = await owner(tester);
+        h.owner.vehicleList = vehicles;
+        await tester.pumpWidget(
+          h.screen(DashboardScreen(onOpenTrips: () {}, now: now)),
+        );
+        await settle(tester);
+        final size = tester.getSize(find.byKey(const Key('kpi-cabs')));
+        await tester.pumpWidget(const SizedBox());
+        return size;
+      }
+
+      // No cabs: the plain card with its bar and footer.
+      final plain = await cabsCard([]);
+      final busy = await cabsCard([
+        for (var i = 0; i < 7; i++)
+          vehicleJson(
+            id: '0199c7a2-0000-7000-8000-0000000001${i}0',
+            reg: 'MH12ZZ000$i',
+          ),
+      ]);
+      expect(busy, plain);
+    });
+
+    testWidgets('more cabs than fit: three lines and "+N more"', (
+      tester,
+    ) async {
+      final h = await owner(tester);
+      h.owner.vehicleList = [
+        for (var i = 0; i < 7; i++)
+          vehicleJson(
+            id: '0199c7a2-0000-7000-8000-0000000001${i}0',
+            reg: 'MH12ZZ000$i',
+          ),
+      ];
+      await tester.pumpWidget(
+        h.screen(DashboardScreen(onOpenTrips: () {}, now: now)),
+      );
+      await settle(tester);
+      expect(find.text('+4 more'), findsOneWidget);
+      expect(find.text('MH12ZZ0002'), findsOneWidget);
+      expect(find.text('MH12ZZ0003'), findsNothing);
     });
 
     testWidgets('"resolve queue" lists the unassigned trips', (tester) async {

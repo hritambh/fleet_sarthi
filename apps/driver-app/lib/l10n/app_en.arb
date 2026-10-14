@@ -3076,5 +3076,17 @@
   "welcomeUcOfflineCash": "Cash collected · ₹1,200",
   "@welcomeUcOfflineCash": {},
   "welcomeUcOfflineWaiting": "3 changes waiting to sync",
-  "@welcomeUcOfflineWaiting": {}
+  "@welcomeUcOfflineWaiting": {},
+  "percentFree": "{percent}% free",
+  "@percentFree": {
+    "description": "Share of the day the active cabs are free.",
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "cabHoursFree": "{reg}: {hours} h free",
+  "@cabHoursFree": {
+    "description": "Screen-reader label for a cab's day timeline.",
+    "placeholders": { "reg": { "type": "String" }, "hours": { "type": "int" } }
+  },
+  "moreCabs": "+{count} more",
+  "@moreCabs": { "placeholders": { "count": { "type": "int" } } }
 }

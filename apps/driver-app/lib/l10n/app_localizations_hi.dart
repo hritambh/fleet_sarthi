@@ -3773,4 +3773,19 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get welcomeUcOfflineWaiting => '3 बदलाव सिंक होने बाकी';
+
+  @override
+  String percentFree({required int percent}) {
+    return '$percent% ख़ाली';
+  }
+
+  @override
+  String cabHoursFree({required String reg, required int hours}) {
+    return '$reg: $hours घंटे ख़ाली';
+  }
+
+  @override
+  String moreCabs({required int count}) {
+    return '+$count और';
+  }
 }

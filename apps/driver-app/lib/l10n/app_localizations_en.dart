@@ -3780,4 +3780,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get welcomeUcOfflineWaiting => '3 changes waiting to sync';
+
+  @override
+  String percentFree({required int percent}) {
+    return '$percent% free';
+  }
+
+  @override
+  String cabHoursFree({required String reg, required int hours}) {
+    return '$reg: $hours h free';
+  }
+
+  @override
+  String moreCabs({required int count}) {
+    return '+$count more';
+  }
 }
