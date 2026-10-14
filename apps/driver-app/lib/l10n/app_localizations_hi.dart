@@ -3788,4 +3788,29 @@ class AppLocalizationsHi extends AppLocalizations {
   String moreCabs({required int count}) {
     return '+$count और';
   }
+
+  @override
+  String get welcomeMockCabsToday => 'आज की गाड़ियाँ';
+
+  @override
+  String get welcomeTabAvailability => 'उपलब्धता';
+
+  @override
+  String get welcomeUcAvailTitle => 'घंटे-घंटे देखें कौन-सी गाड़ी ख़ाली है';
+
+  @override
+  String get welcomeUcAvailBody =>
+      'हर गाड़ी का दिन एक लाइन पर: ख़ाली हो तो हरा, ट्रिप पर हो तो लाल। ग्राहक से वादा करने से पहले नई बुकिंग की जगह देख लें।';
+
+  @override
+  String get welcomeUcAvailPoint1 => 'डैशबोर्ड पर ही, किसी भी दिन के लिए';
+
+  @override
+  String get welcomeUcAvailPoint2 => 'रात भर की ट्रिप भी सही गिनी जाती हैं';
+
+  @override
+  String get welcomeUcAvailPoint3 => 'पूरे फ़्लीट के ख़ाली घंटों का हिस्सा';
+
+  @override
+  String get welcomeUcAvailFreeNow => 'अभी ख़ाली: 5 में से 2';
 }

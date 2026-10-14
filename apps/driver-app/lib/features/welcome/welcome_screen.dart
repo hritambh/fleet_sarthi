@@ -6,6 +6,7 @@ import '../../app/theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/format.dart';
 import '../common/language_picker.dart';
+import '../owner/cab_timeline.dart';
 
 part 'welcome_showcase.dart';
 
@@ -588,8 +589,8 @@ class _DotGridPainter extends CustomPainter {
   bool shouldRepaint(_DotGridPainter oldDelegate) => false;
 }
 
-/// The owner's day at a glance: the numbers, a mileage chart with a dip, and
-/// the three kinds of things Fleet Sarthi flags.
+/// The owner's day at a glance: the numbers, each cab's day (free or
+/// booked), and the three kinds of things Fleet Sarthi flags.
 class _TodayMock extends StatelessWidget {
   const _TodayMock();
 
@@ -613,7 +614,28 @@ class _TodayMock extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 14),
-        const _MileageChart(),
+        Container(
+          padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+          decoration: BoxDecoration(
+            color: TaxcyColors.background,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l.welcomeMockCabsToday,
+                style: const TextStyle(
+                  color: TaxcyColors.muted,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 4),
+              _CabLines(cabs: _sampleCabs.take(3).toList(), rowHeight: 16),
+            ],
+          ),
+        ),
         const SizedBox(height: 12),
         _Event(
           icon: Icons.local_gas_station_rounded,

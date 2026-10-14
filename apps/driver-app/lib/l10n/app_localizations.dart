@@ -6667,6 +6667,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'+{count} more'**
   String moreCabs({required int count});
+
+  /// No description provided for @welcomeMockCabsToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Cabs today'**
+  String get welcomeMockCabsToday;
+
+  /// No description provided for @welcomeTabAvailability.
+  ///
+  /// In en, this message translates to:
+  /// **'Availability'**
+  String get welcomeTabAvailability;
+
+  /// No description provided for @welcomeUcAvailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See which cab is free, hour by hour'**
+  String get welcomeUcAvailTitle;
+
+  /// No description provided for @welcomeUcAvailBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every cab\'s day on one line: green while it\'s free, red while a trip has it. Spot the gap for a new booking before you promise the customer.'**
+  String get welcomeUcAvailBody;
+
+  /// No description provided for @welcomeUcAvailPoint1.
+  ///
+  /// In en, this message translates to:
+  /// **'Right on the dashboard, for any day'**
+  String get welcomeUcAvailPoint1;
+
+  /// No description provided for @welcomeUcAvailPoint2.
+  ///
+  /// In en, this message translates to:
+  /// **'Overnight trips counted correctly'**
+  String get welcomeUcAvailPoint2;
+
+  /// No description provided for @welcomeUcAvailPoint3.
+  ///
+  /// In en, this message translates to:
+  /// **'The share of free hours across your fleet'**
+  String get welcomeUcAvailPoint3;
+
+  /// No description provided for @welcomeUcAvailFreeNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Free now: 2 of 5'**
+  String get welcomeUcAvailFreeNow;
 }
 
 class _AppLocalizationsDelegate

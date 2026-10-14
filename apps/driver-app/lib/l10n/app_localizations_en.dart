@@ -3795,4 +3795,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String moreCabs({required int count}) {
     return '+$count more';
   }
+
+  @override
+  String get welcomeMockCabsToday => 'Cabs today';
+
+  @override
+  String get welcomeTabAvailability => 'Availability';
+
+  @override
+  String get welcomeUcAvailTitle => 'See which cab is free, hour by hour';
+
+  @override
+  String get welcomeUcAvailBody =>
+      'Every cab\'s day on one line: green while it\'s free, red while a trip has it. Spot the gap for a new booking before you promise the customer.';
+
+  @override
+  String get welcomeUcAvailPoint1 => 'Right on the dashboard, for any day';
+
+  @override
+  String get welcomeUcAvailPoint2 => 'Overnight trips counted correctly';
+
+  @override
+  String get welcomeUcAvailPoint3 =>
+      'The share of free hours across your fleet';
+
+  @override
+  String get welcomeUcAvailFreeNow => 'Free now: 2 of 5';
 }

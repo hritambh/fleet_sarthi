@@ -3088,5 +3088,21 @@
     "placeholders": { "reg": { "type": "String" }, "hours": { "type": "int" } }
   },
   "moreCabs": "+{count} more",
-  "@moreCabs": { "placeholders": { "count": { "type": "int" } } }
+  "@moreCabs": { "placeholders": { "count": { "type": "int" } } },
+  "welcomeMockCabsToday": "Cabs today",
+  "@welcomeMockCabsToday": {},
+  "welcomeTabAvailability": "Availability",
+  "@welcomeTabAvailability": {},
+  "welcomeUcAvailTitle": "See which cab is free, hour by hour",
+  "@welcomeUcAvailTitle": {},
+  "welcomeUcAvailBody": "Every cab's day on one line: green while it's free, red while a trip has it. Spot the gap for a new booking before you promise the customer.",
+  "@welcomeUcAvailBody": {},
+  "welcomeUcAvailPoint1": "Right on the dashboard, for any day",
+  "@welcomeUcAvailPoint1": {},
+  "welcomeUcAvailPoint2": "Overnight trips counted correctly",
+  "@welcomeUcAvailPoint2": {},
+  "welcomeUcAvailPoint3": "The share of free hours across your fleet",
+  "@welcomeUcAvailPoint3": {},
+  "welcomeUcAvailFreeNow": "Free now: 2 of 5",
+  "@welcomeUcAvailFreeNow": {}
 }

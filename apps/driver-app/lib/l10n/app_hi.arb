@@ -1082,5 +1082,13 @@
   "welcomeUcOfflineWaiting": "3 बदलाव सिंक होने बाकी",
   "percentFree": "{percent}% ख़ाली",
   "cabHoursFree": "{reg}: {hours} घंटे ख़ाली",
-  "moreCabs": "+{count} और"
+  "moreCabs": "+{count} और",
+  "welcomeMockCabsToday": "आज की गाड़ियाँ",
+  "welcomeTabAvailability": "उपलब्धता",
+  "welcomeUcAvailTitle": "घंटे-घंटे देखें कौन-सी गाड़ी ख़ाली है",
+  "welcomeUcAvailBody": "हर गाड़ी का दिन एक लाइन पर: ख़ाली हो तो हरा, ट्रिप पर हो तो लाल। ग्राहक से वादा करने से पहले नई बुकिंग की जगह देख लें।",
+  "welcomeUcAvailPoint1": "डैशबोर्ड पर ही, किसी भी दिन के लिए",
+  "welcomeUcAvailPoint2": "रात भर की ट्रिप भी सही गिनी जाती हैं",
+  "welcomeUcAvailPoint3": "पूरे फ़्लीट के ख़ाली घंटों का हिस्सा",
+  "welcomeUcAvailFreeNow": "अभी ख़ाली: 5 में से 2"
 }

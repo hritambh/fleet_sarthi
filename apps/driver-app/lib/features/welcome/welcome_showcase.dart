@@ -1,12 +1,13 @@
 part of 'welcome_screen.dart';
 
 /// The use cases the page walks through, each with a mock screen.
-enum _UseCase { fuel, trips, settlement, documents, offline }
+enum _UseCase { fuel, trips, availability, settlement, documents, offline }
 
 extension on _UseCase {
   IconData get icon => switch (this) {
     _UseCase.fuel => Icons.local_gas_station_rounded,
     _UseCase.trips => Icons.route_rounded,
+    _UseCase.availability => Icons.view_timeline_rounded,
     _UseCase.settlement => Icons.account_balance_wallet_rounded,
     _UseCase.documents => Icons.verified_user_rounded,
     _UseCase.offline => Icons.signal_wifi_off_rounded,
@@ -15,6 +16,7 @@ extension on _UseCase {
   Color get color => switch (this) {
     _UseCase.fuel => _amber,
     _UseCase.trips => _violet,
+    _UseCase.availability => cabFreeColor,
     _UseCase.settlement => _green,
     _UseCase.documents => _rose,
     _UseCase.offline => _cyan,
@@ -23,6 +25,7 @@ extension on _UseCase {
   String tab(AppLocalizations l) => switch (this) {
     _UseCase.fuel => l.welcomeTabFuel,
     _UseCase.trips => l.welcomeMockTrips,
+    _UseCase.availability => l.welcomeTabAvailability,
     _UseCase.settlement => l.welcomeTabSettlement,
     _UseCase.documents => l.welcomeTabDocuments,
     _UseCase.offline => l.welcomeTabOffline,
@@ -31,6 +34,7 @@ extension on _UseCase {
   String title(AppLocalizations l) => switch (this) {
     _UseCase.fuel => l.welcomeUcFuelTitle,
     _UseCase.trips => l.welcomeUcTripsTitle,
+    _UseCase.availability => l.welcomeUcAvailTitle,
     _UseCase.settlement => l.welcomeUcSettleTitle,
     _UseCase.documents => l.welcomeUcDocsTitle,
     _UseCase.offline => l.welcomeUcOfflineTitle,
@@ -39,6 +43,7 @@ extension on _UseCase {
   String body(AppLocalizations l) => switch (this) {
     _UseCase.fuel => l.welcomeUcFuelBody,
     _UseCase.trips => l.welcomeUcTripsBody,
+    _UseCase.availability => l.welcomeUcAvailBody,
     _UseCase.settlement => l.welcomeUcSettleBody,
     _UseCase.documents => l.welcomeUcDocsBody,
     _UseCase.offline => l.welcomeUcOfflineBody,
@@ -54,6 +59,11 @@ extension on _UseCase {
       l.welcomeUcTripsPoint1,
       l.welcomeUcTripsPoint2,
       l.welcomeUcTripsPoint3,
+    ],
+    _UseCase.availability => [
+      l.welcomeUcAvailPoint1,
+      l.welcomeUcAvailPoint2,
+      l.welcomeUcAvailPoint3,
     ],
     _UseCase.settlement => [
       l.welcomeUcSettlePoint1,
@@ -75,6 +85,7 @@ extension on _UseCase {
   Widget get mock => switch (this) {
     _UseCase.fuel => const _FuelMock(),
     _UseCase.trips => const _TripMock(),
+    _UseCase.availability => const _AvailabilityMock(),
     _UseCase.settlement => const _SettlementMock(),
     _UseCase.documents => const _DocumentsMock(),
     _UseCase.offline => const _OfflineMock(),
@@ -819,6 +830,126 @@ class _RoutePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_RoutePainter oldDelegate) => false;
+}
+
+/// Sample cab days for the mocks (fractions of the day; 13:30 is "now").
+CabDay _sampleCab(String reg, List<DaySpan> busy, {bool active = true}) =>
+    CabDay(vehicleId: reg, registrationNo: reg, active: active, busy: busy);
+
+final _sampleCabs = [
+  _sampleCab('JH08KA8474', [(from: 9 / 24, to: 11 / 24)]),
+  _sampleCab('JH08KB1201', [
+    (from: 7 / 24, to: 10 / 24),
+    (from: 12 / 24, to: 16 / 24),
+  ]),
+  _sampleCab('MH12AB4521', [(from: 13 / 24, to: 22 / 24)]),
+  _sampleCab('MH12CD5678', [(from: 6 / 24, to: 19 / 24)]),
+  _sampleCab('MH14CD7788', const []),
+];
+
+const _sampleNow = 13.5 / 24;
+
+/// Cab registrations with their day lines, as on the dashboard's cabs card.
+class _CabLines extends StatelessWidget {
+  const _CabLines({required this.cabs, this.rowHeight = 18});
+
+  final List<CabDay> cabs;
+  final double rowHeight;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    children: [
+      for (final cab in cabs)
+        SizedBox(
+          height: rowHeight,
+          child: Row(
+            children: [
+              SizedBox(
+                width: 84,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    cab.registrationNo,
+                    style: const TextStyle(
+                      color: TaxcyColors.muted,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: CabDayBar(day: cab, nowAt: _sampleNow),
+              ),
+            ],
+          ),
+        ),
+    ],
+  );
+}
+
+/// Hour labels under the day lines: 0, 6, 12, 18, 24.
+class _HourAxis extends StatelessWidget {
+  const _HourAxis();
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(left: 92, top: 4),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        for (final h in const ['0', '6', '12', '18', '24'])
+          Text(
+            h,
+            style: const TextStyle(color: TaxcyColors.muted, fontSize: 10.5),
+          ),
+      ],
+    ),
+  );
+}
+
+class _AvailabilityMock extends StatelessWidget {
+  const _AvailabilityMock();
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final free = freeShare(_sampleCabs)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _MockHeader(
+          title: l.welcomeMockCabsToday,
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FreeShareRing(free: free, size: 20),
+              const SizedBox(width: 6),
+              Text(
+                '${(free * 100).round()}%',
+                style: const TextStyle(
+                  color: Color(0xFF15803D),
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ),
+        _CabLines(cabs: _sampleCabs, rowHeight: 22),
+        const _HourAxis(),
+        const SizedBox(height: 12),
+        _Event(
+          icon: Icons.local_taxi_rounded,
+          color: cabFreeColor,
+          title: l.welcomeUcAvailFreeNow,
+          // The two cabs with no trip at the "now" tick (13:30).
+          body: 'JH08KA8474 · MH14CD7788',
+        ),
+      ],
+    );
+  }
 }
 
 class _SettlementMock extends StatelessWidget {

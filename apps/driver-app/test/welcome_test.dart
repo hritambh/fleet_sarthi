@@ -41,6 +41,9 @@ void main() {
     await firstVisit(tester);
     expect(find.text('Know what your cars'), findsOneWidget);
     expect(find.text('really did today.'), findsOneWidget);
+    // The hero's Today card shows each cab's day, as on the dashboard.
+    expect(find.text('Cabs today'), findsWidgets);
+    expect(find.text('JH08KA8474'), findsWidgets);
     expect(find.byKey(const Key('password-field')), findsNothing);
   });
 
@@ -110,6 +113,7 @@ void main() {
     for (final useCase in [
       'fuel',
       'trips',
+      'availability',
       'settlement',
       'documents',
       'offline',
