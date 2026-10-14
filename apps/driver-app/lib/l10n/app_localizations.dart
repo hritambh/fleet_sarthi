@@ -5839,6 +5839,816 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saving…'**
   String get savingStep;
+
+  /// No description provided for @welcomeSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get welcomeSignIn;
+
+  /// No description provided for @welcomeGetStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get welcomeGetStarted;
+
+  /// No description provided for @welcomeHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'I have an account'**
+  String get welcomeHaveAccount;
+
+  /// No description provided for @welcomeAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'What is Fleet Sarthi?'**
+  String get welcomeAbout;
+
+  /// No description provided for @welcomeEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'For owner-drivers and fleets of 2–15 cars'**
+  String get welcomeEyebrow;
+
+  /// No description provided for @welcomeHeadlineLead.
+  ///
+  /// In en, this message translates to:
+  /// **'Know what your cars'**
+  String get welcomeHeadlineLead;
+
+  /// No description provided for @welcomeHeadlineAccent.
+  ///
+  /// In en, this message translates to:
+  /// **'really did today.'**
+  String get welcomeHeadlineAccent;
+
+  /// No description provided for @welcomeSubhead.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo-proof trips, fuel checked against each car\'s own mileage, GPS distance checks and a daily cash settlement for every driver. One app for you and your drivers.'**
+  String get welcomeSubhead;
+
+  /// No description provided for @welcomeTrustOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Works offline'**
+  String get welcomeTrustOffline;
+
+  /// No description provided for @welcomeTrustPlatforms.
+  ///
+  /// In en, this message translates to:
+  /// **'Android & web'**
+  String get welcomeTrustPlatforms;
+
+  /// No description provided for @welcomeTrustLanguages.
+  ///
+  /// In en, this message translates to:
+  /// **'English & हिन्दी'**
+  String get welcomeTrustLanguages;
+
+  /// No description provided for @welcomeTrustNoCard.
+  ///
+  /// In en, this message translates to:
+  /// **'No card needed'**
+  String get welcomeTrustNoCard;
+
+  /// No description provided for @welcomeMockToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get welcomeMockToday;
+
+  /// No description provided for @welcomeMockLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get welcomeMockLive;
+
+  /// No description provided for @welcomeMockTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips'**
+  String get welcomeMockTrips;
+
+  /// No description provided for @welcomeMockKm.
+  ///
+  /// In en, this message translates to:
+  /// **'Km driven'**
+  String get welcomeMockKm;
+
+  /// No description provided for @welcomeMockCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash due'**
+  String get welcomeMockCash;
+
+  /// No description provided for @welcomeMockMileage.
+  ///
+  /// In en, this message translates to:
+  /// **'Mileage, last 8 fills'**
+  String get welcomeMockMileage;
+
+  /// No description provided for @welcomeMockFuelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel check'**
+  String get welcomeMockFuelTitle;
+
+  /// No description provided for @welcomeMockFuelBody.
+  ///
+  /// In en, this message translates to:
+  /// **'MH 12 AB 4521 gave 9.1 km/l, 22% below its usual 11.7'**
+  String get welcomeMockFuelBody;
+
+  /// No description provided for @welcomeMockGpsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance verified'**
+  String get welcomeMockGpsTitle;
+
+  /// No description provided for @welcomeMockGpsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pune → Mumbai: GPS 148 km, odometer 151 km'**
+  String get welcomeMockGpsBody;
+
+  /// No description provided for @welcomeMockSettleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramesh · settle today'**
+  String get welcomeMockSettleTitle;
+
+  /// No description provided for @welcomeMockSettleBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Fare ₹4,200 − expenses ₹640'**
+  String get welcomeMockSettleBody;
+
+  /// No description provided for @welcomeBuiltFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Made for'**
+  String get welcomeBuiltFor;
+
+  /// No description provided for @welcomeForDco.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner-drivers (DCOs)'**
+  String get welcomeForDco;
+
+  /// No description provided for @welcomeForSmallFleets.
+  ///
+  /// In en, this message translates to:
+  /// **'Fleets of 2–15 cars'**
+  String get welcomeForSmallFleets;
+
+  /// No description provided for @welcomeForIntercity.
+  ///
+  /// In en, this message translates to:
+  /// **'Intercity & outstation'**
+  String get welcomeForIntercity;
+
+  /// No description provided for @welcomeForLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Local & airport runs'**
+  String get welcomeForLocal;
+
+  /// No description provided for @welcomeFeaturesKicker.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything in one app'**
+  String get welcomeFeaturesKicker;
+
+  /// No description provided for @welcomeFeaturesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Built for the way Indian cab fleets really run'**
+  String get welcomeFeaturesTitle;
+
+  /// No description provided for @welcomeFeatureFuelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel audit'**
+  String get welcomeFeatureFuelTitle;
+
+  /// No description provided for @welcomeFeatureFuelBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Mileage per car against its own baseline, or cost per km for petrol + CNG cars.'**
+  String get welcomeFeatureFuelBody;
+
+  /// No description provided for @welcomeFeatureTripsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips with proof'**
+  String get welcomeFeatureTripsTitle;
+
+  /// No description provided for @welcomeFeatureTripsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Create and assign trips, then see odometer photos and the GPS route on a map.'**
+  String get welcomeFeatureTripsBody;
+
+  /// No description provided for @welcomeFeatureSettleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily settlement'**
+  String get welcomeFeatureSettleTitle;
+
+  /// No description provided for @welcomeFeatureSettleBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Fare, cash, online payments, expenses and your pay rules, worked out to one net amount.'**
+  String get welcomeFeatureSettleBody;
+
+  /// No description provided for @welcomeFeatureDocsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Document reminders'**
+  String get welcomeFeatureDocsTitle;
+
+  /// No description provided for @welcomeFeatureDocsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'RC, insurance, permit, PUC and licence: alerts 30, 7 and 1 day before they expire.'**
+  String get welcomeFeatureDocsBody;
+
+  /// No description provided for @welcomeFeatureOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Works without signal'**
+  String get welcomeFeatureOfflineTitle;
+
+  /// No description provided for @welcomeFeatureOfflineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The driver app keeps recording on ghat roads and highways, and syncs when the network returns.'**
+  String get welcomeFeatureOfflineBody;
+
+  /// No description provided for @welcomeFeatureDcoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Own and drive'**
+  String get welcomeFeatureDcoTitle;
+
+  /// No description provided for @welcomeFeatureDcoBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Run your fleet and drive in someone else\'s from the same account. Switch in one tap.'**
+  String get welcomeFeatureDcoBody;
+
+  /// No description provided for @welcomeStepsKicker.
+  ///
+  /// In en, this message translates to:
+  /// **'How it works'**
+  String get welcomeStepsKicker;
+
+  /// No description provided for @welcomeStepsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Up and running before your next trip'**
+  String get welcomeStepsTitle;
+
+  /// No description provided for @welcomeStep1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your cars and drivers'**
+  String get welcomeStep1Title;
+
+  /// No description provided for @welcomeStep1Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up with your mobile number, add vehicles and add drivers by their number.'**
+  String get welcomeStep1Body;
+
+  /// No description provided for @welcomeStep2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Drivers record from their phone'**
+  String get welcomeStep2Title;
+
+  /// No description provided for @welcomeStep2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Start and end trips with a meter photo, log fuel with the receipt, add tolls and cash.'**
+  String get welcomeStep2Body;
+
+  /// No description provided for @welcomeStep3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'You see the truth, daily'**
+  String get welcomeStep3Title;
+
+  /// No description provided for @welcomeStep3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts when something looks off, and a settlement for each driver at the end of the day.'**
+  String get welcomeStep3Body;
+
+  /// No description provided for @welcomeOwnersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'For owners'**
+  String get welcomeOwnersTitle;
+
+  /// No description provided for @welcomeOwners1.
+  ///
+  /// In en, this message translates to:
+  /// **'Every car and driver on one dashboard'**
+  String get welcomeOwners1;
+
+  /// No description provided for @welcomeOwners2.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve cancellations and review flagged trips'**
+  String get welcomeOwners2;
+
+  /// No description provided for @welcomeOwners3.
+  ///
+  /// In en, this message translates to:
+  /// **'Set pay rules once; settlements follow them'**
+  String get welcomeOwners3;
+
+  /// No description provided for @welcomeOwners4.
+  ///
+  /// In en, this message translates to:
+  /// **'Use it on your phone or a laptop'**
+  String get welcomeOwners4;
+
+  /// No description provided for @welcomeDriversTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'For drivers'**
+  String get welcomeDriversTitle;
+
+  /// No description provided for @welcomeDrivers1.
+  ///
+  /// In en, this message translates to:
+  /// **'Simple screens in Hindi or English'**
+  String get welcomeDrivers1;
+
+  /// No description provided for @welcomeDrivers2.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s trips in order, one tap to start'**
+  String get welcomeDrivers2;
+
+  /// No description provided for @welcomeDrivers3.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing lost when the network drops'**
+  String get welcomeDrivers3;
+
+  /// No description provided for @welcomeDrivers4.
+  ///
+  /// In en, this message translates to:
+  /// **'Licence and documents kept up to date'**
+  String get welcomeDrivers4;
+
+  /// No description provided for @welcomeFaqTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions owners ask'**
+  String get welcomeFaqTitle;
+
+  /// No description provided for @welcomeFaqOfflineQ.
+  ///
+  /// In en, this message translates to:
+  /// **'Do my drivers need internet all the time?'**
+  String get welcomeFaqOfflineQ;
+
+  /// No description provided for @welcomeFaqOfflineA.
+  ///
+  /// In en, this message translates to:
+  /// **'No. The driver app saves everything on the phone and sends it in order when the network is back.'**
+  String get welcomeFaqOfflineA;
+
+  /// No description provided for @welcomeFaqDcoQ.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I use it if I drive my own car?'**
+  String get welcomeFaqDcoQ;
+
+  /// No description provided for @welcomeFaqDcoA.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. Owner-drivers get both the owner screens and the driver screens, and switch between them.'**
+  String get welcomeFaqDcoA;
+
+  /// No description provided for @welcomeFaqPrivacyQ.
+  ///
+  /// In en, this message translates to:
+  /// **'Is my fleet\'s data private?'**
+  String get welcomeFaqPrivacyQ;
+
+  /// No description provided for @welcomeFaqPrivacyA.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. Each fleet\'s data is kept separate, right down to the database, and only the people you add can see it.'**
+  String get welcomeFaqPrivacyA;
+
+  /// No description provided for @welcomeFaqPhoneQ.
+  ///
+  /// In en, this message translates to:
+  /// **'What phone does a driver need?'**
+  String get welcomeFaqPhoneQ;
+
+  /// No description provided for @welcomeFaqPhoneA.
+  ///
+  /// In en, this message translates to:
+  /// **'Any Android phone with a camera. Owners can also use Fleet Sarthi in a web browser.'**
+  String get welcomeFaqPhoneA;
+
+  /// No description provided for @welcomeFaqLanguageQ.
+  ///
+  /// In en, this message translates to:
+  /// **'Is it available in Hindi?'**
+  String get welcomeFaqLanguageQ;
+
+  /// No description provided for @welcomeFaqLanguageA.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. Every screen is in Hindi and English; change the language any time from the top of the screen.'**
+  String get welcomeFaqLanguageA;
+
+  /// No description provided for @welcomeFinalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop guessing. Start knowing.'**
+  String get welcomeFinalTitle;
+
+  /// No description provided for @welcomeFinalBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your fleet in a few minutes with just your mobile number.'**
+  String get welcomeFinalBody;
+
+  /// No description provided for @welcomeFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Made in India, for India\'s cab fleets.'**
+  String get welcomeFooter;
+
+  /// No description provided for @welcomeShowcaseKicker.
+  ///
+  /// In en, this message translates to:
+  /// **'See it in action'**
+  String get welcomeShowcaseKicker;
+
+  /// No description provided for @welcomeShowcaseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'One app for the problems you deal with every day'**
+  String get welcomeShowcaseTitle;
+
+  /// No description provided for @welcomeShowcaseSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When you\'re not in the car, you\'re trusting a notebook and WhatsApp messages. Here\'s what changes.'**
+  String get welcomeShowcaseSubtitle;
+
+  /// No description provided for @welcomeTabFuel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel'**
+  String get welcomeTabFuel;
+
+  /// No description provided for @welcomeTabSettlement.
+  ///
+  /// In en, this message translates to:
+  /// **'Settlement'**
+  String get welcomeTabSettlement;
+
+  /// No description provided for @welcomeTabDocuments.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents'**
+  String get welcomeTabDocuments;
+
+  /// No description provided for @welcomeTabOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get welcomeTabOffline;
+
+  /// No description provided for @welcomeUcFuelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Catch fuel theft without standing at the pump'**
+  String get welcomeUcFuelTitle;
+
+  /// No description provided for @welcomeUcFuelBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Drivers photograph the receipt and mark full-tank fills. Fleet Sarthi works out each car\'s own mileage, cycle by cycle, and tells you the moment one drops.'**
+  String get welcomeUcFuelBody;
+
+  /// No description provided for @welcomeUcFuelPoint1.
+  ///
+  /// In en, this message translates to:
+  /// **'A baseline for each car, not a brochure figure'**
+  String get welcomeUcFuelPoint1;
+
+  /// No description provided for @welcomeUcFuelPoint2.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost per km for petrol + CNG cars'**
+  String get welcomeUcFuelPoint2;
+
+  /// No description provided for @welcomeUcFuelPoint3.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts in plain words, not charts to decode'**
+  String get welcomeUcFuelPoint3;
+
+  /// No description provided for @welcomeUcFuelThisCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'This cycle'**
+  String get welcomeUcFuelThisCycle;
+
+  /// No description provided for @welcomeUcFuelUsual.
+  ///
+  /// In en, this message translates to:
+  /// **'Its usual'**
+  String get welcomeUcFuelUsual;
+
+  /// No description provided for @welcomeUcTripsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Every kilometre backed by a photo and GPS'**
+  String get welcomeUcTripsTitle;
+
+  /// No description provided for @welcomeUcTripsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Drivers start and end each trip with an odometer photo. The reading is checked against the photo and the GPS route, and anything that doesn\'t match waits for your review.'**
+  String get welcomeUcTripsBody;
+
+  /// No description provided for @welcomeUcTripsPoint1.
+  ///
+  /// In en, this message translates to:
+  /// **'Meter photos at the start and end'**
+  String get welcomeUcTripsPoint1;
+
+  /// No description provided for @welcomeUcTripsPoint2.
+  ///
+  /// In en, this message translates to:
+  /// **'The route on a map for every trip'**
+  String get welcomeUcTripsPoint2;
+
+  /// No description provided for @welcomeUcTripsPoint3.
+  ///
+  /// In en, this message translates to:
+  /// **'Mismatches go to your review queue'**
+  String get welcomeUcTripsPoint3;
+
+  /// No description provided for @welcomeUcTripStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get welcomeUcTripStart;
+
+  /// No description provided for @welcomeUcTripEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get welcomeUcTripEnd;
+
+  /// No description provided for @welcomeUcTripRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Pune → Mumbai'**
+  String get welcomeUcTripRoute;
+
+  /// No description provided for @welcomeUcTripDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramesh · MH 12 AB 4521'**
+  String get welcomeUcTripDriver;
+
+  /// No description provided for @welcomeUcTripCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS 148 km · odometer 151 km'**
+  String get welcomeUcTripCheck;
+
+  /// No description provided for @welcomeUcSettleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settle each driver\'s day in one number'**
+  String get welcomeUcSettleTitle;
+
+  /// No description provided for @welcomeUcSettleBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Fares, cash, UPI and card collections, tolls and parking, and your pay rule come together into one amount: what the driver hands over, or what you owe them.'**
+  String get welcomeUcSettleBody;
+
+  /// No description provided for @welcomeUcSettlePoint1.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay rules set once per driver'**
+  String get welcomeUcSettlePoint1;
+
+  /// No description provided for @welcomeUcSettlePoint2.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash and online money kept apart'**
+  String get welcomeUcSettlePoint2;
+
+  /// No description provided for @welcomeUcSettlePoint3.
+  ///
+  /// In en, this message translates to:
+  /// **'Tolls and parking with receipts'**
+  String get welcomeUcSettlePoint3;
+
+  /// No description provided for @welcomeUcSettleHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramesh · today'**
+  String get welcomeUcSettleHeader;
+
+  /// No description provided for @welcomeUcSettleFare.
+  ///
+  /// In en, this message translates to:
+  /// **'Fare'**
+  String get welcomeUcSettleFare;
+
+  /// No description provided for @welcomeUcSettleCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Collected in cash'**
+  String get welcomeUcSettleCash;
+
+  /// No description provided for @welcomeUcSettleOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Collected online (UPI, card)'**
+  String get welcomeUcSettleOnline;
+
+  /// No description provided for @welcomeUcSettleExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Tolls & parking paid'**
+  String get welcomeUcSettleExpenses;
+
+  /// No description provided for @welcomeUcSettlePay.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver pay (30% of fare)'**
+  String get welcomeUcSettlePay;
+
+  /// No description provided for @welcomeUcSettleNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramesh hands over'**
+  String get welcomeUcSettleNet;
+
+  /// No description provided for @welcomeUcDocsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Never get caught with an expired permit'**
+  String get welcomeUcDocsTitle;
+
+  /// No description provided for @welcomeUcDocsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'RC, insurance, permit, PUC and driving licences for every car and driver in one place, with reminders 30, 7 and 1 day before each expires.'**
+  String get welcomeUcDocsBody;
+
+  /// No description provided for @welcomeUcDocsPoint1.
+  ///
+  /// In en, this message translates to:
+  /// **'Every car and every driver'**
+  String get welcomeUcDocsPoint1;
+
+  /// No description provided for @welcomeUcDocsPoint2.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload a photo or a PDF'**
+  String get welcomeUcDocsPoint2;
+
+  /// No description provided for @welcomeUcDocsPoint3.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminded before the deadline, not after'**
+  String get welcomeUcDocsPoint3;
+
+  /// No description provided for @welcomeUcDocsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiring soon'**
+  String get welcomeUcDocsHeader;
+
+  /// No description provided for @welcomeUcDocsRow1.
+  ///
+  /// In en, this message translates to:
+  /// **'MH 12 AB 4521 · Insurance'**
+  String get welcomeUcDocsRow1;
+
+  /// No description provided for @welcomeUcDocsDue1.
+  ///
+  /// In en, this message translates to:
+  /// **'in 7 days'**
+  String get welcomeUcDocsDue1;
+
+  /// No description provided for @welcomeUcDocsRow2.
+  ///
+  /// In en, this message translates to:
+  /// **'Suresh · Driving licence'**
+  String get welcomeUcDocsRow2;
+
+  /// No description provided for @welcomeUcDocsDue2.
+  ///
+  /// In en, this message translates to:
+  /// **'tomorrow'**
+  String get welcomeUcDocsDue2;
+
+  /// No description provided for @welcomeUcDocsRow3.
+  ///
+  /// In en, this message translates to:
+  /// **'MH 14 CD 7788 · Permit'**
+  String get welcomeUcDocsRow3;
+
+  /// No description provided for @welcomeUcDocsDue3.
+  ///
+  /// In en, this message translates to:
+  /// **'in 30 days'**
+  String get welcomeUcDocsDue3;
+
+  /// No description provided for @welcomeUcDocsRow4.
+  ///
+  /// In en, this message translates to:
+  /// **'MH 12 AB 4521 · PUC'**
+  String get welcomeUcDocsRow4;
+
+  /// No description provided for @welcomeUcDocsDue4.
+  ///
+  /// In en, this message translates to:
+  /// **'valid'**
+  String get welcomeUcDocsDue4;
+
+  /// No description provided for @welcomeUcOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Built for highways and ghat roads'**
+  String get welcomeUcOfflineTitle;
+
+  /// No description provided for @welcomeUcOfflineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No signal? The driver app keeps recording trips, fuel and payments on the phone and sends them in order when the network returns. Nothing is lost, and nothing is counted twice.'**
+  String get welcomeUcOfflineBody;
+
+  /// No description provided for @welcomeUcOfflinePoint1.
+  ///
+  /// In en, this message translates to:
+  /// **'Works with no network at all'**
+  String get welcomeUcOfflinePoint1;
+
+  /// No description provided for @welcomeUcOfflinePoint2.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncs in order, on its own'**
+  String get welcomeUcOfflinePoint2;
+
+  /// No description provided for @welcomeUcOfflinePoint3.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe to retry, never duplicated'**
+  String get welcomeUcOfflinePoint3;
+
+  /// No description provided for @welcomeUcOfflineBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'No network · saving on this phone'**
+  String get welcomeUcOfflineBanner;
+
+  /// No description provided for @welcomeUcOfflineTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip running · Pune → Lonavala'**
+  String get welcomeUcOfflineTrip;
+
+  /// No description provided for @welcomeUcOfflineFuel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel fill saved · ₹2,150'**
+  String get welcomeUcOfflineFuel;
+
+  /// No description provided for @welcomeUcOfflineCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash collected · ₹1,200'**
+  String get welcomeUcOfflineCash;
+
+  /// No description provided for @welcomeUcOfflineWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'3 changes waiting to sync'**
+  String get welcomeUcOfflineWaiting;
 }
 
 class _AppLocalizationsDelegate

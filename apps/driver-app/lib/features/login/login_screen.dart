@@ -9,7 +9,17 @@ import 'auth_forms.dart';
 /// Every step lives in the same card, so a successful sign-in just replaces
 /// this screen.
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({
+    this.initialFlow = LoginFlow.password,
+    this.onAbout,
+    super.key,
+  });
+
+  /// Which step opens first (sign up when coming from "Get started").
+  final LoginFlow initialFlow;
+
+  /// Goes back to the welcome page; no link when null.
+  final VoidCallback? onAbout;
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -18,7 +28,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   /// Shared by every step, so the number typed once carries over.
   final _phone = TextEditingController();
-  LoginFlow _flow = LoginFlow.password;
+  late LoginFlow _flow = widget.initialFlow;
 
   @override
   void dispose() {
@@ -89,6 +99,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: _form(),
                     ),
                   ),
+                  if (widget.onAbout case final onAbout?)
+                    Center(
+                      child: TextButton.icon(
+                        key: const Key('login-about'),
+                        onPressed: onAbout,
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.white,
+                        ),
+                        icon: const Icon(Icons.info_outline, size: 18),
+                        label: Text(context.l10n.welcomeAbout),
+                      ),
+                    ),
                 ],
               ),
             ),

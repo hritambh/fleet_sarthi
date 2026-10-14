@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/common/consent_screen.dart';
 import '../core/api/models.dart';
 import '../features/common/widgets.dart';
+import '../features/login/auth_forms.dart';
 import '../features/login/login_screen.dart';
 import '../features/owner/owner_shell.dart';
+import '../features/welcome/welcome_screen.dart';
 import '../features/driver/driver_shell.dart';
 import '../features/workspaces/get_started_screen.dart';
 import '../l10n/app_localizations.dart';
@@ -29,7 +31,7 @@ class TaxcyDriverApp extends ConsumerWidget {
   );
 }
 
-/// Signed out → login. Signed in: owners and managers get owner mode, drivers
+/// Signed out → the welcome page, which leads to sign up or login. Signed in: owners and managers get owner mode, drivers
 /// their trips (after the first-run location consent). An owner-driver (DCO)
 /// switches between the two; the choice is remembered. Someone in no fleet yet
 /// gets the get-started screen (drive for an owner, or set up a fleet).
@@ -42,9 +44,9 @@ class _Root extends ConsumerWidget {
     return auth.when(
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (error, _) => const LoginScreen(),
+      error: (error, _) => const _SignedOut(),
       data: (session) {
-        if (session == null) return const LoginScreen();
+        if (session == null) return const _SignedOut();
         final mode = screensFor(session, ref.watch(appModeProvider));
         return switch (mode) {
           // A DCO's trips keep syncing and recording GPS in owner mode.
@@ -58,6 +60,40 @@ class _Root extends ConsumerWidget {
       },
     );
   }
+}
+
+/// The welcome page, every time someone opens the app (or signs out), until
+/// they pick "Get started" (sign up) or "Sign in"; then the login card, which
+/// can go back to the welcome page.
+class _SignedOut extends StatefulWidget {
+  const _SignedOut();
+
+  @override
+  State<_SignedOut> createState() => _SignedOutState();
+}
+
+class _SignedOutState extends State<_SignedOut> {
+  var _welcome = true;
+  LoginFlow _flow = LoginFlow.password;
+
+  void _login(LoginFlow flow) {
+    setState(() {
+      _welcome = false;
+      _flow = flow;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => _welcome
+      ? WelcomeScreen(
+          onGetStarted: () => _login(LoginFlow.signUp),
+          onSignIn: () => _login(LoginFlow.password),
+        )
+      : LoginScreen(
+          key: ValueKey(_flow),
+          initialFlow: _flow,
+          onAbout: () => setState(() => _welcome = true),
+        );
 }
 
 /// Which screens a signed-in member gets in the active fleet: owner mode for
