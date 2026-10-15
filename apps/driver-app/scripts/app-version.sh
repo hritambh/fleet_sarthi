@@ -6,9 +6,19 @@
 set -euo pipefail
 repo="$(cd "$(dirname "$0")/../../.." && pwd)"
 
-# CI and Render clone shallowly, which would undercount.
+# CI and Render clone shallowly, which would undercount (Render showed 26.10.1 for
+# every build). Fetch the full history from origin, then from the public GitHub URL.
 if [[ "$(git -C "$repo" rev-parse --is-shallow-repository 2>/dev/null)" == true ]]; then
-  git -C "$repo" fetch --quiet --unshallow 2>/dev/null || true
+  echo "app-version: shallow clone, fetching full history" >&2
+  sources=(origin)
+  [[ -n "${RENDER_GIT_REPO_SLUG:-}" ]] && sources+=("https://github.com/$RENDER_GIT_REPO_SLUG.git")
+  for src in "${sources[@]}"; do
+    git -C "$repo" fetch --quiet --unshallow "$src" >&2 || true
+    [[ "$(git -C "$repo" rev-parse --is-shallow-repository)" == true ]] || break
+  done
+  if [[ "$(git -C "$repo" rev-parse --is-shallow-repository)" == true ]]; then
+    echo "app-version: WARNING history is still shallow, the build number will be too low" >&2
+  fi
 fi
 
 if ! stamp="$(TZ=UTC git -C "$repo" log -1 --format=%cd --date=format-local:%Y-%m HEAD 2>/dev/null)" || [[ -z "$stamp" ]]; then
