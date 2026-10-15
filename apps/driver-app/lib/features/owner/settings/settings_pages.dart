@@ -17,6 +17,7 @@ import 'settings_widgets.dart';
 /// error and Retry.
 Widget _loading<T>(
   String title,
+  IconData icon,
   AsyncValue<T> value,
   VoidCallback onRetry,
   Widget Function(T data) builder,
@@ -24,6 +25,7 @@ Widget _loading<T>(
   AsyncData(:final value) => builder(value),
   _ => SettingsScaffold(
     title: title,
+    icon: icon,
     savable: false,
     children: [
       AsyncView(
@@ -52,6 +54,7 @@ class GeneralSettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) => _loading(
     context.l10n.settingsGeneral,
+    Icons.tune,
     ref.watch(orgProfileProvider),
     () => ref.invalidate(orgProfileProvider),
     (profile) => _GeneralForm(profile, editable: ref.watch(isOwnerProvider)),
@@ -102,30 +105,33 @@ class _GeneralFormState extends ConsumerState<_GeneralForm> {
     final invalid = _dirty && !OrgProfile.isValidName(_name.text);
     return SettingsScaffold(
       title: l.settingsGeneral,
+      icon: Icons.tune,
       editable: widget.editable,
       dirty: _dirty,
       saving: _saving,
       onSave: invalid ? null : _save,
       onCancel: () => setState(() => _name.text = _saved),
       children: [
-        SectionCard(
-          child: SettingTile(
-            title: l.fleetNameLabel,
-            help: l.fleetNameHelp,
-            affects: l.fleetNameAffects,
-            when: l.fleetNameWhen,
-            control: TextField(
-              key: const Key('settings-fleet-name'),
-              controller: _name,
-              enabled: widget.editable,
-              maxLength: 100,
-              onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(
-                labelText: l.fleetNameLabel,
-                errorText: invalid ? l.fleetNameInvalid : null,
+        SettingsSection(
+          children: [
+            SettingTile(
+              title: l.fleetNameLabel,
+              help: l.fleetNameHelp,
+              affects: l.fleetNameAffects,
+              when: l.fleetNameWhen,
+              control: TextField(
+                key: const Key('settings-fleet-name'),
+                controller: _name,
+                enabled: widget.editable,
+                maxLength: 100,
+                onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(
+                  labelText: l.fleetNameLabel,
+                  errorText: invalid ? l.fleetNameInvalid : null,
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ],
     );
@@ -140,6 +146,7 @@ class TripRulesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) => _loading(
     context.l10n.settingsTrips,
+    Icons.route_outlined,
     _all([ref.watch(ownerWorkflowProvider), ref.watch(auditSettingsProvider)]),
     () => refreshAfter(ref, {OwnerArea.settings}),
     (data) => _TripRulesForm(
@@ -235,6 +242,7 @@ class _TripRulesFormState extends ConsumerState<_TripRulesForm> {
     final edit = widget.editable;
     return SettingsScaffold(
       title: l.settingsTrips,
+      icon: Icons.route_outlined,
       editable: edit,
       dirty: _dirty,
       saving: _saving,
@@ -242,78 +250,84 @@ class _TripRulesFormState extends ConsumerState<_TripRulesForm> {
       onCancel: _cancel,
       onReset: _reset,
       children: [
-        SectionCard(
-          child: Column(
-            children: [
-              SettingSwitch(
-                switchKey: const Key('rule-driver-trips'),
-                title: l.ruleDriverTrips,
-                help: l.ruleDriverTripsHelp,
-                affects: l.ruleDriverTripsAffects,
-                when: l.ruleNewTripsOnly,
-                value: _rules.driversCanCreateTrips,
-                onChanged: edit
-                    ? (v) => setState(
-                        () =>
-                            _rules = _rules.copyWith(driversCanCreateTrips: v),
-                      )
-                    : null,
-              ),
-              const Divider(),
-              SettingSwitch(
-                switchKey: const Key('rule-driver-charges'),
-                title: l.ruleDriverCharges,
-                help: l.ruleDriverChargesHelp,
-                affects: l.ruleDriverChargesAffects,
-                when: l.ruleNewChargesOnly,
-                value: _rules.driversCanAddCharges,
-                onChanged: edit
-                    ? (v) => setState(
-                        () => _rules = _rules.copyWith(driversCanAddCharges: v),
-                      )
-                    : null,
-              ),
-              const Divider(),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(
-                    Icons.info_outline,
-                    size: 18,
-                    color: TaxcyColors.muted,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      l.ruleOfflineNote,
-                      style: const TextStyle(
-                        color: TaxcyColors.muted,
-                        fontSize: 12.5,
+        SettingsSection(
+          children: [
+            Column(
+              children: [
+                SettingSwitch(
+                  switchKey: const Key('rule-driver-trips'),
+                  title: l.ruleDriverTrips,
+                  help: l.ruleDriverTripsHelp,
+                  affects: l.ruleDriverTripsAffects,
+                  when: l.ruleNewTripsOnly,
+                  value: _rules.driversCanCreateTrips,
+                  onChanged: edit
+                      ? (v) => setState(
+                          () => _rules = _rules.copyWith(
+                            driversCanCreateTrips: v,
+                          ),
+                        )
+                      : null,
+                ),
+                const Divider(),
+                SettingSwitch(
+                  switchKey: const Key('rule-driver-charges'),
+                  title: l.ruleDriverCharges,
+                  help: l.ruleDriverChargesHelp,
+                  affects: l.ruleDriverChargesAffects,
+                  when: l.ruleNewChargesOnly,
+                  value: _rules.driversCanAddCharges,
+                  onChanged: edit
+                      ? (v) => setState(
+                          () =>
+                              _rules = _rules.copyWith(driversCanAddCharges: v),
+                        )
+                      : null,
+                ),
+                const Divider(),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.info_outline,
+                      size: 18,
+                      color: TaxcyColors.muted,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        l.ruleOfflineNote,
+                        style: const TextStyle(
+                          color: TaxcyColors.muted,
+                          fontSize: 12.5,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        SectionCard(
-          child: SettingTile(
-            title: l.odoTolerance,
-            help: l.odoToleranceHint,
-            affects: l.odoToleranceAffects,
-            when: l.odoToleranceWhen,
-            control: NumberSetting(
-              fieldKey: const Key('audit-odo'),
-              label: l.odoTolerance,
-              controller: _odo,
-              min: 1,
-              max: 50,
-              defaultValue: AuditSettings.defaults.odoGpsTolerancePct,
-              enabled: edit,
-              onChanged: () => setState(() {}),
+                  ],
+                ),
+              ],
             ),
-          ),
+          ],
+        ),
+        SettingsSection(
+          children: [
+            SettingTile(
+              title: l.odoTolerance,
+              help: l.odoToleranceHint,
+              affects: l.odoToleranceAffects,
+              when: l.odoToleranceWhen,
+              control: NumberSetting(
+                fieldKey: const Key('audit-odo'),
+                label: l.odoTolerance,
+                controller: _odo,
+                min: 1,
+                max: 50,
+                defaultValue: AuditSettings.defaults.odoGpsTolerancePct,
+                enabled: edit,
+                onChanged: () => setState(() {}),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -328,6 +342,7 @@ class FuelRulesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) => _loading(
     context.l10n.settingsFuel,
+    Icons.local_gas_station_outlined,
     _all([ref.watch(ownerWorkflowProvider), ref.watch(auditSettingsProvider)]),
     () => refreshAfter(ref, {OwnerArea.settings}),
     (data) => _FuelRulesForm(
@@ -465,6 +480,7 @@ class _FuelRulesFormState extends ConsumerState<_FuelRulesForm> {
     };
     return SettingsScaffold(
       title: l.settingsFuel,
+      icon: Icons.local_gas_station_outlined,
       editable: edit,
       dirty: _dirty,
       saving: _saving,
@@ -472,41 +488,45 @@ class _FuelRulesFormState extends ConsumerState<_FuelRulesForm> {
       onCancel: () => _fill(_savedAudit, _savedRules.fuelReceiptRequired),
       onReset: _reset,
       children: [
-        SectionCard(
-          child: SettingSwitch(
-            switchKey: const Key('rule-fuel-receipt'),
-            title: l.ruleReceipt,
-            help: l.ruleReceiptHelp,
-            affects: l.ruleReceiptAffects,
-            when: l.ruleNewFillsOnly,
-            value: _receipt,
-            onChanged: edit ? (v) => setState(() => _receipt = v) : null,
-          ),
-        ),
-        SectionCard(
-          child: SettingTile(
-            title: l.fuelThresholdsTitle,
-            help: l.fuelIntro,
-            affects: l.fuelThresholdsAffects,
-            when: l.fuelThresholdsWhen,
-            control: Column(
-              children: [
-                for (final t in _thresholds)
-                  NumberSetting(
-                    fieldKey: Key('audit-${t.key}'),
-                    label: labels[t.key]!.$1,
-                    hint: labels[t.key]!.$2,
-                    controller: _fields[t.key]!,
-                    min: t.min,
-                    max: t.max,
-                    whole: t.whole,
-                    defaultValue: _thresholdOf(AuditSettings.defaults, t.key),
-                    enabled: edit,
-                    onChanged: () => setState(() {}),
-                  ),
-              ],
+        SettingsSection(
+          children: [
+            SettingSwitch(
+              switchKey: const Key('rule-fuel-receipt'),
+              title: l.ruleReceipt,
+              help: l.ruleReceiptHelp,
+              affects: l.ruleReceiptAffects,
+              when: l.ruleNewFillsOnly,
+              value: _receipt,
+              onChanged: edit ? (v) => setState(() => _receipt = v) : null,
             ),
-          ),
+          ],
+        ),
+        SettingsSection(
+          children: [
+            SettingTile(
+              title: l.fuelThresholdsTitle,
+              help: l.fuelIntro,
+              affects: l.fuelThresholdsAffects,
+              when: l.fuelThresholdsWhen,
+              control: Column(
+                children: [
+                  for (final t in _thresholds)
+                    NumberSetting(
+                      fieldKey: Key('audit-${t.key}'),
+                      label: labels[t.key]!.$1,
+                      hint: labels[t.key]!.$2,
+                      controller: _fields[t.key]!,
+                      min: t.min,
+                      max: t.max,
+                      whole: t.whole,
+                      defaultValue: _thresholdOf(AuditSettings.defaults, t.key),
+                      enabled: edit,
+                      onChanged: () => setState(() {}),
+                    ),
+                ],
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -528,6 +548,7 @@ class RemindersScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) => _loading(
     context.l10n.settingsReminders,
+    Icons.notifications_active_outlined,
     ref.watch(auditSettingsProvider),
     () => ref.invalidate(auditSettingsProvider),
     (audit) => _RemindersForm(audit, editable: ref.watch(isOwnerProvider)),
@@ -587,6 +608,7 @@ class _RemindersFormState extends ConsumerState<_RemindersForm> {
     final invalid = _value == null;
     return SettingsScaffold(
       title: l.settingsReminders,
+      icon: Icons.notifications_active_outlined,
       editable: widget.editable,
       dirty: _dirty,
       saving: _saving,
@@ -602,40 +624,42 @@ class _RemindersFormState extends ConsumerState<_RemindersForm> {
         ).showSnackBar(SnackBar(content: Text(l.settingsResetDone)));
       },
       children: [
-        SectionCard(
-          child: SettingTile(
-            title: l.docAlertDays,
-            help: l.docAlertDaysHint,
-            affects: l.remindersAffects,
-            when: l.remindersWhen,
-            control: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                TextField(
-                  key: const Key('audit-days'),
-                  controller: _days,
-                  enabled: widget.editable,
-                  onChanged: (_) => setState(() {}),
-                  decoration: InputDecoration(
-                    labelText: l.docAlertDays,
-                    helperText: l.settingsDefaultIs(
-                      value: AuditSettings.defaults.docAlertDays.join(', '),
+        SettingsSection(
+          children: [
+            SettingTile(
+              title: l.docAlertDays,
+              help: l.docAlertDaysHint,
+              affects: l.remindersAffects,
+              when: l.remindersWhen,
+              control: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextField(
+                    key: const Key('audit-days'),
+                    controller: _days,
+                    enabled: widget.editable,
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      labelText: l.docAlertDays,
+                      helperText: l.settingsDefaultIs(
+                        value: AuditSettings.defaults.docAlertDays.join(', '),
+                      ),
+                      errorText: invalid ? l.settingsDaysInvalid : null,
+                      errorMaxLines: 2,
                     ),
-                    errorText: invalid ? l.settingsDaysInvalid : null,
-                    errorMaxLines: 2,
                   ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  l.remindersSeverity,
-                  style: const TextStyle(
-                    color: TaxcyColors.muted,
-                    fontSize: 12.5,
+                  const SizedBox(height: 10),
+                  Text(
+                    l.remindersSeverity,
+                    style: const TextStyle(
+                      color: TaxcyColors.muted,
+                      fontSize: 12.5,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ],
     );
@@ -650,6 +674,7 @@ class PaySettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) => _loading(
     context.l10n.defaultDriverPay,
+    Icons.payments_outlined,
     ref.watch(defaultPayRuleProvider),
     () => ref.invalidate(defaultPayRuleProvider),
     (rule) => _PayForm(rule, editable: ref.watch(isOwnerProvider)),
@@ -690,36 +715,39 @@ class _PayFormState extends ConsumerState<_PayForm> {
     final l = context.l10n;
     return SettingsScaffold(
       title: l.defaultDriverPay,
+      icon: Icons.payments_outlined,
       editable: widget.editable,
       dirty: _rule != _saved,
       saving: _saving,
       onSave: _rule.isValid ? _save : null,
       onCancel: () => setState(() => _rule = _saved),
       children: [
-        SectionCard(
-          child: SettingTile(
-            title: l.defaultDriverPay,
-            help: l.defaultPayIntro,
-            affects: l.payAffects,
-            when: l.payWhen,
-            control: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                PayRuleEditor(
-                  value: _rule,
-                  enabled: widget.editable,
-                  onChanged: (r) => setState(() => _rule = r),
-                ),
-                if (!_rule.isValid)
-                  Text(
-                    l.checkPayRule,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
+        SettingsSection(
+          children: [
+            SettingTile(
+              title: l.defaultDriverPay,
+              help: l.defaultPayIntro,
+              affects: l.payAffects,
+              when: l.payWhen,
+              control: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  PayRuleEditor(
+                    value: _rule,
+                    enabled: widget.editable,
+                    onChanged: (r) => setState(() => _rule = r),
                   ),
-              ],
+                  if (!_rule.isValid)
+                    Text(
+                      l.checkPayRule,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ],
     );
@@ -741,27 +769,28 @@ class TeamSettingsScreen extends ConsumerWidget {
     ];
     return SettingsScaffold(
       title: l.settingsTeam,
+      icon: Icons.group_outlined,
       savable: false,
       onRefresh: () async {
         ref.invalidate(membersProvider);
         await ref.read(membersProvider.future);
       },
       children: [
+        const SizedBox(height: 12),
         const ManagersSection(),
-        SectionCard(
+        SettingsSection(
           key: const Key('settings-roles'),
           title: l.rolesTitle,
-          child: Column(
-            children: [
-              for (final (icon, name, can) in roles)
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: Icon(icon),
-                  title: Text(name),
-                  subtitle: Text(can),
-                ),
-            ],
-          ),
+          last: true,
+          children: [
+            for (final (icon, name, can) in roles)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(icon),
+                title: Text(name),
+                subtitle: Text(can),
+              ),
+          ],
         ),
       ],
     );

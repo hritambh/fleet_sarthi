@@ -178,28 +178,53 @@ void main() {
     }
   });
 
-  testWidgets(
-    'settings are a grid of categories; a page opens in the section',
-    (tester) async {
-      await desktop(tester);
-      await tester.tap(find.byKey(const Key('side-settings')));
-      await settle(tester);
-      // Categories side by side, not one long column.
-      final general = tester.getTopLeft(
-        find.byKey(const Key('settings-general')),
-      );
-      final trips = tester.getTopLeft(find.byKey(const Key('settings-trips')));
-      expect(trips.dy, general.dy);
-      expect(trips.dx, greaterThan(general.dx));
+  testWidgets('settings: a column of categories beside the chosen page', (
+    tester,
+  ) async {
+    await desktop(tester);
+    await tester.tap(find.byKey(const Key('side-settings')));
+    await settle(tester);
+    // General opens first, beside the settings column; no page is pushed.
+    expect(find.byKey(const Key('settings-nav')), findsOneWidget);
+    expect(find.byKey(const Key('settings-fleet-name')), findsOneWidget);
+    final nav = tester.getTopLeft(find.byKey(const Key('settings-nav')));
+    final field = tester.getTopLeft(
+      find.byKey(const Key('settings-fleet-name')),
+    );
+    expect(field.dx, greaterThan(nav.dx));
 
-      await tester.tap(find.byKey(const Key('settings-fuel')));
-      await settle(tester);
-      expect(find.byKey(const Key('audit-k')), findsOneWidget);
-      // Still inside the desktop shell, with the sidebar beside it.
-      expect(find.byKey(const Key('owner-sidebar')), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    },
-  );
+    await tester.tap(find.byKey(const Key('settings-fuel')));
+    await settle(tester);
+    expect(find.byKey(const Key('audit-k')), findsOneWidget);
+    expect(find.byType(BackButton), findsNothing);
+    expect(find.byKey(const Key('owner-sidebar')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('settings: switching pages with unsaved changes asks first', (
+    tester,
+  ) async {
+    await desktop(tester);
+    await tester.tap(find.byKey(const Key('side-settings')));
+    await settle(tester);
+    await tester.tap(find.byKey(const Key('settings-trips')));
+    await settle(tester);
+    await tester.tap(find.byKey(const Key('rule-driver-trips')));
+    await settle(tester);
+
+    await tester.tap(find.byKey(const Key('settings-fuel')));
+    await settle(tester);
+    expect(find.byKey(const Key('settings-discard-dialog')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('settings-keep-editing')));
+    await settle(tester);
+    expect(find.byKey(const Key('rule-driver-trips')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('settings-fuel')));
+    await settle(tester);
+    await tester.tap(find.byKey(const Key('settings-discard')));
+    await settle(tester);
+    expect(find.byKey(const Key('audit-k')), findsOneWidget);
+  });
 
   testWidgets('the header bell opens alerts and review, beside the sidebar', (
     tester,
