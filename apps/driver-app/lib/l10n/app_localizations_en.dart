@@ -584,6 +584,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customerMobileOptional => 'Customer mobile (optional)';
 
   @override
+  String get editTrip => 'Edit trip';
+
+  @override
   String get createTrip => 'Create trip';
 
   @override

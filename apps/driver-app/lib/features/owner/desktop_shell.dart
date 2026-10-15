@@ -5,8 +5,10 @@ import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../app/workspaces.dart';
 import '../account/account_security_screen.dart';
+import '../../l10n/app_localizations.dart';
 import '../common/format.dart';
 import '../common/language_picker.dart';
+import '../common/page_title.dart';
 import '../workspaces/workspace_switcher.dart';
 import 'dashboard_screen.dart';
 import 'analytics_screen.dart';
@@ -80,42 +82,55 @@ class _DesktopOwnerShellState extends ConsumerState<DesktopOwnerShell> {
     OwnerSection.settings => const SettingsScreen(),
   };
 
+  String _title(AppLocalizations l) => switch (_section) {
+    OwnerSection.dashboard => l.navDashboard,
+    OwnerSection.trips => l.navTrips,
+    OwnerSection.vehicles => l.vehicles,
+    OwnerSection.drivers => l.drivers,
+    OwnerSection.analytics => l.analytics,
+    OwnerSection.settlements => l.settlements,
+    OwnerSection.settings => l.settings,
+  };
+
   @override
   Widget build(BuildContext context) {
     final sections = OwnerSection.values;
-    return Scaffold(
-      key: const Key('owner-desktop'),
-      body: Row(
-        children: [
-          _Sidebar(selected: _section, onOpen: _open, onHome: _goHome),
-          Expanded(
-            child: Theme(
-              data: desktopContentTheme(Theme.of(context)),
-              child: IndexedStack(
-                index: sections.indexOf(_section),
-                children: [
-                  for (final s in sections)
-                    if (_opened.contains(s))
-                      // Hidden sections stay alive but their animations
-                      // (e.g. the dashboard's background) stop.
-                      TickerMode(
-                        enabled: s == _section,
-                        child: HeroControllerScope.none(
-                          child: Navigator(
-                            key: _navigators[s],
-                            onGenerateRoute: (_) => MaterialPageRoute<void>(
-                              builder: (_) => _root(s),
+    return PageTitle(
+      _title(context.l10n),
+      child: Scaffold(
+        key: const Key('owner-desktop'),
+        body: Row(
+          children: [
+            _Sidebar(selected: _section, onOpen: _open, onHome: _goHome),
+            Expanded(
+              child: Theme(
+                data: desktopContentTheme(Theme.of(context)),
+                child: IndexedStack(
+                  index: sections.indexOf(_section),
+                  children: [
+                    for (final s in sections)
+                      if (_opened.contains(s))
+                        // Hidden sections stay alive but their animations
+                        // (e.g. the dashboard's background) stop.
+                        TickerMode(
+                          enabled: s == _section,
+                          child: HeroControllerScope.none(
+                            child: Navigator(
+                              key: _navigators[s],
+                              onGenerateRoute: (_) => MaterialPageRoute<void>(
+                                builder: (_) => _root(s),
+                              ),
                             ),
                           ),
-                        ),
-                      )
-                    else
-                      const SizedBox.shrink(),
-                ],
+                        )
+                      else
+                        const SizedBox.shrink(),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

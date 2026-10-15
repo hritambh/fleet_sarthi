@@ -1110,6 +1110,12 @@ abstract class AppLocalizations {
   /// **'Customer mobile (optional)'**
   String get customerMobileOptional;
 
+  /// No description provided for @editTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit trip'**
+  String get editTrip;
+
   /// No description provided for @createTrip.
   ///
   /// In en, this message translates to:

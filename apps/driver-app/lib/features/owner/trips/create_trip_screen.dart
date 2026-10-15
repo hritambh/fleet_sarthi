@@ -58,7 +58,7 @@ class NewTripInput {
 ({JsonMap? body, String? problem}) newTripBody(
   AppLocalizations l,
   NewTripInput input, {
-  required String id,
+  String? id,
 }) {
   final fare = parseRupees(input.fare);
   final kmText = input.includedKm.trim();
@@ -85,7 +85,7 @@ class NewTripInput {
   final name = input.customerName.trim();
   return (
     body: {
-      'id': id,
+      'id': ?id,
       'tripType': input.tripType,
       'from': {
         'text': input.fromText.trim(),
@@ -112,9 +112,13 @@ class NewTripInput {
   );
 }
 
-/// Owner/manager creates a trip, optionally assigning a vehicle and driver.
+/// Owner/manager creates a trip, optionally assigning a vehicle and driver; or,
+/// given a [trip] that has not started, edits its details (the vehicle and
+/// driver are changed with Assign on the trip itself).
 class CreateTripScreen extends ConsumerStatefulWidget {
-  const CreateTripScreen({super.key});
+  const CreateTripScreen({this.trip, super.key});
+
+  final Trip? trip;
 
   @override
   ConsumerState<CreateTripScreen> createState() => _CreateTripScreenState();
@@ -144,6 +148,30 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
 
   static DateTime _nextHour(DateTime t) =>
       DateTime(t.year, t.month, t.day, t.hour + 1);
+
+  bool get _editing => widget.trip != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final t = widget.trip;
+    if (t == null) return;
+    _tripType = t.tripType;
+    _from.text = t.fromText;
+    _to.text = t.toText ?? '';
+    _start = t.scheduledStartAt.toLocal();
+    _end = t.scheduledEndAt.toLocal();
+    final paise = t.quotedFarePaise;
+    _fare.text = (paise / 100).toStringAsFixed(paise % 100 == 0 ? 0 : 2);
+    _km.text = t.includedKm?.toString() ?? '';
+    _customer.text = t.customerName ?? '';
+    final digits = (t.customerPhone ?? '').replaceAll(RegExp(r'\D'), '');
+    _phone.text = digits.length > 10
+        ? digits.substring(digits.length - 10)
+        : digits;
+    _fromPoint = t.fromPoint;
+    _toPoint = t.toPoint;
+  }
 
   @override
   void dispose() {
@@ -187,7 +215,7 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
         fromPoint: _fromPoint,
         toPoint: _toPoint,
       ),
-      id: _id,
+      id: _editing ? null : _id,
     );
     setState(() => _problem = result.problem);
     final body = result.body;
@@ -201,7 +229,7 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
     // fails, carry on: the server still refuses a clash.
     final vehicleId = _vehicleId;
     final driverId = _driverId;
-    if (vehicleId != null || driverId != null) {
+    if (!_editing && (vehicleId != null || driverId != null)) {
       try {
         final fresh = await ref.refresh(
           availabilityProvider((
@@ -231,6 +259,16 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
       }
     }
     if (!mounted) return;
+    final editing = widget.trip;
+    if (editing != null) {
+      final ok = await runAction(context, () async {
+        await ref.read(ownerApiProvider).updateTrip(editing.id, body);
+        refreshAfter(ref, {OwnerArea.trips});
+        navigator.pop();
+      });
+      if (!ok && mounted) setState(() => _busy = false);
+      return;
+    }
     final ok = await runAction(context, () async {
       final trip = await ref.read(ownerApiProvider).createTrip(body);
       refreshAfter(ref, {OwnerArea.trips});
@@ -250,7 +288,7 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
     final local = _tripType == 'local_rental';
     // Who is already booked in this window: shown greyed out in the pickers,
     // and a pick that becomes busy when the times change is cleared.
-    final window = _end.isAfter(_start)
+    final window = !_editing && _end.isAfter(_start)
         ? (from: _start, to: _end, excludeTripId: null)
         : null;
     final availability = window == null
@@ -271,7 +309,7 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
       });
     }
     return Scaffold(
-      appBar: AppBar(title: Text(l.newTrip)),
+      appBar: AppBar(title: Text(_editing ? l.editTrip : l.newTrip)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -408,45 +446,47 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
                     prefixIcon: const Icon(Icons.phone),
                   ),
                 ),
-                const SizedBox(height: 12),
-                // Only linked pairs can be assigned: the drivers follow the
-                // vehicle, and with no vehicle yet, the vehicles follow the driver.
-                VehiclePicker(
-                  value: _vehicleId,
-                  label: l.vehicleOptional,
-                  noneLabel: l.assignLater,
-                  driverId: _vehicleId == null ? _driverId : null,
-                  busy: availability.vehicles,
-                  onChanged: (v) => setState(() {
-                    _cleared = false;
-                    _vehicleId = v;
-                    final driver = _driverId;
-                    if (v != null &&
-                        driver != null &&
-                        !pairLinked(ref, v, driver)) {
-                      _driverId = null;
-                    }
-                  }),
-                ),
-                const SizedBox(height: 12),
-                DriverPicker(
-                  value: _driverId,
-                  label: l.driverOptional,
-                  noneLabel: l.assignLater,
-                  vehicleId: _vehicleId,
-                  busy: availability.drivers,
-                  onChanged: (v) => setState(() {
-                    _cleared = false;
-                    _driverId = v;
-                  }),
-                ),
-                if (_cleared) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    l.busyPickCleared,
-                    key: const Key('busy-pick-cleared'),
-                    style: Theme.of(context).textTheme.bodySmall,
+                if (!_editing) ...[
+                  const SizedBox(height: 12),
+                  // Only linked pairs can be assigned: the drivers follow the
+                  // vehicle, and with no vehicle yet, the vehicles follow the driver.
+                  VehiclePicker(
+                    value: _vehicleId,
+                    label: l.vehicleOptional,
+                    noneLabel: l.assignLater,
+                    driverId: _vehicleId == null ? _driverId : null,
+                    busy: availability.vehicles,
+                    onChanged: (v) => setState(() {
+                      _cleared = false;
+                      _vehicleId = v;
+                      final driver = _driverId;
+                      if (v != null &&
+                          driver != null &&
+                          !pairLinked(ref, v, driver)) {
+                        _driverId = null;
+                      }
+                    }),
                   ),
+                  const SizedBox(height: 12),
+                  DriverPicker(
+                    value: _driverId,
+                    label: l.driverOptional,
+                    noneLabel: l.assignLater,
+                    vehicleId: _vehicleId,
+                    busy: availability.drivers,
+                    onChanged: (v) => setState(() {
+                      _cleared = false;
+                      _driverId = v;
+                    }),
+                  ),
+                  if (_cleared) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      l.busyPickCleared,
+                      key: const Key('busy-pick-cleared'),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
                 ],
                 if (_problem != null) ...[
                   const SizedBox(height: 12),
@@ -460,10 +500,10 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
                 ],
                 const SizedBox(height: 20),
                 FilledButton.icon(
-                  key: const Key('owner-create-trip'),
+                  key: Key(_editing ? 'owner-save-trip' : 'owner-create-trip'),
                   onPressed: _busy ? null : _save,
-                  icon: const Icon(Icons.add),
-                  label: Text(l.createTrip),
+                  icon: Icon(_editing ? Icons.check : Icons.add),
+                  label: Text(_editing ? l.save : l.createTrip),
                 ),
               ],
             ),

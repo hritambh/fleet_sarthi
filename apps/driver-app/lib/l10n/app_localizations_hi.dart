@@ -580,6 +580,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get customerMobileOptional => 'ग्राहक का मोबाइल (ज़रूरी नहीं)';
 
   @override
+  String get editTrip => 'ट्रिप बदलें';
+
+  @override
   String get createTrip => 'ट्रिप बनाएँ';
 
   @override

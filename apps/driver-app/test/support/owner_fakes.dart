@@ -568,6 +568,27 @@ class FakeOwnerApi implements OwnerApi {
   }
 
   @override
+  Future<Trip> updateTrip(String id, JsonMap body) async {
+    _record('updateTrip', {'id': id, ...body});
+    final from = body['from'];
+    final to = body['to'];
+    tripsById[id] = {
+      ...?tripsById[id],
+      if (body['tripType'] != null) 'tripType': body['tripType'],
+      if (from is Map<String, dynamic>) 'from': from,
+      if (to is Map<String, dynamic>) 'to': to,
+      if (body['scheduledStartAt'] != null)
+        'scheduledStartAt': body['scheduledStartAt'],
+      if (body['scheduledEndAt'] != null)
+        'scheduledEndAt': body['scheduledEndAt'],
+      if (body['quotedFarePaise'] != null)
+        'quotedFarePaise': body['quotedFarePaise'],
+      if (body['includedKm'] != null) 'includedKm': body['includedKm'],
+    };
+    return Trip.fromJson(tripsById[id]!);
+  }
+
+  @override
   Future<List<TripEvent>> tripEvents(String id) async {
     _record('tripEvents', {'id': id});
     return [

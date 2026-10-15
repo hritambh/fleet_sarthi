@@ -74,6 +74,7 @@ abstract class OwnerApi {
   Future<List<Trip>> trips(TripFilter filter);
   Future<Trip> trip(String id);
   Future<Trip> createTrip(JsonMap body);
+  Future<Trip> updateTrip(String id, JsonMap body);
   Future<List<TripEvent>> tripEvents(String id);
   Future<Trip> assign(
     String tripId, {
@@ -254,6 +255,10 @@ class HttpOwnerApi implements OwnerApi {
   @override
   Future<Trip> createTrip(JsonMap body) async =>
       Trip.fromJson(await _obj('POST', '/trips', body: body));
+
+  @override
+  Future<Trip> updateTrip(String id, JsonMap body) async =>
+      Trip.fromJson(await _obj('PATCH', '/trips/$id', body: body));
 
   @override
   Future<List<TripEvent>> tripEvents(String id) async =>

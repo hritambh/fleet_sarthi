@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:taxcy_driver/app/app.dart';
 import 'package:taxcy_driver/core/api/models.dart';
@@ -129,6 +130,33 @@ void main() {
       tester.widget(find.byKey(const Key('owner-new-trip'))),
       isA<FilledButton>(),
     );
+  });
+
+  testWidgets('the browser tab is named after the section', (tester) async {
+    final titles = <String>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async {
+        if (call.method == 'SystemChrome.setApplicationSwitcherDescription') {
+          titles.add((call.arguments as Map)['label']! as String);
+        }
+        return null;
+      },
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        null,
+      ),
+    );
+    await desktop(tester);
+    expect(titles.last, 'Dashboard - Fleet Sarthi');
+    await tester.tap(find.byKey(const Key('side-trips')));
+    await settle(tester);
+    expect(titles.last, 'Trips - Fleet Sarthi');
+    await tester.tap(find.byKey(const Key('side-vehicles')));
+    await settle(tester);
+    expect(titles.last, 'Vehicles - Fleet Sarthi');
   });
 
   testWidgets('every section lays out on the desktop', (tester) async {

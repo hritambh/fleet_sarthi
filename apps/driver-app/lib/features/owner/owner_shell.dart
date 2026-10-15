@@ -7,6 +7,7 @@ import '../../app/theme.dart';
 import '../account/account_security_screen.dart';
 import '../common/format.dart';
 import '../common/language_picker.dart';
+import '../common/page_title.dart';
 import 'dashboard_screen.dart';
 import 'desktop_shell.dart';
 import 'alerts_inbox.dart';
@@ -55,46 +56,52 @@ class _OwnerShellState extends ConsumerState<OwnerShell> {
     );
     final wide = MediaQuery.sizeOf(context).width >= 840;
     if (wide) {
-      return Scaffold(
-        body: Row(
-          children: [
-            NavigationRail(
-              key: const Key('owner-rail'),
-              selectedIndex: _tab,
-              onDestinationSelected: _open,
-              labelType: NavigationRailLabelType.all,
-              backgroundColor: Colors.white,
-              indicatorColor: TaxcyColors.blue100,
-              leading: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 12),
-                child: Icon(Icons.local_taxi, color: TaxcyColors.blue700),
+      return PageTitle(
+        destinations[_tab].$2,
+        child: Scaffold(
+          body: Row(
+            children: [
+              NavigationRail(
+                key: const Key('owner-rail'),
+                selectedIndex: _tab,
+                onDestinationSelected: _open,
+                labelType: NavigationRailLabelType.all,
+                backgroundColor: Colors.white,
+                indicatorColor: TaxcyColors.blue100,
+                leading: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Icon(Icons.local_taxi, color: TaxcyColors.blue700),
+                ),
+                destinations: [
+                  for (final (icon, label) in destinations)
+                    NavigationRailDestination(
+                      icon: Icon(icon),
+                      label: Text(label),
+                    ),
+                ],
               ),
-              destinations: [
-                for (final (icon, label) in destinations)
-                  NavigationRailDestination(
-                    icon: Icon(icon),
-                    label: Text(label),
-                  ),
-              ],
-            ),
-            const VerticalDivider(width: 1),
-            Expanded(child: body),
-          ],
+              const VerticalDivider(width: 1),
+              Expanded(child: body),
+            ],
+          ),
         ),
       );
     }
-    return Scaffold(
-      body: body,
-      bottomNavigationBar: NavigationBar(
-        key: const Key('owner-nav'),
-        selectedIndex: _tab,
-        onDestinationSelected: _open,
-        backgroundColor: Colors.white,
-        indicatorColor: TaxcyColors.blue100,
-        destinations: [
-          for (final (icon, label) in destinations)
-            NavigationDestination(icon: Icon(icon), label: label),
-        ],
+    return PageTitle(
+      destinations[_tab].$2,
+      child: Scaffold(
+        body: body,
+        bottomNavigationBar: NavigationBar(
+          key: const Key('owner-nav'),
+          selectedIndex: _tab,
+          onDestinationSelected: _open,
+          backgroundColor: Colors.white,
+          indicatorColor: TaxcyColors.blue100,
+          destinations: [
+            for (final (icon, label) in destinations)
+              NavigationDestination(icon: Icon(icon), label: label),
+          ],
+        ),
       ),
     );
   }

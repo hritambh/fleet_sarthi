@@ -462,6 +462,8 @@
   "@customerNameOptional": {},
   "customerMobileOptional": "Customer mobile (optional)",
   "@customerMobileOptional": {},
+  "editTrip": "Edit trip",
+  "@editTrip": {},
   "createTrip": "Create trip",
   "@createTrip": {},
   "newTripFootnote": "The trip is assigned to you. Your fleet owner sees it once your phone is online.",

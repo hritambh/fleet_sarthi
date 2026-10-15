@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../common/format.dart';
+import '../common/page_title.dart';
 import '../owner/owner_widgets.dart';
 import '../trips/trips_screen.dart';
 import 'driver_documents_screen.dart';
@@ -51,44 +52,51 @@ class _DriverShellState extends State<DriverShell> {
           _opened.contains(i) ? page : const SizedBox.shrink(),
       ],
     );
+    final title = destinations[_index].$3;
     if (isDesktop(context)) {
-      return Scaffold(
-        body: Row(
-          children: [
-            NavigationRail(
-              key: const Key('driver-nav'),
-              selectedIndex: _index,
-              onDestinationSelected: _select,
-              labelType: NavigationRailLabelType.all,
-              destinations: [
-                for (final (icon, selected, label, id) in destinations)
-                  NavigationRailDestination(
-                    icon: Icon(icon, key: Key('driver-nav-$id')),
-                    selectedIcon: Icon(selected),
-                    label: Text(label),
-                  ),
-              ],
-            ),
-            const VerticalDivider(width: 1),
-            Expanded(child: body),
-          ],
+      return PageTitle(
+        title,
+        child: Scaffold(
+          body: Row(
+            children: [
+              NavigationRail(
+                key: const Key('driver-nav'),
+                selectedIndex: _index,
+                onDestinationSelected: _select,
+                labelType: NavigationRailLabelType.all,
+                destinations: [
+                  for (final (icon, selected, label, id) in destinations)
+                    NavigationRailDestination(
+                      icon: Icon(icon, key: Key('driver-nav-$id')),
+                      selectedIcon: Icon(selected),
+                      label: Text(label),
+                    ),
+                ],
+              ),
+              const VerticalDivider(width: 1),
+              Expanded(child: body),
+            ],
+          ),
         ),
       );
     }
-    return Scaffold(
-      body: body,
-      bottomNavigationBar: NavigationBar(
-        key: const Key('driver-nav'),
-        selectedIndex: _index,
-        onDestinationSelected: _select,
-        destinations: [
-          for (final (icon, selected, label, id) in destinations)
-            NavigationDestination(
-              icon: Icon(icon, key: Key('driver-nav-$id')),
-              selectedIcon: Icon(selected),
-              label: label,
-            ),
-        ],
+    return PageTitle(
+      title,
+      child: Scaffold(
+        body: body,
+        bottomNavigationBar: NavigationBar(
+          key: const Key('driver-nav'),
+          selectedIndex: _index,
+          onDestinationSelected: _select,
+          destinations: [
+            for (final (icon, selected, label, id) in destinations)
+              NavigationDestination(
+                icon: Icon(icon, key: Key('driver-nav-$id')),
+                selectedIcon: Icon(selected),
+                label: label,
+              ),
+          ],
+        ),
       ),
     );
   }

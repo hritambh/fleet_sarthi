@@ -320,6 +320,51 @@ void main() {
     expect(find.text('Suresh Patil'), findsOneWidget);
   });
 
+  testWidgets('a trip that has not started can be edited', (tester) async {
+    final h = await owner(tester);
+    final trip = h.owner.tripsById.values.first;
+    await tester.pumpWidget(
+      h.screen(OwnerTripDetailScreen(tripId: trip['id']! as String)),
+    );
+    await settle(tester);
+    await tester.tap(find.byKey(const Key('trip-edit')));
+    await settle(tester);
+
+    // The form opens on the trip as it is.
+    expect(find.text('Edit trip'), findsOneWidget);
+    expect(find.byKey(const Key('owner-create-trip')), findsNothing);
+    final from = tester.widget<TextField>(
+      find.byKey(const Key('owner-trip-from')),
+    );
+    expect(from.controller!.text, 'Pune Station');
+    // The vehicle and driver are changed with Assign, not here.
+    expect(find.text('Assign later'), findsNothing);
+
+    await tester.enterText(find.byKey(const Key('owner-trip-fare')), '5200');
+    await tester.ensureVisible(find.byKey(const Key('owner-save-trip')));
+    await tester.tap(find.byKey(const Key('owner-save-trip')));
+    await settle(tester);
+
+    final call = h.owner.last('updateTrip').args;
+    expect(call['id'], trip['id']);
+    expect(call['quotedFarePaise'], 520000);
+    expect(call.containsKey('vehicleId'), isFalse);
+    expect(h.owner.names, isNot(contains('createTrip')));
+    // Back on the trip.
+    expect(find.byKey(const Key('trip-edit')), findsOneWidget);
+  });
+
+  testWidgets('a trip that has started has no Edit', (tester) async {
+    final h = await owner(tester);
+    final trip = tripJson(status: 'started', allowed: ['end', 'cancel']);
+    h.owner.tripsById[trip['id']! as String] = trip;
+    await tester.pumpWidget(
+      h.screen(OwnerTripDetailScreen(tripId: trip['id']! as String)),
+    );
+    await settle(tester);
+    expect(find.byKey(const Key('trip-edit')), findsNothing);
+  });
+
   testWidgets('approve a driver’s cancellation request with a fare', (
     tester,
   ) async {

@@ -12,6 +12,7 @@ import '../links.dart';
 import '../owner_providers.dart';
 import '../owner_text.dart';
 import '../owner_widgets.dart';
+import 'create_trip_screen.dart';
 import 'route_map.dart';
 import 'trip_share.dart';
 
@@ -95,6 +96,14 @@ class _Header extends ConsumerWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
+              if (trip.status == 'created' || trip.status == 'assigned')
+                OutlinedButton.icon(
+                  key: const Key('trip-edit'),
+                  icon: const Icon(Icons.edit_outlined),
+                  label: Text(l.edit),
+                  onPressed: () =>
+                      openScreen<void>(context, CreateTripScreen(trip: trip)),
+                ),
               if (can.contains('assign') || can.contains('reassign'))
                 FilledButton.icon(
                   key: const Key('trip-assign'),
