@@ -1472,15 +1472,18 @@ class NumberPlate extends StatelessWidget {
       borderRadius: BorderRadius.circular(6),
       border: Border.all(color: const Color(0xFF1F2937)),
     ),
-    child: Text(
-      registration,
-      maxLines: 1,
-      softWrap: false,
-      overflow: TextOverflow.ellipsis,
-      style: const TextStyle(
-        fontWeight: FontWeight.w800,
-        letterSpacing: 0.8,
-        color: Color(0xFF111827),
+    // Shrinks to fit a narrow space rather than cutting the number short.
+    child: FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Text(
+        registration,
+        maxLines: 1,
+        softWrap: false,
+        style: const TextStyle(
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.8,
+          color: Color(0xFF111827),
+        ),
       ),
     ),
   );

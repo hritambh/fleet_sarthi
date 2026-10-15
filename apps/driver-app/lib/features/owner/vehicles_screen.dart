@@ -131,18 +131,25 @@ class _VehicleCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              // The plate keeps its full width; the chips drop below it when
+              // the card is too narrow for both.
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
+                runSpacing: 8,
                 children: [
-                  Flexible(
-                    child: NumberPlate(formatRegistration(v.registrationNo)),
-                  ),
-                  const SizedBox(width: 8),
-                  const Spacer(),
-                  DocumentsDueChip(vehicleId: v.id),
-                  const SizedBox(width: 6),
-                  ToneChip(
-                    v.isActive ? l.active : l.inactive,
-                    tone: v.isActive ? Tone.success : Tone.neutral,
+                  NumberPlate(formatRegistration(v.registrationNo)),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      DocumentsDueChip(vehicleId: v.id),
+                      const SizedBox(width: 6),
+                      ToneChip(
+                        v.isActive ? l.active : l.inactive,
+                        tone: v.isActive ? Tone.success : Tone.neutral,
+                      ),
+                    ],
                   ),
                 ],
               ),
