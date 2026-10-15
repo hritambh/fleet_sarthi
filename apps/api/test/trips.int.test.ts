@@ -434,15 +434,20 @@ describe('listing filters', () => {
       .sort();
 
   it('ORs a comma-separated list within a filter and ANDs filters', async () => {
+    // Two trips on their own vehicles; cancelling one keeps its vehicle.
     const a = await newTrip(true);
-    const b = await newTrip(false);
     const c = await newTrip(true);
-    const vehicles = [a, b, c].map((t) => t.vehicleId).join(',');
-    expect(await ids({ vehicleId: `${a.vehicleId},${b.vehicleId}` })).toEqual([a.id, b.id].sort());
-    expect(await ids({ vehicleId: vehicles, status: 'created,assigned' })).toEqual(
-      [a.id, b.id, c.id].sort(),
-    );
-    expect(await ids({ vehicleId: vehicles, status: 'created' })).toEqual([b.id]);
+    await request(h.http)
+      .post(`/v1/trips/${c.id}/cancel`)
+      .set(...bearer(owner))
+      .set(...key())
+      .send({ reason: 'Customer cancelled' })
+      .expect(200);
+    const vehicles = `${a.vehicleId},${c.vehicleId}`;
+    const both = [a.id, c.id].sort();
+    expect(await ids({ vehicleId: vehicles })).toEqual(both);
+    expect(await ids({ vehicleId: vehicles, status: 'assigned,cancelled' })).toEqual(both);
+    expect(await ids({ vehicleId: vehicles, status: 'assigned' })).toEqual([a.id]);
     // One value still works.
     expect(await ids({ vehicleId: c.vehicleId })).toEqual([c.id]);
   });
