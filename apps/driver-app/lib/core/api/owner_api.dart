@@ -136,7 +136,15 @@ abstract class OwnerApi {
 
   /// Replaces the vehicles driver [id] may drive.
   Future<Driver> setDriverVehicles(String id, List<String> vehicleIds);
-  Future<Driver> updateDriver(String id, {String? name, String? status});
+
+  /// [unassignTrips] with status 'inactive': unassign their booked trips
+  /// first (else DRIVER_HAS_TRIPS lists them).
+  Future<Driver> updateDriver(
+    String id, {
+    String? name,
+    String? status,
+    bool unassignTrips = false,
+  });
 
   /// Profile fields (photoMediaId, dateOfBirth, email, address,
   /// emergencyContactName, emergencyContactPhone); null clears one.
@@ -445,11 +453,16 @@ class HttpOwnerApi implements OwnerApi {
     String id, {
     String? name,
     String? status,
+    bool unassignTrips = false,
   }) async => Driver.fromJson(
     await _obj(
       'PATCH',
       '/drivers/$id',
-      body: {'name': ?name, 'status': ?status},
+      body: {
+        'name': ?name,
+        'status': ?status,
+        if (unassignTrips) 'unassignTrips': true,
+      },
     ),
   );
 

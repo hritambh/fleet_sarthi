@@ -3,6 +3,7 @@
 // unit-tested without widgets.
 import 'package:intl/intl.dart';
 
+import '../../core/api/models.dart';
 import '../../core/api/owner_models.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/format.dart';
@@ -431,6 +432,13 @@ String fuelMetricText(Fmt f, VehicleFuelAudit audit, double? value) {
 }
 
 /// "MH12AB1234" → "MH 12 AB 1234" for display.
+/// A trip's cab as "MH 12 CD 5678 · Swift Dzire" (just the number without a
+/// model).
+String vehicleLabel(TripVehicle v) => [
+  formatRegistration(v.registrationNo),
+  if (v.model.trim().isNotEmpty) v.model.trim(),
+].join(' · ');
+
 String formatRegistration(String reg) {
   final m = RegExp(
     r'^([A-Z]{2})(\d{1,2})([A-Z]{0,3})(\d{1,4})$',

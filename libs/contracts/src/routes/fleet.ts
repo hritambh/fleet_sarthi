@@ -296,11 +296,17 @@ export const fleetRoutes = {
   updateDriver: defineRoute({
     method: 'PATCH',
     path: '/drivers/{id}',
-    summary: 'Update a driver',
+    summary:
+      'Update a driver. Marking them inactive is refused while they are on a trip (DRIVER_ON_TRIP) ' +
+      'or have assigned trips (DRIVER_HAS_TRIPS, listing them); unassignTrips unassigns those first',
     tag: 'fleet',
     access: access.staff,
     params: IdParam,
-    body: DriverProfile.extend({ status: ActiveStatus.optional() }),
+    body: DriverProfile.extend({
+      status: ActiveStatus.optional(),
+      /** With status 'inactive': unassign the driver's assigned trips (back to unassigned) first. */
+      unassignTrips: z.boolean().optional(),
+    }),
     response: Driver,
   }),
   setDriverVehicles: defineRoute({

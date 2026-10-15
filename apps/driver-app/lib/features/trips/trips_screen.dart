@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../common/errors.dart';
 import '../common/format.dart';
 import '../common/widgets.dart';
+import '../driver/driver_providers.dart';
 import 'driver_home.dart';
 import 'driver_summary.dart';
 
@@ -64,7 +65,10 @@ class TripsScreen extends ConsumerWidget {
           const SyncStatusBar(),
           Expanded(
             child: RefreshIndicator(
-              onRefresh: () => ref.read(syncEngineProvider).syncNow(),
+              onRefresh: () {
+                ref.invalidate(myDriverProvider);
+                return ref.read(syncEngineProvider).syncNow();
+              },
               child: trips.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (error, _) => ListView(

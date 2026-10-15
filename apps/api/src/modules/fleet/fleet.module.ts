@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { TripsModule } from '../trips/trips.module.js';
 import { DocumentExpiryJob } from './document-expiry.job.js';
 import { DocumentsService } from './documents.service.js';
 import { FleetController } from './fleet.controller.js';
@@ -9,6 +10,7 @@ import { VehicleCatalogJob } from './vehicle-catalog.job.js';
 import { VehicleCatalogService } from './vehicle-catalog.service.js';
 
 @Module({
+  imports: [TripsModule],
   controllers: [FleetController],
   providers: [
     FleetRepository,

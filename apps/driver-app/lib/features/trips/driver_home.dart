@@ -8,6 +8,7 @@ import '../../core/repositories/trips_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/format.dart';
 import '../common/widgets.dart';
+import '../driver/driver_providers.dart';
 import '../fuel/fuel_fill_screen.dart';
 import '../owner/owner_text.dart';
 import '../owner/trips/trip_share.dart' show urlOpenerProvider;
@@ -172,9 +173,14 @@ class ActiveTripCard extends ConsumerWidget {
                     ),
                   ),
                   if (t.vehicle != null)
-                    Text(
-                      formatRegistration(t.vehicle!.registrationNo),
-                      style: const TextStyle(color: TaxcyColors.blue200),
+                    Flexible(
+                      child: Text(
+                        vehicleLabel(t.vehicle!),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.end,
+                        style: const TextStyle(color: TaxcyColors.blue200),
+                      ),
                     ),
                 ],
               ),
@@ -317,8 +323,7 @@ class NextTripCard extends ConsumerWidget {
               Text(
                 [
                   fmt.dayTime(t.scheduledStartAt),
-                  if (t.vehicle != null)
-                    formatRegistration(t.vehicle!.registrationNo),
+                  if (t.vehicle != null) vehicleLabel(t.vehicle!),
                   fmt.inr(t.quotedFarePaise),
                 ].join(' · '),
                 style: const TextStyle(color: TaxcyColors.muted),
@@ -463,14 +468,38 @@ class DriverStatsCard extends StatelessWidget {
   }
 }
 
-/// Things a driver does between trips.
-class DriverQuickActions extends ConsumerWidget {
+/// Things a driver does between trips. A driver the owner marked inactive
+/// sees why, and can't create trips (the server refuses them too).
+class DriverQuickActions extends ConsumerStatefulWidget {
   const DriverQuickActions({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DriverQuickActions> createState() => _DriverQuickActionsState();
+}
+
+class _DriverQuickActionsState extends ConsumerState<DriverQuickActions> {
+  // The owner may change the status while the app is in the background.
+  late final _lifecycle = AppLifecycleListener(
+    onResume: () => ref.invalidate(myDriverProvider),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycle;
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l = context.l10n;
-    Widget action(Key key, IconData icon, String label, VoidCallback onTap) =>
+    final inactive = ref.watch(myDriverProvider).value?.isActive == false;
+    Widget action(Key key, IconData icon, String label, VoidCallback? onTap) =>
         Expanded(
           child: Card(
             margin: EdgeInsets.zero,
@@ -482,7 +511,12 @@ class DriverQuickActions extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 child: Column(
                   children: [
-                    Icon(icon, color: TaxcyColors.blue700),
+                    Icon(
+                      icon,
+                      color: onTap == null
+                          ? TaxcyColors.muted
+                          : TaxcyColors.blue700,
+                    ),
                     const SizedBox(height: 6),
                     Text(
                       label,
@@ -496,34 +530,65 @@ class DriverQuickActions extends ConsumerWidget {
             ),
           ),
         );
+    final row = Row(
+      children: [
+        action(
+          const Key('driver-action-new-trip'),
+          Icons.add_road,
+          l.newTrip,
+          inactive
+              ? null
+              : () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const NewTripScreen(),
+                  ),
+                ),
+        ),
+        const SizedBox(width: 8),
+        action(
+          const Key('driver-action-fuel'),
+          Icons.local_gas_station,
+          l.logFuel,
+          () => Navigator.of(context).push(
+            MaterialPageRoute<void>(builder: (_) => const FuelFillScreen()),
+          ),
+        ),
+        const SizedBox(width: 8),
+        action(const Key('driver-action-sync'), Icons.sync, l.syncNow, () {
+          ref.invalidate(myDriverProvider);
+          ref.read(syncEngineProvider).syncNow();
+        }),
+      ],
+    );
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-      child: Row(
+      child: Column(
         children: [
-          action(
-            const Key('driver-action-new-trip'),
-            Icons.add_road,
-            l.newTrip,
-            () => Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const NewTripScreen()),
+          if (inactive)
+            Container(
+              key: const Key('driver-inactive-banner'),
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red.shade50,
+                border: Border.all(color: Colors.red.shade300),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.block, color: Colors.red.shade700),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      l.driverInactiveBanner,
+                      style: TextStyle(color: Colors.red.shade900),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          action(
-            const Key('driver-action-fuel'),
-            Icons.local_gas_station,
-            l.logFuel,
-            () => Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const FuelFillScreen()),
-            ),
-          ),
-          const SizedBox(width: 8),
-          action(
-            const Key('driver-action-sync'),
-            Icons.sync,
-            l.syncNow,
-            () => ref.read(syncEngineProvider).syncNow(),
-          ),
+          row,
         ],
       ),
     );
@@ -646,7 +711,7 @@ class DriverTripTile extends StatelessWidget {
                     Text(
                       [
                         fmt.dayTime(t.scheduledStartAt),
-                        if (t.vehicle != null) t.vehicle!.registrationNo,
+                        if (t.vehicle != null) vehicleLabel(t.vehicle!),
                         ?t.customerName,
                         if (view.conflict != null)
                           '⚠ ${view.conflict == 'TRIP_CANCELLED' ? l.conflictCancelledShort : l.conflictReassignedShort}',

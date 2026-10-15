@@ -1,3 +1,4 @@
+import 'package:taxcy_driver/core/api/api.dart';
 import 'package:taxcy_driver/core/api/json.dart';
 import 'package:taxcy_driver/core/api/models.dart';
 import 'package:taxcy_driver/core/api/owner_api.dart';
@@ -852,9 +853,23 @@ class FakeOwnerApi implements OwnerApi {
     );
   }
 
+  /// Errors the next updateDriver calls throw, in order.
+  final updateDriverErrors = <ApiException>[];
+
   @override
-  Future<Driver> updateDriver(String id, {String? name, String? status}) async {
-    _record('updateDriver', {'id': id, 'name': name, 'status': status});
+  Future<Driver> updateDriver(
+    String id, {
+    String? name,
+    String? status,
+    bool unassignTrips = false,
+  }) async {
+    _record('updateDriver', {
+      'id': id,
+      'name': name,
+      'status': status,
+      'unassignTrips': unassignTrips,
+    });
+    if (updateDriverErrors.isNotEmpty) throw updateDriverErrors.removeAt(0);
     return Driver.fromJson(driverJson(id: id));
   }
 

@@ -12,6 +12,10 @@ export const ErrorCode = z.enum([
   'TRIP_REASSIGNED',
   'VEHICLE_BUSY',
   'DRIVER_BUSY',
+  /** The driver was marked inactive: they can't create or be given trips. */
+  'DRIVER_INACTIVE',
+  /** Marking a driver inactive while they have assigned trips (details.trips). */
+  'DRIVER_HAS_TRIPS',
   /** Starting a trip while the driver already has one on the road (details.tripId, route). */
   'DRIVER_ON_TRIP',
   /** Starting a trip in a vehicle that's already on the road (details.tripId, route). */
