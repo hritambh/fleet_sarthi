@@ -1352,17 +1352,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get brand => 'Brand';
 
   @override
+  String get search => 'Search';
+
+  @override
+  String get othersGroup => 'Others';
+
+  @override
   String get otherModel => 'Other / not listed';
 
   @override
   String get catalogUnavailable =>
       'Couldn\'t load the list; type it in instead';
-
-  @override
-  String get cabModelsGroup => 'Common cab models';
-
-  @override
-  String get indiaModelsGroup => 'Others sold in India';
 
   @override
   String get make => 'Make';
@@ -2604,6 +2604,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get removePin => 'Remove pin';
+
+  @override
+  String get noPlacesFound =>
+      'No matching city; you can type the address instead';
 
   @override
   String get pickupOnMap => 'Pickup on the map';

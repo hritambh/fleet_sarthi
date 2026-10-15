@@ -33,9 +33,17 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  /// Opens the picker, finds [option] with the search box (which also opens
+  /// the "Others" group) and taps it. "Other / not listed" is tapped as is.
   Future<void> pick(WidgetTester tester, String key, String option) async {
     await open(tester, key);
-    await tester.tap(find.text(option).last);
+    if (option == 'Other / not listed') {
+      await tester.tap(find.text(option).last);
+    } else {
+      await tester.enterText(find.byKey(Key('$key-search')), option);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(Key('$key-option-$option')));
+    }
     await tester.pumpAndSettle();
   }
 
@@ -93,17 +101,27 @@ void main() {
   });
 
   group('the add-vehicle form', () {
-    testWidgets('the brand dropdown leads with the cab makes, then the rest of '
-        'India under a heading', (tester) async {
+    testWidgets('the brand picker leads with the cab makes, then the rest of '
+        'India under Others', (tester) async {
       final h = await setUpOwner(tester);
       await tester.pumpWidget(h.screen(const VehicleFormScreen()));
       await settle(tester);
       await open(tester, 'vehicle-brand');
-      expect(find.text('Common cab models'), findsOneWidget);
-      expect(find.text('Others sold in India'), findsOneWidget);
-      for (final make in ['Maruti Suzuki', 'Tata', 'Hyundai']) {
+      // No heading over the cab makes; the rest sit in a folded Others.
+      expect(find.text('Common cab models'), findsNothing);
+      expect(find.text('Others'), findsOneWidget);
+      for (final make in ['Maruti Suzuki', 'Tata']) {
         expect(find.text(make), findsOneWidget, reason: make);
       }
+      expect(find.text('Other / not listed'), findsOneWidget);
+      // Searching opens Others and narrows every list.
+      await tester.enterText(
+        find.byKey(const Key('vehicle-brand-search')),
+        'hyun',
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Hyundai'), findsOneWidget);
+      expect(find.text('Tata'), findsNothing);
       // The catalogue's own spelling is dropped where the cab list already has
       // the brand, so a brand is never offered twice.
       expect(find.text('Tata Motors Limited'), findsNothing);
@@ -118,12 +136,22 @@ void main() {
 
       await pick(tester, 'vehicle-brand', 'Maruti Suzuki');
       await open(tester, 'vehicle-model-pick');
-      for (final model in ['Dzire', 'Ertiga', 'Swift', 'Wagon R']) {
+      for (final model in ['Dzire', 'Ertiga']) {
+        expect(find.text(model), findsWidgets, reason: model);
+      }
+      // The brand's other models are folded away until Others is opened.
+      expect(find.text('Wagon R'), findsNothing);
+      await tester.tap(find.text('Others'));
+      await tester.pumpAndSettle();
+      for (final model in ['Swift', 'Wagon R']) {
         expect(find.text(model), findsWidgets, reason: model);
       }
       // Ertiga is on both lists and is only offered once, as a cab model.
       expect(find.text('Ertiga'), findsOneWidget);
-      expect(find.text('Nexon'), findsNothing);
+      expect(
+        find.byKey(const Key('vehicle-model-pick-option-Nexon')),
+        findsNothing,
+      );
     });
 
     testWidgets('a cab model carries its id and fuel type, which is what seeds '
@@ -168,7 +196,14 @@ void main() {
       await open(tester, 'vehicle-model-pick');
       expect(find.text('Tiago'), findsWidgets);
       expect(find.text('Dzire'), findsNothing);
-      await tester.tap(find.text('Nexon').last);
+      await tester.enterText(
+        find.byKey(const Key('vehicle-model-pick-search')),
+        'Nexon',
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const Key('vehicle-model-pick-option-Nexon')),
+      );
       await tester.pumpAndSettle();
       await save(tester);
       final body = h.owner.last('createVehicle').args;
@@ -228,9 +263,8 @@ void main() {
       await tester.pumpWidget(h.screen(const VehicleFormScreen()));
       await settle(tester);
       await open(tester, 'vehicle-brand');
-      // One group left, so it needs no heading.
-      expect(find.text('Common cab models'), findsNothing);
-      expect(find.text('Others sold in India'), findsNothing);
+      // Nothing to put first, so no Others fold: the list is flat.
+      expect(find.text('Others'), findsNothing);
       expect(find.text('Tata Motors Limited'), findsOneWidget);
     });
 

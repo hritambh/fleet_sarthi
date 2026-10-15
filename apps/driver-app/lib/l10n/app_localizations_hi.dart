@@ -1348,16 +1348,16 @@ class AppLocalizationsHi extends AppLocalizations {
   String get brand => 'ब्रांड';
 
   @override
+  String get search => 'खोजें';
+
+  @override
+  String get othersGroup => 'अन्य';
+
+  @override
   String get otherModel => 'दूसरा / सूची में नहीं';
 
   @override
   String get catalogUnavailable => 'सूची लोड नहीं हो पाई; खुद लिख दें';
-
-  @override
-  String get cabModelsGroup => 'आम टैक्सी मॉडल';
-
-  @override
-  String get indiaModelsGroup => 'भारत में मिलने वाली दूसरी गाड़ियाँ';
 
   @override
   String get make => 'कंपनी';
@@ -2597,6 +2597,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get removePin => 'पिन हटाएँ';
+
+  @override
+  String get noPlacesFound => 'कोई शहर नहीं मिला; पता खुद लिख सकते हैं';
 
   @override
   String get pickupOnMap => 'मैप पर पिकअप';

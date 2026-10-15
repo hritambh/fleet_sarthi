@@ -429,10 +429,8 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
         key: 'vehicle-brand',
         label: l.brand,
         value: _ownBrand ? _otherOption : make,
-        groups: [
-          (l.cabModelsGroup, cabMakes),
-          (l.indiaModelsGroup, otherBrands),
-        ],
+        common: cabMakes,
+        others: otherBrands,
         other: l.otherModel,
         helper: brands.hasError ? l.catalogUnavailable : null,
         onChanged: chooseBrand,
@@ -448,10 +446,8 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
           key: 'vehicle-model-pick',
           label: l.model,
           value: _ownModel ? _otherOption : model,
-          groups: [
-            (l.cabModelsGroup, [for (final m in cabModels) m.model]),
-            (l.indiaModelsGroup, otherModels),
-          ],
+          common: [for (final m in cabModels) m.model],
+          others: otherModels,
           other: l.otherModel,
           helper: catalogModels?.hasError ?? false
               ? l.catalogUnavailable
@@ -465,46 +461,44 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
     ];
   }
 
-  /// A dropdown over named groups of options, each group under a heading that
-  /// only appears when more than one group has anything in it, with "Other"
-  /// last. [key] stays put while the shown value changes, which a FormField
-  /// only picks up from a fresh key of its own.
+  /// A dropdown with a search box: the [common] options on top, the rest
+  /// under an "Others" sub-dropdown, and "Other" (free text) last. [key] stays
+  /// put while the shown value changes.
   Widget _picker({
     required String key,
     required String label,
     required String? value,
-    required List<(String, List<String>)> groups,
+    required List<String> common,
+    required List<String> others,
     required String other,
     required String? helper,
     required void Function(String?) onChanged,
   }) {
-    final filled = groups.where((g) => g.$2.isNotEmpty).toList();
-    final headings = filled.length > 1;
-    var heading = 0;
-    return KeyedSubtree(
+    final shown = value == _otherOption ? other : value;
+    return InkWell(
       key: Key(key),
-      child: DropdownButtonFormField<String?>(
-        key: ValueKey('$key-$value'),
-        initialValue: value,
-        isExpanded: true,
-        decoration: InputDecoration(labelText: label, helperText: helper),
-        items: [
-          for (final (name, options) in filled) ...[
-            if (headings)
-              DropdownMenuItem<String?>(
-                enabled: false,
-                value: '$_otherOption-heading-${heading++}',
-                child: Text(
-                  name,
-                  style: Theme.of(context).textTheme.labelSmall,
-                ),
-              ),
-            for (final option in options)
-              DropdownMenuItem<String?>(value: option, child: Text(option)),
-          ],
-          DropdownMenuItem<String?>(value: _otherOption, child: Text(other)),
-        ],
-        onChanged: onChanged,
+      borderRadius: BorderRadius.circular(14),
+      onTap: () async {
+        final picked = await showDialog<String>(
+          context: context,
+          builder: (_) => _SearchPickDialog(
+            idPrefix: key,
+            title: label,
+            common: common,
+            others: others,
+            other: other,
+            value: value,
+          ),
+        );
+        if (picked != null) onChanged(picked);
+      },
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          helperText: helper,
+          suffixIcon: const Icon(Icons.arrow_drop_down),
+        ),
+        child: Text(shown ?? '', maxLines: 1, overflow: TextOverflow.ellipsis),
       ),
     );
   }
@@ -599,6 +593,109 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// The pop-up behind a brand or model field: a search box over [common]
+/// options, [others] folded under "Others" (opened by a search), and [other]
+/// last. Pops the chosen option, or [_otherOption] for [other].
+class _SearchPickDialog extends StatefulWidget {
+  const _SearchPickDialog({
+    required this.idPrefix,
+    required this.title,
+    required this.common,
+    required this.others,
+    required this.other,
+    required this.value,
+  });
+
+  final String idPrefix;
+  final String title;
+  final List<String> common;
+  final List<String> others;
+  final String other;
+  final String? value;
+
+  @override
+  State<_SearchPickDialog> createState() => _SearchPickDialogState();
+}
+
+class _SearchPickDialogState extends State<_SearchPickDialog> {
+  var _query = '';
+
+  List<String> _match(List<String> options) {
+    final q = _query.trim().toLowerCase();
+    return q.isEmpty
+        ? options
+        : [
+            for (final o in options)
+              if (o.toLowerCase().contains(q)) o,
+          ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final common = _match(widget.common);
+    final others = _match(widget.others);
+    final searching = _query.trim().isNotEmpty;
+    Widget tile(String option, String value) => ListTile(
+      key: Key('${widget.idPrefix}-option-$value'),
+      dense: true,
+      title: Text(option),
+      selected: widget.value == value,
+      trailing: widget.value == value
+          ? const Icon(Icons.check, size: 18)
+          : null,
+      onTap: () => Navigator.of(context).pop(value),
+    );
+    return Dialog(
+      key: Key('${widget.idPrefix}-popup'),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420, maxHeight: 560),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: TextField(
+                key: Key('${widget.idPrefix}-search'),
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: widget.title,
+                  hintText: l.search,
+                  prefixIcon: const Icon(Icons.search),
+                  isDense: true,
+                ),
+                onChanged: (v) => setState(() => _query = v),
+              ),
+            ),
+            Flexible(
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  for (final o in common) tile(o, o),
+                  // With no common list, the others are the list.
+                  if (widget.common.isEmpty)
+                    for (final o in others) tile(o, o)
+                  else if (others.isNotEmpty)
+                    ExpansionTile(
+                      // A new key reopens or closes it as the search starts
+                      // and stops.
+                      key: Key('${widget.idPrefix}-others-$searching'),
+                      title: Text(l.othersGroup),
+                      initiallyExpanded: searching,
+                      children: [for (final o in others) tile(o, o)],
+                    ),
+                  tile(widget.other, _otherOption),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

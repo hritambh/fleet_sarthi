@@ -49,12 +49,20 @@ void main() {
 
   /// Picks a brand and then one of its models from the catalogue dropdowns,
   /// which is how the add-vehicle form fills the make and model.
+  /// Opens the picker, finds [option] with the search box (which also opens
+  /// the "Others" group) and taps it. "Other / not listed" is tapped as is.
   Future<void> pick(WidgetTester tester, String key, String option) async {
     final field = find.byKey(Key(key));
     await tester.ensureVisible(field);
     await tester.tap(field);
     await tester.pumpAndSettle();
-    await tester.tap(find.text(option).last);
+    if (option == 'Other / not listed') {
+      await tester.tap(find.text(option).last);
+    } else {
+      await tester.enterText(find.byKey(Key('$key-search')), option);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(Key('$key-option-$option')));
+    }
     await tester.pumpAndSettle();
   }
 

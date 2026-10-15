@@ -2470,6 +2470,18 @@ abstract class AppLocalizations {
   /// **'Brand'**
   String get brand;
 
+  /// No description provided for @search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
+
+  /// No description provided for @othersGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Others'**
+  String get othersGroup;
+
   /// No description provided for @otherModel.
   ///
   /// In en, this message translates to:
@@ -2481,18 +2493,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t load the list; type it in instead'**
   String get catalogUnavailable;
-
-  /// No description provided for @cabModelsGroup.
-  ///
-  /// In en, this message translates to:
-  /// **'Common cab models'**
-  String get cabModelsGroup;
-
-  /// No description provided for @indiaModelsGroup.
-  ///
-  /// In en, this message translates to:
-  /// **'Others sold in India'**
-  String get indiaModelsGroup;
 
   /// No description provided for @make.
   ///
@@ -4531,6 +4531,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove pin'**
   String get removePin;
+
+  /// No description provided for @noPlacesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching city; you can type the address instead'**
+  String get noPlacesFound;
 
   /// No description provided for @pickupOnMap.
   ///
