@@ -6,17 +6,20 @@ import 'support/harness.dart';
 
 const _scroll = Key('welcome-scroll');
 
-/// The app, signed out.
+/// The app, signed out, showing the web's full landing page (or the
+/// installed app's short welcome with [compact]).
 Future<Harness> firstVisit(
   WidgetTester tester, {
   String language = 'en',
   Size size = const Size(420, 2000),
+  bool compact = false,
 }) async {
   tester.view
     ..devicePixelRatio = 1
     ..physicalSize = size;
   addTearDown(tester.view.reset);
-  final h = await Harness.create(language: language);
+  final h = await Harness.create(language: language)
+    ..compactWelcome = compact;
   addTearDown(h.dispose);
   await tester.pumpWidget(h.wrap(const TaxcyDriverApp()));
   await settle(tester);
@@ -129,6 +132,49 @@ void main() {
     }
     expect(find.text('Built for highways and ghat roads'), findsOneWidget);
     expect(find.text('Ramesh hands over'), findsWidgets);
+  });
+
+  group('in the installed app', () {
+    testWidgets('a short welcome, not the landing page', (tester) async {
+      await firstVisit(tester, compact: true, size: const Size(390, 844));
+      expect(find.byKey(const Key('welcome-app')), findsOneWidget);
+      expect(find.text('Know what your cars'), findsOneWidget);
+      expect(find.text('Fuel audit'), findsOneWidget);
+      // None of the landing page's sections.
+      expect(find.byKey(const Key('welcome-scroll')), findsNothing);
+      expect(find.text('Questions owners ask'), findsNothing);
+      expect(find.byKey(const Key('welcome-slide-0')), findsNothing);
+      // The version in small print (local and test runs say "dev").
+      expect(find.text('vdev'), findsOneWidget);
+    });
+
+    testWidgets('get started opens sign up; sign in the login card', (
+      tester,
+    ) async {
+      await firstVisit(tester, compact: true, size: const Size(390, 844));
+      await tester.tap(find.byKey(const Key('welcome-get-started')));
+      await settle(tester);
+      expect(find.text('Create your account'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('login-about')));
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('welcome-sign-in')));
+      await settle(tester);
+      expect(find.byKey(const Key('password-field')), findsOneWidget);
+      expect(find.byKey(const Key('login-version')), findsOneWidget);
+    });
+
+    // A small phone and Hindi: no overflow (it scrolls if it must).
+    for (final language in ['en', 'hi']) {
+      testWidgets('fits a 360 × 640 phone ($language)', (tester) async {
+        await firstVisit(
+          tester,
+          compact: true,
+          language: language,
+          size: const Size(360, 640),
+        );
+        expect(find.byKey(const Key('welcome-app')), findsOneWidget);
+      });
+    }
   });
 
   // Every section is built (the page is one column), so any overflow at these

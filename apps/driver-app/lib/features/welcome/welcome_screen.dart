@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
 import '../../app/theme.dart';
@@ -9,13 +11,22 @@ import '../common/format.dart';
 import '../common/language_picker.dart';
 import '../owner/cab_timeline.dart';
 
+part 'welcome_app.dart';
 part 'welcome_showcase.dart';
 
-/// The page a signed-out visitor sees first: what Fleet Sarthi does and who it
-/// is for, then sign up ([onGetStarted]) or log in ([onSignIn]). A dark hero
-/// with a preview of the owner's day, then light sections, then a dark call
-/// to action. Everything it promises is something the app does today.
-class WelcomeScreen extends StatelessWidget {
+/// Whether the signed-out welcome is the short single screen (the installed
+/// app) rather than the full landing page (the web, where it's shared with
+/// prospects).
+final compactWelcomeProvider = Provider<bool>((ref) => !kIsWeb);
+
+/// The page a signed-out visitor sees first, then sign up ([onGetStarted]) or
+/// log in ([onSignIn]).
+///
+/// On the web, the full landing page: what Fleet Sarthi does and who it is
+/// for, a dark hero with a preview of the owner's day, light sections and a
+/// dark call to action. In the app, a short single screen ([_AppWelcome]).
+/// Everything either promises is something the app does today.
+class WelcomeScreen extends ConsumerWidget {
   const WelcomeScreen({
     required this.onGetStarted,
     required this.onSignIn,
@@ -26,7 +37,12 @@ class WelcomeScreen extends StatelessWidget {
   final VoidCallback onSignIn;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context, WidgetRef ref) =>
+      ref.watch(compactWelcomeProvider)
+      ? _AppWelcome(onGetStarted: onGetStarted, onSignIn: onSignIn)
+      : _landingPage();
+
+  Widget _landingPage() => Scaffold(
     backgroundColor: TaxcyColors.background,
     body: SingleChildScrollView(
       key: const Key('welcome-scroll'),
@@ -211,11 +227,15 @@ class _GradientButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     required this.buttonKey,
+    this.expand = false,
   });
 
   final String label;
   final VoidCallback onPressed;
   final Key buttonKey;
+
+  /// Fills the width, label centred.
+  final bool expand;
 
   @override
   Widget build(BuildContext context) => DecoratedBox(
@@ -239,7 +259,8 @@ class _GradientButton extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 16),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Flexible(
                 child: Text(

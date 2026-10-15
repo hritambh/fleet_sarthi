@@ -73,7 +73,7 @@ bun run dev:driver-web        # the app in Chrome on :5174 (second terminal)
 
 Before the first `dev`, run `bun run db:migrate && bun run db:seed` to create the schema and the demo fleet. Then sign in at <http://localhost:5174> with a seeded phone number and the password `12345678` (every demo person has it): the owner `9000000001` gets owner mode, a driver such as `9000000011` gets driver mode. **Forgot password?** sends a reset code, which is printed in the `bun run dev` log (no SMS is sent). To run the app on a phone or emulator instead, see the getting-started guide.
 
-To build the Android APK or host a free demo (Render + Neon + Backblaze B2), see [`docs/deployment.md`](docs/deployment.md): `API_URL=https://<your-api> bun run build:apk`.
+To build the Android APK or host a free demo (Render + Neon + Backblaze B2), see [`docs/deployment.md`](docs/deployment.md): `API_URL=https://<your-api> bun run build:apk:arm64` (the APK to send to phones).
 
 ## Documentation
 

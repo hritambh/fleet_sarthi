@@ -2,6 +2,7 @@
 # Builds a release APK of the Fleet Sarthi app pointed at a given API server.
 #
 #   API_URL=https://taxcy-api.onrender.com bun run build:apk
+#   API_URL=https://taxcy-api.onrender.com bun run build:apk:arm64   # just the phone APK
 #   apps/driver-app/scripts/build-apk.sh --api-url https://taxcy-api.onrender.com --split --aab
 #
 # Options (each also settable through the environment variable in brackets):
@@ -9,6 +10,8 @@
 #   --build-number N     Android versionCode [BUILD_NUMBER] (default: git commit count,
 #                        so every newer build installs over the previous one)
 #   --split              also build one smaller APK per CPU architecture [SPLIT_PER_ABI=1]
+#   --arm64              build ONLY the arm64-v8a APK (fits nearly every phone since
+#                        2017; one build, so faster) [ARM64_ONLY=1]
 #   --aab                also build an Android App Bundle for Google Play [BUILD_AAB=1]
 #
 # Signing: android/key.properties (see scripts/create-keystore.sh) signs with your
@@ -22,9 +25,10 @@ REPO_ROOT="$(cd "$APP_DIR/../.." && pwd)"
 API_URL="${API_URL:-}"
 BUILD_NUMBER="${BUILD_NUMBER:-}"
 SPLIT_PER_ABI="${SPLIT_PER_ABI:-0}"
+ARM64_ONLY="${ARM64_ONLY:-0}"
 BUILD_AAB="${BUILD_AAB:-0}"
 
-usage() { sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; }
+usage() { sed -n '2,19p' "$0" | sed 's/^# \{0,1\}//'; }
 fail() {
   echo "build-apk: $*" >&2
   exit 1
@@ -37,6 +41,7 @@ while [[ $# -gt 0 ]]; do
     --build-number) BUILD_NUMBER="${2:-}"; shift 2 ;;
     --build-number=*) BUILD_NUMBER="${1#*=}"; shift ;;
     --split) SPLIT_PER_ABI=1; shift ;;
+    --arm64) ARM64_ONLY=1; shift ;;
     --aab) BUILD_AAB=1; shift ;;
     -h | --help) usage; exit 0 ;;
     *) usage >&2; fail "unknown option: $1" ;;
@@ -64,6 +69,7 @@ if [[ "$API_URL" == http://* ]]; then
 fi
 
 [[ -z "$BUILD_NUMBER" || "$BUILD_NUMBER" =~ ^[0-9]+$ ]] || fail "--build-number must be a whole number"
+[[ "$ARM64_ONLY" == 1 && "$SPLIT_PER_ABI" == 1 ]] && fail "use --arm64 or --split, not both (--split already includes the arm64-v8a APK)"
 if [[ -z "$BUILD_NUMBER" ]]; then
   BUILD_NUMBER="$(git -C "$REPO_ROOT" rev-list --count HEAD 2>/dev/null || echo 1)"
 fi
@@ -91,7 +97,14 @@ cd "$APP_DIR"
 flutter pub get
 common=(--release "--dart-define=API_URL=$API_URL" "--dart-define=APP_VERSION=$VERSION" "--build-name=$VERSION" "--build-number=$BUILD_NUMBER")
 
-flutter build apk "${common[@]}"
+if [[ "$ARM64_ONLY" == 1 ]]; then
+  # Only arm64 is compiled, and the split drops the plugins' native libraries
+  # for other CPUs, so this is --split's arm64-v8a APK without building the
+  # universal APK and the other two first.
+  flutter build apk "${common[@]}" --split-per-abi --target-platform android-arm64
+else
+  flutter build apk "${common[@]}"
+fi
 if [[ "$SPLIT_PER_ABI" == 1 ]]; then
   flutter build apk "${common[@]}" --split-per-abi
 fi
@@ -106,8 +119,17 @@ APK_DIR="$APP_DIR/build/app/outputs/flutter-apk"
 name="fleet-sarthi-$VERSION+$BUILD_NUMBER"
 outputs=()
 
-cp "$APK_DIR/app-release.apk" "$OUT_DIR/$name.apk"
-outputs+=("$OUT_DIR/$name.apk")
+if [[ "$ARM64_ONLY" == 1 ]]; then
+  main_apk="$OUT_DIR/$name-arm64-v8a.apk"
+else
+  main_apk="$OUT_DIR/$name.apk"
+fi
+if [[ "$ARM64_ONLY" == 1 ]]; then
+  cp "$APK_DIR/app-arm64-v8a-release.apk" "$main_apk"
+else
+  cp "$APK_DIR/app-release.apk" "$main_apk"
+fi
+outputs+=("$main_apk")
 if [[ "$SPLIT_PER_ABI" == 1 ]]; then
   for abi in arm64-v8a armeabi-v7a x86_64; do
     if [[ -f "$APK_DIR/app-$abi-release.apk" ]]; then
@@ -129,5 +151,5 @@ for f in "${outputs[@]}"; do
 done
 echo
 echo "Install on a phone connected over USB (USB debugging on):"
-echo "  adb install -r \"$OUT_DIR/$name.apk\""
+echo "  adb install -r \"$main_apk\""
 echo "Or copy the .apk to the phone and open it (allow installing from that app when asked)."

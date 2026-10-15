@@ -1,0 +1,116 @@
+# Every change to the app on main: check it, build the arm64 APK (the one to
+# send to phones), and post it to Slack #releases. Setup (Slack app, secrets):
+# docs/deployment.md, "Automatic APK in Slack".
+name: Android APK to Slack
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - apps/driver-app/**
+      # Tests and docs don't change the installed app.
+      - '!apps/driver-app/test/**'
+      - '!apps/driver-app/**/*.md'
+  workflow_dispatch:
+
+# A newer push replaces a build still running for an older one.
+concurrency:
+  group: android-release
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    name: Build arm64 APK and post to Slack
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The build number is the commit count, so the whole history is needed.
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.38.5
+          channel: stable
+          cache: true
+
+      - name: Check the app (format, analyze, test)
+        working-directory: apps/driver-app
+        run: |
+          flutter pub get
+          dart format --output=none --set-exit-if-changed lib test
+          flutter analyze --fatal-infos
+          flutter test
+
+      # The same upload key as local builds, so the APK installs over the app
+      # already on a phone and keeps its data.
+      - name: Signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          if [[ -z "$KEYSTORE_BASE64" || -z "$KEYSTORE_PASSWORD" ]]; then
+            echo "::error::Set the ANDROID_KEYSTORE_BASE64 and ANDROID_KEYSTORE_PASSWORD secrets (docs/deployment.md)"
+            exit 1
+          fi
+          umask 077
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          cat > apps/driver-app/android/key.properties <<EOF
+          storePassword=$KEYSTORE_PASSWORD
+          keyPassword=$KEYSTORE_PASSWORD
+          keyAlias=upload
+          storeFile=$RUNNER_TEMP/upload.jks
+          EOF
+
+      - name: Build the arm64 APK
+        env:
+          API_URL: ${{ vars.API_URL || 'https://taxcy-api.onrender.com' }}
+        run: apps/driver-app/scripts/build-apk.sh --arm64
+
+      - name: Describe the release
+        id: release
+        run: |
+          apk="$(ls dist/driver-app/*-arm64-v8a.apk)"
+          name="$(basename "$apk")"
+          version="${name#fleet-sarthi-}"
+          version="${version%-arm64-v8a.apk}"
+          subject="$(git log -1 --format=%s)"
+          short="$(git rev-parse --short HEAD)"
+          url="${{ github.server_url }}/${{ github.repository }}/commit/$(git rev-parse HEAD)"
+          comment="📱 *Fleet Sarthi $version* (arm64 APK, $short)"$'\n'"$subject"$'\n'"<$url|View commit> · by ${{ github.actor }}"$'\n'"Install: download on the phone and open it; it updates the app in place."
+          {
+            echo "path=$apk"
+            echo "name=$name"
+            echo "comment<<COMMENT_EOF"
+            echo "$comment"
+            echo "COMMENT_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Keep the APK as a build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.release.outputs.name }}
+          path: ${{ steps.release.outputs.path }}
+          retention-days: 30
+
+      - name: Post to Slack #releases
+        uses: slackapi/slack-github-action@v2
+        with:
+          method: files.uploadV2
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          # toJSON keeps commit messages with quotes or colons valid YAML.
+          payload: |
+            channel_id: ${{ toJSON(secrets.SLACK_RELEASES_CHANNEL_ID) }}
+            initial_comment: ${{ toJSON(steps.release.outputs.comment) }}
+            file: ${{ toJSON(steps.release.outputs.path) }}
+            filename: ${{ toJSON(steps.release.outputs.name) }}
+
+      - name: Remove the signing key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/upload.jks" apps/driver-app/android/key.properties

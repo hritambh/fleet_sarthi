@@ -14,6 +14,7 @@ import 'package:taxcy_driver/core/sync/sync_engine.dart';
 import 'package:taxcy_driver/features/login/phone_verification.dart';
 import 'package:taxcy_driver/features/owner/trips/route_map.dart';
 import 'package:taxcy_driver/features/owner/trips/trip_share.dart';
+import 'package:taxcy_driver/features/welcome/welcome_screen.dart';
 import 'package:taxcy_driver/l10n/app_localizations.dart';
 
 import 'auth_fakes.dart';
@@ -67,6 +68,10 @@ class Harness {
     ),
   ];
 
+  /// The app's short welcome (true, as on phones) or the web's full landing
+  /// page (false).
+  bool compactWelcome = true;
+
   /// URLs the app asked to open outside itself (WhatsApp links), in order.
   final openedUrls = <Uri>[];
   final InMemorySessionStore sessions;
@@ -97,6 +102,7 @@ class Harness {
       sessionStoreProvider.overrideWithValue(sessions),
       syncEngineProvider.overrideWithValue(engine),
       backgroundWorkProvider.overrideWithValue(false),
+      compactWelcomeProvider.overrideWithValue(compactWelcome),
       startupPreferencesProvider.overrideWithValue(prefs),
       photoStoreProvider.overrideWithValue(photoStore),
       photoCaptureProvider.overrideWithValue(

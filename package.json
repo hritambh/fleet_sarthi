@@ -16,6 +16,7 @@
     "dev:workers": "nx run @taxcy/workers:dev --output-style=stream",
     "dev:driver-web": "bun run --cwd apps/driver-app web",
     "build:apk": "apps/driver-app/scripts/build-apk.sh",
+    "build:apk:arm64": "apps/driver-app/scripts/build-apk.sh --arm64",
     "driver:keystore": "apps/driver-app/scripts/create-keystore.sh",
     "build": "nx run-many -t build",
     "lint": "nx run-many -t lint",

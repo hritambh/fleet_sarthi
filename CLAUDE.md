@@ -32,7 +32,7 @@ Flutter app (`apps/driver-app`): `flutter analyze --fatal-infos`, `dart format l
 
 Database changes: edit `libs/db/prisma/schema.prisma`, run `bun run db:migration <name>` (writes SQL without applying), **read the SQL and delete any drops of objects Prisma doesn't model** (partitions, exclusion constraints, CHECKs, RLS policies, functions), then `bun run db:migrate && bun run db:drift`. After changing `libs/contracts`, run `bun run api:client` (CI fails if the generated client is stale) and update the hand-written Dart models in `apps/driver-app/lib/core/api/` to match.
 
-APK: `API_URL=https://taxcy-api.onrender.com bun run build:apk -- --split` → `dist/driver-app/`. Release builds require `https://`; for a laptop's LAN IP use `flutter build apk --debug --dart-define=API_URL=http://<ip>:3000` (see docs/deployment.md Part 1).
+APK: `API_URL=https://taxcy-api.onrender.com bun run build:apk:arm64` → `dist/driver-app/fleet-sarthi-<version>-arm64-v8a.apk`, the one to send to phones (`build:apk` builds the universal APK instead; add `-- --split` for all three CPU variants too). Release builds require `https://`; for a laptop's LAN IP use `flutter build apk --debug --dart-define=API_URL=http://<ip>:3000` (see docs/deployment.md Part 1). Every push to `main` that changes `apps/driver-app` also builds the arm64 APK in CI and posts it to Slack #releases (`.github/workflows/android-release.yml`; setup in docs/deployment.md, "Automatic APK in Slack").
 
 ## Architecture
 

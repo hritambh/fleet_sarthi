@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../common/format.dart';
 import '../common/language_picker.dart';
@@ -111,6 +112,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         label: Text(context.l10n.welcomeAbout),
                       ),
                     ),
+                  const SizedBox(height: 8),
+                  Center(
+                    child: Text(
+                      'v$appVersion',
+                      key: const Key('login-version'),
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.6),
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

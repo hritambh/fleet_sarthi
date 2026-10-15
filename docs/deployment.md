@@ -33,25 +33,34 @@ The free stack is meant for demos, pilots and testing, not for real fleets: it s
 The app's API address is compiled in (`--dart-define=API_URL`, read in `apps/driver-app/lib/app/providers.dart`). Give the server root, **without** `/v1`:
 
 ```bash
-# From the repo root
+# From the repo root: just the APK to send to phones (arm64-v8a, ~25 MB). Use this one.
+API_URL=https://taxcy-api.onrender.com bun run build:apk:arm64
+
+# The universal APK (~66 MB, runs on any Android phone)
 API_URL=https://taxcy-api.onrender.com bun run build:apk
 
-# Same thing, with options
+# Everything: universal + one APK per CPU + an App Bundle for Google Play
 apps/driver-app/scripts/build-apk.sh --api-url https://taxcy-api.onrender.com --split --aab
 ```
 
-| Option             | Env var         | Default          | What it does                                                                                    |
-| ------------------ | --------------- | ---------------- | ----------------------------------------------------------------------------------------------- |
-| `--api-url URL`    | `API_URL`       | (required)       | API server root. Release builds need `https://` (the app blocks plain HTTP except the emulator) |
-| `--build-number N` | `BUILD_NUMBER`  | git commit count | Android `versionCode`. Must grow for an update to install over an older build                   |
-| `--split`          | `SPLIT_PER_ABI` | off              | Also builds one smaller APK per CPU (`arm64-v8a` fits nearly every phone from 2017 on)          |
-| `--aab`            | `BUILD_AAB`     | off              | Also builds an Android App Bundle for Google Play                                               |
+**Which APK?** `arm64-v8a` runs on nearly every Android phone from about 2017 on, so it's
+the one to send to owners and drivers. `build:apk:arm64` builds only that file, in one pass,
+so it's also the quickest. Build the universal APK (or `--split`) only for an old 32-bit
+phone (`armeabi-v7a`) or an emulator on a PC (`x86_64`).
 
-The version name comes from `version:` in `apps/driver-app/pubspec.yaml`. The script runs `flutter pub get` and `flutter build apk --release`, then copies the results to **`dist/driver-app/`** (gitignored) and prints their paths:
+| Option             | Env var         | Default          | What it does                                                                                                      |
+| ------------------ | --------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `--api-url URL`    | `API_URL`       | (required)       | API server root. Release builds need `https://` (the app blocks plain HTTP except the emulator)                   |
+| `--build-number N` | `BUILD_NUMBER`  | git commit count | Android `versionCode`. Must grow for an update to install over an older build                                     |
+| `--split`          | `SPLIT_PER_ABI` | off              | Also builds one smaller APK per CPU (`arm64-v8a` fits nearly every phone from 2017 on)                            |
+| `--arm64`          | `ARM64_ONLY`    | off              | Builds **only** the `arm64-v8a` APK, skipping the universal one (what `build:apk:arm64` runs). Not with `--split` |
+| `--aab`            | `BUILD_AAB`     | off              | Also builds an Android App Bundle for Google Play                                                                 |
+
+The version name is `YY.M.N` from `apps/driver-app/scripts/app-version.sh` (year and month of the latest commit, then that month's commit count), so it rises by itself; the app shows it as `v…` in small print. The script runs `flutter pub get` and `flutter build apk --release`, then copies the results to **`dist/driver-app/`** (gitignored) and prints their paths:
 
 ```
 dist/driver-app/fleet-sarthi-0.1.0+76.apk              universal, ~66 MB
-dist/driver-app/fleet-sarthi-0.1.0+76-arm64-v8a.apk    with --split, ~24 MB
+dist/driver-app/fleet-sarthi-0.1.0+76-arm64-v8a.apk    with --split or --arm64, ~24 MB
 dist/driver-app/fleet-sarthi-0.1.0+76.aab              with --aab
 ```
 
@@ -60,10 +69,44 @@ A first build takes about 5 minutes (Gradle downloads); later builds about 1 min
 ### Rebuilding after a code change
 
 1. **Commit first.** The build number defaults to the git commit count, and Android won't install a lower build number over a higher one. Committing keeps each build's number at least as high as the one on the phone.
-2. Build from the repo root: `API_URL=https://taxcy-api.onrender.com bun run build:apk -- --split`.
+2. Build from the repo root: `API_URL=https://taxcy-api.onrender.com bun run build:apk:arm64`.
 3. Install `dist/driver-app/fleet-sarthi-<version>-arm64-v8a.apk` (send it to the phone, or `adb install -r …`). It's signed with the same upload key, so it updates the installed app and keeps its data.
 
 Only changes under `apps/driver-app` need a new APK. API changes reach existing installs once Render redeploys after a push, and Render rebuilds the web app (`taxcy-web`) by itself when `apps/driver-app` changes.
+
+### Automatic APK in Slack
+
+Every push to `main` that changes the app (`apps/driver-app/**`, except tests and docs) runs
+`.github/workflows/android-release.yml`. It checks the app (format, analyze, tests), builds the
+**arm64-v8a APK** with your upload key, and posts it to Slack **#releases** with the version,
+commit message and a link. The APK is also kept as a build artifact on the GitHub run for 30
+days. You can start it by hand from **Actions → Android APK to Slack → Run workflow**. A newer
+push cancels a build that's still running.
+
+One-time setup:
+
+1. **Slack app.** At <https://api.slack.com/apps>, **Create New App → From scratch** (e.g.
+   "Fleet Sarthi Releases") in your workspace. Under **OAuth & Permissions → Bot Token
+   Scopes** add `files:write` and `chat:write`, then **Install to Workspace** and copy the
+   **Bot User OAuth Token** (`xoxb-…`).
+2. **Channel.** In Slack, open #releases and run `/invite @Fleet Sarthi Releases` (the bot
+   must be a member to post there). Open the channel's name → **About**; the **Channel ID**
+   (`C…`) is at the bottom.
+3. **GitHub secrets.** In the repo: **Settings → Secrets and variables → Actions → New
+   repository secret**:
+
+   | Secret                      | Value                                                                                         |
+   | --------------------------- | --------------------------------------------------------------------------------------------- |
+   | `SLACK_BOT_TOKEN`           | The `xoxb-…` token                                                                            |
+   | `SLACK_RELEASES_CHANNEL_ID` | The `C…` channel ID                                                                           |
+   | `ANDROID_KEYSTORE_BASE64`   | The upload keystore, base64: `base64 -i ~/.taxcy/taxcy-upload-keystore.jks \| pbcopy` (macOS) |
+   | `ANDROID_KEYSTORE_PASSWORD` | The keystore password (`storePassword` in `apps/driver-app/android/key.properties`)           |
+
+   Optionally add a **variable** (Variables tab) `API_URL` if the API isn't
+   `https://taxcy-api.onrender.com`.
+
+The keystore must be the same one your local builds use, or phones refuse the update. Anyone
+with admin access to the repo can use these secrets in workflows, so keep that list short.
 
 ### Testing against your laptop
 
@@ -330,7 +373,7 @@ Seeded phone numbers: owner `9000000001`, manager `9000000002`, drivers `9000000
 ### Step 7: Build the APK for this API
 
 ```bash
-API_URL=https://taxcy-api.onrender.com bun run build:apk
+API_URL=https://taxcy-api.onrender.com bun run build:apk:arm64
 ```
 
 Then install it as in [Part 1](#install-on-a-phone).

@@ -223,6 +223,7 @@ void main() {
       await tester.pumpWidget(h.wrap(const TaxcyDriverApp()));
       await settle(tester);
       expect(find.text('जानिए आपकी गाड़ियों ने'), findsOneWidget);
+      await tester.ensureVisible(find.byKey(const Key('welcome-sign-in')));
       await tester.tap(find.byKey(const Key('welcome-sign-in')));
       await settle(tester);
       expect(find.text('मोबाइल नंबर'), findsOneWidget);
@@ -263,6 +264,7 @@ void main() {
       addTearDown(h.dispose);
       await tester.pumpWidget(h.wrap(const TaxcyDriverApp()));
       await settle(tester);
+      await tester.ensureVisible(find.byKey(const Key('welcome-sign-in')));
       await tester.tap(find.byKey(const Key('welcome-sign-in')));
       await settle(tester);
       expect(find.text('Log in'), findsOneWidget);
