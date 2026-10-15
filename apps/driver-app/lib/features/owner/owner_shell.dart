@@ -191,6 +191,18 @@ class MoreScreen extends ConsumerWidget {
                   title: Text(l.signOut),
                   onTap: () => ref.read(authProvider.notifier).signOut(),
                 ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Center(
+                    child: Text(
+                      'v$appVersion',
+                      key: const Key('more-version'),
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: TaxcyColors.muted,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

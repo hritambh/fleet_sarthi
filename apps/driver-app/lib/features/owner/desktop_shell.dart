@@ -211,6 +211,7 @@ class _Sidebar extends ConsumerWidget {
                     Icons.settings_outlined,
                     l.settings,
                   ),
+                  const _VersionLabel(),
                 ],
               ),
             ),
@@ -220,6 +221,24 @@ class _Sidebar extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// The app version, small, under the last nav item.
+class _VersionLabel extends StatelessWidget {
+  const _VersionLabel();
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
+    child: Text(
+      'v$appVersion',
+      key: const Key('side-version'),
+      style: TextStyle(
+        color: TaxcyColors.blue200.withValues(alpha: 0.7),
+        fontSize: 11,
+      ),
+    ),
+  );
 }
 
 /// The logo and app name; clicking either goes to the dashboard.
