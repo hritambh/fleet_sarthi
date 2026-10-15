@@ -77,7 +77,22 @@ class _OwnerTripsScreenState extends ConsumerState<OwnerTripsScreen> {
                 ? EmptyState(l.noTripsMatch)
                 : desktop
                 ? TripTable(list)
-                : Column(children: [for (final t in list) OwnerTripTile(t)]),
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final (day, group) in groupTripsByDay(list)) ...[
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8, bottom: 2),
+                          child: Text(
+                            tripDayLabel(context, day),
+                            key: ValueKey('trip-day-$day'),
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                        ),
+                        for (final t in group) OwnerTripTile(t),
+                      ],
+                    ],
+                  ),
           ),
         ],
       ),
@@ -172,6 +187,31 @@ Tone tripStatusTone(String status) => switch (status) {
   _ => Tone.neutral,
 };
 
+/// [trips] split into runs that start on the same IST day, in list order, as
+/// (YYYY-MM-DD, trips) pairs.
+List<(String, List<Trip>)> groupTripsByDay(List<Trip> trips) {
+  final groups = <(String, List<Trip>)>[];
+  for (final t in trips) {
+    final day = istDate(t.scheduledStartAt);
+    if (groups.isNotEmpty && groups.last.$1 == day) {
+      groups.last.$2.add(t);
+    } else {
+      groups.add((day, [t]));
+    }
+  }
+  return groups;
+}
+
+/// "Today", "Tomorrow", "Yesterday", else "12 Oct 2026", for an IST [day].
+String tripDayLabel(BuildContext context, String day, {DateTime? now}) {
+  final l = context.l10n;
+  final at = now ?? DateTime.now();
+  if (day == istToday(at)) return l.today;
+  if (day == istDate(at.add(const Duration(days: 1)))) return l.tomorrow;
+  if (day == istDaysAgo(1, at)) return l.yesterday;
+  return context.fmt.calendarDate(day);
+}
+
 /// Trips as a table on the desktop: route, start, vehicle, driver, customer,
 /// fare and status; a click opens the trip.
 class TripTable extends StatelessWidget {
@@ -195,72 +235,80 @@ class TripTable extends StatelessWidget {
         TableColumn(l.status),
       ],
       rows: [
-        for (final t in trips)
-          TableRowData(
-            key: ValueKey('owner-trip-${t.id}'),
-            onTap: () =>
-                openScreen<void>(context, OwnerTripDetailScreen(tripId: t.id)),
-            cells: [
-              Row(
-                children: [
-                  Icon(
-                    t.status == 'started' ? Icons.local_taxi : Icons.route,
-                    size: 18,
-                    color: TaxcyColors.blue700,
-                  ),
-                  const SizedBox(width: 10),
-                  Flexible(
-                    child: Text(
-                      t.toText == null
-                          ? l.localTrip(from: t.fromText)
-                          : t.routeLabel,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
+        for (final (day, group) in groupTripsByDay(trips)) ...[
+          TableRowData.heading(
+            tripDayLabel(context, day),
+            key: ValueKey('trip-day-$day'),
+          ),
+          for (final t in group)
+            TableRowData(
+              key: ValueKey('owner-trip-${t.id}'),
+              onTap: () => openScreen<void>(
+                context,
+                OwnerTripDetailScreen(tripId: t.id),
+              ),
+              cells: [
+                Row(
+                  children: [
+                    Icon(
+                      t.status == 'started' ? Icons.local_taxi : Icons.route,
+                      size: 18,
+                      color: TaxcyColors.blue700,
                     ),
-                  ),
-                ],
-              ),
-              Text(fmt.dayTime(t.scheduledStartAt)),
-              Text(
-                t.vehicle == null
-                    ? l.unassigned
-                    : formatRegistration(t.vehicle!.registrationNo),
-                style: t.vehicle == null ? muted : null,
-              ),
-              Text(t.driverName ?? '–', style: muted),
-              Text(
-                t.customerName ?? '–',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: muted,
-              ),
-              Text(
-                fmt.inr(t.quotedFarePaise),
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: ToneChip(
-                      statusLabel(l, t.status),
-                      tone: tripStatusTone(t.status),
-                    ),
-                  ),
-                  if (t.cancellationPending)
-                    const Padding(
-                      padding: EdgeInsets.only(left: 4),
-                      child: Icon(
-                        Icons.hourglass_top,
-                        size: 16,
-                        color: Colors.amber,
+                    const SizedBox(width: 10),
+                    Flexible(
+                      child: Text(
+                        t.toText == null
+                            ? l.localTrip(from: t.fromText)
+                            : t.routeLabel,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
-                ],
-              ),
-            ],
-          ),
+                  ],
+                ),
+                Text(fmt.dayTime(t.scheduledStartAt)),
+                Text(
+                  t.vehicle == null
+                      ? l.unassigned
+                      : formatRegistration(t.vehicle!.registrationNo),
+                  style: t.vehicle == null ? muted : null,
+                ),
+                Text(t.driverName ?? '–', style: muted),
+                Text(
+                  t.customerName ?? '–',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: muted,
+                ),
+                Text(
+                  fmt.inr(t.quotedFarePaise),
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: ToneChip(
+                        statusLabel(l, t.status),
+                        tone: tripStatusTone(t.status),
+                      ),
+                    ),
+                    if (t.cancellationPending)
+                      const Padding(
+                        padding: EdgeInsets.only(left: 4),
+                        child: Icon(
+                          Icons.hourglass_top,
+                          size: 16,
+                          color: Colors.amber,
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+        ],
       ],
     );
   }

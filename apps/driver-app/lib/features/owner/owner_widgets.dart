@@ -1037,10 +1037,18 @@ class TableColumn {
 
 /// One row of a [DesktopTable]; [onTap] makes it clickable.
 class TableRowData {
-  const TableRowData({required this.key, required this.cells, this.onTap});
+  const TableRowData({required this.key, required this.cells, this.onTap})
+    : heading = null;
+
+  /// A full-width label row that groups the rows below it (a date, say).
+  const TableRowData.heading(String this.heading, {required this.key})
+    : cells = const [],
+      onTap = null;
+
   final Key key;
   final List<Widget> cells;
   final VoidCallback? onTap;
+  final String? heading;
 }
 
 /// A table for the desktop layout: a tinted header, then one row per item that
@@ -1090,21 +1098,43 @@ class DesktopTable extends StatelessWidget {
             ]),
           ),
           for (final row in rows)
-            InkWell(
-              key: row.key,
-              hoverColor: TaxcyColors.blue50,
-              onTap: row.onTap,
-              child: Container(
+            if (row.heading != null)
+              Container(
+                key: row.key,
+                width: double.infinity,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
-                  vertical: 14,
+                  vertical: 8,
                 ),
                 decoration: const BoxDecoration(
+                  color: TaxcyColors.blue50,
                   border: Border(top: BorderSide(color: TaxcyColors.border)),
                 ),
-                child: _cells(row.cells),
+                child: Text(
+                  row.heading!,
+                  style: const TextStyle(
+                    color: TaxcyColors.blue700,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              )
+            else
+              InkWell(
+                key: row.key,
+                hoverColor: TaxcyColors.blue50,
+                onTap: row.onTap,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 14,
+                  ),
+                  decoration: const BoxDecoration(
+                    border: Border(top: BorderSide(color: TaxcyColors.border)),
+                  ),
+                  child: _cells(row.cells),
+                ),
               ),
-            ),
         ],
       ),
     );
