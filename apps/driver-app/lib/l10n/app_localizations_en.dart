@@ -3845,6 +3845,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get thisMonth => 'This month';
 
   @override
+  String get thisWeek => 'This week';
+
+  @override
+  String get customRange => 'Custom range';
+
+  @override
   String get kindTripUnassigned => 'No vehicle or driver';
 
   @override

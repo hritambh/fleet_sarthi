@@ -1097,6 +1097,8 @@
   "rangeFrom": "से",
   "rangeTo": "तक",
   "thisMonth": "इस महीने",
+  "thisWeek": "इस सप्ताह",
+  "customRange": "अपनी तारीखें",
   "kindTripUnassigned": "गाड़ी या ड्राइवर नहीं",
   "alertTripUnassignedTitle": "{route} के लिए अभी गाड़ी या ड्राइवर तय नहीं",
   "alertTripUnassignedBody": "यह ट्रिप {when} शुरू होगी। उससे पहले गाड़ी और ड्राइवर तय करें।",

@@ -108,6 +108,27 @@ void main() {
     expect(h.owner.last('trips').args['from'], isNotNull);
     expect(find.text('Any date'), findsNothing);
 
+    // This week and this month cover the whole period, Monday to Sunday and
+    // 1st to last day, so trips booked ahead show up.
+    for (final (id, days) in [('week', 7), ('month', null)]) {
+      await open();
+      await tester.tap(find.byKey(Key('range-$id')));
+      await settle(tester);
+      final args = h.owner.last('trips').args;
+      final from = DateTime.parse(args['from']! as String);
+      final to = DateTime.parse(args['to']! as String);
+      final span = to.difference(from).inDays;
+      if (days != null) {
+        expect(span, days);
+        expect(
+          from.toUtc().add(const Duration(hours: 5, minutes: 30)).weekday,
+          DateTime.monday,
+        );
+      } else {
+        expect(span, inInclusiveRange(28, 31));
+      }
+    }
+
     // Or a From day (the To day follows it), then Apply.
     await tester.tap(find.byTooltip('Any date'));
     await settle(tester);

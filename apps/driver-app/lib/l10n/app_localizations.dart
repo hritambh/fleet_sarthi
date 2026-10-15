@@ -6752,6 +6752,18 @@ abstract class AppLocalizations {
   /// **'This month'**
   String get thisMonth;
 
+  /// No description provided for @thisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get thisWeek;
+
+  /// No description provided for @customRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom range'**
+  String get customRange;
+
   /// No description provided for @kindTripUnassigned.
   ///
   /// In en, this message translates to:

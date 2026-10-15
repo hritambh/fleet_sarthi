@@ -3837,6 +3837,12 @@ class AppLocalizationsHi extends AppLocalizations {
   String get thisMonth => 'इस महीने';
 
   @override
+  String get thisWeek => 'इस सप्ताह';
+
+  @override
+  String get customRange => 'अपनी तारीखें';
+
+  @override
   String get kindTripUnassigned => 'गाड़ी या ड्राइवर नहीं';
 
   @override

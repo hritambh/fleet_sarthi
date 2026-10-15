@@ -1108,6 +1108,8 @@ class _DateRangeDialogState extends State<_DateRangeDialog> {
     final fmt = context.fmt;
     final now = DateTime.now();
     final today = _ago(0);
+    // Monday is 0: the week runs Monday to Sunday.
+    final weekday = now.weekday - 1;
     Widget quick(String id, String label, String from, String to) => ActionChip(
       key: Key('range-$id'),
       label: Text(label),
@@ -1147,16 +1149,28 @@ class _DateRangeDialogState extends State<_DateRangeDialog> {
                 runSpacing: 8,
                 children: [
                   quick('today', l.today, today, today),
-                  quick('yesterday', l.yesterday, _ago(1), _ago(1)),
-                  quick('week', l.lastSevenDays, _ago(6), today),
+                  quick(
+                    'week',
+                    l.thisWeek,
+                    _isoDay(DateTime(now.year, now.month, now.day - weekday)),
+                    _isoDay(
+                      DateTime(now.year, now.month, now.day + 6 - weekday),
+                    ),
+                  ),
                   quick(
                     'month',
                     l.thisMonth,
                     _isoDay(DateTime(now.year, now.month)),
-                    today,
+                    _isoDay(DateTime(now.year, now.month + 1, 0)),
                   ),
                 ],
               ),
+              const SizedBox(height: 16),
+              Text(
+                l.customRange,
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              const SizedBox(height: 8),
               const SizedBox(height: 16),
               day('from', l.rangeFrom, from, true),
               const SizedBox(height: 12),
