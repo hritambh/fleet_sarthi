@@ -5,6 +5,7 @@ import 'package:drift/native.dart';
 import 'package:taxcy_driver/core/api/api.dart';
 import 'package:taxcy_driver/core/api/json.dart';
 import 'package:taxcy_driver/core/api/models.dart';
+import 'package:taxcy_driver/core/api/owner_models.dart';
 import 'package:taxcy_driver/core/db/database.dart';
 import 'package:taxcy_driver/core/media/captured_photo.dart';
 import 'package:taxcy_driver/core/media/photo_store.dart';
@@ -229,6 +230,18 @@ class FakeApi implements TaxcyApi {
       _ => 'started',
     };
     return Trip.fromJson(tripJson(id: tripId, status: status));
+  }
+
+  /// Who is booked, served for every window by [availability].
+  JsonMap availabilityJson = {'vehicles': [], 'drivers': []};
+
+  @override
+  Future<Availability> availability(DateTime from, DateTime to) async {
+    _record('availability', {
+      'from': from.toUtc().toIso8601String(),
+      'to': to.toUtc().toIso8601String(),
+    });
+    return Availability.fromJson(availabilityJson);
   }
 
   @override

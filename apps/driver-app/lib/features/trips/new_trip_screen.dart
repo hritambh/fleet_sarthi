@@ -4,14 +4,33 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
 import '../../app/theme.dart';
+import '../../core/api/api.dart';
 import '../../core/api/models.dart';
+import '../../core/api/owner_models.dart';
 import '../../core/repositories/trips_repository.dart';
+import '../../l10n/app_localizations.dart';
 import '../common/errors.dart';
 import '../common/format.dart';
+import '../owner/owner_widgets.dart' show busyText;
 import 'trip_detail_screen.dart';
 
 const _tripTypes = ['one_way', 'round_trip', 'local_rental'];
 const _durations = [1, 2, 4, 8, 12, 24];
+
+typedef _Window = ({DateTime from, DateTime to});
+
+/// Who is booked during a window: this driver and the vehicles linked to them
+/// (the server scopes it). Null when the server can't be reached, so the form
+/// keeps working offline.
+final _availabilityProvider = FutureProvider.autoDispose
+    .family<Availability?, _Window>((ref, w) async {
+      try {
+        return await ref.watch(apiProvider).availability(w.from, w.to);
+      } on ApiException catch (error) {
+        if (error.isNetwork) return null;
+        rethrow;
+      }
+    });
 
 /// A trip the driver books themselves (e.g. a walk-in customer). It's assigned
 /// to them in the vehicle they pick, and works offline like everything else.
@@ -63,25 +82,77 @@ class _NewTripScreenState extends ConsumerState<NewTripScreen> {
       initialTime: TimeOfDay.fromDateTime(_start),
     );
     if (time == null) return;
-    setState(
-      () => _start = DateTime(
+    setState(() {
+      _start = DateTime(
         date.year,
         date.month,
         date.day,
         time.hour,
         time.minute,
+      );
+      _error = null;
+    });
+  }
+
+  _Window get _window =>
+      (from: _start, to: _start.add(Duration(hours: _hours)));
+
+  /// Why [vehicle] or the driver can't take a trip in [w], checked afresh just
+  /// before creating, so a booking made on another device since the form
+  /// loaded doesn't slip through. Offline (or if the server can't say), only
+  /// the driver's own trips on this phone are checked; the server still has
+  /// the final word when the trip syncs.
+  Future<String?> _clash(
+    Vehicle vehicle,
+    _Window w,
+    AppLocalizations l,
+    Fmt fmt,
+  ) async {
+    Availability? fresh;
+    try {
+      fresh = await ref.refresh(_availabilityProvider(w).future);
+    } on ApiException {
+      fresh = null;
+    }
+    if (fresh != null) {
+      final me = fresh.drivers.values.firstOrNull;
+      if (me != null) return l.youAreBusy(when: busyText(fmt, me));
+      if (fresh.vehicles.containsKey(vehicle.id)) return l.errorVehicleBusy;
+      return null;
+    }
+    final own = await ref
+        .read(tripsRepositoryProvider)
+        .overlappingOwnTrip(w.from, w.to);
+    if (own == null) return null;
+    return l.youAreBusy(
+      when: busyText(
+        fmt,
+        Busy(
+          id: '',
+          tripId: own.id,
+          from: own.scheduledStartAt,
+          to: own.scheduledEndAt,
+        ),
       ),
     );
   }
 
   Future<void> _save(Vehicle vehicle) async {
     if (!_form.currentState!.validate()) return;
+    final l = context.l10n;
+    final fmt = context.fmt;
+    final window = _window;
     setState(() {
       _busy = true;
       _error = null;
     });
     final phone = _phone.text.replaceAll(RegExp(r'\D'), '');
     try {
+      final clash = await _clash(vehicle, window, l, fmt);
+      if (clash != null) {
+        if (mounted) setState(() => _error = clash);
+        return;
+      }
       final trip = await ref
           .read(tripsRepositoryProvider)
           .create(
@@ -159,10 +230,25 @@ class _NewTripScreenState extends ConsumerState<NewTripScreen> {
               ),
             );
           }
-          final vehicle = list.firstWhere(
-            (v) => v.id == _vehicleId,
-            orElse: () => list.first,
-          );
+          // Who is booked at the chosen time (none known while offline): busy
+          // vehicles are listed but not pickable, and a busy driver can't
+          // create the trip.
+          final availability = ref.watch(_availabilityProvider(_window)).value;
+          final busy = availability?.vehicles ?? const <String, Busy>{};
+          final meBusy = availability?.drivers.values.firstOrNull;
+          bool free(Vehicle v) => !busy.containsKey(v.id);
+          // A pick that's booked at the chosen time gives way to the first
+          // free vehicle (with a note); null when every vehicle is booked.
+          final picked = list.where((v) => v.id == _vehicleId).firstOrNull;
+          final pickedBusy = picked != null && !free(picked);
+          final vehicle = picked != null && !pickedBusy
+              ? picked
+              : list.where(free).firstOrNull;
+          final blocked = meBusy != null
+              ? l.youAreBusy(when: busyText(context.fmt, meBusy))
+              : vehicle == null
+              ? l.errorVehicleBusy
+              : null;
           final local = _tripType == 'local_rental';
           return Form(
             key: _form,
@@ -230,13 +316,16 @@ class _NewTripScreenState extends ConsumerState<NewTripScreen> {
                         child: Text(l.hours(count: h)),
                       ),
                   ],
-                  onChanged: (v) => setState(() => _hours = v ?? _hours),
+                  onChanged: (v) => setState(() {
+                    _hours = v ?? _hours;
+                    _error = null;
+                  }),
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   key: const Key('trip-vehicle'),
                   isExpanded: true,
-                  initialValue: vehicle.id,
+                  initialValue: vehicle?.id,
                   decoration: InputDecoration(
                     labelText: l.vehicle,
                     prefixIcon: const Icon(Icons.directions_car),
@@ -244,12 +333,34 @@ class _NewTripScreenState extends ConsumerState<NewTripScreen> {
                   items: [
                     for (final v in list)
                       DropdownMenuItem(
+                        key: ValueKey('pick-${v.id}'),
                         value: v.id,
-                        child: Text('${v.registrationNo} · ${v.model}'),
+                        enabled: free(v),
+                        child: Text(
+                          free(v)
+                              ? '${v.registrationNo} · ${v.model}'
+                              : '${v.registrationNo} · ${v.model} · '
+                                    '${busyText(context.fmt, busy[v.id]!)}',
+                          overflow: TextOverflow.ellipsis,
+                          style: free(v)
+                              ? null
+                              : const TextStyle(color: TaxcyColors.muted),
+                        ),
                       ),
                   ],
-                  onChanged: (v) => setState(() => _vehicleId = v),
+                  onChanged: (v) => setState(() {
+                    _vehicleId = v;
+                    _error = null;
+                  }),
                 ),
+                if (pickedBusy && vehicle != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    l.busyPickCleared,
+                    key: const Key('busy-pick-cleared'),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
                 const SizedBox(height: 12),
                 Row(
                   children: [
@@ -308,10 +419,11 @@ class _NewTripScreenState extends ConsumerState<NewTripScreen> {
                     prefixIcon: const Icon(Icons.phone),
                   ),
                 ),
-                if (_error != null) ...[
+                if ((_error ?? blocked) case final message?) ...[
                   const SizedBox(height: 12),
                   Text(
-                    _error!,
+                    message,
+                    key: const Key('trip-problem'),
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.error,
                     ),
@@ -320,7 +432,9 @@ class _NewTripScreenState extends ConsumerState<NewTripScreen> {
                 const SizedBox(height: 24),
                 FilledButton.icon(
                   key: const Key('create-trip'),
-                  onPressed: _busy ? null : () => _save(vehicle),
+                  onPressed: _busy || blocked != null || vehicle == null
+                      ? null
+                      : () => _save(vehicle),
                   icon: const Icon(Icons.add),
                   label: Text(l.createTrip),
                 ),

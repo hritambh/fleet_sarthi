@@ -11,7 +11,8 @@ export type AlertKind =
   | 'document_expired'
   | 'cancellation_requested'
   | 'gps_coverage_low'
-  | 'document_submitted';
+  | 'document_submitted'
+  | 'trip_unassigned';
 
 export interface RaiseAlert {
   kind: AlertKind;

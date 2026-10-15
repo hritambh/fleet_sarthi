@@ -115,14 +115,15 @@ sequenceDiagram
 
 ## Background jobs
 
-| Topic (queue = prefix)                  | Trigger                                                                             | Work                                                                                          |
-| --------------------------------------- | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| _(relay)_                               | Every second in the workers process                                                 | Moves committed `outbox` rows into BullMQ (job id = outbox id, so no duplicates)              |
-| `media.uploaded`                        | Upload confirmed                                                                    | Runs `OcrProvider`; `EvidenceReconciler` compares typed vs OCR values and raises review items |
-| `fuel.fill_recorded` / `fuel.recompute` | Fill recorded or voided; reviewer correction; fuel alert dismissed as a false alarm | Recomputes the vehicle's cycles, baseline, alerts and review items                            |
-| `trip.closed`                           | Trip ended, cancellation approved, late GPS batch, corrected odometer               | PostGIS distance, coverage, odometer-vs-GPS verdict and alert                                 |
-| `fleet.document_expiry_scan`            | Cron, 06:00 IST                                                                     | Raises the current 30/7/1-day or expired alert per document, resolving older ones             |
-| `telemetry.gps_partitions`              | Cron, 03:30 IST                                                                     | Creates upcoming monthly partitions, drops ones past retention                                |
+| Topic (queue = prefix)                  | Trigger                                                                             | Work                                                                                           |
+| --------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| _(relay)_                               | Every second in the workers process                                                 | Moves committed `outbox` rows into BullMQ (job id = outbox id, so no duplicates)               |
+| `media.uploaded`                        | Upload confirmed                                                                    | Runs `OcrProvider`; `EvidenceReconciler` compares typed vs OCR values and raises review items  |
+| `fuel.fill_recorded` / `fuel.recompute` | Fill recorded or voided; reviewer correction; fuel alert dismissed as a false alarm | Recomputes the vehicle's cycles, baseline, alerts and review items                             |
+| `trip.closed`                           | Trip ended, cancellation approved, late GPS batch, corrected odometer               | PostGIS distance, coverage, odometer-vs-GPS verdict and alert                                  |
+| `fleet.document_expiry_scan`            | Cron, 06:00 IST                                                                     | Raises the current 30/7/1-day or expired alert per document, resolving older ones              |
+| `telemetry.gps_partitions`              | Cron, 03:30 IST                                                                     | Creates upcoming monthly partitions, drops ones past retention                                 |
+| `trip.unassigned_scan`                  | Cron, every 15 minutes (also on each create, edit and transition, per trip)         | Raises, escalates (critical within 2 h of the start) or resolves "no vehicle or driver" alerts |
 
 All job payloads are Zod-validated. Every job is idempotent: retries and duplicate deliveries are safe.
 

@@ -384,7 +384,7 @@ class Seeder {
           docType: 'driving_licence',
           driverId: item.driverId,
           expiresOn: inDays(i === 2 ? 25 : 900),
-          number: `MH12 2015000${i}`,
+          number: `MH12 2015000000${i}`,
         });
       }
     });

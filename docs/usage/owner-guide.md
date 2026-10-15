@@ -127,13 +127,14 @@ New vehicles use a typical figure for their model for the first 3 cycles. After 
 
 The **Alerts** tab is your inbox for anything that needs attention (filter by status and kind):
 
-| Alert                                              | What it means                                                                  |
-| -------------------------------------------------- | ------------------------------------------------------------------------------ |
-| Fuel use higher than usual                         | A fuel cycle was much worse than the vehicle's normal efficiency               |
-| Odometer higher than GPS                           | A trip's odometer distance is well above the GPS-recorded route                |
-| Document expiring / expired                        | RC, insurance, permit, PUC or DL is due                                        |
-| Running cost higher than usual (petrol + CNG cars) | Cost per km in a cycle was much higher than the car's normal                   |
-| Cancellation requested                             | A driver asked to cancel a running trip; approve or reject it on the trip page |
+| Alert                                              | What it means                                                                                                                  |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Fuel use higher than usual                         | A fuel cycle was much worse than the vehicle's normal efficiency                                                               |
+| Odometer higher than GPS                           | A trip's odometer distance is well above the GPS-recorded route                                                                |
+| Document expiring / expired                        | RC, insurance, permit, PUC or DL is due                                                                                        |
+| Running cost higher than usual (petrol + CNG cars) | Cost per km in a cycle was much higher than the car's normal                                                                   |
+| Cancellation requested                             | A driver asked to cancel a running trip; approve or reject it on the trip page                                                 |
+| No vehicle or driver                               | A booked trip has no vehicle or driver yet; critical within 2 hours of its start. Clears once you assign it or cancel the trip |
 
 Each alert explains in plain language what happened and what to check. Mark it **Acknowledged**, **Resolved** or **Dismissed**. Dismissing a fuel alert as a false alarm lets that cycle count toward the vehicle's normal range.
 

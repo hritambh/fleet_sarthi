@@ -770,7 +770,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Vehicles and drivers already booked (assigned or started trips) during [from, to), optionally ignoring one trip */
+    /** Vehicles and drivers already booked (assigned or started trips) during [from, to), optionally ignoring one trip. A driver sees only their own bookings and those of the vehicles linked to them */
     get: operations['getAvailability'];
     put?: never;
     post?: never;
@@ -6907,9 +6907,9 @@ export interface operations {
   getTrips: {
     parameters: {
       query?: {
-        status?: 'created' | 'assigned' | 'started' | 'ended' | 'settled' | 'cancelled';
-        driverId?: string;
-        vehicleId?: string;
+        status?: ('created' | 'assigned' | 'started' | 'ended' | 'settled' | 'cancelled')[];
+        driverId?: string[];
+        vehicleId?: string[];
         from?: string;
         to?: string;
         overlapping?: string;
@@ -12793,6 +12793,7 @@ export interface operations {
           | 'cancellation_requested'
           | 'gps_coverage_low'
           | 'document_submitted'
+          | 'trip_unassigned'
         )[];
         severity?: ('info' | 'warning' | 'critical')[];
         vehicleId?: string[];
@@ -12824,7 +12825,8 @@ export interface operations {
               | 'document_expired'
               | 'cancellation_requested'
               | 'gps_coverage_low'
-              | 'document_submitted';
+              | 'document_submitted'
+              | 'trip_unassigned';
             /** @enum {string} */
             severity: 'info' | 'warning' | 'critical';
             title: string;
@@ -12964,6 +12966,16 @@ export interface operations {
                         driverName: string | null;
                         reason: string;
                         endKm: number;
+                      };
+                    }
+                  | {
+                      /** @constant */
+                      key: 'trip_unassigned';
+                      params: {
+                        from: string;
+                        to: string | null;
+                        scheduledStartAt: string;
+                        overdue: boolean;
                       };
                     }
                 )
@@ -13157,7 +13169,8 @@ export interface operations {
               | 'document_expired'
               | 'cancellation_requested'
               | 'gps_coverage_low'
-              | 'document_submitted';
+              | 'document_submitted'
+              | 'trip_unassigned';
             /** @enum {string} */
             severity: 'info' | 'warning' | 'critical';
             title: string;
@@ -13297,6 +13310,16 @@ export interface operations {
                         driverName: string | null;
                         reason: string;
                         endKm: number;
+                      };
+                    }
+                  | {
+                      /** @constant */
+                      key: 'trip_unassigned';
+                      params: {
+                        from: string;
+                        to: string | null;
+                        scheduledStartAt: string;
+                        overdue: boolean;
                       };
                     }
                 )

@@ -50,7 +50,12 @@ void main() {
     await settle(tester);
     expect(find.byKey(const Key('driver-nav')), findsOneWidget);
     // Home is the existing day view.
-    expect(find.byKey(const Key('new-trip')), findsOneWidget);
+    // One way to start a new trip: the quick action, not a floating button.
+    expect(find.byKey(const Key('driver-action-new-trip')), findsOneWidget);
+    expect(find.byKey(const Key('new-trip')), findsNothing);
+    // Likewise one way to log fuel: the quick action, not an app-bar icon.
+    expect(find.byKey(const Key('driver-action-fuel')), findsOneWidget);
+    expect(find.byTooltip('Log fuel'), findsNothing);
 
     await tester.tap(find.byKey(const Key('driver-nav-trips')));
     await settle(tester);
@@ -208,6 +213,10 @@ void main() {
       expect(find.text('Insurance'), findsNothing);
       await tester.tap(find.text('Aadhaar card').last);
       await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('document-number')),
+        '2341 2341 2346',
+      );
       await tester.tap(find.byKey(const Key('document-take-photo')));
       await settle(tester);
       // Aadhaar needs no expiry date.
@@ -215,6 +224,7 @@ void main() {
       await settle(tester);
       final body = h.me.last('submitDocument').args;
       expect(body['docType'], 'aadhaar');
+      expect(body['number'], '234123412346');
       expect(body['mediaIds'], ['captured-document']);
       expect(body.containsKey('expiresOn'), isFalse);
       expect(find.byType(DriverDocumentsScreen), findsOneWidget);

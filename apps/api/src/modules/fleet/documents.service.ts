@@ -2,7 +2,9 @@ import { Injectable } from '@nestjs/common';
 import type { Document, DocumentFile, DocType } from '@taxcy/contracts';
 import type { Prisma, TenantTx } from '@taxcy/db';
 import {
+  checkDocNumber,
   daysUntil,
+  DOC_FIELDS,
   expiryBucket,
   expiryRequired,
   expirySeverity,
@@ -10,6 +12,7 @@ import {
   explainSubmission,
   istBusinessDate,
   isVehicleDocType,
+  normaliseDocNumber,
 } from '@taxcy/domain';
 import { AppError, notFound } from '../../platform/errors.js';
 import { newId } from '../../platform/ids.js';
@@ -49,12 +52,29 @@ const fileIds = (input: DocumentDetails): string[] => [
   ...new Set(input.mediaIds ?? (input.mediaId ? [input.mediaId] : [])),
 ];
 
-const assertExpiry = (docType: DocType, expiresOn: Date | undefined) => {
+/**
+ * The details as stored, checked against the type: the number normalised and in
+ * the type's format, dates the type doesn't have dropped, the expiry present when
+ * required and after the start. [number] defaults to the renewed copy's.
+ */
+const checkedDetails = (docType: DocType, input: DocumentDetails, number?: string | null) => {
+  const fields = DOC_FIELDS[docType];
+  const normalised = normaliseDocNumber(docType, input.number ?? number ?? '');
+  const problem = checkDocNumber(docType, normalised);
+  if (problem) throw new AppError('VALIDATION_FAILED', problem, { field: 'number' });
+  const validFrom = fields.validFrom === 'hidden' ? undefined : input.validFrom;
+  const expiresOn = fields.expiresOn === 'hidden' ? undefined : input.expiresOn;
   if (!expiresOn && expiryRequired(docType)) {
     throw new AppError('VALIDATION_FAILED', 'This document needs an expiry date', {
       field: 'expiresOn',
     });
   }
+  if (validFrom && expiresOn && expiresOn <= validFrom) {
+    throw new AppError('VALIDATION_FAILED', 'The expiry date must be after the start date', {
+      field: 'expiresOn',
+    });
+  }
+  return { number: normalised || null, validFrom: validFrom ?? null, expiresOn: expiresOn ?? null };
 };
 
 @Injectable()
@@ -124,7 +144,7 @@ export class DocumentsService {
         'RC, insurance, permit and PUC belong to vehicles; licences, IDs and photos to drivers',
       );
     }
-    assertExpiry(input.docType, input.expiresOn);
+    const details = checkedDetails(input.docType, input);
     if (
       input.vehicleId &&
       !(await tx.vehicle.count({ where: { id: input.vehicleId, orgId: tx.orgId } }))
@@ -146,9 +166,7 @@ export class DocumentsService {
         docType: input.docType,
         vehicleId: input.vehicleId ?? null,
         driverId: input.driverId ?? null,
-        number: input.number ?? null,
-        validFrom: input.validFrom ?? null,
-        expiresOn: input.expiresOn ?? null,
+        ...details,
         mediaId: files[0] ?? null,
         ...(by ? { reviewStatus: 'pending', submittedBy: by.userId } : {}),
       },
@@ -180,7 +198,7 @@ export class DocumentsService {
     ) {
       throw new AppError('CONFLICT', 'A renewal of this document is already waiting for approval');
     }
-    assertExpiry(old.docType, input.expiresOn);
+    const details = checkedDetails(old.docType, input, old.number);
     const files = fileIds(input);
     for (const mediaId of files) await this.assertMedia(tx, mediaId);
     const row = await tx.document.create({
@@ -190,9 +208,7 @@ export class DocumentsService {
         docType: old.docType,
         vehicleId: old.vehicleId,
         driverId: old.driverId,
-        number: input.number ?? old.number,
-        validFrom: input.validFrom ?? null,
-        expiresOn: input.expiresOn ?? null,
+        ...details,
         mediaId: files[0] ?? null,
         ...(by ? { reviewStatus: 'pending', submittedBy: by.userId, replacesId: old.id } : {}),
       },

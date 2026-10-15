@@ -3,21 +3,21 @@ import 'json.dart';
 import 'models.dart';
 import 'owner_models.dart';
 
-/// Filters for GET /trips.
+/// Filters for GET /trips. Each set means "any of these"; empty means all.
 class TripFilter {
   const TripFilter({
-    this.status,
-    this.driverId,
-    this.vehicleId,
+    this.statuses = const {},
+    this.driverIds = const {},
+    this.vehicleIds = const {},
     this.from,
     this.to,
     this.overlapping = false,
     this.limit = 200,
   });
 
-  final String? status;
-  final String? driverId;
-  final String? vehicleId;
+  final Set<String> statuses;
+  final Set<String> driverIds;
+  final Set<String> vehicleIds;
   final DateTime? from;
   final DateTime? to;
 
@@ -26,30 +26,43 @@ class TripFilter {
   final bool overlapping;
   final int limit;
 
+  static String? _csv(Set<String> values) =>
+      values.isEmpty ? null : (values.toList()..sort()).join(',');
+
   Map<String, String> toQuery() => {
-    'status': ?status,
-    'driverId': ?driverId,
-    'vehicleId': ?vehicleId,
+    'status': ?_csv(statuses),
+    'driverId': ?_csv(driverIds),
+    'vehicleId': ?_csv(vehicleIds),
     if (from != null) 'from': from!.toUtc().toIso8601String(),
     if (to != null) 'to': to!.toUtc().toIso8601String(),
     if (overlapping) 'overlapping': 'true',
     'limit': '$limit',
   };
 
+  static bool _same(Set<String> a, Set<String> b) =>
+      a.length == b.length && a.containsAll(b);
+
   @override
   bool operator ==(Object other) =>
       other is TripFilter &&
-      other.status == status &&
-      other.driverId == driverId &&
-      other.vehicleId == vehicleId &&
+      _same(other.statuses, statuses) &&
+      _same(other.driverIds, driverIds) &&
+      _same(other.vehicleIds, vehicleIds) &&
       other.from == from &&
       other.to == to &&
       other.overlapping == overlapping &&
       other.limit == limit;
 
   @override
-  int get hashCode =>
-      Object.hash(status, driverId, vehicleId, from, to, overlapping, limit);
+  int get hashCode => Object.hash(
+    _csv(statuses),
+    _csv(driverIds),
+    _csv(vehicleIds),
+    from,
+    to,
+    overlapping,
+    limit,
+  );
 }
 
 /// The staff (owner and manager) endpoints owner mode uses. Owner mode is

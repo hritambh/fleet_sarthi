@@ -56,8 +56,8 @@ class _TripScheduleState extends ConsumerState<TripSchedule> {
 
   /// Trips overlapping the month, IST bounds.
   TripFilter get _filter => TripFilter(
-    vehicleId: widget.vehicleId,
-    driverId: widget.driverId,
+    vehicleIds: {?widget.vehicleId},
+    driverIds: {?widget.driverId},
     from: istDayRange(_iso(_month)).$1,
     to: istDayRange(_iso(DateTime(_month.year, _month.month + 1))).$1,
     overlapping: true,

@@ -14,6 +14,19 @@ export type Paise = z.infer<typeof Paise>;
 export const Id = z.uuid();
 export type Id = z.infer<typeof Id>;
 
+/** A query value that is one item or a comma-separated list of them. */
+export const csv = <T extends z.ZodType<string>>(item: T) =>
+  z.preprocess(
+    (v) =>
+      typeof v === 'string'
+        ? v
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : v,
+    z.array(item).min(1).max(50),
+  );
+
 /** Timestamp with an explicit offset, e.g. 2026-10-09T08:30:00Z or 2026-10-09T14:00:00+05:30. */
 export const Instant = z.iso.datetime({ offset: true });
 export type Instant = z.infer<typeof Instant>;

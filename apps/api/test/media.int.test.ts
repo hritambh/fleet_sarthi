@@ -223,6 +223,7 @@ describe('document files', () => {
       .set(...bearer(owner))
       .send({
         docType: 'rc',
+        number: 'MH12PD0003',
         vehicleId: await newVehicle('MH12PD0003'),
         expiresOn: '2030-01-31',
         mediaIds: [front, back, pdf],

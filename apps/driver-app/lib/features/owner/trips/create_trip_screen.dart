@@ -192,7 +192,44 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
     final body = result.body;
     if (body == null) return;
     setState(() => _busy = true);
+    final l = context.l10n;
     final navigator = Navigator.of(context);
+    // Check the picks again just before creating: the lists may be stale if
+    // the vehicle or driver was booked on another device since they loaded.
+    // A busy pick is cleared by the listener in build. If the check itself
+    // fails, carry on: the server still refuses a clash.
+    final vehicleId = _vehicleId;
+    final driverId = _driverId;
+    if (vehicleId != null || driverId != null) {
+      try {
+        final fresh = await ref.refresh(
+          availabilityProvider((
+            from: _start,
+            to: _end,
+            excludeTripId: null,
+          )).future,
+        );
+        final clash = fresh.vehicles.containsKey(vehicleId)
+            ? l.errorVehicleBusy
+            : fresh.drivers.containsKey(driverId)
+            ? l.errorDriverBusy
+            : null;
+        if (clash != null) {
+          if (mounted) {
+            setState(() {
+              _problem = clash;
+              _busy = false;
+              // The problem says why; the "new time" note doesn't apply.
+              _cleared = false;
+            });
+          }
+          return;
+        }
+      } on Object {
+        // Fall through to the server's own check.
+      }
+    }
+    if (!mounted) return;
     final ok = await runAction(context, () async {
       final trip = await ref.read(ownerApiProvider).createTrip(body);
       refreshAfter(ref, {OwnerArea.trips});

@@ -255,6 +255,7 @@ void main() {
           true,
         ),
         'cancellation_requested': isA<CancellationRequestedMessage>(),
+        'trip_unassigned': isA<TripUnassignedMessage>(),
       };
       for (final entry in types.entries) {
         final alert = Alert.fromJson(alertJson(kind: entry.key));
@@ -359,19 +360,22 @@ void main() {
 
   test('TripFilter becomes the query string, leaving out unset filters', () {
     final filter = TripFilter(
-      status: 'started',
+      statuses: {'started', 'assigned'},
+      driverIds: {'d1'},
       from: DateTime.utc(2026, 10, 8, 18, 30),
       limit: 50,
     );
     expect(filter.toQuery(), {
-      'status': 'started',
+      'status': 'assigned,started',
+      'driverId': 'd1',
       'from': '2026-10-08T18:30:00.000Z',
       'limit': '50',
     });
     expect(
       filter,
       TripFilter(
-        status: 'started',
+        statuses: {'assigned', 'started'},
+        driverIds: {'d1'},
         from: DateTime.utc(2026, 10, 8, 18, 30),
         limit: 50,
       ),

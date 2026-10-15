@@ -2848,6 +2848,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'This vehicle or driver is already booked at this time.';
 
   @override
+  String youAreBusy({required String when}) {
+    return 'You already have a trip at this time ($when).';
+  }
+
+  @override
   String get uploadFile => 'Upload file';
 
   @override
@@ -3821,4 +3826,68 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get welcomeUcAvailFreeNow => 'Free now: 2 of 5';
+
+  @override
+  String nSelected({required int count}) {
+    return '$count selected';
+  }
+
+  @override
+  String get dateRangeLabel => 'Dates';
+
+  @override
+  String get rangeFrom => 'From';
+
+  @override
+  String get rangeTo => 'To';
+
+  @override
+  String get thisMonth => 'This month';
+
+  @override
+  String get kindTripUnassigned => 'No vehicle or driver';
+
+  @override
+  String alertTripUnassignedTitle({required String route}) {
+    return '$route has no vehicle or driver yet';
+  }
+
+  @override
+  String alertTripUnassignedBody({required String when}) {
+    return 'It starts $when. Assign a vehicle and driver before then.';
+  }
+
+  @override
+  String alertTripUnassignedOverdueBody({required String when}) {
+    return 'It was due to start $when and still has no vehicle or driver. Assign one, or cancel the trip.';
+  }
+
+  @override
+  String docNumberLabel({required String doc}) {
+    return '$doc number';
+  }
+
+  @override
+  String docNumberHint({required String example}) {
+    return 'e.g. $example';
+  }
+
+  @override
+  String get docNumberMissing => 'Enter the number';
+
+  @override
+  String docNumberFormat({required String example}) {
+    return 'Doesn\'t look right. It should be like $example';
+  }
+
+  @override
+  String get aadhaarFormat =>
+      'Enter the 12-digit Aadhaar number (it never starts with 0 or 1)';
+
+  @override
+  String get aadhaarChecksum =>
+      'This isn\'t a valid Aadhaar number. Check the digits.';
+
+  @override
+  String get expiryBeforeStart => 'Must be after the valid-from date';
 }

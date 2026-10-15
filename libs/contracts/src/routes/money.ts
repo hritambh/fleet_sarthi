@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CalendarDate, DateTime, FuelKind, Id, PaidBy, Paise } from '../common.js';
+import { CalendarDate, csv, DateTime, FuelKind, Id, PaidBy, Paise } from '../common.js';
 import { access, defineRoute } from '../http.js';
 import { DocType, FuelType, PayRule } from './fleet.js';
 import { ChargeKind, CollectionInput, CollectionMethod, Trip } from './trips.js';
@@ -129,6 +129,7 @@ export const AlertKind = z.enum([
   'cancellation_requested',
   'gps_coverage_low',
   'document_submitted',
+  'trip_unassigned',
 ]);
 const IsoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const FuelCycleParams = z.object({
@@ -201,24 +202,22 @@ export const AlertMessage = z.discriminatedUnion('key', [
       endKm: z.number(),
     }),
   }),
+  z.object({
+    key: z.literal('trip_unassigned'),
+    params: z.object({
+      from: z.string(),
+      to: z.string().nullable(),
+      /** When the trip is scheduled to start (ISO instant). */
+      scheduledStartAt: z.string(),
+      /** The start time had passed when the alert was last updated. */
+      overdue: z.boolean(),
+    }),
+  }),
 ]);
 export type AlertMessage = z.infer<typeof AlertMessage>;
 
 export const AlertStatus = z.enum(['open', 'acknowledged', 'resolved', 'dismissed']);
 export const AlertSeverity = z.enum(['info', 'warning', 'critical']);
-
-/** A query value that is one item or a comma-separated list of them. */
-const csv = (item: z.ZodType<string>) =>
-  z.preprocess(
-    (v) =>
-      typeof v === 'string'
-        ? v
-            .split(',')
-            .map((s) => s.trim())
-            .filter(Boolean)
-        : v,
-    z.array(item).min(1).max(50),
-  );
 
 export const Alert = z.object({
   id: Id,

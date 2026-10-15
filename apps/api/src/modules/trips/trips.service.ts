@@ -18,6 +18,7 @@ import { AlertsRepository } from '../alerts/alerts.repository.js';
 import { ReviewItemsRepository } from '../alerts/review-items.repository.js';
 import { EvidenceReconciler } from '../media/evidence.reconciler.js';
 import { TripsRepository, type TripRow } from './trips.repository.js';
+import { UnassignedTripAlerts } from './unassigned-trip-alerts.js';
 
 export interface OdometerInput {
   id: string;
@@ -76,6 +77,7 @@ export class TripsService {
     private readonly reviews: ReviewItemsRepository,
     private readonly alerts: AlertsRepository,
     private readonly evidence: EvidenceReconciler,
+    private readonly unassigned: UnassignedTripAlerts,
   ) {}
 
   // ───────── queries ─────────
@@ -91,9 +93,9 @@ export class TripsService {
   async list(
     auth: TenantAuth,
     q: {
-      status?: TripStatus | undefined;
-      driverId?: string | undefined;
-      vehicleId?: string | undefined;
+      status?: TripStatus[] | undefined;
+      driverId?: string[] | undefined;
+      vehicleId?: string[] | undefined;
       from?: Date | undefined;
       to?: Date | undefined;
       overlapping?: boolean | undefined;
@@ -118,9 +120,9 @@ export class TripsService {
       const rows = await this.trips.findRows(
         tx,
         {
-          ...(q.status ? { status: q.status } : {}),
-          ...(q.driverId ? { driverId: q.driverId } : {}),
-          ...(q.vehicleId ? { vehicleId: q.vehicleId } : {}),
+          ...(q.status ? { status: { in: q.status } } : {}),
+          ...(q.driverId ? { driverId: { in: q.driverId } } : {}),
+          ...(q.vehicleId ? { vehicleId: { in: q.vehicleId } } : {}),
           ...window,
         },
         q.limit,
@@ -157,9 +159,26 @@ export class TripsService {
       });
       const busy = (id: string | null, r: (typeof rows)[number]) =>
         id ? [{ id, tripId: r.id, from: r.scheduledStartAt, to: r.scheduledEndAt }] : [];
-      return {
+      const all = {
         vehicles: rows.flatMap((r) => busy(r.vehicleId, r)),
         drivers: rows.flatMap((r) => busy(r.driverId, r)),
+      };
+      if (this.isStaff(auth)) return all;
+      // A driver sees only themselves and the vehicles they may drive, never
+      // other drivers' schedules.
+      const driver = await tx.driver.findFirst({
+        where: { orgId: tx.orgId, userId: auth.userId },
+        select: { id: true },
+      });
+      if (!driver) return { vehicles: [], drivers: [] };
+      const links = await tx.vehicleDriver.findMany({
+        where: { orgId: tx.orgId, driverId: driver.id },
+        select: { vehicleId: true },
+      });
+      const linked = new Set(links.map((l) => l.vehicleId));
+      return {
+        vehicles: all.vehicles.filter((b) => linked.has(b.id)),
+        drivers: all.drivers.filter((b) => b.id === driver.id),
       };
     });
   }
@@ -313,6 +332,9 @@ export class TripsService {
           // records the driver as the actor.
           byDriver ? ['staff'] : undefined,
         );
+      } else {
+        // Waiting for a vehicle and driver: the owner gets an alert at once.
+        await this.unassigned.sync(tx, id);
       }
       return this.requireView(tx, id);
     });
@@ -358,6 +380,8 @@ export class TripsService {
         occurredAt: new Date(),
         payload: { fields: Object.keys(patch) },
       });
+      // A new start time can change how urgent a missing assignment is.
+      await this.unassigned.sync(tx, id);
       return this.requireView(tx, id);
     });
   }
@@ -815,6 +839,9 @@ export class TripsService {
       payload,
       actorRole: forcedActors?.includes('system') ? null : undefined,
     });
+    // Assigned or cancelled: the "no vehicle or driver" alert resolves;
+    // unassigned: it's raised again.
+    await this.unassigned.sync(tx, id);
   }
 
   private async rejection(

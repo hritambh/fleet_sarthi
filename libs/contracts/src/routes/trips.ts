@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { DateTime, FuelKind, Id, PaidBy, Paise, PhoneE164 } from '../common.js';
+import { csv, DateTime, FuelKind, Id, PaidBy, Paise, PhoneE164 } from '../common.js';
 import { access, defineRoute, MembershipRole } from '../http.js';
 import { GeoPoint } from './media.js';
 
@@ -202,10 +202,12 @@ export const tripRoutes = {
     summary: 'Trips, newest scheduled first',
     tag: 'trips',
     access: access.staff,
+    // Status, driver and vehicle each take one value or a comma-separated list
+    // ("assigned,started"). Lists within a filter are ORed; filters are ANDed.
     query: z.object({
-      status: TripStatus.optional(),
-      driverId: Id.optional(),
-      vehicleId: Id.optional(),
+      status: csv(TripStatus).optional(),
+      driverId: csv(Id).optional(),
+      vehicleId: csv(Id).optional(),
       from: DateTime.optional(),
       to: DateTime.optional(),
       /**
@@ -222,9 +224,9 @@ export const tripRoutes = {
     path: '/availability',
     summary:
       'Vehicles and drivers already booked (assigned or started trips) during [from, to), ' +
-      'optionally ignoring one trip',
+      'optionally ignoring one trip. A driver sees only their own bookings and those of the vehicles linked to them',
     tag: 'trips',
-    access: access.staff,
+    access: access.anyMember,
     query: z.object({
       from: DateTime,
       to: DateTime,

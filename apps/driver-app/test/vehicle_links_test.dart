@@ -453,6 +453,138 @@ void main() {
       expect(find.text('MH12CD5678 · Innova Crysta'), findsOneWidget);
     });
 
+    group('availability', () {
+      Map<String, Object> busy(String id) => {
+        'id': id,
+        'tripId': '0199c7a2-0000-7000-8000-0000000007aa',
+        'from': '2026-10-10T08:30:00.000Z',
+        'to': '2026-10-10T12:30:00.000Z',
+      };
+
+      Future<void> fillIn(WidgetTester tester) async {
+        await tester.enterText(find.byKey(const Key('trip-from')), 'Aundh');
+        await tester.enterText(find.byKey(const Key('trip-to')), 'Lonavala');
+        await tester.enterText(find.byKey(const Key('trip-fare')), '2500');
+        await tester.pump();
+      }
+
+      Future<void> create(WidgetTester tester) async {
+        await tester.ensureVisible(find.byKey(const Key('create-trip')));
+        await tester.tap(find.byKey(const Key('create-trip')));
+        await settle(tester);
+      }
+
+      testWidgets('a booked vehicle is listed but not pickable', (
+        tester,
+      ) async {
+        final h = await setUpDriver(tester, 'en');
+        h.api.vehicleList = [
+          Vehicle.fromJson(vehicleJson()),
+          Vehicle.fromJson(vehicleJson(id: vehicle2Id, reg: 'MH12CD5678')),
+        ];
+        h.api.availabilityJson = {
+          'vehicles': [busy(vehicleId)],
+          'drivers': [],
+        };
+        await tester.pumpWidget(h.screen(const NewTripScreen()));
+        await settle(tester);
+        expect(h.api.names, contains('availability'));
+        // The first car is booked, so the free one is picked instead.
+        expect(find.text('MH12CD5678 · Innova Crysta'), findsOneWidget);
+
+        await tester.tap(find.byKey(const Key('trip-vehicle')));
+        await tester.pumpAndSettle();
+        final item = tester.widget<DropdownMenuItem<String>>(
+          find.byKey(const ValueKey('pick-$vehicleId')).last,
+        );
+        expect(item.enabled, isFalse);
+        expect(find.textContaining('Busy'), findsWidgets);
+      });
+
+      testWidgets('a driver already booked then cannot create the trip', (
+        tester,
+      ) async {
+        final h = await setUpDriver(tester, 'en');
+        h.api.vehicleList = [Vehicle.fromJson(vehicleJson())];
+        h.api.availabilityJson = {
+          'vehicles': [],
+          'drivers': [busy(driverId)],
+        };
+        await tester.pumpWidget(h.screen(const NewTripScreen()));
+        await settle(tester);
+        expect(
+          find.textContaining('You already have a trip at this time'),
+          findsOneWidget,
+        );
+        expect(
+          tester
+              .widget<FilledButton>(find.byKey(const Key('create-trip')))
+              .onPressed,
+          isNull,
+        );
+      });
+
+      testWidgets('create checks again: a booking made meanwhile stops it', (
+        tester,
+      ) async {
+        final h = await setUpDriver(tester, 'en');
+        h.api.vehicleList = [Vehicle.fromJson(vehicleJson())];
+        await tester.pumpWidget(h.screen(const NewTripScreen()));
+        await settle(tester);
+        await fillIn(tester);
+
+        // Booked on another device after the form loaded.
+        h.api.availabilityJson = {
+          'vehicles': [busy(vehicleId)],
+          'drivers': [],
+        };
+        await create(tester);
+        expect(
+          find.text('That vehicle is already booked for an overlapping time.'),
+          findsOneWidget,
+        );
+        expect(await h.db.select(h.db.outboxItems).get(), isEmpty);
+        expect(find.byType(NewTripScreen), findsOneWidget);
+      });
+
+      testWidgets('offline, the trips on the phone are checked instead', (
+        tester,
+      ) async {
+        final h = await setUpDriver(tester, 'en');
+        h.api.vehicleList = [Vehicle.fromJson(vehicleJson())];
+        h.api.failNext('availability', FakeApi.network(), times: 10);
+        // Starts within the hour, overlapping the form's default window.
+        await h.engine.cacheTrip(
+          Trip.fromJson(
+            tripJson(
+              scheduledStartAt: DateTime.now().add(const Duration(minutes: 30)),
+            ),
+          ),
+        );
+        await tester.pumpWidget(h.screen(const NewTripScreen()));
+        await settle(tester);
+        await fillIn(tester);
+        await create(tester);
+        expect(
+          find.textContaining('You already have a trip at this time'),
+          findsOneWidget,
+        );
+        expect(await h.db.select(h.db.outboxItems).get(), isEmpty);
+      });
+
+      testWidgets('with nothing booked, the trip is created as before', (
+        tester,
+      ) async {
+        final h = await setUpDriver(tester, 'en');
+        h.api.vehicleList = [Vehicle.fromJson(vehicleJson())];
+        await tester.pumpWidget(h.screen(const NewTripScreen()));
+        await settle(tester);
+        await fillIn(tester);
+        await create(tester);
+        expect(await h.db.select(h.db.outboxItems).get(), hasLength(1));
+      });
+    });
+
     testWidgets('the empty state is in Hindi too', (tester) async {
       final h = await setUpDriver(tester, 'hi');
       await tester.pumpWidget(h.screen(const NewTripScreen()));

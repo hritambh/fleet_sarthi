@@ -301,6 +301,16 @@ final alertMessages = <String, JsonMap>{
       'endKm': 48300,
     },
   },
+  // Far in the future, so it reads as upcoming whatever day the tests run.
+  'trip_unassigned': {
+    'key': 'trip_unassigned',
+    'params': {
+      'from': 'Pune Station',
+      'to': 'Goa (Panaji)',
+      'scheduledStartAt': '2099-10-16T04:30:00.000Z',
+      'overdue': false,
+    },
+  },
 };
 
 JsonMap alertJson({

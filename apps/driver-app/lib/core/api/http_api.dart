@@ -8,6 +8,7 @@ import '../auth/session_store.dart';
 import 'api.dart';
 import 'json.dart';
 import 'models.dart';
+import 'owner_models.dart';
 
 /// [TaxcyApi] over HTTP. Adds the bearer token, refreshes it once on
 /// TOKEN_EXPIRED, and turns failures into [ApiException]s from the error envelope.
@@ -99,6 +100,21 @@ class HttpTaxcyApi implements TaxcyApi {
       ),
     ),
   );
+
+  @override
+  Future<Availability> availability(DateTime from, DateTime to) async =>
+      Availability.fromJson(
+        asJsonMap(
+          await send(
+            'GET',
+            '/availability',
+            query: {
+              'from': from.toUtc().toIso8601String(),
+              'to': to.toUtc().toIso8601String(),
+            },
+          ),
+        ),
+      );
 
   @override
   Future<Trip> createTrip(JsonMap body) async =>

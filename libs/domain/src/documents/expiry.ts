@@ -23,7 +23,12 @@ export const DRIVER_DOC_TYPES = [
   'photo',
 ] as const satisfies DocType[];
 /** Types with no expiry date (an expiry is optional for them). */
-export const NON_EXPIRING_DOC_TYPES = ['aadhaar', 'pan', 'photo'] as const satisfies DocType[];
+export const NON_EXPIRING_DOC_TYPES = [
+  'aadhaar',
+  'pan',
+  'photo',
+  'police_verification',
+] as const satisfies DocType[];
 
 export function isVehicleDocType(t: DocType): boolean {
   return (VEHICLE_DOC_TYPES as readonly DocType[]).includes(t);

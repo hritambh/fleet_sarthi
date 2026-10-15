@@ -2414,6 +2414,14 @@
   "@busyPickCleared": {},
   "busyPickWarning": "This vehicle or driver is already booked at this time.",
   "@busyPickWarning": {},
+  "youAreBusy": "You already have a trip at this time ({when}).",
+  "@youAreBusy": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
   "uploadFile": "Upload file",
   "@uploadFile": {},
   "chooseOtherFile": "Choose another file",
@@ -3104,5 +3112,79 @@
   "welcomeUcAvailPoint3": "The share of free hours across your fleet",
   "@welcomeUcAvailPoint3": {},
   "welcomeUcAvailFreeNow": "Free now: 2 of 5",
-  "@welcomeUcAvailFreeNow": {}
+  "@welcomeUcAvailFreeNow": {},
+  "nSelected": "{count} selected",
+  "@nSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dateRangeLabel": "Dates",
+  "@dateRangeLabel": {},
+  "rangeFrom": "From",
+  "@rangeFrom": {},
+  "rangeTo": "To",
+  "@rangeTo": {},
+  "thisMonth": "This month",
+  "@thisMonth": {},
+  "kindTripUnassigned": "No vehicle or driver",
+  "@kindTripUnassigned": {},
+  "alertTripUnassignedTitle": "{route} has no vehicle or driver yet",
+  "@alertTripUnassignedTitle": {
+    "placeholders": {
+      "route": {
+        "type": "String"
+      }
+    }
+  },
+  "alertTripUnassignedBody": "It starts {when}. Assign a vehicle and driver before then.",
+  "@alertTripUnassignedBody": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "alertTripUnassignedOverdueBody": "It was due to start {when} and still has no vehicle or driver. Assign one, or cancel the trip.",
+  "@alertTripUnassignedOverdueBody": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "docNumberLabel": "{doc} number",
+  "@docNumberLabel": {
+    "placeholders": {
+      "doc": {
+        "type": "String"
+      }
+    }
+  },
+  "docNumberHint": "e.g. {example}",
+  "@docNumberHint": {
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
+  "docNumberMissing": "Enter the number",
+  "@docNumberMissing": {},
+  "docNumberFormat": "Doesn't look right. It should be like {example}",
+  "@docNumberFormat": {
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
+  "aadhaarFormat": "Enter the 12-digit Aadhaar number (it never starts with 0 or 1)",
+  "@aadhaarFormat": {},
+  "aadhaarChecksum": "This isn't a valid Aadhaar number. Check the digits.",
+  "@aadhaarChecksum": {},
+  "expiryBeforeStart": "Must be after the valid-from date",
+  "@expiryBeforeStart": {}
 }

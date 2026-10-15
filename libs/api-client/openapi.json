@@ -11213,8 +11213,13 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string",
-              "enum": ["created", "assigned", "started", "ended", "settled", "cancelled"]
+              "minItems": 1,
+              "maxItems": 50,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["created", "assigned", "started", "ended", "settled", "cancelled"]
+              }
             }
           },
           {
@@ -11222,9 +11227,14 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              "minItems": 1,
+              "maxItems": 50,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              }
             }
           },
           {
@@ -11232,9 +11242,14 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              "minItems": 1,
+              "maxItems": 50,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              }
             }
           },
           {
@@ -12945,7 +12960,7 @@
     "/availability": {
       "get": {
         "operationId": "getAvailability",
-        "summary": "Vehicles and drivers already booked (assigned or started trips) during [from, to), optionally ignoring one trip",
+        "summary": "Vehicles and drivers already booked (assigned or started trips) during [from, to), optionally ignoring one trip. A driver sees only their own bookings and those of the vehicles linked to them",
         "tags": ["trips"],
         "parameters": [
           {
@@ -29332,7 +29347,8 @@
                   "document_expired",
                   "cancellation_requested",
                   "gps_coverage_low",
-                  "document_submitted"
+                  "document_submitted",
+                  "trip_unassigned"
                 ]
               }
             }
@@ -29429,7 +29445,8 @@
                           "document_expired",
                           "cancellation_requested",
                           "gps_coverage_low",
-                          "document_submitted"
+                          "document_submitted",
+                          "trip_unassigned"
                         ]
                       },
                       "severity": {
@@ -29824,6 +29841,34 @@
                                   }
                                 },
                                 "required": ["key", "params"]
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "key": {
+                                    "type": "string",
+                                    "const": "trip_unassigned"
+                                  },
+                                  "params": {
+                                    "type": "object",
+                                    "properties": {
+                                      "from": {
+                                        "type": "string"
+                                      },
+                                      "to": {
+                                        "type": ["string", "null"]
+                                      },
+                                      "scheduledStartAt": {
+                                        "type": "string"
+                                      },
+                                      "overdue": {
+                                        "type": "boolean"
+                                      }
+                                    },
+                                    "required": ["from", "to", "scheduledStartAt", "overdue"]
+                                  }
+                                },
+                                "required": ["key", "params"]
                               }
                             ]
                           },
@@ -30177,7 +30222,8 @@
                         "document_expired",
                         "cancellation_requested",
                         "gps_coverage_low",
-                        "document_submitted"
+                        "document_submitted",
+                        "trip_unassigned"
                       ]
                     },
                     "severity": {
@@ -30569,6 +30615,34 @@
                                     }
                                   },
                                   "required": ["from", "driverName", "reason", "endKm"]
+                                }
+                              },
+                              "required": ["key", "params"]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "key": {
+                                  "type": "string",
+                                  "const": "trip_unassigned"
+                                },
+                                "params": {
+                                  "type": "object",
+                                  "properties": {
+                                    "from": {
+                                      "type": "string"
+                                    },
+                                    "to": {
+                                      "type": ["string", "null"]
+                                    },
+                                    "scheduledStartAt": {
+                                      "type": "string"
+                                    },
+                                    "overdue": {
+                                      "type": "boolean"
+                                    }
+                                  },
+                                  "required": ["from", "to", "scheduledStartAt", "overdue"]
                                 }
                               },
                               "required": ["key", "params"]

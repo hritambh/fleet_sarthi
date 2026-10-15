@@ -63,7 +63,7 @@ describe('driver documents', () => {
     const res = await request(h.http)
       .post('/v1/me/documents')
       .set(...bearer(driver.session))
-      .send({ docType: 'driving_licence', number: 'MH12 2020', expiresOn: addDays(400) })
+      .send({ docType: 'driving_licence', number: 'MH12 20200012345', expiresOn: addDays(400) })
       .expect(201);
     const doc = res.body as Doc;
     expect(doc).toMatchObject({ reviewStatus: 'pending', submittedByDriver: true });
@@ -112,9 +112,9 @@ describe('driver documents', () => {
     const res = await request(h.http)
       .post('/v1/me/documents')
       .set(...bearer(driver.session))
-      .send({ docType: 'aadhaar', number: '1234 5678 9012' })
+      .send({ docType: 'aadhaar', number: '2341 2341 2346' })
       .expect(201);
-    expect(res.body).toMatchObject({ daysLeft: null, status: 'valid' });
+    expect(res.body).toMatchObject({ number: '234123412346', daysLeft: null, status: 'valid' });
     const rejected = await request(h.http)
       .post(`/v1/documents/${(res.body as Doc).id}/reject`)
       .set(...bearer(owner))
@@ -135,7 +135,7 @@ describe('driver documents', () => {
     await request(h.http)
       .post('/v1/me/documents')
       .set(...bearer(driver.session))
-      .send({ docType: 'driving_licence' })
+      .send({ docType: 'driving_licence', number: 'MH1220200012345' })
       .expect(400);
     await request(h.http)
       .post('/v1/me/documents')
@@ -144,11 +144,45 @@ describe('driver documents', () => {
       .expect(400);
   });
 
+  it('checks the number against the type, and drops dates a type does not have', async () => {
+    const send = (body: Record<string, unknown>) =>
+      request(h.http)
+        .post('/v1/me/documents')
+        .set(...bearer(driver.session))
+        .send(body);
+    for (const body of [
+      { docType: 'aadhaar', number: '2341 2341 2345' }, // wrong check digit
+      { docType: 'aadhaar', number: '23412341234' },
+      { docType: 'aadhaar' },
+      { docType: 'pan', number: 'ABCD1234F' },
+      { docType: 'driving_licence', number: 'MH12 2020', expiresOn: addDays(400) },
+      { docType: 'photo', number: '123' },
+    ]) {
+      const res = await send(body).expect(400);
+      expect(res.body, JSON.stringify(body)).toMatchObject({
+        error: { code: 'VALIDATION_FAILED', details: { field: 'number' } },
+      });
+    }
+    const pan = await send({
+      docType: 'pan',
+      number: 'abcde1234f',
+      validFrom: addDays(-10),
+      expiresOn: addDays(10),
+    }).expect(201);
+    expect(pan.body).toMatchObject({ number: 'ABCDE1234F', validFrom: null, expiresOn: null });
+    const backwards = await send({
+      docType: 'badge',
+      validFrom: addDays(10),
+      expiresOn: addDays(5),
+    }).expect(400);
+    expect(backwards.body).toMatchObject({ error: { details: { field: 'expiresOn' } } });
+  });
+
   it("a driver can't see or renew another driver's documents", async () => {
     const theirs = await request(h.http)
       .post('/v1/documents')
       .set(...bearer(owner))
-      .send({ docType: 'pan', driverId: other.driverId })
+      .send({ docType: 'pan', number: 'ABCDE1234F', driverId: other.driverId })
       .expect(201);
     const mine = await request(h.http)
       .get('/v1/me/documents')

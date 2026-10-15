@@ -14,7 +14,17 @@ export type AlertMessage =
   | { key: 'document_expiring'; params: DocumentExpiryParams }
   | { key: 'document_expired'; params: DocumentExpiryParams }
   | { key: 'cancellation_requested'; params: CancellationRequestedParams }
-  | { key: 'document_submitted'; params: DocumentSubmittedParams };
+  | { key: 'document_submitted'; params: DocumentSubmittedParams }
+  | { key: 'trip_unassigned'; params: TripUnassignedParams };
+
+export interface TripUnassignedParams {
+  from: string;
+  to: string | null;
+  /** When the trip is scheduled to start (ISO instant). */
+  scheduledStartAt: string;
+  /** The start time had passed when the alert was last updated. */
+  overdue: boolean;
+}
 
 export interface DocumentSubmittedParams {
   docType: DocType;

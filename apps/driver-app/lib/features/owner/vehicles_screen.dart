@@ -814,7 +814,7 @@ class _VehicleTrips extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final filter = TripFilter(vehicleId: vehicleId, limit: 50);
+    final filter = TripFilter(vehicleIds: {vehicleId}, limit: 50);
     final trips = ref.watch(ownerTripsProvider(filter));
     return RefreshPage(
       onRefresh: () => ref.refresh(ownerTripsProvider(filter).future),

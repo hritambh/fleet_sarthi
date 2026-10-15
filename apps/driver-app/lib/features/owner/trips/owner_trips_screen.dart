@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme.dart';
 import '../../../core/api/models.dart';
 import '../../../core/api/owner_api.dart';
+import '../../../core/api/owner_models.dart';
 import '../../common/format.dart';
 import '../owner_providers.dart';
 import '../owner_text.dart';
@@ -33,21 +34,26 @@ class OwnerTripsScreen extends ConsumerStatefulWidget {
 }
 
 class _OwnerTripsScreenState extends ConsumerState<OwnerTripsScreen> {
-  late String? _status = widget.initialStatus;
-  String? _date;
-  String? _driverId;
-  String? _vehicleId;
+  late var _statuses = {?widget.initialStatus};
+  var _driverIds = <String>{};
+  var _vehicleIds = <String>{};
 
-  TripFilter get _filter {
-    final range = _date == null ? null : istDayRange(_date!);
-    return TripFilter(
-      status: _status,
-      driverId: _driverId,
-      vehicleId: _vehicleId,
-      from: range?.$1,
-      to: range?.$2,
-    );
-  }
+  /// First and last IST day (YYYY-MM-DD), both included.
+  (String, String)? _days;
+
+  TripFilter get _filter => TripFilter(
+    statuses: _statuses,
+    driverIds: _driverIds,
+    vehicleIds: _vehicleIds,
+    from: _days == null ? null : istDayRange(_days!.$1).$1,
+    to: _days == null ? null : istDayRange(_days!.$2).$2,
+  );
+
+  bool get _filtered =>
+      _statuses.isNotEmpty ||
+      _driverIds.isNotEmpty ||
+      _vehicleIds.isNotEmpty ||
+      _days != null;
 
   @override
   Widget build(BuildContext context) {
@@ -101,75 +107,102 @@ class _OwnerTripsScreenState extends ConsumerState<OwnerTripsScreen> {
 
   Widget _filters(BuildContext context) {
     final l = context.l10n;
+    final fmt = context.fmt;
+    final drivers = ref.watch(driversProvider).value ?? const <Driver>[];
+    final vehicles =
+        ref.watch(fleetVehiclesProvider).value ?? const <Vehicle>[];
+    final days = _days;
     Widget box(Widget child) => SizedBox(width: 200, child: child);
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           box(
-            DropdownButtonFormField<String?>(
-              key: const Key('trip-status-filter'),
-              initialValue: _status,
-              isExpanded: true,
-              decoration: InputDecoration(labelText: l.status, isDense: true),
-              items: [
-                DropdownMenuItem<String?>(child: Text(l.allStatuses)),
-                for (final s in tripStatuses)
-                  DropdownMenuItem<String?>(
-                    value: s,
-                    child: Text(statusLabel(l, s)),
-                  ),
-              ],
-              onChanged: (v) => setState(() => _status = v),
+            MultiSelectField(
+              id: 'trip-status-filter',
+              label: l.status,
+              allLabel: l.allStatuses,
+              options: [for (final s in tripStatuses) (s, statusLabel(l, s))],
+              selected: _statuses,
+              onChanged: (v) => setState(() => _statuses = v),
             ),
           ),
           box(
             InputDecorator(
+              key: const Key('trip-date-filter'),
               decoration: InputDecoration(
-                labelText: l.pickDate,
+                labelText: l.dateRangeLabel,
                 isDense: true,
-                suffixIcon: _date == null
+                suffixIcon: days == null
                     ? const Icon(Icons.calendar_today, size: 18)
                     : IconButton(
                         tooltip: l.anyDate,
                         icon: const Icon(Icons.clear, size: 18),
-                        onPressed: () => setState(() => _date = null),
+                        onPressed: () => setState(() => _days = null),
                       ),
               ),
               child: InkWell(
                 onTap: () async {
-                  final picked = await pickIsoDate(
+                  final picked = await pickIsoRange(
                     context,
-                    value: _date,
+                    value: days,
                     last: DateTime.now().add(const Duration(days: 365)),
                   );
-                  if (picked != null) setState(() => _date = picked);
+                  if (picked != null) setState(() => _days = picked);
                 },
                 child: Text(
-                  _date == null ? l.anyDate : context.fmt.calendarDate(_date!),
+                  days == null
+                      ? l.anyDate
+                      : days.$1 == days.$2
+                      ? fmt.calendarDate(days.$1)
+                      : '${fmt.calendarDate(days.$1)} – '
+                            '${fmt.calendarDate(days.$2)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
           ),
           box(
-            DriverPicker(
-              value: _driverId,
+            MultiSelectField(
+              id: 'trip-driver-filter',
               label: l.driver,
-              noneLabel: l.allDrivers,
-              onChanged: (v) => setState(() => _driverId = v),
+              allLabel: l.allDrivers,
+              options: [
+                for (final d in drivers)
+                  if (d.isActive || _driverIds.contains(d.id)) (d.id, d.name),
+              ],
+              selected: _driverIds,
+              onChanged: (v) => setState(() => _driverIds = v),
             ),
           ),
           box(
-            VehiclePicker(
-              value: _vehicleId,
+            MultiSelectField(
+              id: 'trip-vehicle-filter',
               label: l.vehicle,
-              noneLabel: l.allVehicles,
-              activeOnly: false,
-              onChanged: (v) => setState(() => _vehicleId = v),
+              allLabel: l.allVehicles,
+              options: [
+                for (final v in vehicles)
+                  (v.id, formatRegistration(v.registrationNo)),
+              ],
+              selected: _vehicleIds,
+              onChanged: (v) => setState(() => _vehicleIds = v),
             ),
           ),
+          if (_filtered)
+            TextButton(
+              key: const Key('trip-filters-clear'),
+              onPressed: () => setState(() {
+                _statuses = {};
+                _driverIds = {};
+                _vehicleIds = {};
+                _days = null;
+              }),
+              child: Text(l.clearAll),
+            ),
         ],
       ),
     );

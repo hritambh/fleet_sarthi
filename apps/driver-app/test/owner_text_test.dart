@@ -107,6 +107,44 @@ void main() {
       );
     });
 
+    test('trip_unassigned', () {
+      final a = alert('trip_unassigned');
+      expect(
+        alertTitle(en, a),
+        'Pune Station → Goa (Panaji) has no vehicle or driver yet',
+      );
+      expect(alertBody(en, a), startsWith('It starts '));
+      expect(
+        alertBody(en, a),
+        endsWith('Assign a vehicle and driver before then.'),
+      );
+      expect(alertKindLabel(en.l, 'trip_unassigned'), 'No vehicle or driver');
+
+      // Past its start: says so, whatever the server last wrote.
+      final overdue = Alert.fromJson(
+        alertJson(
+          kind: 'trip_unassigned',
+          message: {
+            'key': 'trip_unassigned',
+            'params': {
+              'from': 'Kothrud',
+              'to': null,
+              'scheduledStartAt': '2020-01-01T04:30:00.000Z',
+              'overdue': false,
+            },
+          },
+        ),
+      );
+      expect(alertTitle(en, overdue), 'Kothrud has no vehicle or driver yet');
+      expect(
+        alertBody(en, overdue),
+        allOf(
+          startsWith('It was due to start '),
+          endsWith('Assign one, or cancel the trip.'),
+        ),
+      );
+    });
+
     test('cancellation_requested', () {
       final a = alert('cancellation_requested');
       expect(
@@ -149,6 +187,10 @@ void main() {
       expect(
         alertBody(hi, alert('cancellation_requested')),
         contains('ओडोमीटर 48,300 किमी था'),
+      );
+      expect(
+        alertTitle(hi, alert('trip_unassigned')),
+        'Pune Station → Goa (Panaji) के लिए अभी गाड़ी या ड्राइवर तय नहीं',
       );
     });
 

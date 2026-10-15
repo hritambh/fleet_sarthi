@@ -5,10 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
 import '../../app/theme.dart';
+import 'package:flutter/services.dart';
+
+import '../../core/api/doc_rules.dart';
 import '../../core/api/models.dart';
 import '../../core/api/owner_models.dart';
 import '../../core/media/file_pick.dart';
 import '../../core/media/upload_now.dart';
+import '../../l10n/app_localizations.dart';
 import '../common/format.dart';
 import '../driver/driver_providers.dart';
 import 'owner_providers.dart';
@@ -588,7 +592,7 @@ class DocumentFormScreen extends ConsumerStatefulWidget {
 
 class _DocumentFormScreenState extends ConsumerState<DocumentFormScreen> {
   late final _number = TextEditingController(
-    text: widget.renewing?.number ?? '',
+    text: _shown(widget.renewing?.docType, widget.renewing?.number ?? ''),
   );
   late String _docType =
       widget.renewing?.docType ??
@@ -610,8 +614,12 @@ class _DocumentFormScreenState extends ConsumerState<DocumentFormScreen> {
   final _failed = <String>{};
   String? _problem;
 
-  /// The expiry date is missing but needed: shown on the field itself.
-  bool _expiryMissing = false;
+  /// Why the expiry date can't be saved (missing, or not after the start),
+  /// shown on the field itself.
+  String? _expiryError;
+
+  /// Save was pressed: the number's problems show, and update as it's typed.
+  bool _checkNumber = false;
   bool _busy = false;
 
   /// What saving is doing right now ("Uploading 1 of 2…", "Saving…").
@@ -742,6 +750,59 @@ class _DocumentFormScreenState extends ConsumerState<DocumentFormScreen> {
 
   bool get _forDriver => FleetDocument.driverTypes.contains(_docType);
   bool get _expiryRequired => FleetDocument.expiryRequired(_docType);
+  DocFields get _fields => fieldsOf(_docType);
+
+  /// A stored number as typed: Aadhaar grouped in fours.
+  static String _shown(String? docType, String number) => docType == 'aadhaar'
+      ? const AadhaarInputFormatter()
+            .formatEditUpdate(
+              TextEditingValue.empty,
+              TextEditingValue(text: number),
+            )
+            .text
+      : number;
+
+  String get _normalisedNumber => normaliseDocNumber(_docType, _number.text);
+
+  /// What is wrong with the number, in the user's language, or null.
+  String? _numberError(AppLocalizations l) {
+    final example = docNumberExamples[_docType] ?? '';
+    return switch (checkDocNumber(_docType, _normalisedNumber)) {
+      null || DocNumberProblem.notAllowed => null,
+      DocNumberProblem.missing => l.docNumberMissing,
+      DocNumberProblem.format when _docType == 'aadhaar' => l.aadhaarFormat,
+      DocNumberProblem.format => l.docNumberFormat(example: example),
+      DocNumberProblem.checksum => l.aadhaarChecksum,
+    };
+  }
+
+  /// Picks another type: details it doesn't have are cleared (so they're
+  /// never sent), and an RC starts with the vehicle's registration.
+  void _changeType(String docType) => setState(() {
+    final changed = docType != _docType;
+    _docType = docType;
+    final fields = _fields;
+    if (fields.number == FieldRule.hidden) _number.clear();
+    if (fields.validFrom == FieldRule.hidden) _validFrom = null;
+    if (fields.expiresOn == FieldRule.hidden) {
+      _expiresOn = null;
+      _expiryError = null;
+    }
+    if (changed && docType == 'aadhaar') {
+      _number.text = _shown(docType, _number.text);
+    }
+    _prefillRegistration();
+  });
+
+  /// An RC's number is the vehicle's registration: filled in when empty.
+  void _prefillRegistration() {
+    if (_docType != 'rc' || _number.text.trim().isNotEmpty) return;
+    final vehicle = (ref.read(fleetVehiclesProvider).value ?? const [])
+        .where((v) => v.id == _vehicleId)
+        .firstOrNull;
+    if (vehicle != null) _number.text = vehicle.registrationNo;
+  }
+
   bool get _full => _files.length >= maxDocumentFiles;
 
   void _add(Iterable<PickedFile> files) {
@@ -796,16 +857,24 @@ class _DocumentFormScreenState extends ConsumerState<DocumentFormScreen> {
         renewing == null &&
         !widget.mine &&
         (_forDriver ? _driverId == null : _vehicleId == null);
-    final expiryMissing = _expiresOn == null && _expiryRequired;
-    if (expiryMissing || subjectMissing) {
+    final validFrom = _validFrom;
+    final expiresOn = _expiresOn;
+    final expiryError = expiresOn == null
+        ? (_expiryRequired ? l.required : null)
+        : validFrom != null && expiresOn.compareTo(validFrom) <= 0
+        ? l.expiryBeforeStart
+        : null;
+    final numberBad = _numberError(l) != null;
+    if (expiryError != null || numberBad || subjectMissing) {
       setState(() {
-        _expiryMissing = expiryMissing;
+        _expiryError = expiryError;
+        _checkNumber = true;
         _problem = subjectMissing ? l.pickVehicleOrDriver : l.fixHighlighted;
       });
       return;
     }
     setState(() {
-      _expiryMissing = false;
+      _expiryError = null;
       _problem = null;
       _busy = true;
     });
@@ -827,9 +896,10 @@ class _DocumentFormScreenState extends ConsumerState<DocumentFormScreen> {
     setState(() => _step = l.savingStep);
     final ok = await runAction(context, () async {
       final mediaIds = [for (final f in _files) _uploaded[f.file.id]!];
+      final number = _normalisedNumber;
       final details = {
         'expiresOn': ?_expiresOn,
-        if (_number.text.trim().isNotEmpty) 'number': _number.text.trim(),
+        if (number.isNotEmpty) 'number': number,
         'validFrom': ?_validFrom,
         if (mediaIds.isNotEmpty) 'mediaIds': mediaIds,
       };
@@ -874,6 +944,9 @@ class _DocumentFormScreenState extends ConsumerState<DocumentFormScreen> {
     final renewing = widget.renewing;
     final scoped =
         widget.vehicleId != null || widget.driverId != null || widget.mine;
+    final fields = _fields;
+    final aadhaar = _docType == 'aadhaar';
+    final example = docNumberExamples[_docType];
     // Leaving with picked files or typed details asks first, so nothing is
     // lost without noticing (and nothing is left half saved).
     return PopScope(
@@ -910,8 +983,7 @@ class _DocumentFormScreenState extends ConsumerState<DocumentFormScreen> {
                             child: Text(docTypeLabel(l, t)),
                           ),
                       ],
-                      onChanged: (v) =>
-                          setState(() => _docType = v ?? _docType),
+                      onChanged: (v) => _changeType(v ?? _docType),
                     ),
                     if (!scoped) ...[
                       const SizedBox(height: 12),
@@ -926,45 +998,84 @@ class _DocumentFormScreenState extends ConsumerState<DocumentFormScreen> {
                           value: _vehicleId,
                           label: l.documentFor,
                           activeOnly: false,
-                          onChanged: (v) => setState(() => _vehicleId = v),
+                          onChanged: (v) => setState(() {
+                            _vehicleId = v;
+                            _prefillRegistration();
+                          }),
                         ),
                     ],
                   ],
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _number,
-                    decoration: InputDecoration(labelText: l.documentNumber),
-                  ),
-                  const SizedBox(height: 12),
-                  _DatePickField(
-                    label: l.validFrom,
-                    value: _validFrom == null
-                        ? l.optional
-                        : fmt.calendarDate(_validFrom!),
-                    onTap: () async {
-                      final d = await pickIsoDate(context, value: _validFrom);
-                      if (d != null) setState(() => _validFrom = d);
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  _DatePickField(
-                    key: const Key('document-expires'),
-                    label: l.expiresOn,
-                    hint: _expiryRequired ? l.expiresOnHint : null,
-                    error: _expiryMissing ? l.required : null,
-                    value: _expiresOn == null
-                        ? (_expiryRequired ? l.pickDate : l.optional)
-                        : fmt.calendarDate(_expiresOn!),
-                    onTap: () async {
-                      final d = await pickIsoDate(context, value: _expiresOn);
-                      if (d != null) {
-                        setState(() {
-                          _expiresOn = d;
-                          _expiryMissing = false;
-                        });
-                      }
-                    },
-                  ),
+                  if (fields.number != FieldRule.hidden) ...[
+                    const SizedBox(height: 12),
+                    TextField(
+                      key: const Key('document-number'),
+                      controller: _number,
+                      keyboardType: aadhaar
+                          ? TextInputType.number
+                          : TextInputType.text,
+                      textCapitalization: TextCapitalization.characters,
+                      inputFormatters: [
+                        if (aadhaar)
+                          const AadhaarInputFormatter()
+                        else ...[
+                          const UpperCaseInputFormatter(),
+                          if (_docType == 'pan')
+                            LengthLimitingTextInputFormatter(10),
+                        ],
+                      ],
+                      onChanged: (_) {
+                        if (_checkNumber) setState(() {});
+                      },
+                      decoration: InputDecoration(
+                        labelText: l.docNumberLabel(
+                          doc: docTypeLabel(l, _docType),
+                        ),
+                        hintText: example == null
+                            ? null
+                            : l.docNumberHint(example: example),
+                        helperText: fields.number == FieldRule.optional
+                            ? l.optional
+                            : null,
+                        errorText: _checkNumber ? _numberError(l) : null,
+                        errorMaxLines: 3,
+                      ),
+                    ),
+                  ],
+                  if (fields.validFrom != FieldRule.hidden) ...[
+                    const SizedBox(height: 12),
+                    _DatePickField(
+                      key: const Key('document-valid-from'),
+                      label: l.validFrom,
+                      value: _validFrom == null
+                          ? l.optional
+                          : fmt.calendarDate(_validFrom!),
+                      onTap: () async {
+                        final d = await pickIsoDate(context, value: _validFrom);
+                        if (d != null) setState(() => _validFrom = d);
+                      },
+                    ),
+                  ],
+                  if (fields.expiresOn != FieldRule.hidden) ...[
+                    const SizedBox(height: 12),
+                    _DatePickField(
+                      key: const Key('document-expires'),
+                      label: l.expiresOn,
+                      hint: _expiryRequired ? l.expiresOnHint : null,
+                      error: _expiryError,
+                      value: _expiresOn == null
+                          ? (_expiryRequired ? l.pickDate : l.optional)
+                          : fmt.calendarDate(_expiresOn!),
+                      onTap: () async {
+                        final d = await pickIsoDate(context, value: _expiresOn);
+                        if (d != null) {
+                          setState(() {
+                            _expiresOn = d;
+                            _expiryError = null;
+                          });
+                        }
+                      },
+                    ),
+                  ],
                   const SizedBox(height: 12),
                   Text(
                     l.documentFiles,

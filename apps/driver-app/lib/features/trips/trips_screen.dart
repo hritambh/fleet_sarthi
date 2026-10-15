@@ -7,10 +7,8 @@ import '../../l10n/app_localizations.dart';
 import '../common/errors.dart';
 import '../common/format.dart';
 import '../common/widgets.dart';
-import '../fuel/fuel_fill_screen.dart';
 import 'driver_home.dart';
 import 'driver_summary.dart';
-import 'new_trip_screen.dart';
 
 enum TripGroup { onTheRoad, today, upcoming, recent }
 
@@ -57,28 +55,10 @@ class TripsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final trips = ref.watch(tripsProvider);
     final l = context.l10n;
+    // New trips and fuel fills start from the quick actions on the home view;
+    // fleet, language, security and sign out are on the Profile tab.
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        key: const Key('new-trip'),
-        onPressed: () => Navigator.of(
-          context,
-        ).push(MaterialPageRoute<void>(builder: (_) => const NewTripScreen())),
-        icon: const Icon(Icons.add),
-        label: Text(l.newTrip),
-      ),
-      appBar: AppBar(
-        title: Text(l.myTrips),
-        actions: [
-          IconButton(
-            tooltip: l.logFuel,
-            icon: const Icon(Icons.local_gas_station),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const FuelFillScreen()),
-            ),
-          ),
-          // Fleet, language, security and sign out are on the Profile tab.
-        ],
-      ),
+      appBar: AppBar(title: Text(l.myTrips)),
       body: Column(
         children: [
           const SyncStatusBar(),

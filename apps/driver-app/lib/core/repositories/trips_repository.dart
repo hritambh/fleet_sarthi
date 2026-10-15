@@ -102,6 +102,25 @@ class TripsRepository {
     return rows.isEmpty ? null : _view(rows.first).trip;
   }
 
+  /// One of the driver's assigned or started trips (on this phone) whose
+  /// scheduled window overlaps [from, to), half-open like the server's
+  /// no-double-booking rule. The offline stand-in for GET /availability.
+  Future<Trip?> overlappingOwnTrip(DateTime from, DateTime to) async {
+    final rows =
+        await (db.select(db.cachedTrips)..where(
+              (t) =>
+                  t.status.isIn(['assigned', 'started']) & t.conflict.isNull(),
+            ))
+            .get();
+    for (final row in rows) {
+      final t = _view(row).trip;
+      if (t.scheduledStartAt.isBefore(to) && t.scheduledEndAt.isAfter(from)) {
+        return t;
+      }
+    }
+    return null;
+  }
+
   /// Checks the Dart port of the state machine before queuing, so the driver
   /// gets an immediate answer even offline.
   void _assertAllowed(Trip trip, String command) {

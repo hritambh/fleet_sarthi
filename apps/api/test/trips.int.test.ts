@@ -265,6 +265,64 @@ describe('assignment', () => {
   });
 });
 
+describe('unassigned trip alert', () => {
+  const alertFor = async (tripId: string) => {
+    const res = await request(h.http)
+      .get('/v1/alerts')
+      .query({ kind: 'trip_unassigned', tripId })
+      .set(...bearer(owner))
+      .expect(200);
+    // Newest first: the trip's current alert.
+    return (res.body as { status: string; severity: string }[])[0];
+  };
+
+  it('is raised for a trip with no vehicle or driver and follows its assignment', async () => {
+    const trip = await newTrip(false);
+    expect(await alertFor(trip.id)).toMatchObject({ status: 'open', severity: 'warning' });
+
+    const vehicle = await createVehicle(h, owner, 'MH14UA0001');
+    await request(h.http)
+      .post(`/v1/trips/${trip.id}/assign`)
+      .set(...bearer(owner))
+      .set(...key())
+      .send({ vehicleId: vehicle.id, driverId: driver.driverId })
+      .expect(200);
+    expect(await alertFor(trip.id)).toMatchObject({ status: 'resolved' });
+
+    // Unassigned again: waiting again, so a new alert is open (the list is
+    // newest first).
+    await request(h.http)
+      .post(`/v1/trips/${trip.id}/unassign`)
+      .set(...bearer(owner))
+      .set(...key())
+      .expect(200);
+    expect(await alertFor(trip.id)).toMatchObject({ status: 'open' });
+
+    // Cancelled: nothing left to assign.
+    await request(h.http)
+      .post(`/v1/trips/${trip.id}/cancel`)
+      .set(...bearer(owner))
+      .set(...key())
+      .send({ reason: 'Customer cancelled' })
+      .expect(200);
+    expect(await alertFor(trip.id)).toMatchObject({ status: 'resolved' });
+  });
+
+  it('is critical when the trip starts within two hours', async () => {
+    const start = Date.now() + 3_600_000;
+    const trip = await newTrip(false, {
+      scheduledStartAt: new Date(start).toISOString(),
+      scheduledEndAt: new Date(start + 4 * 3_600_000).toISOString(),
+    });
+    expect(await alertFor(trip.id)).toMatchObject({ status: 'open', severity: 'critical' });
+  });
+
+  it('is never raised for a trip created already assigned', async () => {
+    const trip = await newTrip(true);
+    expect(await alertFor(trip.id)).toBeUndefined();
+  });
+});
+
 describe('availability', () => {
   it('lists the vehicle and driver booked in an overlapping window, but not the trip itself', async () => {
     const window = schedule();
@@ -304,6 +362,42 @@ describe('availability', () => {
     expect(self.vehicles.map((b) => b.tripId)).not.toContain(booked.id);
   });
 
+  it('shows a driver only their own bookings and their linked vehicles', async () => {
+    const window = schedule();
+    const mine = await newTrip(true, window);
+    // Another driver, in a vehicle this driver isn't linked to, at the same time.
+    const other = await driverSession(h, owner, 'Imran Shaikh', { linkAll: false });
+    const theirs = await createVehicle(h, owner, 'MH14AV0001', 'diesel', 48_000, {
+      linkAll: false,
+    });
+    await request(h.http)
+      .put(`/v1/vehicles/${theirs.id}/drivers`)
+      .set(...bearer(owner))
+      .send({ driverIds: [other.driverId] })
+      .expect(200);
+    await request(h.http)
+      .post('/v1/trips')
+      .set(...bearer(owner))
+      .send({
+        tripType: 'local_rental',
+        from: { text: 'Koregaon Park' },
+        ...window,
+        quotedFarePaise: 200_000,
+        vehicleId: theirs.id,
+        driverId: other.driverId,
+      })
+      .expect(201);
+
+    const res = await request(h.http)
+      .get('/v1/availability')
+      .query({ from: window.scheduledStartAt, to: window.scheduledEndAt })
+      .set(...bearer(driver.session))
+      .expect(200);
+    const body = res.body as { vehicles: { id: string }[]; drivers: { id: string }[] };
+    expect(body.vehicles.map((b) => b.id)).toEqual([mine.vehicleId]);
+    expect(body.drivers.map((b) => b.id)).toEqual([driver.driverId]);
+  });
+
   it('lists trips overlapping a range when asked', async () => {
     const window = schedule();
     const trip = await newTrip(true, window);
@@ -322,6 +416,43 @@ describe('availability', () => {
     // It started an hour before the range, so only the overlap query finds it.
     expect(((await list(false)).body as Trip[]).map((t) => t.id)).not.toContain(trip.id);
     expect(((await list(true)).body as Trip[]).map((t) => t.id)).toContain(trip.id);
+  });
+});
+
+describe('listing filters', () => {
+  const ids = async (query: Record<string, string>) =>
+    (
+      (
+        await request(h.http)
+          .get('/v1/trips')
+          .query(query)
+          .set(...bearer(owner))
+          .expect(200)
+      ).body as Trip[]
+    )
+      .map((t) => t.id)
+      .sort();
+
+  it('ORs a comma-separated list within a filter and ANDs filters', async () => {
+    const a = await newTrip(true);
+    const b = await newTrip(false);
+    const c = await newTrip(true);
+    const vehicles = [a, b, c].map((t) => t.vehicleId).join(',');
+    expect(await ids({ vehicleId: `${a.vehicleId},${b.vehicleId}` })).toEqual([a.id, b.id].sort());
+    expect(await ids({ vehicleId: vehicles, status: 'created,assigned' })).toEqual(
+      [a.id, b.id, c.id].sort(),
+    );
+    expect(await ids({ vehicleId: vehicles, status: 'created' })).toEqual([b.id]);
+    // One value still works.
+    expect(await ids({ vehicleId: c.vehicleId })).toEqual([c.id]);
+  });
+
+  it('rejects an unknown status in a list', async () => {
+    await request(h.http)
+      .get('/v1/trips')
+      .query({ status: 'assigned,flying' })
+      .set(...bearer(owner))
+      .expect(400);
   });
 });
 

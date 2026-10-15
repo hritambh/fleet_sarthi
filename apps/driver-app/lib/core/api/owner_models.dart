@@ -1,6 +1,7 @@
 // Typed mirrors of the staff (owner/manager) endpoints in libs/contracts, used by
 // owner mode. Like models.dart: parsed through json.dart, money in paise,
 // calendar dates (IST) kept as YYYY-MM-DD strings.
+import 'doc_rules.dart';
 import 'json.dart';
 import 'models.dart';
 
@@ -344,11 +345,10 @@ class FleetDocument {
     'photo',
   ];
 
-  /// Types with no expiry date (Aadhaar, PAN, a photo).
-  static const nonExpiringTypes = ['aadhaar', 'pan', 'photo'];
-
+  /// Whether the type must have an expiry date (not Aadhaar, PAN, a photo
+  /// or a police verification).
   static bool expiryRequired(String docType) =>
-      !nonExpiringTypes.contains(docType);
+      fieldsOf(docType).expiresOn == FieldRule.required;
 
   final String id;
 
@@ -754,6 +754,7 @@ sealed class AlertMessage {
       ),
       'cancellation_requested' => CancellationRequestedMessage.fromJson(params),
       'document_submitted' => DocumentSubmittedMessage.fromJson(params),
+      'trip_unassigned' => TripUnassignedMessage.fromJson(params),
       _ => null,
     };
   }
@@ -958,6 +959,27 @@ class CancellationRequestedMessage extends AlertMessage {
   final double endKm;
 }
 
+/// A scheduled trip that still has no vehicle or driver.
+class TripUnassignedMessage extends AlertMessage {
+  const TripUnassignedMessage({
+    required this.from,
+    required this.scheduledStartAt,
+    this.to,
+  });
+
+  factory TripUnassignedMessage.fromJson(JsonMap json) => TripUnassignedMessage(
+    from: json.str('from'),
+    to: json.strOrNull('to'),
+    scheduledStartAt: json.date('scheduledStartAt'),
+  );
+
+  final String from;
+
+  /// Null for a local rental.
+  final String? to;
+  final DateTime scheduledStartAt;
+}
+
 class Alert {
   const Alert({
     required this.id,
@@ -1005,6 +1027,7 @@ class Alert {
     'cancellation_requested',
     'gps_coverage_low',
     'document_submitted',
+    'trip_unassigned',
   ];
 
   final String id;

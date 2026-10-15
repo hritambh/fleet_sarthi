@@ -2839,6 +2839,11 @@ class AppLocalizationsHi extends AppLocalizations {
   String get busyPickWarning => 'यह गाड़ी या ड्राइवर इस समय पहले से बुक है।';
 
   @override
+  String youAreBusy({required String when}) {
+    return 'इस समय आपकी पहले से एक ट्रिप है ($when)।';
+  }
+
+  @override
   String get uploadFile => 'फ़ाइल अपलोड करें';
 
   @override
@@ -3813,4 +3818,67 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get welcomeUcAvailFreeNow => 'अभी ख़ाली: 5 में से 2';
+
+  @override
+  String nSelected({required int count}) {
+    return '$count चुने गए';
+  }
+
+  @override
+  String get dateRangeLabel => 'तारीखें';
+
+  @override
+  String get rangeFrom => 'से';
+
+  @override
+  String get rangeTo => 'तक';
+
+  @override
+  String get thisMonth => 'इस महीने';
+
+  @override
+  String get kindTripUnassigned => 'गाड़ी या ड्राइवर नहीं';
+
+  @override
+  String alertTripUnassignedTitle({required String route}) {
+    return '$route के लिए अभी गाड़ी या ड्राइवर तय नहीं';
+  }
+
+  @override
+  String alertTripUnassignedBody({required String when}) {
+    return 'यह ट्रिप $when शुरू होगी। उससे पहले गाड़ी और ड्राइवर तय करें।';
+  }
+
+  @override
+  String alertTripUnassignedOverdueBody({required String when}) {
+    return 'इसे $when शुरू होना था, पर अब तक गाड़ी या ड्राइवर तय नहीं है। गाड़ी और ड्राइवर तय करें, या ट्रिप रद्द करें।';
+  }
+
+  @override
+  String docNumberLabel({required String doc}) {
+    return '$doc नंबर';
+  }
+
+  @override
+  String docNumberHint({required String example}) {
+    return 'जैसे $example';
+  }
+
+  @override
+  String get docNumberMissing => 'नंबर डालें';
+
+  @override
+  String docNumberFormat({required String example}) {
+    return 'यह सही नहीं लगता। ऐसा होना चाहिए: $example';
+  }
+
+  @override
+  String get aadhaarFormat =>
+      '12 अंकों का आधार नंबर डालें (यह 0 या 1 से शुरू नहीं होता)';
+
+  @override
+  String get aadhaarChecksum => 'यह मान्य आधार नंबर नहीं है। अंक जाँचें।';
+
+  @override
+  String get expiryBeforeStart => 'मान्य-से तारीख के बाद होनी चाहिए';
 }

@@ -808,7 +808,7 @@ Future<void> showTagDriver(BuildContext context) async {
 class _TagDriverPicker extends ConsumerWidget {
   const _TagDriverPicker();
 
-  static const _waiting = TripFilter(status: 'created');
+  static const _waiting = TripFilter(statuses: {'created'});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

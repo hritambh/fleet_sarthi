@@ -78,6 +78,7 @@ otp.issued phone=+919000000001 code=482913 (dev only, not sent)
 | **Critical:** yesterday's Kothrud → Mahabaleshwar trip in MH12AB1234 shows more km on the odometer than the GPS route | Alerts            | The end reading was padded by about 21%                                                                             |
 | **Warning:** insurance for MH12CD5678 expires in 5 days                                                               | Alerts, Documents |                                                                                                                     |
 | **Info:** PUC for MH12EF9012 expires in 24 days; Imran's driving licence in 25                                        | Alerts, Documents |                                                                                                                     |
+| **Warning:** tomorrow's Pune Station → Goa (Panaji) trip has no vehicle or driver yet                                 | Alerts, Trips     | The booking is unassigned; assigning it (walkthrough 3) clears the alert                                            |
 | **Review:** an odometer photo that doesn't match the typed reading (60 km apart)                                      | Review            | Imran's trip 2 days ago: the photo shows 60 km more than he typed                                                   |
 
 ## Walkthroughs

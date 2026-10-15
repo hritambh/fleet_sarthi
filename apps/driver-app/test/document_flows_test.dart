@@ -39,8 +39,17 @@ Future<void> idle(WidgetTester tester) async {
   await tester.pump(const Duration(seconds: 1));
 }
 
-/// In the open form: a photo, a picked PDF and an expiry date, then one tap.
-Future<void> fillAndSave(WidgetTester tester, {bool expiry = true}) async {
+/// In the open form: a number, a photo, a picked PDF and an expiry date, then
+/// one tap.
+Future<void> fillAndSave(
+  WidgetTester tester, {
+  bool expiry = true,
+  String? number,
+}) async {
+  if (number != null) {
+    await tester.enterText(find.byKey(const Key('document-number')), number);
+    await tester.pump();
+  }
   await tester.tap(find.byKey(const Key('document-take-photo')));
   await settle(tester);
   await tester.tap(find.byKey(const Key('document-upload-file')));
@@ -59,7 +68,113 @@ Future<void> fillAndSave(WidgetTester tester, {bool expiry = true}) async {
 int uploads(Harness h) =>
     h.api.calls.where((c) => c.name == 'registerMedia').length;
 
+/// Opens the driver's add-document form and picks [docType].
+Future<Harness> driverForm(WidgetTester tester, String docType) async {
+  final h = await tall(tester, roles: ['driver']);
+  h.me.documentList = [];
+  await tester.pumpWidget(h.screen(const DriverDocumentsScreen()));
+  await idle(tester);
+  await tester.tap(find.byKey(const Key('my-document-add')));
+  await idle(tester);
+  await tester.tap(find.text('Driving licence').last);
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(docLabels[docType]!).last);
+  await tester.pumpAndSettle();
+  return h;
+}
+
+const docLabels = {
+  'aadhaar': 'Aadhaar card',
+  'pan': 'PAN card',
+  'photo': 'Photo',
+  'driving_licence': 'Driving licence',
+};
+
+String? numberError(WidgetTester tester) => tester
+    .widget<TextField>(find.byKey(const Key('document-number')))
+    .decoration
+    ?.errorText;
+
 void main() {
+  group('the form follows the document type', () {
+    testWidgets('Aadhaar: digits only, grouped, checked, and no dates', (
+      tester,
+    ) async {
+      final h = await driverForm(tester, 'aadhaar');
+      expect(find.byKey(const Key('document-valid-from')), findsNothing);
+      expect(find.byKey(const Key('document-expires')), findsNothing);
+
+      final field = find.byKey(const Key('document-number'));
+      await tester.enterText(field, '2341abcd23412346999');
+      await tester.pump();
+      expect(find.text('2341 2341 2346'), findsOneWidget);
+
+      // A wrong check digit is caught before anything is sent.
+      await tester.enterText(field, '234123412345');
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('document-save')));
+      await tester.pump();
+      expect(numberError(tester), contains('valid Aadhaar'));
+      await tester.enterText(field, '23412341234');
+      await tester.pump();
+      expect(numberError(tester), contains('12-digit'));
+      expect(h.me.calls.where((c) => c.name == 'submitDocument'), isEmpty);
+
+      await tester.enterText(field, '234123412346');
+      await tester.pump();
+      expect(numberError(tester), isNull);
+      await tester.tap(find.byKey(const Key('document-take-photo')));
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('document-save')));
+      await idle(tester);
+      final body = h.me.last('submitDocument').args;
+      expect(body['docType'], 'aadhaar');
+      expect(body['number'], '234123412346');
+      expect(body.containsKey('expiresOn'), isFalse);
+      expect(body.containsKey('validFrom'), isFalse);
+    });
+
+    testWidgets('PAN: upper-cased and checked', (tester) async {
+      final h = await driverForm(tester, 'pan');
+      final field = find.byKey(const Key('document-number'));
+      await tester.enterText(field, 'abcd1234f');
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('document-save')));
+      await tester.pump();
+      expect(numberError(tester), contains('ABCDE1234F'));
+      await tester.enterText(field, 'abcde1234fzz');
+      await tester.pump();
+      expect(find.text('ABCDE1234F'), findsOneWidget);
+      expect(numberError(tester), isNull);
+      await tester.tap(find.byKey(const Key('document-save')));
+      await idle(tester);
+      expect(h.me.last('submitDocument').args['number'], 'ABCDE1234F');
+    });
+
+    testWidgets('a photo has no number and no dates', (tester) async {
+      await driverForm(tester, 'photo');
+      expect(find.byKey(const Key('document-number')), findsNothing);
+      expect(find.byKey(const Key('document-valid-from')), findsNothing);
+      expect(find.byKey(const Key('document-expires')), findsNothing);
+    });
+
+    testWidgets('a licence needs its number and an expiry date', (
+      tester,
+    ) async {
+      final h = await tall(tester, roles: ['driver']);
+      h.me.documentList = [];
+      await tester.pumpWidget(h.screen(const DriverDocumentsScreen()));
+      await idle(tester);
+      await tester.tap(find.byKey(const Key('my-document-add')));
+      await idle(tester);
+      await tester.tap(find.byKey(const Key('document-save')));
+      await tester.pump();
+      expect(numberError(tester), 'Enter the number');
+      expect(find.text('Required'), findsOneWidget);
+      expect(h.me.calls.where((c) => c.name == 'submitDocument'), isEmpty);
+    });
+  });
+
   group('one tap uploads and saves, and the list shows it', () {
     testWidgets('a vehicle document', (tester) async {
       final h = await tall(tester);
@@ -100,11 +215,12 @@ void main() {
       await idle(tester);
       await tester.tap(find.byKey(const Key('driver-add-document')));
       await idle(tester);
-      await fillAndSave(tester);
+      await fillAndSave(tester, number: 'mh-12 2011 0012345');
 
       final body = h.owner.last('createDocument').args;
       expect(body['driverId'], driverId);
       expect(body['docType'], 'driving_licence');
+      expect(body['number'], 'MH1220110012345');
       expect(find.byType(DocumentFormScreen), findsNothing);
       expect(
         find.byKey(
@@ -123,7 +239,7 @@ void main() {
       await idle(tester);
       await tester.tap(find.byKey(const Key('my-document-add')));
       await idle(tester);
-      await fillAndSave(tester);
+      await fillAndSave(tester, number: 'MH12 20110012345');
 
       expect(h.me.last('submitDocument').args['mediaIds'], [
         'captured-document',

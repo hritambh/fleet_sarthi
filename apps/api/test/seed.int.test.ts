@@ -93,6 +93,8 @@ describe('demo seed', () => {
           /^odo_gps_mismatch: Trip on .* \(.*MH12AB1234\) shows more km on the odometer than the GPS route$/,
         ),
         expect.stringMatching(/^document_expiring: Insurance for MH12CD5678 expires in 5 days$/),
+        // Tomorrow's Goa booking has no vehicle or driver yet.
+        'trip_unassigned: Trip Pune Station → Goa (Panaji) has no vehicle or driver yet',
       ]),
     );
     expect(open.filter((a) => a.kind === 'fuel_efficiency_low')).toHaveLength(1);

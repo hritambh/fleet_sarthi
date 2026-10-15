@@ -399,7 +399,12 @@ describe('documents and expiry alerts', () => {
     const res = await request(h.http)
       .post('/v1/documents')
       .set(...bearer(owner))
-      .send({ docType: 'driving_licence', driverId, expiresOn: addDays(-2) })
+      .send({
+        docType: 'driving_licence',
+        number: 'MH12 20190012345',
+        driverId,
+        expiresOn: addDays(-2),
+      })
       .expect(201);
     expect(res.body).toMatchObject({ status: 'expired', daysLeft: -2 });
     expect(await alertsFor((res.body as { id: string }).id)).toMatchObject([

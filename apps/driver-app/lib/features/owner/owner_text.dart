@@ -23,6 +23,7 @@ String alertKindLabel(AppLocalizations l, String kind) => switch (kind) {
   'cancellation_requested' => l.kindCancellationRequested,
   'gps_coverage_low' => l.kindGpsCoverageLow,
   'document_submitted' => l.kindDocSubmitted,
+  'trip_unassigned' => l.kindTripUnassigned,
   _ => kind,
 };
 
@@ -334,6 +335,9 @@ String alertTitle(Fmt f, Alert alert) {
               driver: m.driverName,
               doc: docTypeLabel(l, m.docType),
             ),
+    final TripUnassignedMessage m => l.alertTripUnassignedTitle(
+      route: m.to == null ? m.from : '${m.from} → ${m.to}',
+    ),
   };
 }
 
@@ -383,6 +387,13 @@ String alertBody(Fmt f, Alert alert) {
       km: f.number(m.endKm),
     ),
     DocumentSubmittedMessage() => l.alertDocSubmittedBody,
+    // Overdue by the clock now, not as of the server's last update.
+    final TripUnassignedMessage m =>
+      m.scheduledStartAt.isAfter(DateTime.now())
+          ? l.alertTripUnassignedBody(when: f.dayTime(m.scheduledStartAt))
+          : l.alertTripUnassignedOverdueBody(
+              when: f.dayTime(m.scheduledStartAt),
+            ),
   };
 }
 

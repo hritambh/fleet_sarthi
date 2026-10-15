@@ -4958,6 +4958,12 @@ abstract class AppLocalizations {
   /// **'This vehicle or driver is already booked at this time.'**
   String get busyPickWarning;
 
+  /// No description provided for @youAreBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have a trip at this time ({when}).'**
+  String youAreBusy({required String when});
+
   /// No description provided for @uploadFile.
   ///
   /// In en, this message translates to:
@@ -6715,6 +6721,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Free now: 2 of 5'**
   String get welcomeUcAvailFreeNow;
+
+  /// No description provided for @nSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String nSelected({required int count});
+
+  /// No description provided for @dateRangeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates'**
+  String get dateRangeLabel;
+
+  /// No description provided for @rangeFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get rangeFrom;
+
+  /// No description provided for @rangeTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get rangeTo;
+
+  /// No description provided for @thisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get thisMonth;
+
+  /// No description provided for @kindTripUnassigned.
+  ///
+  /// In en, this message translates to:
+  /// **'No vehicle or driver'**
+  String get kindTripUnassigned;
+
+  /// No description provided for @alertTripUnassignedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{route} has no vehicle or driver yet'**
+  String alertTripUnassignedTitle({required String route});
+
+  /// No description provided for @alertTripUnassignedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It starts {when}. Assign a vehicle and driver before then.'**
+  String alertTripUnassignedBody({required String when});
+
+  /// No description provided for @alertTripUnassignedOverdueBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It was due to start {when} and still has no vehicle or driver. Assign one, or cancel the trip.'**
+  String alertTripUnassignedOverdueBody({required String when});
+
+  /// No description provided for @docNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{doc} number'**
+  String docNumberLabel({required String doc});
+
+  /// No description provided for @docNumberHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. {example}'**
+  String docNumberHint({required String example});
+
+  /// No description provided for @docNumberMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the number'**
+  String get docNumberMissing;
+
+  /// No description provided for @docNumberFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Doesn\'t look right. It should be like {example}'**
+  String docNumberFormat({required String example});
+
+  /// No description provided for @aadhaarFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 12-digit Aadhaar number (it never starts with 0 or 1)'**
+  String get aadhaarFormat;
+
+  /// No description provided for @aadhaarChecksum.
+  ///
+  /// In en, this message translates to:
+  /// **'This isn\'t a valid Aadhaar number. Check the digits.'**
+  String get aadhaarChecksum;
+
+  /// No description provided for @expiryBeforeStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be after the valid-from date'**
+  String get expiryBeforeStart;
 }
 
 class _AppLocalizationsDelegate

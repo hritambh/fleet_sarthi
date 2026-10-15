@@ -1017,6 +1017,245 @@ Future<String?> pickIsoDate(
       '${picked.day.toString().padLeft(2, '0')}';
 }
 
+String _isoDay(DateTime d) =>
+    '${d.year.toString().padLeft(4, '0')}-'
+    '${d.month.toString().padLeft(2, '0')}-'
+    '${d.day.toString().padLeft(2, '0')}';
+
+/// Asks for a range of calendar days in a small pop-up over the page: a quick
+/// range (applied at once), or a From and a To day, each from the standard
+/// date picker. Returns the first and last day (YYYY-MM-DD), or null when
+/// cancelled. One day is a range that starts and ends on it.
+///
+/// Not Flutter's range picker: that one always fills the screen, and its
+/// "start – end" heading doesn't fit a card on a small phone (in Hindi
+/// especially).
+Future<(String, String)?> pickIsoRange(
+  BuildContext context, {
+  (String, String)? value,
+  DateTime? last,
+}) {
+  final now = DateTime.now();
+  return showDialog<(String, String)>(
+    context: context,
+    builder: (_) => _DateRangeDialog(
+      value: value,
+      first: DateTime(now.year - 5),
+      last: last ?? DateTime(now.year + 10),
+    ),
+  );
+}
+
+class _DateRangeDialog extends StatefulWidget {
+  const _DateRangeDialog({
+    required this.value,
+    required this.first,
+    required this.last,
+  });
+
+  final (String, String)? value;
+  final DateTime first;
+  final DateTime last;
+
+  @override
+  State<_DateRangeDialog> createState() => _DateRangeDialogState();
+}
+
+class _DateRangeDialogState extends State<_DateRangeDialog> {
+  late String? _from = widget.value?.$1;
+  late String? _to = widget.value?.$2;
+
+  /// Today, [days] days back.
+  static String _ago(int days) {
+    final now = DateTime.now();
+    return _isoDay(DateTime(now.year, now.month, now.day - days));
+  }
+
+  DateTime _clamp(DateTime d) => d.isBefore(widget.first)
+      ? widget.first
+      : d.isAfter(widget.last)
+      ? widget.last
+      : d;
+
+  /// Picks the From ([start]) or To day; the other end follows if it would
+  /// otherwise come before From or after To.
+  Future<void> _pick({required bool start}) async {
+    final shown = (start ? _from ?? _to : _to ?? _from) ?? _ago(0);
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _clamp(DateTime.parse(shown)),
+      firstDate: widget.first,
+      lastDate: widget.last,
+    );
+    if (picked == null || !mounted) return;
+    final day = _isoDay(picked);
+    setState(() {
+      if (start) {
+        _from = day;
+        if (_to == null || _to!.compareTo(day) < 0) _to = day;
+      } else {
+        _to = day;
+        if (_from == null || _from!.compareTo(day) > 0) _from = day;
+      }
+    });
+  }
+
+  void _done((String, String) range) => Navigator.of(context).pop(range);
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final fmt = context.fmt;
+    final now = DateTime.now();
+    final today = _ago(0);
+    Widget quick(String id, String label, String from, String to) => ActionChip(
+      key: Key('range-$id'),
+      label: Text(label),
+      onPressed: () => _done((from, to)),
+    );
+    Widget day(String id, String label, String? value, bool start) => InkWell(
+      key: Key('range-$id'),
+      borderRadius: BorderRadius.circular(10),
+      onTap: () => _pick(start: start),
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          isDense: true,
+          prefixIcon: const Icon(Icons.calendar_today, size: 18),
+        ),
+        child: Text(
+          value == null ? '—' : fmt.calendarDate(value),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+    );
+    final from = _from;
+    final to = _to;
+    return AlertDialog(
+      key: const Key('date-range-popup'),
+      title: Text(l.dateRangeLabel),
+      content: SizedBox(
+        width: 360,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  quick('today', l.today, today, today),
+                  quick('yesterday', l.yesterday, _ago(1), _ago(1)),
+                  quick('week', l.lastSevenDays, _ago(6), today),
+                  quick(
+                    'month',
+                    l.thisMonth,
+                    _isoDay(DateTime(now.year, now.month)),
+                    today,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              day('from', l.rangeFrom, from, true),
+              const SizedBox(height: 12),
+              day('to', l.rangeTo, to, false),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l.cancel),
+        ),
+        FilledButton(
+          key: const Key('range-apply'),
+          onPressed: from == null || to == null
+              ? null
+              : () => _done((from, to)),
+          child: Text(l.apply),
+        ),
+      ],
+    );
+  }
+}
+
+/// A filter box that picks any number of options from a checkbox menu. It
+/// reads [allLabel] when nothing is picked, the names when one or two are, and
+/// "3 selected" beyond that; the ✕ clears it.
+class MultiSelectField extends StatelessWidget {
+  const MultiSelectField({
+    required this.id,
+    required this.label,
+    required this.allLabel,
+    required this.options,
+    required this.selected,
+    required this.onChanged,
+    super.key,
+  });
+
+  /// Test key prefix: the box is `Key(id)`, each option `Key('$id-<value>')`.
+  final String id;
+  final String label;
+  final String allLabel;
+
+  /// (value, name) pairs, in menu order.
+  final List<(String, String)> options;
+  final Set<String> selected;
+  final ValueChanged<Set<String>> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final names = [
+      for (final (value, name) in options)
+        if (selected.contains(value)) name,
+    ];
+    final text = selected.isEmpty
+        ? allLabel
+        : names.length == selected.length && names.length <= 2
+        ? names.join(', ')
+        : l.nSelected(count: selected.length);
+    return MenuAnchor(
+      menuChildren: [
+        for (final (value, name) in options)
+          CheckboxMenuButton(
+            key: Key('$id-$value'),
+            value: selected.contains(value),
+            closeOnActivate: false,
+            onChanged: (on) => onChanged(
+              on ?? false
+                  ? {...selected, value}
+                  : ({...selected}..remove(value)),
+            ),
+            child: Text(name),
+          ),
+      ],
+      builder: (context, controller, _) => InkWell(
+        key: Key(id),
+        onTap: () => controller.isOpen ? controller.close() : controller.open(),
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: label,
+            isDense: true,
+            suffixIcon: selected.isEmpty
+                ? const Icon(Icons.arrow_drop_down)
+                : IconButton(
+                    key: Key('$id-clear'),
+                    tooltip: l.clearAll,
+                    icon: const Icon(Icons.clear, size: 18),
+                    onPressed: () => onChanged(const {}),
+                  ),
+          ),
+          child: Text(text, maxLines: 1, overflow: TextOverflow.ellipsis),
+        ),
+      ),
+    );
+  }
+}
+
 /// Unawaited navigation and refreshes, for onTap handlers.
 void fire(Future<void> future) => unawaited(future);
 

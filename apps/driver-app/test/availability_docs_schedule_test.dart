@@ -95,6 +95,39 @@ void main() {
       expect(menuItem(tester, vehicle2Id).enabled, isFalse);
       expect(menuItem(tester, vehicleId).enabled, isTrue);
     });
+
+    testWidgets('create checks again: a pick booked meanwhile stops it', (
+      tester,
+    ) async {
+      final h = await owner(tester);
+      await tester.pumpWidget(h.screen(const CreateTripScreen()));
+      await settle(tester);
+      await tester.enterText(find.byKey(const Key('owner-trip-from')), 'Pune');
+      await tester.enterText(find.byKey(const Key('owner-trip-to')), 'Mumbai');
+      await tester.enterText(find.byKey(const Key('owner-trip-fare')), '3500');
+      await openDropdown(tester, 'Vehicle (optional)');
+      await tester.tap(find.byKey(const ValueKey('pick-$vehicleId')).last);
+      await tester.pumpAndSettle();
+      await openDropdown(tester, 'Driver (optional)');
+      await tester.tap(find.text('Ramesh Kumar').last);
+      await tester.pumpAndSettle();
+
+      // Booked on another device after the pickers loaded.
+      h.owner.availabilityJson = {
+        'vehicles': [busy(vehicleId)],
+        'drivers': [],
+      };
+      await tester.ensureVisible(find.byKey(const Key('owner-create-trip')));
+      await tester.tap(find.byKey(const Key('owner-create-trip')));
+      await settle(tester);
+      expect(h.owner.names, isNot(contains('createTrip')));
+      expect(
+        find.text('That vehicle is already booked for an overlapping time.'),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('busy-pick-cleared')), findsNothing);
+      expect(find.byType(CreateTripScreen), findsOneWidget);
+    });
   });
 
   group('document files', () {

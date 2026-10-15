@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'json.dart';
 import 'models.dart';
+import 'owner_models.dart';
 
 /// A failed API call, carrying the server's error envelope
 /// `{error: {code, message, details, requestId}}` when there is one.
@@ -47,6 +48,10 @@ abstract class TaxcyApi {
     Uint8List bytes,
   );
   Future<void> completeMedia(String mediaId);
+
+  /// Who is booked during [from, to): the driver themselves and the vehicles
+  /// linked to them (the server scopes it), for the new-trip form.
+  Future<Availability> availability(DateTime from, DateTime to);
 
   /// Creates a trip assigned to the signed-in driver; idempotent on body.id.
   Future<Trip> createTrip(JsonMap body);
