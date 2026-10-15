@@ -3601,6 +3601,9 @@ class AppLocalizationsHi extends AppLocalizations {
       'सिर्फ़ मोबाइल नंबर से कुछ ही मिनटों में अपना फ़्लीट तैयार करें।';
 
   @override
+  String get loginTagline => 'हर किलोमीटर का हिसाब।';
+
+  @override
   String get loginAboutCompany =>
       'भारत के ओनर-ड्राइवरों और छोटी फ्लीट के लिए फ्लीट ऑडिट और कैब संचालन।';
 

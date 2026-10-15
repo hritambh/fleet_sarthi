@@ -6314,6 +6314,12 @@ abstract class AppLocalizations {
   /// **'Set up your fleet in a few minutes with just your mobile number.'**
   String get welcomeFinalBody;
 
+  /// No description provided for @loginTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Every kilometre, accounted for.'**
+  String get loginTagline;
+
   /// No description provided for @loginAboutCompany.
   ///
   /// In en, this message translates to:

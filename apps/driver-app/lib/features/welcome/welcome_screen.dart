@@ -392,7 +392,7 @@ class _HeroCopy extends StatelessWidget {
     final wide = _isWide(context);
     final headline = TextStyle(
       color: Colors.white,
-      fontSize: wide ? 64 : 40,
+      fontSize: wide ? 54 : 38,
       height: 1.08,
       fontWeight: FontWeight.w800,
       letterSpacing: _tracking(context, wide ? -2 : -1.2),
@@ -433,7 +433,10 @@ class _HeroCopy extends StatelessWidget {
             shaderCallback: const LinearGradient(
               colors: _accentText,
             ).createShader,
-            child: Text(l.welcomeHeadlineAccent, style: headline),
+            child: Text(
+              l.welcomeHeadlineAccent,
+              style: accentStyle(context, headline),
+            ),
           ),
           const SizedBox(height: 22),
           ConstrainedBox(

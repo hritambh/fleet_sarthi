@@ -49,6 +49,21 @@ flutter:
   # Localizations are generated from lib/l10n/*.arb (see l10n.yaml) on pub get.
   generate: true
   fonts:
+    # Inter is the typeface for headings and body text; Caveat is the handwritten
+    # accent for key words (see accentStyle in lib/app/theme.dart). Both are
+    # bundled, since the app works offline. OFL licences are beside the files.
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+        - asset: assets/fonts/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700
+    - family: Caveat
+      fonts:
+        - asset: assets/fonts/Caveat-Variable.ttf
     # Bundled so Hindi renders in the web build without fetching fonts at runtime
     # (phones have Devanagari fonts already). OFL licence in assets/fonts/OFL.txt.
     - family: NotoSansDevanagari

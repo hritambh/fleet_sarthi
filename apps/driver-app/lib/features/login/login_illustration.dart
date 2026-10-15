@@ -2,6 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../app/theme.dart';
+import '../common/format.dart';
+
 /// A line drawing for the wide login page: a cab on its way along a dotted
 /// route to a map pin, with a stack of rupee coins and a plant, in the brand
 /// blues. Drawn in code so it needs no asset and stays sharp at any size.
@@ -256,7 +259,8 @@ class _ScenePainter extends CustomPainter {
   bool shouldRepaint(_ScenePainter oldDelegate) => false;
 }
 
-/// The wide login page's right-hand side: the illustration, centred.
+/// The wide login page's right-hand side: the illustration, centred, with a
+/// handwritten line under it.
 class LoginIllustrationPanel extends StatelessWidget {
   const LoginIllustrationPanel({super.key});
 
@@ -266,7 +270,22 @@ class LoginIllustrationPanel extends StatelessWidget {
       padding: const EdgeInsets.all(32),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 600),
-        child: const LoginIllustration(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const LoginIllustration(),
+            const SizedBox(height: 8),
+            Text(
+              context.l10n.loginTagline,
+              key: const Key('login-tagline'),
+              textAlign: TextAlign.center,
+              style: accentStyle(
+                context,
+                const TextStyle(fontSize: 22, color: TaxcyColors.blue700),
+              ),
+            ),
+          ],
+        ),
       ),
     ),
   );

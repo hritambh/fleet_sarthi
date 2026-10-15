@@ -20,6 +20,21 @@ abstract final class TaxcyColors {
   static const muted = Color(0xFF637594);
 }
 
+/// The handwritten accent for a hook word or two: Caveat, a little larger than
+/// [base] since it runs small. It has no Devanagari, so Hindi falls back to the
+/// app's Hindi font at the base size.
+TextStyle accentStyle(BuildContext context, TextStyle base) {
+  final latin = Localizations.localeOf(context).languageCode != 'hi';
+  if (!latin) return base;
+  return base.copyWith(
+    fontFamily: 'Caveat',
+    fontSize: (base.fontSize ?? 14) * 1.3,
+    fontWeight: FontWeight.w700,
+    letterSpacing: 0,
+    fontVariations: const [FontVariation('wght', 700)],
+  );
+}
+
 ThemeData buildTheme() {
   final scheme =
       ColorScheme.fromSeed(
@@ -56,6 +71,7 @@ ThemeData buildTheme() {
 
   return ThemeData(
     useMaterial3: true,
+    fontFamily: 'Inter',
     // Bundled for the web build; phones use their own Devanagari fonts first.
     fontFamilyFallback: const ['NotoSansDevanagari'],
     colorScheme: scheme,

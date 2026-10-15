@@ -58,7 +58,7 @@ class _AppWelcome extends StatelessWidget {
                                 ).createShader,
                                 child: Text(
                                   l.welcomeHeadlineAccent,
-                                  style: headline,
+                                  style: accentStyle(context, headline),
                                 ),
                               ),
                               const SizedBox(height: 12),
