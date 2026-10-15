@@ -29,7 +29,7 @@ jobs:
           # The build number is the commit count, so the whole history is needed.
           fetch-depth: 0
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -104,6 +104,9 @@ jobs:
         with:
           method: files.uploadV2
           token: ${{ secrets.SLACK_BOT_TOKEN }}
+          # Fail the run (with Slack's error) if the upload is refused, e.g.
+          # the bot isn't in the channel or lacks files:write.
+          errors: true
           # toJSON keeps commit messages with quotes or colons valid YAML.
           payload: |
             channel_id: ${{ toJSON(secrets.SLACK_RELEASES_CHANNEL_ID) }}
