@@ -3946,4 +3946,236 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get driverInactiveBanner =>
       'आपके फ़्लीट मालिक ने आपको निष्क्रिय कर दिया है। आप पुरानी ट्रिप देख सकते हैं, पर नई ट्रिप नहीं बना सकते।';
+
+  @override
+  String get driverTripsTurnedOff =>
+      'आपके फ़्लीट मालिक ने ड्राइवर ऐप से ट्रिप बनाना बंद कर दिया है।';
+
+  @override
+  String get errorDriverTripsDisabled =>
+      'आपके फ़्लीट मालिक ने ड्राइवरों का ट्रिप बनाना बंद कर दिया है।';
+
+  @override
+  String get errorDriverChargesDisabled =>
+      'आपके फ़्लीट मालिक ने ड्राइवरों का चार्ज जोड़ना बंद कर दिया है।';
+
+  @override
+  String get errorReceiptRequired => 'ईंधन की रसीद की फ़ोटो जोड़ें।';
+
+  @override
+  String get settingsIntro =>
+      'चुनें कि फ़्लीट सारथी आपके फ़्लीट के लिए कैसे काम करे। हर पेज बताता है कि सेटिंग क्या बदलती है और कब से लागू होती है।';
+
+  @override
+  String get settingsGroupFleet => 'आपका फ़्लीट';
+
+  @override
+  String get settingsGroupYou => 'आप';
+
+  @override
+  String get settingsGeneral => 'सामान्य';
+
+  @override
+  String get settingsGeneralDesc => 'आपके फ़्लीट का नाम';
+
+  @override
+  String get settingsTrips => 'ट्रिप और ड्राइवर';
+
+  @override
+  String get settingsTripsDesc => 'ड्राइवर क्या कर सकते हैं, और दूरी की जाँच';
+
+  @override
+  String get settingsFuel => 'ईंधन ऑडिट';
+
+  @override
+  String get settingsFuelDesc => 'रसीद, और कब किसी फ़िल पर अलर्ट आए';
+
+  @override
+  String get settingsReminders => 'डॉक्यूमेंट और रिमाइंडर';
+
+  @override
+  String get settingsRemindersDesc =>
+      'काग़ज़ ख़त्म होने से पहले कब याद दिलाया जाए';
+
+  @override
+  String get settingsPayDesc => 'जिन ड्राइवरों का अपना नियम नहीं, उनका पेमेंट';
+
+  @override
+  String get settingsTeam => 'टीम और भूमिकाएँ';
+
+  @override
+  String get settingsTeamDesc => 'मैनेजर, और हर भूमिका क्या कर सकती है';
+
+  @override
+  String get settingsLanguageDesc => 'इस डिवाइस पर ऐप की भाषा';
+
+  @override
+  String get settingsSecurityDesc => 'आपका पासवर्ड और मोबाइल नंबर';
+
+  @override
+  String settingsAffects({required String area}) {
+    return 'असर: $area';
+  }
+
+  @override
+  String settingsApplies({required String when}) {
+    return 'कब से: $when';
+  }
+
+  @override
+  String get settingsSaveChanges => 'बदलाव सेव करें';
+
+  @override
+  String get settingsResetDefaults => 'डिफ़ॉल्ट पर लौटाएँ';
+
+  @override
+  String get settingsResetDone =>
+      'डिफ़ॉल्ट भर दिए गए। लागू करने के लिए सेव करें।';
+
+  @override
+  String get settingsSaved => 'सेव हो गया।';
+
+  @override
+  String get settingsDiscardTitle => 'अपने बदलाव छोड़ दें?';
+
+  @override
+  String get settingsDiscardBody =>
+      'आपने इस पेज पर सेटिंग बदलीं, पर सेव नहीं कीं।';
+
+  @override
+  String get settingsUnsaved => 'बिना सेव किए बदलाव';
+
+  @override
+  String settingsDefaultIs({required String value}) {
+    return 'डिफ़ॉल्ट: $value';
+  }
+
+  @override
+  String get settingsOn => 'चालू';
+
+  @override
+  String get settingsOff => 'बंद';
+
+  @override
+  String get fleetNameHelp =>
+      'ऐप में आपके मैनेजरों और ड्राइवरों को, और ग्राहकों को भेजे ट्रिप मैसेज में दिखता है।';
+
+  @override
+  String get fleetNameAffects =>
+      'वर्कस्पेस बदलना, डैशबोर्ड, शेयर किए ट्रिप मैसेज';
+
+  @override
+  String get fleetNameWhen =>
+      'हर जगह तुरंत; ट्रिप और हिसाब में नाम सेव नहीं होता';
+
+  @override
+  String get fleetNameInvalid => '2 से 100 अक्षर लिखें।';
+
+  @override
+  String get ruleDriverTrips => 'ड्राइवर अपनी ट्रिप ख़ुद बना सकते हैं';
+
+  @override
+  String get ruleDriverTripsHelp =>
+      'ड्राइवरों को \'नई ट्रिप\' बटन मिलता है और वे जिस गाड़ी से जुड़े हैं उसमें अपनी ट्रिप बुक कर सकते हैं। बंद होने पर सिर्फ़ आप और आपके मैनेजर ट्रिप बनाते हैं।';
+
+  @override
+  String get ruleDriverTripsAffects => 'ड्राइवर ऐप: नई ट्रिप';
+
+  @override
+  String get ruleNewTripsOnly =>
+      'सिर्फ़ नई ट्रिप; पहले से बनी ट्रिप वैसी ही रहती हैं';
+
+  @override
+  String get ruleDriverCharges => 'ड्राइवर चार्ज जोड़ सकते हैं';
+
+  @override
+  String get ruleDriverChargesHelp =>
+      'ड्राइवर ट्रिप के दौरान और ख़त्म करते समय टोल, पार्किंग और दूसरे चार्ज जोड़ सकते हैं। ड्राइवर के चुकाए चार्ज उसके रोज़ के हिसाब में गिने जाते हैं। बंद होने पर सिर्फ़ आप और आपके मैनेजर चार्ज जोड़ते हैं।';
+
+  @override
+  String get ruleDriverChargesAffects =>
+      'ड्राइवर ऐप: ट्रिप चार्ज; रोज़ का हिसाब';
+
+  @override
+  String get ruleNewChargesOnly =>
+      'सिर्फ़ नए चार्ज; पहले जोड़े गए चार्ज बने रहते हैं';
+
+  @override
+  String get ruleOfflineNote =>
+      'अगर किसी ड्राइवर ने नियम बदलने से पहले बिना इंटरनेट कुछ दर्ज किया था, तो फ़ोन सिंक होने पर वह मना हो जाएगा और \'ध्यान दें\' में दिखेगा।';
+
+  @override
+  String get odoToleranceAffects =>
+      'ख़त्म हुई ट्रिप पर मीटर बनाम GPS दूरी की जाँच';
+
+  @override
+  String get odoToleranceWhen =>
+      'सेव करने के बाद होने वाली जाँच; पुराने नतीजे वैसे ही रहते हैं';
+
+  @override
+  String get ruleReceipt => 'ईंधन रसीद की फ़ोटो ज़रूरी';
+
+  @override
+  String get ruleReceiptHelp =>
+      'हर ईंधन फ़िल के साथ रसीद की फ़ोटो चाहिए। अगर ड्राइवर अक्सर ऐसी जगह भरवाते हैं जहाँ छपी रसीद नहीं मिलती, तो बंद करें।';
+
+  @override
+  String get ruleReceiptAffects => 'ड्राइवर ऐप: ईंधन दर्ज करें';
+
+  @override
+  String get ruleNewFillsOnly =>
+      'सिर्फ़ नए फ़िल; पहले दर्ज फ़िल वैसे ही रहते हैं';
+
+  @override
+  String get fuelThresholdsTitle => 'कब किसी फ़िल पर अलर्ट आए';
+
+  @override
+  String get fuelThresholdsAffects => 'ईंधन अलर्ट और हर गाड़ी का आम माइलेज';
+
+  @override
+  String get fuelThresholdsWhen =>
+      'हर गाड़ी की अगली ईंधन जाँच (उसका अगला फ़िल); पहले के अलर्ट बने रहते हैं';
+
+  @override
+  String get remindersAffects =>
+      'गाड़ी और ड्राइवर के डॉक्यूमेंट की एक्सपायरी के अलर्ट';
+
+  @override
+  String get remindersWhen => 'अगली रोज़ की जाँच से, लगभग सुबह 6 बजे';
+
+  @override
+  String get remindersSeverity =>
+      'एक्सपायरी से 7 दिन या उससे कम पहले के अलर्ट चेतावनी हैं; 1 दिन या कम, या एक्सपायर हो चुके, गंभीर हैं।';
+
+  @override
+  String get payAffects =>
+      'जिन ड्राइवरों का अपना पेमेंट नियम नहीं, उनका रोज़ का हिसाब';
+
+  @override
+  String get payWhen =>
+      'जिन दिनों का हिसाब बाकी है; हिसाब हो चुके दिन वैसे ही रहते हैं';
+
+  @override
+  String get rolesTitle => 'हर भूमिका क्या कर सकती है';
+
+  @override
+  String get roleOwnerCan =>
+      'सब कुछ, इन सेटिंग, पेमेंट नियमों और मैनेजरों समेत।';
+
+  @override
+  String get roleManagerCan =>
+      'फ़्लीट चलाते हैं: ट्रिप, गाड़ियाँ, ड्राइवर, डॉक्यूमेंट, ईंधन और हिसाब। सेटिंग देख सकते हैं पर बदल नहीं सकते।';
+
+  @override
+  String get roleDriverCan =>
+      'ड्राइवर ऐप में अपनी ट्रिप, ईंधन फ़िल, चार्ज और डॉक्यूमेंट।';
+
+  @override
+  String settingsRange({required String min, required String max}) {
+    return '$min से $max तक की संख्या लिखें।';
+  }
+
+  @override
+  String get settingsDaysInvalid =>
+      '0 से 365 तक की ज़्यादा से ज़्यादा 5 पूरी संख्याएँ, जैसे 30, 7, 1।';
 }

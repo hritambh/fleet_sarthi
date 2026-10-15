@@ -4,6 +4,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
+import '../../app/workflow_settings.dart';
 import '../../core/api/models.dart';
 import '../../core/api/owner_api.dart';
 import '../../core/api/owner_models.dart';
@@ -98,6 +99,17 @@ final documentsProvider = FutureProvider.autoDispose
 
 final auditSettingsProvider = FutureProvider.autoDispose<AuditSettings>(
   (ref) => ref.watch(ownerApiProvider).auditSettings(),
+);
+
+/// The fleet's operating rules as the owner edits them (Settings); driver
+/// mode reads them through workflowSettingsProvider, cached for offline.
+final ownerWorkflowProvider = FutureProvider.autoDispose<WorkflowSettings>(
+  (ref) => ref.watch(ownerApiProvider).workflowSettings(),
+);
+
+/// The active fleet's name and kind (Settings → General).
+final orgProfileProvider = FutureProvider.autoDispose<OrgProfile>(
+  (ref) => ref.watch(ownerApiProvider).orgProfile(),
 );
 
 final defaultPayRuleProvider = FutureProvider.autoDispose<PayRule>(
@@ -228,7 +240,10 @@ void refreshAfter(WidgetRef ref, Set<OwnerArea> areas) {
       case OwnerArea.settings:
         ref
           ..invalidate(auditSettingsProvider)
-          ..invalidate(defaultPayRuleProvider);
+          ..invalidate(defaultPayRuleProvider)
+          ..invalidate(ownerWorkflowProvider)
+          ..invalidate(workflowSettingsProvider)
+          ..invalidate(orgProfileProvider);
       case OwnerArea.fuel:
         ref
           ..invalidate(fuelFillsProvider)

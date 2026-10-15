@@ -362,6 +362,24 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/orgs/current': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** The active organization: its name and kind */
+    get: operations['getOrgsCurrent'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Rename the active organization (owner) */
+    patch: operations['patchOrgsCurrent'];
+    trace?: never;
+  };
   '/media': {
     parameters: {
       query?: never;
@@ -725,6 +743,24 @@ export interface paths {
     head?: never;
     /** Change audit thresholds */
     patch: operations['patchSettingsAudit'];
+    trace?: never;
+  };
+  '/settings/workflow': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Operating rules: whether drivers can create trips and add charges, and if fuel fills need a receipt */
+    get: operations['getSettingsWorkflow'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Change operating rules (new trips, charges and fills only) */
+    patch: operations['patchSettingsWorkflow'];
     trace?: never;
   };
   '/settings/driver-pay': {
@@ -1387,6 +1423,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -1473,6 +1512,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -1555,6 +1597,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -1638,6 +1683,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -1747,6 +1795,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -1856,6 +1907,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -1940,6 +1994,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -2051,6 +2108,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -2160,6 +2220,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -2270,6 +2333,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -2350,6 +2416,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -2453,6 +2522,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -2532,6 +2604,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -2637,6 +2712,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -2730,6 +2808,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -2816,6 +2897,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -2900,6 +2984,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -2984,6 +3071,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -3090,6 +3180,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -3177,6 +3270,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -3271,6 +3367,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -3360,6 +3459,183 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
+                | 'ALREADY_SETTLED'
+                | 'IDEMPOTENCY_CONFLICT'
+                | 'IDEMPOTENCY_KEY_REQUIRED'
+                | 'VERSION_CONFLICT'
+                | 'CONFLICT'
+                | 'FUEL_TYPE_MISMATCH'
+                | 'ODOMETER_BEFORE_START'
+                | 'OTP_INVALID'
+                | 'OTP_EXPIRED'
+                | 'INVALID_CREDENTIALS'
+                | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
+                | 'RATE_LIMITED'
+                | 'UPLOAD_NOT_FOUND'
+                | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
+                | 'INTERNAL';
+              message: string;
+              details?: unknown;
+              requestId?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  getOrgsCurrent: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            /** @enum {string} */
+            kind: 'fleet' | 'dco';
+          };
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            error: {
+              /** @enum {string} */
+              code:
+                | 'VALIDATION_FAILED'
+                | 'UNAUTHENTICATED'
+                | 'TOKEN_EXPIRED'
+                | 'FORBIDDEN_ROLE'
+                | 'NO_ACTIVE_ORG'
+                | 'NOT_FOUND'
+                | 'ILLEGAL_TRANSITION'
+                | 'TRIP_CANCELLED'
+                | 'TRIP_REASSIGNED'
+                | 'VEHICLE_BUSY'
+                | 'DRIVER_BUSY'
+                | 'DRIVER_INACTIVE'
+                | 'DRIVER_HAS_TRIPS'
+                | 'DRIVER_ON_TRIP'
+                | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
+                | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
+                | 'ALREADY_SETTLED'
+                | 'IDEMPOTENCY_CONFLICT'
+                | 'IDEMPOTENCY_KEY_REQUIRED'
+                | 'VERSION_CONFLICT'
+                | 'CONFLICT'
+                | 'FUEL_TYPE_MISMATCH'
+                | 'ODOMETER_BEFORE_START'
+                | 'OTP_INVALID'
+                | 'OTP_EXPIRED'
+                | 'INVALID_CREDENTIALS'
+                | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
+                | 'RATE_LIMITED'
+                | 'UPLOAD_NOT_FOUND'
+                | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
+                | 'INTERNAL';
+              message: string;
+              details?: unknown;
+              requestId?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  patchOrgsCurrent: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': {
+          name: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            /** @enum {string} */
+            kind: 'fleet' | 'dco';
+          };
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            error: {
+              /** @enum {string} */
+              code:
+                | 'VALIDATION_FAILED'
+                | 'UNAUTHENTICATED'
+                | 'TOKEN_EXPIRED'
+                | 'FORBIDDEN_ROLE'
+                | 'NO_ACTIVE_ORG'
+                | 'NOT_FOUND'
+                | 'ILLEGAL_TRANSITION'
+                | 'TRIP_CANCELLED'
+                | 'TRIP_REASSIGNED'
+                | 'VEHICLE_BUSY'
+                | 'DRIVER_BUSY'
+                | 'DRIVER_INACTIVE'
+                | 'DRIVER_HAS_TRIPS'
+                | 'DRIVER_ON_TRIP'
+                | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
+                | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -3474,6 +3750,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -3562,6 +3841,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -3644,6 +3926,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -3741,6 +4026,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -3851,6 +4139,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -3948,6 +4239,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -4061,6 +4355,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -4164,6 +4461,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -4246,6 +4546,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -4324,6 +4627,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -4403,6 +4709,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -4539,6 +4848,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -4681,6 +4993,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -4817,6 +5132,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -4968,6 +5286,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -5110,6 +5431,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -5286,6 +5610,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -5404,6 +5731,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -5546,6 +5876,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -5674,6 +6007,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -5789,6 +6125,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -5910,6 +6249,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -6044,6 +6386,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -6190,6 +6535,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -6303,6 +6651,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -6432,6 +6783,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -6560,6 +6914,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -6642,6 +6999,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -6735,6 +7095,181 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
+                | 'ALREADY_SETTLED'
+                | 'IDEMPOTENCY_CONFLICT'
+                | 'IDEMPOTENCY_KEY_REQUIRED'
+                | 'VERSION_CONFLICT'
+                | 'CONFLICT'
+                | 'FUEL_TYPE_MISMATCH'
+                | 'ODOMETER_BEFORE_START'
+                | 'OTP_INVALID'
+                | 'OTP_EXPIRED'
+                | 'INVALID_CREDENTIALS'
+                | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
+                | 'RATE_LIMITED'
+                | 'UPLOAD_NOT_FOUND'
+                | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
+                | 'INTERNAL';
+              message: string;
+              details?: unknown;
+              requestId?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  getSettingsWorkflow: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            driversCanCreateTrips: boolean;
+            driversCanAddCharges: boolean;
+            fuelReceiptRequired: boolean;
+          };
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            error: {
+              /** @enum {string} */
+              code:
+                | 'VALIDATION_FAILED'
+                | 'UNAUTHENTICATED'
+                | 'TOKEN_EXPIRED'
+                | 'FORBIDDEN_ROLE'
+                | 'NO_ACTIVE_ORG'
+                | 'NOT_FOUND'
+                | 'ILLEGAL_TRANSITION'
+                | 'TRIP_CANCELLED'
+                | 'TRIP_REASSIGNED'
+                | 'VEHICLE_BUSY'
+                | 'DRIVER_BUSY'
+                | 'DRIVER_INACTIVE'
+                | 'DRIVER_HAS_TRIPS'
+                | 'DRIVER_ON_TRIP'
+                | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
+                | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
+                | 'ALREADY_SETTLED'
+                | 'IDEMPOTENCY_CONFLICT'
+                | 'IDEMPOTENCY_KEY_REQUIRED'
+                | 'VERSION_CONFLICT'
+                | 'CONFLICT'
+                | 'FUEL_TYPE_MISMATCH'
+                | 'ODOMETER_BEFORE_START'
+                | 'OTP_INVALID'
+                | 'OTP_EXPIRED'
+                | 'INVALID_CREDENTIALS'
+                | 'ACCOUNT_EXISTS'
+                | 'PHONE_OTP_DISABLED'
+                | 'PHONE_NOT_VERIFIED'
+                | 'PHONE_MISMATCH'
+                | 'PHONE_VERIFICATION_REQUIRED'
+                | 'RATE_LIMITED'
+                | 'UPLOAD_NOT_FOUND'
+                | 'UPLOAD_MISMATCH'
+                | 'CATALOG_UNAVAILABLE'
+                | 'INTERNAL';
+              message: string;
+              details?: unknown;
+              requestId?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  patchSettingsWorkflow: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': {
+          driversCanCreateTrips?: boolean;
+          driversCanAddCharges?: boolean;
+          fuelReceiptRequired?: boolean;
+        };
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            driversCanCreateTrips: boolean;
+            driversCanAddCharges: boolean;
+            fuelReceiptRequired: boolean;
+          };
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            error: {
+              /** @enum {string} */
+              code:
+                | 'VALIDATION_FAILED'
+                | 'UNAUTHENTICATED'
+                | 'TOKEN_EXPIRED'
+                | 'FORBIDDEN_ROLE'
+                | 'NO_ACTIVE_ORG'
+                | 'NOT_FOUND'
+                | 'ILLEGAL_TRANSITION'
+                | 'TRIP_CANCELLED'
+                | 'TRIP_REASSIGNED'
+                | 'VEHICLE_BUSY'
+                | 'DRIVER_BUSY'
+                | 'DRIVER_INACTIVE'
+                | 'DRIVER_HAS_TRIPS'
+                | 'DRIVER_ON_TRIP'
+                | 'VEHICLE_ON_TRIP'
+                | 'DRIVER_NOT_LINKED'
+                | 'LINK_IN_USE'
+                | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -6841,6 +7376,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -6982,6 +7520,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -7224,6 +7765,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -7495,6 +8039,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -7595,6 +8142,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -7831,6 +8381,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -8098,6 +8651,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -8193,6 +8749,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -8440,6 +8999,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -8678,6 +9240,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -8932,6 +9497,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -9215,6 +9783,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -9459,6 +10030,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -9716,6 +10290,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -9962,6 +10539,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -10206,6 +10786,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -10444,6 +11027,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -10701,6 +11287,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -10938,6 +11527,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -11174,6 +11766,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -11411,6 +12006,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -11527,6 +12125,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -11669,6 +12270,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -11786,6 +12390,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -11903,6 +12510,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -12001,6 +12611,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -12091,6 +12704,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -12181,6 +12797,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -12430,6 +13049,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -12526,6 +13148,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -12721,6 +13346,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -12918,6 +13546,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -13192,6 +13823,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -13274,6 +13908,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -13540,6 +14177,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -13648,6 +14288,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -13764,6 +14407,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -13869,6 +14515,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'
@@ -13967,6 +14616,9 @@ export interface operations {
                 | 'DRIVER_NOT_LINKED'
                 | 'LINK_IN_USE'
                 | 'CANCELLATION_PENDING'
+                | 'DRIVER_TRIPS_DISABLED'
+                | 'DRIVER_CHARGES_DISABLED'
+                | 'RECEIPT_REQUIRED'
                 | 'ALREADY_SETTLED'
                 | 'IDEMPOTENCY_CONFLICT'
                 | 'IDEMPOTENCY_KEY_REQUIRED'

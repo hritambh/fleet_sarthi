@@ -6913,6 +6913,396 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your fleet owner has marked you inactive. You can see your past trips, but you can\'t create new ones.'**
   String get driverInactiveBanner;
+
+  /// No description provided for @driverTripsTurnedOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Your fleet owner has turned off creating trips from the driver app.'**
+  String get driverTripsTurnedOff;
+
+  /// No description provided for @errorDriverTripsDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Your fleet owner has turned off trips created by drivers.'**
+  String get errorDriverTripsDisabled;
+
+  /// No description provided for @errorDriverChargesDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Your fleet owner has turned off charges added by drivers.'**
+  String get errorDriverChargesDisabled;
+
+  /// No description provided for @errorReceiptRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo of the fuel receipt.'**
+  String get errorReceiptRequired;
+
+  /// No description provided for @settingsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how Fleet Sarthi works for your fleet. Each page says what a setting changes and when it takes effect.'**
+  String get settingsIntro;
+
+  /// No description provided for @settingsGroupFleet.
+  ///
+  /// In en, this message translates to:
+  /// **'Your fleet'**
+  String get settingsGroupFleet;
+
+  /// No description provided for @settingsGroupYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get settingsGroupYou;
+
+  /// No description provided for @settingsGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get settingsGeneral;
+
+  /// No description provided for @settingsGeneralDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your fleet\'s name'**
+  String get settingsGeneralDesc;
+
+  /// No description provided for @settingsTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips & drivers'**
+  String get settingsTrips;
+
+  /// No description provided for @settingsTripsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'What drivers can do, and the distance check'**
+  String get settingsTripsDesc;
+
+  /// No description provided for @settingsFuel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel audit'**
+  String get settingsFuel;
+
+  /// No description provided for @settingsFuelDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipts, and when a fill is flagged'**
+  String get settingsFuelDesc;
+
+  /// No description provided for @settingsReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents & reminders'**
+  String get settingsReminders;
+
+  /// No description provided for @settingsRemindersDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'When you\'re reminded before papers expire'**
+  String get settingsRemindersDesc;
+
+  /// No description provided for @settingsPayDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay for drivers who don\'t have their own rule'**
+  String get settingsPayDesc;
+
+  /// No description provided for @settingsTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Team & roles'**
+  String get settingsTeam;
+
+  /// No description provided for @settingsTeamDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Managers, and what each role can do'**
+  String get settingsTeamDesc;
+
+  /// No description provided for @settingsLanguageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'The app\'s language on this device'**
+  String get settingsLanguageDesc;
+
+  /// No description provided for @settingsSecurityDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your password and mobile number'**
+  String get settingsSecurityDesc;
+
+  /// No description provided for @settingsAffects.
+  ///
+  /// In en, this message translates to:
+  /// **'Affects: {area}'**
+  String settingsAffects({required String area});
+
+  /// No description provided for @settingsApplies.
+  ///
+  /// In en, this message translates to:
+  /// **'When: {when}'**
+  String settingsApplies({required String when});
+
+  /// No description provided for @settingsSaveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get settingsSaveChanges;
+
+  /// No description provided for @settingsResetDefaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to defaults'**
+  String get settingsResetDefaults;
+
+  /// No description provided for @settingsResetDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Defaults filled in. Save to apply them.'**
+  String get settingsResetDone;
+
+  /// No description provided for @settingsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved.'**
+  String get settingsSaved;
+
+  /// No description provided for @settingsDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard your changes?'**
+  String get settingsDiscardTitle;
+
+  /// No description provided for @settingsDiscardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You changed settings on this page but didn\'t save them.'**
+  String get settingsDiscardBody;
+
+  /// No description provided for @settingsUnsaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsaved changes'**
+  String get settingsUnsaved;
+
+  /// No description provided for @settingsDefaultIs.
+  ///
+  /// In en, this message translates to:
+  /// **'Default: {value}'**
+  String settingsDefaultIs({required String value});
+
+  /// No description provided for @settingsOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get settingsOn;
+
+  /// No description provided for @settingsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get settingsOff;
+
+  /// No description provided for @fleetNameHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown to your managers and drivers in the app, and in trip messages you share with customers.'**
+  String get fleetNameHelp;
+
+  /// No description provided for @fleetNameAffects.
+  ///
+  /// In en, this message translates to:
+  /// **'workspace switcher, dashboard, shared trip messages'**
+  String get fleetNameAffects;
+
+  /// No description provided for @fleetNameWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'everywhere at once; trips and settlements don\'t store the name'**
+  String get fleetNameWhen;
+
+  /// No description provided for @fleetNameInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Use 2 to 100 characters.'**
+  String get fleetNameInvalid;
+
+  /// No description provided for @ruleDriverTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'Drivers can create their own trips'**
+  String get ruleDriverTrips;
+
+  /// No description provided for @ruleDriverTripsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Drivers get a New trip button and can book a trip for themselves in a car they\'re linked to. When off, only you and your managers create trips.'**
+  String get ruleDriverTripsHelp;
+
+  /// No description provided for @ruleDriverTripsAffects.
+  ///
+  /// In en, this message translates to:
+  /// **'driver app: New trip'**
+  String get ruleDriverTripsAffects;
+
+  /// No description provided for @ruleNewTripsOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'new trips only; trips already created stay as they are'**
+  String get ruleNewTripsOnly;
+
+  /// No description provided for @ruleDriverCharges.
+  ///
+  /// In en, this message translates to:
+  /// **'Drivers can add charges'**
+  String get ruleDriverCharges;
+
+  /// No description provided for @ruleDriverChargesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Drivers can add tolls, parking and other charges during a trip and when they end it. Charges a driver paid count towards their daily settlement. When off, only you and your managers add charges.'**
+  String get ruleDriverChargesHelp;
+
+  /// No description provided for @ruleDriverChargesAffects.
+  ///
+  /// In en, this message translates to:
+  /// **'driver app: trip charges; daily settlement'**
+  String get ruleDriverChargesAffects;
+
+  /// No description provided for @ruleNewChargesOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'new charges only; charges already added stay'**
+  String get ruleNewChargesOnly;
+
+  /// No description provided for @ruleOfflineNote.
+  ///
+  /// In en, this message translates to:
+  /// **'A driver who recorded something offline before you changed a rule will see it refused when their phone syncs, marked as needing attention.'**
+  String get ruleOfflineNote;
+
+  /// No description provided for @odoToleranceAffects.
+  ///
+  /// In en, this message translates to:
+  /// **'the odometer vs GPS distance check on finished trips'**
+  String get odoToleranceAffects;
+
+  /// No description provided for @odoToleranceWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'checks run after you save; earlier results stay'**
+  String get odoToleranceWhen;
+
+  /// No description provided for @ruleReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel receipt photo required'**
+  String get ruleReceipt;
+
+  /// No description provided for @ruleReceiptHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Every fuel fill needs a photo of the receipt. Turn off if drivers often fill up where no printed receipt is given.'**
+  String get ruleReceiptHelp;
+
+  /// No description provided for @ruleReceiptAffects.
+  ///
+  /// In en, this message translates to:
+  /// **'driver app: Log fuel'**
+  String get ruleReceiptAffects;
+
+  /// No description provided for @ruleNewFillsOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'new fills only; fills already recorded stay'**
+  String get ruleNewFillsOnly;
+
+  /// No description provided for @fuelThresholdsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When a fill is flagged'**
+  String get fuelThresholdsTitle;
+
+  /// No description provided for @fuelThresholdsAffects.
+  ///
+  /// In en, this message translates to:
+  /// **'fuel alerts and each vehicle\'s usual mileage'**
+  String get fuelThresholdsAffects;
+
+  /// No description provided for @fuelThresholdsWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'each vehicle\'s next fuel check (its next fill); alerts already raised stay'**
+  String get fuelThresholdsWhen;
+
+  /// No description provided for @remindersAffects.
+  ///
+  /// In en, this message translates to:
+  /// **'expiry alerts for vehicle and driver documents'**
+  String get remindersAffects;
+
+  /// No description provided for @remindersWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'from the next daily check, around 6 am'**
+  String get remindersWhen;
+
+  /// No description provided for @remindersSeverity.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts 7 days or less before expiry are warnings; 1 day or less, or already expired, are critical.'**
+  String get remindersSeverity;
+
+  /// No description provided for @payAffects.
+  ///
+  /// In en, this message translates to:
+  /// **'daily settlements of drivers without their own pay rule'**
+  String get payAffects;
+
+  /// No description provided for @payWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'days not yet settled; settled days keep the pay they were settled with'**
+  String get payWhen;
+
+  /// No description provided for @rolesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What each role can do'**
+  String get rolesTitle;
+
+  /// No description provided for @roleOwnerCan.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything, including these settings, pay rules and managers.'**
+  String get roleOwnerCan;
+
+  /// No description provided for @roleManagerCan.
+  ///
+  /// In en, this message translates to:
+  /// **'Runs the fleet: trips, vehicles, drivers, documents, fuel and settlements. Sees settings but can\'t change them.'**
+  String get roleManagerCan;
+
+  /// No description provided for @roleDriverCan.
+  ///
+  /// In en, this message translates to:
+  /// **'Their own trips, fuel fills, charges and documents, in the driver app.'**
+  String get roleDriverCan;
+
+  /// No description provided for @settingsRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number from {min} to {max}.'**
+  String settingsRange({required String min, required String max});
+
+  /// No description provided for @settingsDaysInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to 5 whole numbers from 0 to 365, e.g. 30, 7, 1.'**
+  String get settingsDaysInvalid;
 }
 
 class _AppLocalizationsDelegate

@@ -152,15 +152,20 @@ model Organization {
 }
 
 model OrgSettings {
-  orgId              String       @id @map("org_id") @db.Uuid
-  fuelKSigma         Float        @default(2.0) @map("fuel_k_sigma")
-  fuelMinCycles      Int          @default(3) @map("fuel_min_cycles")
-  fuelPctThreshold   Float        @default(20.0) @map("fuel_pct_threshold")
-  fuelEwmaAlpha      Float        @default(0.3) @map("fuel_ewma_alpha")
-  odoGpsTolerancePct Float        @default(10.0) @map("odo_gps_tolerance_pct")
-  docAlertDays       Int[]        @default([30, 7, 1]) @map("doc_alert_days")
-  driverPayRule      Json         @default("{\"kind\":\"none\",\"allowanceToDriver\":true}") @map("driver_pay_rule")
-  org                Organization @relation(fields: [orgId], references: [id])
+  orgId                 String       @id @map("org_id") @db.Uuid
+  fuelKSigma            Float        @default(2.0) @map("fuel_k_sigma")
+  fuelMinCycles         Int          @default(3) @map("fuel_min_cycles")
+  fuelPctThreshold      Float        @default(20.0) @map("fuel_pct_threshold")
+  fuelEwmaAlpha         Float        @default(0.3) @map("fuel_ewma_alpha")
+  odoGpsTolerancePct    Float        @default(10.0) @map("odo_gps_tolerance_pct")
+  docAlertDays          Int[]        @default([30, 7, 1]) @map("doc_alert_days")
+  driverPayRule         Json         @default("{\"kind\":\"none\",\"allowanceToDriver\":true}") @map("driver_pay_rule")
+  /// Operating rules the owner picks (Settings → Trips & drivers, Fuel audit);
+  /// enforced by TripsService and FuelService, read by the driver app.
+  driversCanCreateTrips Boolean      @default(true) @map("drivers_can_create_trips")
+  driversCanAddCharges  Boolean      @default(true) @map("drivers_can_add_charges")
+  fuelReceiptRequired   Boolean      @default(true) @map("fuel_receipt_required")
+  org                   Organization @relation(fields: [orgId], references: [id])
 
   @@map("org_settings")
 }

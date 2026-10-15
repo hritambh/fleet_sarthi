@@ -20,7 +20,7 @@ class FuelFillInput {
     required this.paidBy,
     required this.odometerKm,
     required this.odometerPhoto,
-    required this.receipt,
+    this.receipt,
     this.tripId,
   });
 
@@ -36,7 +36,9 @@ class FuelFillInput {
   final String paidBy;
   final int odometerKm;
   final CapturedPhoto odometerPhoto;
-  final CapturedPhoto receipt;
+
+  /// Null when the fleet doesn't require one (Settings → Fuel audit).
+  final CapturedPhoto? receipt;
   final String? tripId;
 }
 
@@ -60,7 +62,7 @@ class FuelRepository {
     final id = const Uuid().v4();
     final filledAt = _now();
     await db.transaction(() async {
-      for (final photo in [input.receipt, input.odometerPhoto]) {
+      for (final photo in [?input.receipt, input.odometerPhoto]) {
         await savePhoto(db, photo);
         await _outbox.enqueue(OutboxKind.media, {'photoId': photo.id});
       }
@@ -81,7 +83,7 @@ class FuelRepository {
                 .toIso8601String(),
           },
           'isFullTank': input.isFullTank,
-          'receiptMediaId': input.receipt.id,
+          if (input.receipt != null) 'receiptMediaId': input.receipt!.id,
           'paidBy': input.paidBy,
           'filledAt': filledAt.toUtc().toIso8601String(),
         },

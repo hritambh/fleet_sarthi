@@ -9,6 +9,7 @@ import {
   key,
   odometer,
   parkRunningTrips,
+  registerPhoto,
   ownerSession,
   schedule,
   startHarness,
@@ -761,6 +762,7 @@ describe('visibility and charges', () => {
             costPaise: 180_000,
             odometer: await odometer(h, driver.session, km),
             isFullTank: false,
+            receiptMediaId: await registerPhoto(h, driver.session, 'fuel_receipt'),
             paidBy: 'driver_cash',
             filledAt: new Date().toISOString(),
           })

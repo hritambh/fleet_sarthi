@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../app/providers.dart';
+import '../../app/workflow_settings.dart';
 import '../../core/api/models.dart';
 import '../../core/media/captured_photo.dart';
 import '../../core/repositories/trips_repository.dart';
@@ -384,11 +385,14 @@ class _EndTripScreenState extends ConsumerState<EndTripScreen> {
                   ],
                 ),
               ),
-            TextButton.icon(
-              onPressed: () => setState(() => _charges.add(_ChargeRow())),
-              icon: const Icon(Icons.add),
-              label: Text(l.addChargeRow),
-            ),
+            // Hidden when the owner turned off charges added by drivers.
+            if (ref.watch(workflowRulesProvider).driversCanAddCharges)
+              TextButton.icon(
+                key: const Key('end-add-charge'),
+                onPressed: () => setState(() => _charges.add(_ChargeRow())),
+                icon: const Icon(Icons.add),
+                label: Text(l.addChargeRow),
+              ),
             const SizedBox(height: 16),
             if (widget.trip.fuelFills.isNotEmpty) ...[
               const SizedBox(height: 8),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
+import '../../app/workflow_settings.dart';
 import '../../core/api/models.dart';
 import '../../core/repositories/trips_repository.dart';
 import '../common/format.dart';
@@ -180,11 +181,13 @@ class TripDetailScreen extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      OutlinedButton.icon(
-                        icon: const Icon(Icons.add),
-                        label: Text(l.chargeButton),
-                        onPressed: () => showChargeSheet(context, t),
-                      ),
+                      if (ref.watch(workflowRulesProvider).driversCanAddCharges)
+                        OutlinedButton.icon(
+                          key: const Key('trip-add-charge'),
+                          icon: const Icon(Icons.add),
+                          label: Text(l.chargeButton),
+                          onPressed: () => showChargeSheet(context, t),
+                        ),
                     ],
                     if (can.contains('requestCancel'))
                       OutlinedButton(

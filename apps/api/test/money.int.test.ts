@@ -143,6 +143,7 @@ describe('daily settlement', () => {
         costPaise: rupees(1_200),
         odometer: await odometer(h, ramesh.session, 20_160),
         isFullTank: false,
+        receiptMediaId: await registerPhoto(h, ramesh.session, 'fuel_receipt'),
         paidBy: 'driver_cash',
         filledAt: new Date().toISOString(),
       })
@@ -388,6 +389,7 @@ describe('alerts inbox', () => {
           costPaise: litres * 9000,
           odometer: await odometer(h, driver.session, km),
           isFullTank: true,
+          receiptMediaId: await registerPhoto(h, driver.session, 'fuel_receipt'),
           paidBy: 'owner',
           filledAt: new Date(Date.UTC(2026, 6, 1) + km * 1000).toISOString(),
         })

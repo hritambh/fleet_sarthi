@@ -161,6 +161,9 @@ class FakeApi implements TaxcyApi {
   bool offline = false;
   List<Vehicle> vehicleList = const [];
 
+  /// What GET /settings/workflow returns (the fleet's operating rules).
+  WorkflowSettings workflow = WorkflowSettings.defaults;
+
   void failNext(String call, ApiException error, {int times = 1}) =>
       (_failures[call] ??= []).addAll(List.filled(times, error));
 
@@ -278,5 +281,11 @@ class FakeApi implements TaxcyApi {
       duplicates: 0,
       outOfWindow: 0,
     );
+  }
+
+  @override
+  Future<WorkflowSettings> workflowSettings() async {
+    _record('workflowSettings');
+    return workflow;
   }
 }

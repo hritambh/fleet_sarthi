@@ -41,7 +41,7 @@ The home screen lists your trips for today and upcoming days. Tap a trip to see 
 
 ## Create a trip
 
-For a customer you pick up yourself, tap **New trip**: choose one way, round trip or local, enter the pickup and drop, start time and expected duration, the vehicle, the fare and, if agreed, the **included km**. The customer's name and number are optional. The trip is assigned to you and works offline; your owner sees it once your phone is online. You can only pick the vehicles your owner has linked to you; if there are none, the screen says so: ask your owner to link you to a vehicle, then tap **Retry**.
+For a customer you pick up yourself, tap **New trip**: choose one way, round trip or local, enter the pickup and drop, start time and expected duration, the vehicle, the fare and, if agreed, the **included km**. The customer's name and number are optional. The trip is assigned to you and works offline; your owner sees it once your phone is online. You can only pick the vehicles your owner has linked to you; if there are none, the screen says so: ask your owner to link you to a vehicle, then tap **Retry**. If your fleet owner has turned off trips created by drivers, **New trip** is greyed out and the home screen says so.
 
 ## Start a trip
 
@@ -56,7 +56,7 @@ You can have one trip on the road at a time. While a trip is running, **Start tr
 
 The **live trip** screen shows elapsed time and distance so far.
 
-- **Add charge:** add tolls, parking, state tax and similar at any time, with an optional receipt photo. Mark **I paid this** if it came out of your pocket; it's paid back to you in your settlement.
+- **Add charge:** add tolls, parking, state tax and similar at any time, with an optional receipt photo. (Your fleet owner can turn this off; then only they add charges.) Mark **I paid this** if it came out of your pocket; it's paid back to you in your settlement.
 - **Night charge, extra km and driver allowance** are extra fare: the customer pays them on top of the fare. There's no **I paid this** for them.
 - **Request cancellation:** if the customer cancels mid-way, tap **Request cancellation**, enter the reason, and take an odometer photo. Your owner approves or rejects it. Until then the trip keeps running. You'll be notified of the decision.
 
@@ -72,7 +72,7 @@ The **live trip** screen shows elapsed time and distance so far.
 ## Log a fuel fill
 
 1. From the home screen, tap **Fuel** (or **Fuel** on a running trip). The vehicle is filled in from your trip: the running trip's car, otherwise the car on your next assigned trip (or a trip you finished in the last day). If you have trips in more than one car, choose among those. With no trip assigned, you can't log fuel; ask your fleet owner.
-2. Take a photo of the **receipt**.
+2. Take a photo of the **receipt**. (If your fleet owner made the receipt optional, the photo says **(optional)**.)
 3. Take a photo of the **odometer** and type the reading.
 4. Enter the quantity (litres, or kg for CNG) and the amount in ₹.
 5. Turn on **Full tank** if the tank was filled completely. Please fill to full whenever you can; it keeps your fuel record accurate.

@@ -147,6 +147,12 @@ class HttpTaxcyApi implements TaxcyApi {
         ),
       );
 
+  @override
+  Future<WorkflowSettings> workflowSettings() async =>
+      WorkflowSettings.fromJson(
+        asJsonMap(await send('GET', '/settings/workflow')),
+      );
+
   /// One authorised request; returns the decoded JSON body (null when empty).
   /// Shared with HttpOwnerApi so both use the same token refresh.
   ///

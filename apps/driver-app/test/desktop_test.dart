@@ -168,7 +168,7 @@ void main() {
       'drivers': find.byType(CardGrid),
       'analytics': find.byKey(const Key('chart-revenue')),
       'settlements': find.byKey(const Key('settlement-table')),
-      'settings': find.byKey(const Key('save-thresholds')),
+      'settings': find.byKey(const Key('settings-trips')),
     };
     for (final MapEntry(key: section, value: marker) in pages.entries) {
       await tester.tap(find.byKey(Key('side-$section')));
@@ -178,23 +178,28 @@ void main() {
     }
   });
 
-  testWidgets('settings put the thresholds beside language and pay', (
-    tester,
-  ) async {
-    await desktop(tester);
-    await tester.tap(find.byKey(const Key('side-settings')));
-    await settle(tester);
-    final thresholds = tester.getTopLeft(find.byKey(const Key('audit-k')));
-    final language = tester.getTopLeft(
-      find.byKey(const Key('settings-language')),
-    );
-    // Side by side, not stacked; and two threshold fields share a row.
-    expect(language.dx, greaterThan(thresholds.dx));
-    expect(
-      tester.getTopLeft(find.byKey(const Key('audit-min'))).dy,
-      thresholds.dy,
-    );
-  });
+  testWidgets(
+    'settings are a grid of categories; a page opens in the section',
+    (tester) async {
+      await desktop(tester);
+      await tester.tap(find.byKey(const Key('side-settings')));
+      await settle(tester);
+      // Categories side by side, not one long column.
+      final general = tester.getTopLeft(
+        find.byKey(const Key('settings-general')),
+      );
+      final trips = tester.getTopLeft(find.byKey(const Key('settings-trips')));
+      expect(trips.dy, general.dy);
+      expect(trips.dx, greaterThan(general.dx));
+
+      await tester.tap(find.byKey(const Key('settings-fuel')));
+      await settle(tester);
+      expect(find.byKey(const Key('audit-k')), findsOneWidget);
+      // Still inside the desktop shell, with the sidebar beside it.
+      expect(find.byKey(const Key('owner-sidebar')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('the header bell opens alerts and review, beside the sidebar', (
     tester,

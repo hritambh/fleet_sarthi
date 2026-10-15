@@ -61,10 +61,10 @@ POST /v1/auth/password/login
 | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 400  | `VALIDATION_FAILED` (`details.issues` lists each problem), `IDEMPOTENCY_KEY_REQUIRED`                                                                                                                                                                                                  |
 | 401  | `UNAUTHENTICATED`, `TOKEN_EXPIRED`, `INVALID_CREDENTIALS`, `OTP_INVALID` (`details.attemptsLeft`), `OTP_EXPIRED`                                                                                                                                                                       |
-| 403  | `FORBIDDEN_ROLE`, `NO_ACTIVE_ORG`                                                                                                                                                                                                                                                      |
+| 403  | `FORBIDDEN_ROLE`, `NO_ACTIVE_ORG`, `DRIVER_TRIPS_DISABLED`, `DRIVER_CHARGES_DISABLED` (the owner's operating rules)                                                                                                                                                                    |
 | 404  | `NOT_FOUND`, also returned for other orgs' records, so existence is never leaked                                                                                                                                                                                                       |
 | 409  | `ACCOUNT_EXISTS`, `ILLEGAL_TRANSITION`, `TRIP_CANCELLED`, `TRIP_REASSIGNED`, `VEHICLE_BUSY`, `DRIVER_BUSY`, `DRIVER_ON_TRIP`, `VEHICLE_ON_TRIP`, `DRIVER_NOT_LINKED`, `LINK_IN_USE`, `CANCELLATION_PENDING`, `ALREADY_SETTLED`, `IDEMPOTENCY_CONFLICT`, `VERSION_CONFLICT`, `CONFLICT` |
-| 422  | `FUEL_TYPE_MISMATCH`, `ODOMETER_BEFORE_START`, `UPLOAD_NOT_FOUND`, `UPLOAD_MISMATCH`                                                                                                                                                                                                   |
+| 422  | `FUEL_TYPE_MISMATCH`, `ODOMETER_BEFORE_START`, `UPLOAD_NOT_FOUND`, `UPLOAD_MISMATCH`, `RECEIPT_REQUIRED`                                                                                                                                                                               |
 | 429  | `RATE_LIMITED`                                                                                                                                                                                                                                                                         |
 
 Every response carries `X-Request-Id`; send your own to correlate logs.
@@ -147,12 +147,16 @@ Drivers are added with `POST /drivers`, which also creates their driver profile.
 
 ### Settings
 
-| Endpoint                   | Who            | Idempotency-Key | What it does                                                     |
-| -------------------------- | -------------- | --------------- | ---------------------------------------------------------------- |
-| `GET /settings/audit`      | owner, manager |                 | Fuel and distance audit thresholds                               |
-| `PATCH /settings/audit`    | owner          |                 | Change audit thresholds                                          |
-| `GET /settings/driver-pay` | owner, manager |                 | Default driver pay rule                                          |
-| `PUT /settings/driver-pay` | owner          |                 | Change the default driver pay rule (affects unsettled days only) |
+| Endpoint                   | Who            | Idempotency-Key | What it does                                                                                                                                     |
+| -------------------------- | -------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `GET /settings/audit`      | owner, manager |                 | Fuel and distance audit thresholds                                                                                                               |
+| `PATCH /settings/audit`    | owner          |                 | Change audit thresholds                                                                                                                          |
+| `GET /settings/driver-pay` | owner, manager |                 | Default driver pay rule                                                                                                                          |
+| `PUT /settings/driver-pay` | owner          |                 | Change the default driver pay rule (affects unsettled days only)                                                                                 |
+| `GET /settings/workflow`   | any member     |                 | Operating rules: `driversCanCreateTrips`, `driversCanAddCharges`, `fuelReceiptRequired`                                                          |
+| `PATCH /settings/workflow` | owner          |                 | Change operating rules (new trips, charges and fills only; enforced with `DRIVER_TRIPS_DISABLED`, `DRIVER_CHARGES_DISABLED`, `RECEIPT_REQUIRED`) |
+| `GET /orgs/current`        | owner, manager |                 | The active fleet's name and kind                                                                                                                 |
+| `PATCH /orgs/current`      | owner          |                 | Rename the active fleet (`name`, 2–100 characters)                                                                                               |
 
 ### Trips
 

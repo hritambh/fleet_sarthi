@@ -2,20 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/preferences.dart';
-import '../../app/providers.dart';
 import '../../app/theme.dart';
-import '../../core/api/owner_models.dart';
 import '../account/account_security_screen.dart';
 import '../common/format.dart';
 import '../common/language_picker.dart';
-import 'owner_providers.dart';
 import 'alerts_inbox.dart';
 import 'owner_widgets.dart';
-import 'pay_rule_editor.dart';
-import 'people_screens.dart';
+import 'settings/settings_pages.dart';
 
-/// Language, audit thresholds and the default driver pay. Only the owner can
-/// change the last two; managers see them read-only.
+/// The settings hub: one page per category, each explaining what its settings
+/// change. "Your fleet" holds the fleet-wide settings (owner edits, managers
+/// read); "You" holds this person's own (language, account security).
+/// Details: docs/plans/2026-10-16-settings-hub.md.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -23,100 +21,214 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final isOwner = ref.watch(isOwnerProvider);
-    final audit = ref.watch(auditSettingsProvider);
-    final pay = ref.watch(defaultPayRuleProvider);
     final locale = ref.watch(localeProvider);
-    final language = Card(
-      child: ListTile(
+    final fleet = <_Category>[
+      (
+        key: const Key('settings-general'),
+        icon: Icons.storefront_outlined,
+        title: l.settingsGeneral,
+        description: l.settingsGeneralDesc,
+        open: () => openScreen<void>(context, const GeneralSettingsScreen()),
+      ),
+      (
+        key: const Key('settings-trips'),
+        icon: Icons.route_outlined,
+        title: l.settingsTrips,
+        description: l.settingsTripsDesc,
+        open: () => openScreen<void>(context, const TripRulesScreen()),
+      ),
+      (
+        key: const Key('settings-fuel'),
+        icon: Icons.local_gas_station_outlined,
+        title: l.settingsFuel,
+        description: l.settingsFuelDesc,
+        open: () => openScreen<void>(context, const FuelRulesScreen()),
+      ),
+      (
+        key: const Key('settings-reminders'),
+        icon: Icons.notifications_active_outlined,
+        title: l.settingsReminders,
+        description: l.settingsRemindersDesc,
+        open: () => openScreen<void>(context, const RemindersScreen()),
+      ),
+      (
+        key: const Key('settings-pay'),
+        icon: Icons.payments_outlined,
+        title: l.defaultDriverPay,
+        description: l.settingsPayDesc,
+        open: () => openScreen<void>(context, const PaySettingsScreen()),
+      ),
+      (
+        key: const Key('settings-team'),
+        icon: Icons.group_outlined,
+        title: l.settingsTeam,
+        description: l.settingsTeamDesc,
+        open: () => openScreen<void>(context, const TeamSettingsScreen()),
+      ),
+    ];
+    final you = <_Category>[
+      (
         key: const Key('settings-language'),
-        leading: const Icon(Icons.translate),
-        title: Text(l.language),
-        subtitle: Text(
-          locale == null
-              ? l.languageDevice
-              : languageNames[locale.languageCode] ?? locale.languageCode,
-        ),
-        onTap: () => showLanguagePicker(context, ref),
+        icon: Icons.translate,
+        title: l.language,
+        description: locale == null
+            ? l.languageDevice
+            : languageNames[locale.languageCode] ?? locale.languageCode,
+        open: () => showLanguagePicker(context, ref),
       ),
-    );
-    final security = Card(
-      child: ListTile(
+      (
         key: const Key('settings-account-security'),
-        leading: const Icon(Icons.lock_outline),
-        title: Text(l.accountSecurity),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () => openScreen<void>(context, const AccountSecurityScreen()),
+        icon: Icons.lock_outline,
+        title: l.accountSecurity,
+        description: l.settingsSecurityDesc,
+        open: () => openScreen<void>(context, const AccountSecurityScreen()),
       ),
-    );
-    final ownerOnly = isOwner
-        ? null
-        : Padding(
-            padding: const EdgeInsets.all(8),
-            child: Text(
-              l.settingsOwnerOnly,
-              key: const Key('settings-owner-only'),
-              style: const TextStyle(color: TaxcyColors.muted),
+    ];
+    final desktop = isDesktop(context);
+    Widget group(String title, List<_Category> items) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+          child: Text(
+            title.toUpperCase(),
+            style: const TextStyle(
+              color: TaxcyColors.muted,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.8,
             ),
-          );
-    final thresholds = SectionCard(
-      title: l.auditThresholds,
-      child: AsyncView(
-        value: audit,
-        onRetry: () => ref.invalidate(auditSettingsProvider),
-        builder: (a) => _AuditForm(initial: a, editable: isOwner),
-      ),
-    );
-    final payCard = SectionCard(
-      title: l.defaultDriverPay,
-      child: AsyncView(
-        value: pay,
-        onRetry: () => ref.invalidate(defaultPayRuleProvider),
-        builder: (p) => _PayForm(initial: p, editable: isOwner),
-      ),
+          ),
+        ),
+        if (desktop)
+          CardGrid(
+            minWidth: 280,
+            children: [for (final c in items) _CategoryCard(c)],
+          )
+        else
+          Card(
+            child: Column(
+              children: [
+                for (final (i, c) in items.indexed) ...[
+                  if (i > 0) const Divider(height: 1, indent: 56),
+                  _CategoryTile(c),
+                ],
+              ],
+            ),
+          ),
+      ],
     );
     return Scaffold(
       appBar: AppBar(title: Text(l.settings), actions: const [AlertsBell()]),
-      body: RefreshPage(
-        onRefresh: () async {
-          ref
-            ..invalidate(auditSettingsProvider)
-            ..invalidate(defaultPayRuleProvider)
-            ..invalidate(membersProvider);
-          await ref.read(auditSettingsProvider.future);
-        },
-        children: isDesktop(context)
-            ? [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(flex: 3, child: thresholds),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      flex: 2,
-                      child: Column(
-                        children: [
-                          language,
-                          security,
-                          ?ownerOnly,
-                          payCard,
-                          const ManagersSection(),
-                        ],
-                      ),
-                    ),
-                  ],
+      body: ListView(
+        padding: desktop
+            ? const EdgeInsets.fromLTRB(28, 24, 28, 24)
+            : const EdgeInsets.fromLTRB(12, 8, 12, 24),
+        children: [
+          for (final child in [
+            Text(
+              l.settingsIntro,
+              style: const TextStyle(color: TaxcyColors.muted),
+            ),
+            if (!isOwner)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  l.settingsOwnerOnly,
+                  key: const Key('settings-owner-only'),
+                  style: const TextStyle(
+                    color: TaxcyColors.blue800,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ]
-            : [
-                language,
-                security,
-                ?ownerOnly,
-                thresholds,
-                payCard,
-                const ManagersSection(),
-              ],
+              ),
+            group(l.settingsGroupFleet, fleet),
+            group(l.settingsGroupYou, you),
+          ])
+            PageWidth(child: child),
+        ],
       ),
     );
   }
+}
+
+typedef _Category = ({
+  Key key,
+  IconData icon,
+  String title,
+  String description,
+  VoidCallback open,
+});
+
+/// A category as a list row (phones and tablets).
+class _CategoryTile extends StatelessWidget {
+  const _CategoryTile(this.c);
+  final _Category c;
+
+  @override
+  Widget build(BuildContext context) => ListTile(
+    key: c.key,
+    leading: _CategoryIcon(c.icon),
+    title: Text(c.title),
+    subtitle: Text(c.description),
+    trailing: const Icon(Icons.chevron_right),
+    onTap: c.open,
+  );
+}
+
+/// A category as a card (desktop).
+class _CategoryCard extends StatelessWidget {
+  const _CategoryCard(this.c);
+  final _Category c;
+
+  @override
+  Widget build(BuildContext context) => Card(
+    margin: EdgeInsets.zero,
+    clipBehavior: Clip.antiAlias,
+    child: InkWell(
+      key: c.key,
+      onTap: c.open,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            _CategoryIcon(c.icon),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(c.title, style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 2),
+                  Text(
+                    c.description,
+                    style: const TextStyle(color: TaxcyColors.muted),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: TaxcyColors.muted),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+class _CategoryIcon extends StatelessWidget {
+  const _CategoryIcon(this.icon);
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 40,
+    height: 40,
+    decoration: BoxDecoration(
+      color: TaxcyColors.blue50,
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: Icon(icon, color: TaxcyColors.blue700, size: 22),
+  );
 }
 
 /// "30, 7, 1" → [30, 7, 1]; null when any part isn't a whole number.
@@ -124,210 +236,4 @@ List<int>? parseDayList(String text) {
   final parts = text.split(',').map((p) => p.trim()).where((p) => p.isNotEmpty);
   final days = [for (final p in parts) int.tryParse(p)];
   return days.contains(null) ? null : days.whereType<int>().toList();
-}
-
-class _AuditForm extends ConsumerStatefulWidget {
-  const _AuditForm({required this.initial, required this.editable});
-  final AuditSettings initial;
-  final bool editable;
-
-  @override
-  ConsumerState<_AuditForm> createState() => _AuditFormState();
-}
-
-class _AuditFormState extends ConsumerState<_AuditForm> {
-  late final _fields = {
-    'k': TextEditingController(text: '${widget.initial.fuelKSigma}'),
-    'min': TextEditingController(text: '${widget.initial.fuelMinCycles}'),
-    'pct': TextEditingController(text: '${widget.initial.fuelPctThreshold}'),
-    'alpha': TextEditingController(text: '${widget.initial.fuelEwmaAlpha}'),
-    'odo': TextEditingController(text: '${widget.initial.odoGpsTolerancePct}'),
-    'days': TextEditingController(text: widget.initial.docAlertDays.join(', ')),
-  };
-  String? _message;
-  bool _ok = false;
-
-  @override
-  void dispose() {
-    for (final c in _fields.values) {
-      c.dispose();
-    }
-    super.dispose();
-  }
-
-  Future<void> _save() async {
-    final l = context.l10n;
-    double? n(String key) => double.tryParse(_fields[key]!.text.trim());
-    final min = int.tryParse(_fields['min']!.text.trim());
-    final days = parseDayList(_fields['days']!.text);
-    final values = [n('k'), n('pct'), n('alpha'), n('odo')];
-    final settings = values.contains(null) || min == null || days == null
-        ? null
-        : AuditSettings(
-            fuelKSigma: values[0]!,
-            fuelMinCycles: min,
-            fuelPctThreshold: values[1]!,
-            fuelEwmaAlpha: values[2]!,
-            odoGpsTolerancePct: values[3]!,
-            docAlertDays: days,
-          );
-    if (settings == null || !settings.isValid) {
-      setState(() {
-        _message = l.checkThresholds;
-        _ok = false;
-      });
-      return;
-    }
-    final saved = await runAction(context, () async {
-      await ref.read(ownerApiProvider).updateAuditSettings(settings);
-      refreshAfter(ref, {OwnerArea.fuel});
-    });
-    if (mounted && saved) {
-      setState(() {
-        _message = l.savedThresholds;
-        _ok = true;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final rows = [
-      ('k', l.fuelKSigma, l.fuelKSigmaHint),
-      ('min', l.fuelMinCycles, l.fuelMinCyclesHint),
-      ('pct', l.fuelPct, l.fuelPctHint),
-      ('alpha', l.fuelAlpha, l.fuelAlphaHint),
-      ('odo', l.odoTolerance, l.odoToleranceHint),
-      ('days', l.docAlertDays, l.docAlertDaysHint),
-    ];
-    Widget field(String key, String label, String hint) => TextField(
-      key: Key('audit-$key'),
-      controller: _fields[key],
-      enabled: widget.editable,
-      keyboardType: key == 'days'
-          ? TextInputType.text
-          : const TextInputType.numberWithOptions(decimal: true),
-      decoration: InputDecoration(
-        labelText: label,
-        helperText: hint,
-        helperMaxLines: 3,
-      ),
-    );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (isDesktop(context))
-          // Two fields to a row on the desktop.
-          LayoutBuilder(
-            builder: (context, box) {
-              final width = (box.maxWidth - 16) / 2;
-              return Wrap(
-                spacing: 16,
-                runSpacing: 12,
-                children: [
-                  for (final (key, label, hint) in rows)
-                    SizedBox(width: width, child: field(key, label, hint)),
-                ],
-              );
-            },
-          )
-        else
-          for (final (key, label, hint) in rows) ...[
-            field(key, label, hint),
-            const SizedBox(height: 12),
-          ],
-        if (isDesktop(context)) const SizedBox(height: 16),
-        if (_message != null)
-          Text(
-            _message!,
-            style: TextStyle(
-              color: _ok
-                  ? Colors.green.shade800
-                  : Theme.of(context).colorScheme.error,
-            ),
-          ),
-        if (widget.editable)
-          Align(
-            alignment: Alignment.centerRight,
-            child: FilledButton(
-              key: const Key('save-thresholds'),
-              onPressed: _save,
-              child: Text(l.saveThresholds),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _PayForm extends ConsumerStatefulWidget {
-  const _PayForm({required this.initial, required this.editable});
-  final PayRule initial;
-  final bool editable;
-
-  @override
-  ConsumerState<_PayForm> createState() => _PayFormState();
-}
-
-class _PayFormState extends ConsumerState<_PayForm> {
-  late PayRule _rule = widget.initial;
-  String? _message;
-  bool _ok = false;
-
-  Future<void> _save() async {
-    final l = context.l10n;
-    if (!_rule.isValid) {
-      setState(() {
-        _message = l.checkPayRule;
-        _ok = false;
-      });
-      return;
-    }
-    final saved = await runAction(context, () async {
-      await ref.read(ownerApiProvider).updateDefaultPayRule(_rule);
-      refreshAfter(ref, {OwnerArea.settings, OwnerArea.settlements});
-    });
-    if (mounted && saved) {
-      setState(() {
-        _message = l.savedPay;
-        _ok = true;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(l.defaultPayIntro, style: Theme.of(context).textTheme.bodySmall),
-        const SizedBox(height: 8),
-        PayRuleEditor(
-          value: _rule,
-          enabled: widget.editable,
-          onChanged: (r) => setState(() => _rule = r),
-        ),
-        if (_message != null)
-          Text(
-            _message!,
-            style: TextStyle(
-              color: _ok
-                  ? Colors.green.shade800
-                  : Theme.of(context).colorScheme.error,
-            ),
-          ),
-        if (widget.editable)
-          Align(
-            alignment: Alignment.centerRight,
-            child: FilledButton(
-              key: const Key('save-default-pay'),
-              onPressed: _save,
-              child: Text(l.saveDefaultPay),
-            ),
-          ),
-      ],
-    );
-  }
 }

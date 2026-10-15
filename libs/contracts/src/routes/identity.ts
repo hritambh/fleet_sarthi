@@ -5,6 +5,13 @@ import { access, defineRoute, MembershipRole } from '../http.js';
 export const OrgKind = z.enum(['fleet', 'dco']);
 export type OrgKind = z.infer<typeof OrgKind>;
 
+/** A fleet's display name, as typed when it was created or renamed. */
+export const OrgName = z.string().trim().min(2).max(100);
+
+/** The active organization as its staff see it in Settings → General. */
+export const OrgProfile = z.object({ id: Id, name: OrgName, kind: OrgKind });
+export type OrgProfile = z.infer<typeof OrgProfile>;
+
 export const DevicePlatform = z.enum(['android', 'ios', 'web']);
 
 export const Membership = z.object({
@@ -252,7 +259,7 @@ export const identityRoutes = {
     tag: 'auth',
     access: access.user,
     status: 201,
-    body: RefreshTokenBody.extend({ name: z.string().trim().min(2).max(100), kind: OrgKind }),
+    body: RefreshTokenBody.extend({ name: OrgName, kind: OrgKind }),
     response: Session,
   }),
 };
@@ -307,5 +314,22 @@ export const memberRoutes = {
     access: access.roles('owner'),
     params: IdParam,
     response: Member,
+  }),
+  getOrgProfile: defineRoute({
+    method: 'GET',
+    path: '/orgs/current',
+    summary: 'The active organization: its name and kind',
+    tag: 'settings',
+    access: access.staff,
+    response: OrgProfile,
+  }),
+  updateOrgProfile: defineRoute({
+    method: 'PATCH',
+    path: '/orgs/current',
+    summary: 'Rename the active organization (owner)',
+    tag: 'settings',
+    access: access.roles('owner'),
+    body: z.object({ name: OrgName }),
+    response: OrgProfile,
   }),
 };

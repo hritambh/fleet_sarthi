@@ -81,6 +81,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -197,6 +200,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -314,6 +320,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -429,6 +438,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -641,6 +653,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -854,6 +869,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -976,6 +994,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -1198,6 +1219,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -1410,6 +1434,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -1626,6 +1653,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -1731,6 +1761,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -1926,6 +1959,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -2028,6 +2064,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -2227,6 +2266,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -2388,6 +2430,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -2510,6 +2555,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -2631,6 +2679,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -2750,6 +2801,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -2953,6 +3007,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -3082,6 +3139,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -3231,6 +3291,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -3369,6 +3432,246 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
+                            "ALREADY_SETTLED",
+                            "IDEMPOTENCY_CONFLICT",
+                            "IDEMPOTENCY_KEY_REQUIRED",
+                            "VERSION_CONFLICT",
+                            "CONFLICT",
+                            "FUEL_TYPE_MISMATCH",
+                            "ODOMETER_BEFORE_START",
+                            "OTP_INVALID",
+                            "OTP_EXPIRED",
+                            "INVALID_CREDENTIALS",
+                            "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
+                            "RATE_LIMITED",
+                            "UPLOAD_NOT_FOUND",
+                            "UPLOAD_MISMATCH",
+                            "CATALOG_UNAVAILABLE",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {},
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["code", "message"]
+                    }
+                  },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orgs/current": {
+      "get": {
+        "operationId": "getOrgsCurrent",
+        "summary": "The active organization: its name and kind",
+        "tags": ["settings"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 2,
+                      "maxLength": 100
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": ["fleet", "dco"]
+                    }
+                  },
+                  "required": ["id", "name", "kind"]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_FAILED",
+                            "UNAUTHENTICATED",
+                            "TOKEN_EXPIRED",
+                            "FORBIDDEN_ROLE",
+                            "NO_ACTIVE_ORG",
+                            "NOT_FOUND",
+                            "ILLEGAL_TRANSITION",
+                            "TRIP_CANCELLED",
+                            "TRIP_REASSIGNED",
+                            "VEHICLE_BUSY",
+                            "DRIVER_BUSY",
+                            "DRIVER_INACTIVE",
+                            "DRIVER_HAS_TRIPS",
+                            "DRIVER_ON_TRIP",
+                            "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
+                            "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
+                            "ALREADY_SETTLED",
+                            "IDEMPOTENCY_CONFLICT",
+                            "IDEMPOTENCY_KEY_REQUIRED",
+                            "VERSION_CONFLICT",
+                            "CONFLICT",
+                            "FUEL_TYPE_MISMATCH",
+                            "ODOMETER_BEFORE_START",
+                            "OTP_INVALID",
+                            "OTP_EXPIRED",
+                            "INVALID_CREDENTIALS",
+                            "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
+                            "RATE_LIMITED",
+                            "UPLOAD_NOT_FOUND",
+                            "UPLOAD_MISMATCH",
+                            "CATALOG_UNAVAILABLE",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {},
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["code", "message"]
+                    }
+                  },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patchOrgsCurrent",
+        "summary": "Rename the active organization (owner)",
+        "tags": ["settings"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 100
+                  }
+                },
+                "required": ["name"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 2,
+                      "maxLength": 100
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": ["fleet", "dco"]
+                    }
+                  },
+                  "required": ["id", "name", "kind"]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_FAILED",
+                            "UNAUTHENTICATED",
+                            "TOKEN_EXPIRED",
+                            "FORBIDDEN_ROLE",
+                            "NO_ACTIVE_ORG",
+                            "NOT_FOUND",
+                            "ILLEGAL_TRANSITION",
+                            "TRIP_CANCELLED",
+                            "TRIP_REASSIGNED",
+                            "VEHICLE_BUSY",
+                            "DRIVER_BUSY",
+                            "DRIVER_INACTIVE",
+                            "DRIVER_HAS_TRIPS",
+                            "DRIVER_ON_TRIP",
+                            "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
+                            "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -3606,6 +3909,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -3744,6 +4050,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -3858,6 +4167,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -4057,6 +4369,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -4295,6 +4610,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -4492,6 +4810,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -4736,6 +5057,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -4956,6 +5280,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -5067,6 +5394,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -5169,6 +5499,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -5280,6 +5613,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -5586,6 +5922,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -5908,6 +6247,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -6212,6 +6554,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -6609,6 +6954,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -6936,6 +7284,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -7354,6 +7705,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -7667,6 +8021,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -8002,6 +8359,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -8325,6 +8685,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -8607,6 +8970,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -8908,6 +9274,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -9200,6 +9569,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -9578,6 +9950,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -9851,6 +10226,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -10172,6 +10550,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -10495,6 +10876,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -10630,6 +11014,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -10811,6 +11198,247 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
+                            "ALREADY_SETTLED",
+                            "IDEMPOTENCY_CONFLICT",
+                            "IDEMPOTENCY_KEY_REQUIRED",
+                            "VERSION_CONFLICT",
+                            "CONFLICT",
+                            "FUEL_TYPE_MISMATCH",
+                            "ODOMETER_BEFORE_START",
+                            "OTP_INVALID",
+                            "OTP_EXPIRED",
+                            "INVALID_CREDENTIALS",
+                            "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
+                            "RATE_LIMITED",
+                            "UPLOAD_NOT_FOUND",
+                            "UPLOAD_MISMATCH",
+                            "CATALOG_UNAVAILABLE",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {},
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["code", "message"]
+                    }
+                  },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/settings/workflow": {
+      "get": {
+        "operationId": "getSettingsWorkflow",
+        "summary": "Operating rules: whether drivers can create trips and add charges, and if fuel fills need a receipt",
+        "tags": ["settings"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "driversCanCreateTrips": {
+                      "type": "boolean"
+                    },
+                    "driversCanAddCharges": {
+                      "type": "boolean"
+                    },
+                    "fuelReceiptRequired": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "driversCanCreateTrips",
+                    "driversCanAddCharges",
+                    "fuelReceiptRequired"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_FAILED",
+                            "UNAUTHENTICATED",
+                            "TOKEN_EXPIRED",
+                            "FORBIDDEN_ROLE",
+                            "NO_ACTIVE_ORG",
+                            "NOT_FOUND",
+                            "ILLEGAL_TRANSITION",
+                            "TRIP_CANCELLED",
+                            "TRIP_REASSIGNED",
+                            "VEHICLE_BUSY",
+                            "DRIVER_BUSY",
+                            "DRIVER_INACTIVE",
+                            "DRIVER_HAS_TRIPS",
+                            "DRIVER_ON_TRIP",
+                            "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
+                            "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
+                            "ALREADY_SETTLED",
+                            "IDEMPOTENCY_CONFLICT",
+                            "IDEMPOTENCY_KEY_REQUIRED",
+                            "VERSION_CONFLICT",
+                            "CONFLICT",
+                            "FUEL_TYPE_MISMATCH",
+                            "ODOMETER_BEFORE_START",
+                            "OTP_INVALID",
+                            "OTP_EXPIRED",
+                            "INVALID_CREDENTIALS",
+                            "ACCOUNT_EXISTS",
+                            "PHONE_OTP_DISABLED",
+                            "PHONE_NOT_VERIFIED",
+                            "PHONE_MISMATCH",
+                            "PHONE_VERIFICATION_REQUIRED",
+                            "RATE_LIMITED",
+                            "UPLOAD_NOT_FOUND",
+                            "UPLOAD_MISMATCH",
+                            "CATALOG_UNAVAILABLE",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {},
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["code", "message"]
+                    }
+                  },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patchSettingsWorkflow",
+        "summary": "Change operating rules (new trips, charges and fills only)",
+        "tags": ["settings"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "driversCanCreateTrips": {
+                    "type": "boolean"
+                  },
+                  "driversCanAddCharges": {
+                    "type": "boolean"
+                  },
+                  "fuelReceiptRequired": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "driversCanCreateTrips": {
+                      "type": "boolean"
+                    },
+                    "driversCanAddCharges": {
+                      "type": "boolean"
+                    },
+                    "fuelReceiptRequired": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "driversCanCreateTrips",
+                    "driversCanAddCharges",
+                    "fuelReceiptRequired"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_FAILED",
+                            "UNAUTHENTICATED",
+                            "TOKEN_EXPIRED",
+                            "FORBIDDEN_ROLE",
+                            "NO_ACTIVE_ORG",
+                            "NOT_FOUND",
+                            "ILLEGAL_TRANSITION",
+                            "TRIP_CANCELLED",
+                            "TRIP_REASSIGNED",
+                            "VEHICLE_BUSY",
+                            "DRIVER_BUSY",
+                            "DRIVER_INACTIVE",
+                            "DRIVER_HAS_TRIPS",
+                            "DRIVER_ON_TRIP",
+                            "VEHICLE_ON_TRIP",
+                            "DRIVER_NOT_LINKED",
+                            "LINK_IN_USE",
+                            "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -10991,6 +11619,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -11270,6 +11901,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -12120,6 +12754,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -13029,6 +13666,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -13212,6 +13852,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -13986,6 +14629,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -14885,6 +15531,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -15093,6 +15742,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -15900,6 +16552,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -16683,6 +17338,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -17511,6 +18169,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -18417,6 +19078,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -19219,6 +19883,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -20057,6 +20724,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -20863,6 +21533,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -21665,6 +22338,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -22448,6 +23124,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -23270,6 +23949,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -24054,6 +24736,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -24831,6 +25516,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -25618,6 +26306,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -25976,6 +26667,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -26295,6 +26989,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -26583,6 +27280,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -26834,6 +27534,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -27015,6 +27718,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -27166,6 +27872,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -27349,6 +28058,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -28160,6 +28872,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -28370,6 +29085,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -28899,6 +29617,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -29437,6 +30158,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -30173,6 +30897,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -30292,6 +31019,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -30953,6 +31683,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -31170,6 +31903,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -31401,6 +32137,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -31637,6 +32376,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",
@@ -31825,6 +32567,9 @@
                             "DRIVER_NOT_LINKED",
                             "LINK_IN_USE",
                             "CANCELLATION_PENDING",
+                            "DRIVER_TRIPS_DISABLED",
+                            "DRIVER_CHARGES_DISABLED",
+                            "RECEIPT_REQUIRED",
                             "ALREADY_SETTLED",
                             "IDEMPOTENCY_CONFLICT",
                             "IDEMPOTENCY_KEY_REQUIRED",

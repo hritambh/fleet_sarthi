@@ -167,9 +167,21 @@ Open a row to see every item in it. Once you've received the cash, tap **Mark se
 
 ## 8. Settings
 
-**More → Settings → Audit**: fuel alert sensitivity (k standard deviations, minimum cycles, percentage threshold), odometer-vs-GPS tolerance, and document alert days. The defaults suit most fleets.
+**More → Settings** (the sidebar on a computer) opens a page per category. Every setting says what it does, which part of the app it **affects**, and **when** a change takes effect. Pages with changes have **Save changes** and **Cancel**; leaving with unsaved changes asks first. **Reset to defaults** fills in a new fleet's values, and you still press Save to apply them. Managers see every page read-only.
 
-**More → Settings → Driver pay**: the default way drivers are paid in settlements:
+| Page                      | Settings                                                                                                     | Takes effect                                                   |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------- |
+| **General**               | Fleet name, shown to your team and in trip messages you share                                                | Everywhere at once; trips and settlements don't store the name |
+| **Trips & drivers**       | Drivers can create their own trips; drivers can add charges; odometer-vs-GPS tolerance                       | New trips and charges only; distance checks run after saving   |
+| **Fuel audit**            | Fuel receipt photo required; alert sensitivity (k σ), cycles before σ, new-vehicle threshold, responsiveness | New fills; each vehicle's next fuel check (its next fill)      |
+| **Documents & reminders** | Days before expiry to raise an alert (up to five, e.g. 30, 7, 1)                                             | From the next daily check, around 6 am                         |
+| **Driver pay**            | The default pay rule (below)                                                                                 | Days not yet settled                                           |
+| **Team & roles**          | Managers (invite, remove), and what each role can do                                                         | At once                                                        |
+| **You**                   | Language and account security, for you only                                                                  | At once                                                        |
+
+**Operating rules.** When **drivers can create their own trips** is off, drivers don't get the **New trip** button and only you and your managers create trips. When **drivers can add charges** is off, drivers can't add tolls, parking or other charges, during a trip or when ending it. When **fuel receipt photo required** is off, the receipt becomes optional in **Log fuel**. The server enforces all three, not just the app. A driver who recorded something offline before you changed a rule sees it refused when their phone syncs; it shows as needing attention. Nothing already recorded is changed.
+
+**Driver pay** is the default way drivers are paid in settlements:
 
 | Option          | Example                                           |
 | --------------- | ------------------------------------------------- |
@@ -185,6 +197,6 @@ Turn **Driver allowance goes to driver** on if the bata customers pay belongs to
 
 - **Dashboard:** today's trips by status, open alerts by severity, items to review, documents due in the next 30 days, and the most urgent open alerts.
 - **Members:** **More → Members** lists people with access; only the owner can invite or remove managers.
-- **Managers** can do everything above except change settings and pay: the audit thresholds, the default pay rule and a driver's own pay rule are shown read-only.
+- **Managers** can do everything above except change settings and pay: every Settings page and a driver's own pay rule are shown read-only.
 - **Needs a connection.** Unlike driver mode, owner mode works online only: each screen loads fresh from the server, shows **Retry** if it can't, and refreshes when you pull down.
 - **Sign out:** **More → Sign out**.

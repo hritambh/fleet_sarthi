@@ -19,6 +19,7 @@ import { ReviewItemsRepository } from '../alerts/review-items.repository.js';
 import { EvidenceReconciler } from '../media/evidence.reconciler.js';
 import { TripsRepository, type TripRow } from './trips.repository.js';
 import { UnassignedTripAlerts } from './unassigned-trip-alerts.js';
+import { SettingsService } from '../fleet/settings.service.js';
 
 export interface OdometerInput {
   id: string;
@@ -78,6 +79,7 @@ export class TripsService {
     private readonly alerts: AlertsRepository,
     private readonly evidence: EvidenceReconciler,
     private readonly unassigned: UnassignedTripAlerts,
+    private readonly settings: SettingsService,
   ) {}
 
   // ───────── queries ─────────
@@ -286,6 +288,12 @@ export class TripsService {
         throw new AppError('FORBIDDEN_ROLE', 'Only drivers and staff can create trips');
       }
       if (byDriver && driverId) await this.assertDriverActive(tx, driverId);
+      if (byDriver && !(await this.settings.workflow(tx)).driversCanCreateTrips) {
+        throw new AppError(
+          'DRIVER_TRIPS_DISABLED',
+          'Your fleet owner has turned off trips created by drivers',
+        );
+      }
       if (byDriver && input.driverId && input.driverId !== driverId) {
         throw new AppError('FORBIDDEN_ROLE', 'Drivers can only create trips for themselves');
       }
@@ -1134,6 +1142,13 @@ export class TripsService {
     charges: readonly ChargeInput[],
   ): Promise<void> {
     if (!charges.length) return;
+    // Covers both "add charge" and the charges sent with "end trip".
+    if (!this.isStaff(auth) && !(await this.settings.workflow(tx)).driversCanAddCharges) {
+      throw new AppError(
+        'DRIVER_CHARGES_DISABLED',
+        'Your fleet owner has turned off charges added by drivers',
+      );
+    }
     await tx.tripCharge.createMany({
       data: charges.map((c) => ({
         id: c.id,

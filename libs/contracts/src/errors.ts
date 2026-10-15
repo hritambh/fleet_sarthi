@@ -25,6 +25,12 @@ export const ErrorCode = z.enum([
   /** Unlinking a driver from a vehicle they have assigned or running trips in (details.tripIds). */
   'LINK_IN_USE',
   'CANCELLATION_PENDING',
+  /** The owner turned off "drivers can create their own trips" (Settings). */
+  'DRIVER_TRIPS_DISABLED',
+  /** The owner turned off "drivers can add charges" (Settings). */
+  'DRIVER_CHARGES_DISABLED',
+  /** The owner requires a receipt photo on every fuel fill (Settings). */
+  'RECEIPT_REQUIRED',
   'ALREADY_SETTLED',
   'IDEMPOTENCY_CONFLICT',
   'IDEMPOTENCY_KEY_REQUIRED',

@@ -705,3 +705,61 @@ class GpsBatchResult {
   final int duplicates;
   final int outOfWindow;
 }
+
+/// The fleet's operating rules (Settings → Trips & drivers, Fuel audit; the
+/// API's WorkflowSettings). The API enforces them; the app reads them to hide
+/// what a driver can't do. [defaults] matches a new fleet and is what the
+/// driver app assumes before its first fetch.
+class WorkflowSettings {
+  const WorkflowSettings({
+    required this.driversCanCreateTrips,
+    required this.driversCanAddCharges,
+    required this.fuelReceiptRequired,
+  });
+
+  factory WorkflowSettings.fromJson(JsonMap json) => WorkflowSettings(
+    driversCanCreateTrips: json.boolean('driversCanCreateTrips'),
+    driversCanAddCharges: json.boolean('driversCanAddCharges'),
+    fuelReceiptRequired: json.boolean('fuelReceiptRequired'),
+  );
+
+  static const defaults = WorkflowSettings(
+    driversCanCreateTrips: true,
+    driversCanAddCharges: true,
+    fuelReceiptRequired: true,
+  );
+
+  final bool driversCanCreateTrips;
+  final bool driversCanAddCharges;
+  final bool fuelReceiptRequired;
+
+  WorkflowSettings copyWith({
+    bool? driversCanCreateTrips,
+    bool? driversCanAddCharges,
+    bool? fuelReceiptRequired,
+  }) => WorkflowSettings(
+    driversCanCreateTrips: driversCanCreateTrips ?? this.driversCanCreateTrips,
+    driversCanAddCharges: driversCanAddCharges ?? this.driversCanAddCharges,
+    fuelReceiptRequired: fuelReceiptRequired ?? this.fuelReceiptRequired,
+  );
+
+  JsonMap toJson() => {
+    'driversCanCreateTrips': driversCanCreateTrips,
+    'driversCanAddCharges': driversCanAddCharges,
+    'fuelReceiptRequired': fuelReceiptRequired,
+  };
+
+  @override
+  bool operator ==(Object other) =>
+      other is WorkflowSettings &&
+      other.driversCanCreateTrips == driversCanCreateTrips &&
+      other.driversCanAddCharges == driversCanAddCharges &&
+      other.fuelReceiptRequired == fuelReceiptRequired;
+
+  @override
+  int get hashCode => Object.hash(
+    driversCanCreateTrips,
+    driversCanAddCharges,
+    fuelReceiptRequired,
+  );
+}

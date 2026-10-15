@@ -421,6 +421,32 @@ class AuditSettings {
   final double odoGpsTolerancePct;
   final List<int> docAlertDays;
 
+  /// A new fleet's values (the org_settings column defaults).
+  static const defaults = AuditSettings(
+    fuelKSigma: 2,
+    fuelMinCycles: 3,
+    fuelPctThreshold: 20,
+    fuelEwmaAlpha: 0.3,
+    odoGpsTolerancePct: 10,
+    docAlertDays: [30, 7, 1],
+  );
+
+  AuditSettings copyWith({
+    double? fuelKSigma,
+    int? fuelMinCycles,
+    double? fuelPctThreshold,
+    double? fuelEwmaAlpha,
+    double? odoGpsTolerancePct,
+    List<int>? docAlertDays,
+  }) => AuditSettings(
+    fuelKSigma: fuelKSigma ?? this.fuelKSigma,
+    fuelMinCycles: fuelMinCycles ?? this.fuelMinCycles,
+    fuelPctThreshold: fuelPctThreshold ?? this.fuelPctThreshold,
+    fuelEwmaAlpha: fuelEwmaAlpha ?? this.fuelEwmaAlpha,
+    odoGpsTolerancePct: odoGpsTolerancePct ?? this.odoGpsTolerancePct,
+    docAlertDays: docAlertDays ?? this.docAlertDays,
+  );
+
   /// The contract's ranges (AuditSettings in libs/contracts fleet.ts).
   bool get isValid =>
       fuelKSigma >= 0.5 &&
@@ -1587,4 +1613,27 @@ class DocumentFile {
   final String contentType;
 
   bool get isPdf => contentType == 'application/pdf';
+}
+
+/// The active fleet's name and kind (Settings → General).
+class OrgProfile {
+  const OrgProfile({required this.id, required this.name, required this.kind});
+
+  factory OrgProfile.fromJson(JsonMap json) => OrgProfile(
+    id: json.str('id'),
+    name: json.str('name'),
+    kind: json.str('kind'),
+  );
+
+  /// The API's OrgName: 2–100 characters once trimmed.
+  static bool isValidName(String name) {
+    final n = name.trim().length;
+    return n >= 2 && n <= 100;
+  }
+
+  final String id;
+  final String name;
+
+  /// fleet or dco (owner-driver).
+  final String kind;
 }

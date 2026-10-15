@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { MemberStatus, type Member } from '@taxcy/contracts';
+import { MemberStatus, OrgKind, type Member, type OrgProfile } from '@taxcy/contracts';
 import type { Prisma, TenantTx } from '@taxcy/db';
 import { AppError, notFound } from '../../platform/errors.js';
 import { newId } from '../../platform/ids.js';
@@ -32,6 +32,21 @@ const toMember = (row: MemberRow): Member => ({
  */
 @Injectable()
 export class MembersService {
+  /** The active org's name and kind (Settings → General). */
+  async orgProfile(tx: TenantTx): Promise<OrgProfile> {
+    const org = await tx.organization.findUniqueOrThrow({ where: { id: tx.orgId } });
+    return { id: org.id, name: org.name, kind: OrgKind.parse(org.kind) };
+  }
+
+  /**
+   * Renames the active org. Members see the new name the next time their app
+   * reloads its fleets; trips, settlements and other records don't store it.
+   */
+  async renameOrg(tx: TenantTx, name: string): Promise<OrgProfile> {
+    await tx.organization.update({ where: { id: tx.orgId }, data: { name } });
+    return this.orgProfile(tx);
+  }
+
   async list(tx: TenantTx): Promise<Member[]> {
     const rows = await tx.membership.findMany({
       where: { orgId: tx.orgId },

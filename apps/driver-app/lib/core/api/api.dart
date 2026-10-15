@@ -67,4 +67,7 @@ abstract class TaxcyApi {
   Future<Trip> addCollection(String tripId, JsonMap body);
   Future<void> recordFuelFill(JsonMap body);
   Future<GpsBatchResult> uploadGps(String tripId, List<JsonMap> points);
+
+  /// The fleet's operating rules (GET /settings/workflow).
+  Future<WorkflowSettings> workflowSettings();
 }

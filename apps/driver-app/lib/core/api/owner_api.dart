@@ -172,6 +172,10 @@ abstract class OwnerApi {
   Future<AuditSettings> updateAuditSettings(AuditSettings settings);
   Future<PayRule> defaultPayRule();
   Future<PayRule> updateDefaultPayRule(PayRule rule);
+  Future<WorkflowSettings> workflowSettings();
+  Future<WorkflowSettings> updateWorkflowSettings(WorkflowSettings settings);
+  Future<OrgProfile> orgProfile();
+  Future<OrgProfile> renameOrg(String name);
 
   // Fuel
   Future<List<FuelFill>> fuelFills({String? vehicleId, int limit = 100});
@@ -553,6 +557,26 @@ class HttpOwnerApi implements OwnerApi {
   @override
   Future<PayRule> updateDefaultPayRule(PayRule rule) async => PayRule.fromJson(
     await _obj('PUT', '/settings/driver-pay', body: rule.toJson()),
+  );
+
+  @override
+  Future<WorkflowSettings> workflowSettings() async =>
+      WorkflowSettings.fromJson(await _obj('GET', '/settings/workflow'));
+
+  @override
+  Future<WorkflowSettings> updateWorkflowSettings(
+    WorkflowSettings settings,
+  ) async => WorkflowSettings.fromJson(
+    await _obj('PATCH', '/settings/workflow', body: settings.toJson()),
+  );
+
+  @override
+  Future<OrgProfile> orgProfile() async =>
+      OrgProfile.fromJson(await _obj('GET', '/orgs/current'));
+
+  @override
+  Future<OrgProfile> renameOrg(String name) async => OrgProfile.fromJson(
+    await _obj('PATCH', '/orgs/current', body: {'name': name.trim()}),
   );
 
   @override

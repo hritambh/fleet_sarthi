@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
+import '../../app/workflow_settings.dart';
 import '../../app/theme.dart';
 import '../../core/api/models.dart';
 import '../../core/repositories/trips_repository.dart';
@@ -499,6 +500,8 @@ class _DriverQuickActionsState extends ConsumerState<DriverQuickActions> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final inactive = ref.watch(myDriverProvider).value?.isActive == false;
+    // The owner can turn off trips created by drivers (Settings).
+    final tripsOff = !ref.watch(workflowRulesProvider).driversCanCreateTrips;
     Widget action(Key key, IconData icon, String label, VoidCallback? onTap) =>
         Expanded(
           child: Card(
@@ -536,7 +539,7 @@ class _DriverQuickActionsState extends ConsumerState<DriverQuickActions> {
           const Key('driver-action-new-trip'),
           Icons.add_road,
           l.newTrip,
-          inactive
+          inactive || tripsOff
               ? null
               : () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
@@ -555,7 +558,9 @@ class _DriverQuickActionsState extends ConsumerState<DriverQuickActions> {
         ),
         const SizedBox(width: 8),
         action(const Key('driver-action-sync'), Icons.sync, l.syncNow, () {
-          ref.invalidate(myDriverProvider);
+          ref
+            ..invalidate(myDriverProvider)
+            ..invalidate(workflowSettingsProvider);
           ref.read(syncEngineProvider).syncNow();
         }),
       ],
@@ -589,6 +594,15 @@ class _DriverQuickActionsState extends ConsumerState<DriverQuickActions> {
               ),
             ),
           row,
+          if (tripsOff && !inactive)
+            Padding(
+              key: const Key('driver-trips-off'),
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                l.driverTripsTurnedOff,
+                style: const TextStyle(color: TaxcyColors.muted, fontSize: 12),
+              ),
+            ),
         ],
       ),
     );

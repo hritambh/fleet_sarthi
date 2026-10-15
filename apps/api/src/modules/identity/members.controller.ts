@@ -25,6 +25,19 @@ export class MembersController {
     return this.db.tenant(a.orgId, (tx) => this.members.inviteManager(tx, body));
   }
 
+  @Route(r.getOrgProfile)
+  getOrgProfile(@Tenant() a: TenantAuth): Promise<RouteOutput<typeof r.getOrgProfile>> {
+    return this.db.tenant(a.orgId, (tx) => this.members.orgProfile(tx));
+  }
+
+  @Route(r.updateOrgProfile)
+  updateOrgProfile(
+    @Tenant() a: TenantAuth,
+    @Input() { body }: RouteInput<typeof r.updateOrgProfile>,
+  ): Promise<RouteOutput<typeof r.updateOrgProfile>> {
+    return this.db.tenant(a.orgId, (tx) => this.members.renameOrg(tx, body.name));
+  }
+
   @Route(r.removeManager)
   removeManager(
     @Tenant() a: TenantAuth,

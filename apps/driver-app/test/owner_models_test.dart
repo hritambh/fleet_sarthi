@@ -196,6 +196,42 @@ void main() {
     expect(d.daysLeft, 5);
   });
 
+  test('WorkflowSettings round-trips; defaults match a new fleet', () {
+    final json = {
+      'driversCanCreateTrips': false,
+      'driversCanAddCharges': true,
+      'fuelReceiptRequired': false,
+    };
+    final w = WorkflowSettings.fromJson(json);
+    expect(w.toJson(), json);
+    expect(w.copyWith(driversCanCreateTrips: true), isNot(w));
+    expect(WorkflowSettings.defaults.toJson(), {
+      'driversCanCreateTrips': true,
+      'driversCanAddCharges': true,
+      'fuelReceiptRequired': true,
+    });
+  });
+
+  test('OrgProfile and the fleet name rule', () {
+    final p = OrgProfile.fromJson({
+      'id': 'o1',
+      'name': 'Sharma Travels',
+      'kind': 'dco',
+    });
+    expect((p.name, p.kind), ('Sharma Travels', 'dco'));
+    expect(OrgProfile.isValidName(' S '), isFalse);
+    expect(OrgProfile.isValidName('SR'), isTrue);
+    expect(OrgProfile.isValidName('x' * 101), isFalse);
+  });
+
+  test(
+    'AuditSettings defaults are a new fleet\'s and pass their own ranges',
+    () {
+      expect(AuditSettings.defaults.isValid, isTrue);
+      expect(AuditSettings.defaults.copyWith(fuelKSigma: 9).isValid, isFalse);
+    },
+  );
+
   test('AuditSettings round-trips and checks ranges', () {
     final s = AuditSettings.fromJson(auditSettingsJson());
     expect(s.docAlertDays, [30, 7, 1]);

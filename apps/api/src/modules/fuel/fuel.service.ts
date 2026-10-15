@@ -6,6 +6,7 @@ import type { TenantAuth } from '../../platform/auth/auth-context.js';
 import { AppError, notFound } from '../../platform/errors.js';
 import { publish } from '../../platform/outbox.js';
 import { Db } from '../../platform/prisma.service.js';
+import { SettingsService } from '../fleet/settings.service.js';
 import { EvidenceReconciler } from '../media/evidence.reconciler.js';
 
 const fillInclude = {
@@ -63,6 +64,7 @@ export class FuelService {
   constructor(
     private readonly db: Db,
     private readonly evidence: EvidenceReconciler,
+    private readonly settings: SettingsService,
   ) {}
 
   /** Idempotent on the client's id: a replayed sync returns the original fill. */
@@ -97,6 +99,11 @@ export class FuelService {
             ? `${vehicle.registrationNo} is electric and takes no fuel fills`
             : `${vehicle.registrationNo} runs on ${vehicle.fuelType.replace('_', ' + ')}, not ${input.fuel}`,
         );
+      }
+      // After the replay above (a fill recorded before the rule changed still
+      // syncs as itself) and the vehicle checks (their errors say more).
+      if (!input.receiptMediaId && (await this.settings.workflow(tx)).fuelReceiptRequired) {
+        throw new AppError('RECEIPT_REQUIRED', 'Add a photo of the fuel receipt');
       }
       const driverId = await this.resolveDriver(tx, auth, input.driverId);
       for (const mediaId of [input.odometer.mediaId, input.receiptMediaId].filter(

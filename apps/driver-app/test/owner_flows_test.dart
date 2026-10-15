@@ -9,7 +9,7 @@ import 'package:taxcy_driver/core/api/owner_models.dart';
 import 'package:taxcy_driver/features/owner/alerts_screen.dart';
 import 'package:taxcy_driver/features/owner/people_screens.dart';
 import 'package:taxcy_driver/features/owner/review_screen.dart';
-import 'package:taxcy_driver/features/owner/settings_screen.dart';
+import 'package:taxcy_driver/features/owner/settings/settings_pages.dart';
 import 'package:taxcy_driver/features/owner/settlements_screen.dart';
 import 'package:taxcy_driver/features/owner/trips/owner_trip_detail_screen.dart';
 import 'package:taxcy_driver/features/owner/vehicles_screen.dart';
@@ -184,7 +184,7 @@ void main() {
       tester,
     ) async {
       final h = await owner(tester, roles: ['manager']);
-      await tester.pumpWidget(h.screen(const SettingsScreen()));
+      await tester.pumpWidget(h.screen(const TeamSettingsScreen()));
       await settle(tester);
       expect(find.text('Priya Sharma'), findsOneWidget);
       expect(find.byKey(const Key('invite-manager')), findsNothing);
@@ -193,13 +193,16 @@ void main() {
 
     testWidgets('see settings read-only', (tester) async {
       final h = await owner(tester, roles: ['manager']);
-      await tester.pumpWidget(h.screen(const SettingsScreen()));
+      await tester.pumpWidget(h.screen(const FuelRulesScreen()));
       await settle(tester);
       expect(find.byKey(const Key('settings-owner-only')), findsOneWidget);
-      expect(find.byKey(const Key('save-thresholds')), findsNothing);
-      expect(find.byKey(const Key('save-default-pay')), findsNothing);
+      expect(find.byKey(const Key('settings-save')), findsNothing);
       final field = tester.widget<TextField>(find.byKey(const Key('audit-k')));
       expect(field.enabled, isFalse);
+      final receipt = tester.widget<Switch>(
+        find.byKey(const Key('rule-fuel-receipt')),
+      );
+      expect(receipt.onChanged, isNull);
     });
 
     testWidgets("can't change a driver's pay", (tester) async {
@@ -221,22 +224,20 @@ void main() {
 
     testWidgets('owners can change settings and pay', (tester) async {
       final h = await owner(tester);
-      await tester.pumpWidget(h.screen(const SettingsScreen()));
+      await tester.pumpWidget(h.screen(const TripRulesScreen()));
       await settle(tester);
       expect(find.byKey(const Key('settings-owner-only')), findsNothing);
       await tester.enterText(find.byKey(const Key('audit-odo')), '12');
-      await tester.tap(find.byKey(const Key('save-thresholds')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('settings-save')));
       await settle(tester);
       expect(
         h.owner.last('updateAuditSettings').args['odoGpsTolerancePct'],
         12,
       );
-      expect(
-        find.text(
-          'Saved. Fuel audits use the new thresholds from the next recompute.',
-        ),
-        findsOneWidget,
-      );
+      // Only what changed is sent.
+      expect(h.owner.names, isNot(contains('updateWorkflowSettings')));
+      expect(find.text('Saved.'), findsOneWidget);
     });
   });
 
@@ -583,7 +584,7 @@ void main() {
     tester,
   ) async {
     final h = await owner(tester);
-    await tester.pumpWidget(h.screen(const SettingsScreen()));
+    await tester.pumpWidget(h.screen(const TeamSettingsScreen()));
     await settle(tester);
     await tester.tap(find.byKey(const Key('invite-manager')));
     await tester.pumpAndSettle();

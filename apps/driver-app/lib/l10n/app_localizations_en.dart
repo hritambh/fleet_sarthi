@@ -3954,4 +3954,236 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get driverInactiveBanner =>
       'Your fleet owner has marked you inactive. You can see your past trips, but you can\'t create new ones.';
+
+  @override
+  String get driverTripsTurnedOff =>
+      'Your fleet owner has turned off creating trips from the driver app.';
+
+  @override
+  String get errorDriverTripsDisabled =>
+      'Your fleet owner has turned off trips created by drivers.';
+
+  @override
+  String get errorDriverChargesDisabled =>
+      'Your fleet owner has turned off charges added by drivers.';
+
+  @override
+  String get errorReceiptRequired => 'Add a photo of the fuel receipt.';
+
+  @override
+  String get settingsIntro =>
+      'Choose how Fleet Sarthi works for your fleet. Each page says what a setting changes and when it takes effect.';
+
+  @override
+  String get settingsGroupFleet => 'Your fleet';
+
+  @override
+  String get settingsGroupYou => 'You';
+
+  @override
+  String get settingsGeneral => 'General';
+
+  @override
+  String get settingsGeneralDesc => 'Your fleet\'s name';
+
+  @override
+  String get settingsTrips => 'Trips & drivers';
+
+  @override
+  String get settingsTripsDesc => 'What drivers can do, and the distance check';
+
+  @override
+  String get settingsFuel => 'Fuel audit';
+
+  @override
+  String get settingsFuelDesc => 'Receipts, and when a fill is flagged';
+
+  @override
+  String get settingsReminders => 'Documents & reminders';
+
+  @override
+  String get settingsRemindersDesc =>
+      'When you\'re reminded before papers expire';
+
+  @override
+  String get settingsPayDesc =>
+      'Pay for drivers who don\'t have their own rule';
+
+  @override
+  String get settingsTeam => 'Team & roles';
+
+  @override
+  String get settingsTeamDesc => 'Managers, and what each role can do';
+
+  @override
+  String get settingsLanguageDesc => 'The app\'s language on this device';
+
+  @override
+  String get settingsSecurityDesc => 'Your password and mobile number';
+
+  @override
+  String settingsAffects({required String area}) {
+    return 'Affects: $area';
+  }
+
+  @override
+  String settingsApplies({required String when}) {
+    return 'When: $when';
+  }
+
+  @override
+  String get settingsSaveChanges => 'Save changes';
+
+  @override
+  String get settingsResetDefaults => 'Reset to defaults';
+
+  @override
+  String get settingsResetDone => 'Defaults filled in. Save to apply them.';
+
+  @override
+  String get settingsSaved => 'Saved.';
+
+  @override
+  String get settingsDiscardTitle => 'Discard your changes?';
+
+  @override
+  String get settingsDiscardBody =>
+      'You changed settings on this page but didn\'t save them.';
+
+  @override
+  String get settingsUnsaved => 'Unsaved changes';
+
+  @override
+  String settingsDefaultIs({required String value}) {
+    return 'Default: $value';
+  }
+
+  @override
+  String get settingsOn => 'On';
+
+  @override
+  String get settingsOff => 'Off';
+
+  @override
+  String get fleetNameHelp =>
+      'Shown to your managers and drivers in the app, and in trip messages you share with customers.';
+
+  @override
+  String get fleetNameAffects =>
+      'workspace switcher, dashboard, shared trip messages';
+
+  @override
+  String get fleetNameWhen =>
+      'everywhere at once; trips and settlements don\'t store the name';
+
+  @override
+  String get fleetNameInvalid => 'Use 2 to 100 characters.';
+
+  @override
+  String get ruleDriverTrips => 'Drivers can create their own trips';
+
+  @override
+  String get ruleDriverTripsHelp =>
+      'Drivers get a New trip button and can book a trip for themselves in a car they\'re linked to. When off, only you and your managers create trips.';
+
+  @override
+  String get ruleDriverTripsAffects => 'driver app: New trip';
+
+  @override
+  String get ruleNewTripsOnly =>
+      'new trips only; trips already created stay as they are';
+
+  @override
+  String get ruleDriverCharges => 'Drivers can add charges';
+
+  @override
+  String get ruleDriverChargesHelp =>
+      'Drivers can add tolls, parking and other charges during a trip and when they end it. Charges a driver paid count towards their daily settlement. When off, only you and your managers add charges.';
+
+  @override
+  String get ruleDriverChargesAffects =>
+      'driver app: trip charges; daily settlement';
+
+  @override
+  String get ruleNewChargesOnly =>
+      'new charges only; charges already added stay';
+
+  @override
+  String get ruleOfflineNote =>
+      'A driver who recorded something offline before you changed a rule will see it refused when their phone syncs, marked as needing attention.';
+
+  @override
+  String get odoToleranceAffects =>
+      'the odometer vs GPS distance check on finished trips';
+
+  @override
+  String get odoToleranceWhen =>
+      'checks run after you save; earlier results stay';
+
+  @override
+  String get ruleReceipt => 'Fuel receipt photo required';
+
+  @override
+  String get ruleReceiptHelp =>
+      'Every fuel fill needs a photo of the receipt. Turn off if drivers often fill up where no printed receipt is given.';
+
+  @override
+  String get ruleReceiptAffects => 'driver app: Log fuel';
+
+  @override
+  String get ruleNewFillsOnly => 'new fills only; fills already recorded stay';
+
+  @override
+  String get fuelThresholdsTitle => 'When a fill is flagged';
+
+  @override
+  String get fuelThresholdsAffects =>
+      'fuel alerts and each vehicle\'s usual mileage';
+
+  @override
+  String get fuelThresholdsWhen =>
+      'each vehicle\'s next fuel check (its next fill); alerts already raised stay';
+
+  @override
+  String get remindersAffects =>
+      'expiry alerts for vehicle and driver documents';
+
+  @override
+  String get remindersWhen => 'from the next daily check, around 6 am';
+
+  @override
+  String get remindersSeverity =>
+      'Alerts 7 days or less before expiry are warnings; 1 day or less, or already expired, are critical.';
+
+  @override
+  String get payAffects =>
+      'daily settlements of drivers without their own pay rule';
+
+  @override
+  String get payWhen =>
+      'days not yet settled; settled days keep the pay they were settled with';
+
+  @override
+  String get rolesTitle => 'What each role can do';
+
+  @override
+  String get roleOwnerCan =>
+      'Everything, including these settings, pay rules and managers.';
+
+  @override
+  String get roleManagerCan =>
+      'Runs the fleet: trips, vehicles, drivers, documents, fuel and settlements. Sees settings but can\'t change them.';
+
+  @override
+  String get roleDriverCan =>
+      'Their own trips, fuel fills, charges and documents, in the driver app.';
+
+  @override
+  String settingsRange({required String min, required String max}) {
+    return 'Enter a number from $min to $max.';
+  }
+
+  @override
+  String get settingsDaysInvalid =>
+      'Up to 5 whole numbers from 0 to 365, e.g. 30, 7, 1.';
 }

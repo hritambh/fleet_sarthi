@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
+import '../../app/workflow_settings.dart';
 import '../../core/api/models.dart';
 import '../../core/media/captured_photo.dart';
 import '../../core/repositories/fuel_repository.dart';
@@ -57,7 +58,10 @@ class _FuelFillScreenState extends ConsumerState<FuelFillScreen> {
   Future<void> _save(Vehicle vehicle, String? tripId) async {
     final valid = _form.currentState!.validate();
     setState(() => _showPhotoErrors = true);
-    if (!valid || _receipt == null || _odometer == null) return;
+    final receiptNeeded = ref.read(workflowRulesProvider).fuelReceiptRequired;
+    if (!valid || (receiptNeeded && _receipt == null) || _odometer == null) {
+      return;
+    }
     final fuel = _fuel ?? vehicle.allowedFuels.first;
     await ref
         .read(fuelRepositoryProvider)
@@ -71,7 +75,7 @@ class _FuelFillScreenState extends ConsumerState<FuelFillScreen> {
             paidBy: _paidBy,
             odometerKm: int.parse(_km.text.trim()),
             odometerPhoto: _odometer!,
-            receipt: _receipt!,
+            receipt: _receipt,
             tripId: tripId,
           ),
         );
@@ -91,6 +95,8 @@ class _FuelFillScreenState extends ConsumerState<FuelFillScreen> {
   }
 
   Widget _body() {
+    // The receipt is optional when the owner turned that rule off (Settings).
+    final receiptNeeded = ref.watch(workflowRulesProvider).fuelReceiptRequired;
     final vehicles = ref.watch(vehiclesProvider);
     final trips = ref.watch(tripsProvider);
     if (vehicles.isLoading || trips.isLoading) {
@@ -183,9 +189,10 @@ class _FuelFillScreenState extends ConsumerState<FuelFillScreen> {
           const SizedBox(height: 12),
           PhotoField(
             kind: 'fuel_receipt',
-            label: l.receiptPhoto,
+            // Optional when the owner turned the receipt rule off (Settings).
+            label: receiptNeeded ? l.receiptPhoto : l.receiptPhotoOptional,
             photo: _receipt,
-            errorText: _showPhotoErrors && _receipt == null
+            errorText: receiptNeeded && _showPhotoErrors && _receipt == null
                 ? l.takeReceiptPhoto
                 : null,
             onChanged: (p) => setState(() => _receipt = p),

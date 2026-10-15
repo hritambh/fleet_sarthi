@@ -1031,6 +1031,37 @@ class FakeOwnerApi implements OwnerApi {
     return rule;
   }
 
+  /// The fleet's operating rules and name; updates change what's read next.
+  WorkflowSettings workflow = WorkflowSettings.defaults;
+  String orgName = 'Sharma Travels';
+
+  @override
+  Future<WorkflowSettings> workflowSettings() async {
+    _record('workflowSettings');
+    return workflow;
+  }
+
+  @override
+  Future<WorkflowSettings> updateWorkflowSettings(
+    WorkflowSettings settings,
+  ) async {
+    _record('updateWorkflowSettings', settings.toJson());
+    return workflow = settings;
+  }
+
+  @override
+  Future<OrgProfile> orgProfile() async {
+    _record('orgProfile');
+    return OrgProfile(id: 'org-1', name: orgName, kind: 'fleet');
+  }
+
+  @override
+  Future<OrgProfile> renameOrg(String name) async {
+    _record('renameOrg', {'name': name});
+    orgName = name.trim();
+    return OrgProfile(id: 'org-1', name: orgName, kind: 'fleet');
+  }
+
   @override
   Future<List<FuelFill>> fuelFills({String? vehicleId, int limit = 100}) async {
     _record('fuelFills', {'vehicleId': vehicleId});

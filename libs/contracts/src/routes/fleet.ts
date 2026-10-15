@@ -182,6 +182,21 @@ export const AuditSettings = z.object({
 });
 export type AuditSettings = z.infer<typeof AuditSettings>;
 
+/**
+ * Operating rules the owner picks. Enforced by the API (DRIVER_TRIPS_DISABLED,
+ * DRIVER_CHARGES_DISABLED, RECEIPT_REQUIRED) and read by the driver app to hide
+ * what it can't do. Changes apply to new trips, charges and fills only.
+ */
+export const WorkflowSettings = z.object({
+  /** Drivers may create their own trips (staff always can). */
+  driversCanCreateTrips: z.boolean(),
+  /** Drivers may add tolls, parking and other charges to their trips. */
+  driversCanAddCharges: z.boolean(),
+  /** A fuel fill needs a receipt photo. */
+  fuelReceiptRequired: z.boolean(),
+});
+export type WorkflowSettings = z.infer<typeof WorkflowSettings>;
+
 const IdParam = z.object({ id: Id });
 
 export const fleetRoutes = {
@@ -451,6 +466,24 @@ export const fleetRoutes = {
     access: access.roles('owner'),
     body: AuditSettings.partial(),
     response: AuditSettings,
+  }),
+  getWorkflowSettings: defineRoute({
+    method: 'GET',
+    path: '/settings/workflow',
+    summary:
+      'Operating rules: whether drivers can create trips and add charges, and if fuel fills need a receipt',
+    tag: 'settings',
+    access: access.anyMember,
+    response: WorkflowSettings,
+  }),
+  updateWorkflowSettings: defineRoute({
+    method: 'PATCH',
+    path: '/settings/workflow',
+    summary: 'Change operating rules (new trips, charges and fills only)',
+    tag: 'settings',
+    access: access.roles('owner'),
+    body: WorkflowSettings.partial(),
+    response: WorkflowSettings,
   }),
   getDriverPay: defineRoute({
     method: 'GET',

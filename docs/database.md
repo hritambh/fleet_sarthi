@@ -79,14 +79,14 @@ erDiagram
 
 ### Identity
 
-| Table            | Purpose                                                                                                                                             |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `users`          | One row per phone number (E.164). Future passengers are users with no membership.                                                                   |
-| `organizations`  | A fleet or a DCO (`kind`).                                                                                                                          |
-| `org_settings`   | Typed audit thresholds: k-sigma, minimum cycles, percent fallback, EWMA α, odometer-vs-GPS tolerance, document alert days, default driver pay rule. |
-| `memberships`    | User ↔ org, with `roles membership_role[]`.                                                                                                         |
-| `devices`        | Installation IDs from the driver app; referenced by media evidence.                                                                                 |
-| `refresh_tokens` | Hashed, rotated, grouped by `family_id` for reuse detection.                                                                                        |
+| Table            | Purpose                                                                                                                                                                                                                                                                        |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `users`          | One row per phone number (E.164). Future passengers are users with no membership.                                                                                                                                                                                              |
+| `organizations`  | A fleet or a DCO (`kind`).                                                                                                                                                                                                                                                     |
+| `org_settings`   | Typed audit thresholds: k-sigma, minimum cycles, percent fallback, EWMA α, odometer-vs-GPS tolerance, document alert days, default driver pay rule; and the operating rules `drivers_can_create_trips`, `drivers_can_add_charges`, `fuel_receipt_required` (all default true). |
+| `memberships`    | User ↔ org, with `roles membership_role[]`.                                                                                                                                                                                                                                    |
+| `devices`        | Installation IDs from the driver app; referenced by media evidence.                                                                                                                                                                                                            |
+| `refresh_tokens` | Hashed, rotated, grouped by `family_id` for reuse detection.                                                                                                                                                                                                                   |
 
 Password-reset codes (hashed, 5-minute TTL) and rate-limit counters live in Redis, not Postgres.
 

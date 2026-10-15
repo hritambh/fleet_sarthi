@@ -269,6 +269,19 @@ export class FleetController {
     return this.db.tenant(a.orgId, (tx) => this.settings.updateAudit(tx, body));
   }
 
+  @Route(r.getWorkflowSettings)
+  getWorkflowSettings(@Tenant() a: TenantAuth): Promise<RouteOutput<typeof r.getWorkflowSettings>> {
+    return this.db.tenant(a.orgId, (tx) => this.settings.workflow(tx));
+  }
+
+  @Route(r.updateWorkflowSettings)
+  updateWorkflowSettings(
+    @Tenant() a: TenantAuth,
+    @Input() { body }: RouteInput<typeof r.updateWorkflowSettings>,
+  ): Promise<RouteOutput<typeof r.updateWorkflowSettings>> {
+    return this.db.tenant(a.orgId, (tx) => this.settings.updateWorkflow(tx, body));
+  }
+
   @Route(r.getDriverPay)
   async getDriverPay(@Tenant() a: TenantAuth): Promise<RouteOutput<typeof r.getDriverPay>> {
     return (await this.db.tenant(a.orgId, (tx) => this.settings.get(tx))).payRule;
