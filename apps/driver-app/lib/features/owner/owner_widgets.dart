@@ -1459,18 +1459,24 @@ class InitialsAvatar extends ConsumerWidget {
   }
 }
 
-/// A registration number as a yellow commercial plate, like on a cab.
+/// A registration number as a yellow commercial plate, like on a cab; green
+/// with white letters for an [electric] vehicle, as on an EV's plate.
 class NumberPlate extends StatelessWidget {
-  const NumberPlate(this.registration, {super.key});
+  const NumberPlate(this.registration, {this.electric = false, super.key});
   final String registration;
+  final bool electric;
+
+  static const evGreen = Color(0xFF007A48);
 
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
     decoration: BoxDecoration(
-      color: const Color(0xFFFFD43B),
+      color: electric ? evGreen : const Color(0xFFFFD43B),
       borderRadius: BorderRadius.circular(6),
-      border: Border.all(color: const Color(0xFF1F2937)),
+      border: Border.all(
+        color: electric ? const Color(0xFF004D2D) : const Color(0xFF1F2937),
+      ),
     ),
     // Shrinks to fit a narrow space rather than cutting the number short.
     child: FittedBox(
@@ -1479,10 +1485,10 @@ class NumberPlate extends StatelessWidget {
         registration,
         maxLines: 1,
         softWrap: false,
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.w800,
           letterSpacing: 0.8,
-          color: Color(0xFF111827),
+          color: electric ? Colors.white : const Color(0xFF111827),
         ),
       ),
     ),

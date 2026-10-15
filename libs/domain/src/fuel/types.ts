@@ -1,5 +1,13 @@
 export type FuelKind = 'petrol' | 'diesel' | 'cng';
-export type VehicleFuelType = FuelKind | 'petrol_cng';
+export type VehicleFuelType = FuelKind | 'petrol_cng' | 'ev';
+
+/** The vehicle fuel types that are fuel-audited: every one but electric. */
+export type AuditedFuelType = Exclude<VehicleFuelType, 'ev'>;
+
+/** An EV is charged, not filled, so there is nothing to audit. */
+export function hasFuelAudit(fuelType: VehicleFuelType): fuelType is AuditedFuelType {
+  return fuelType !== 'ev';
+}
 
 /**
  * What a vehicle is audited on. Single-fuel vehicles track efficiency (km per litre
@@ -38,7 +46,7 @@ export const DEFAULT_AUDIT_SETTINGS: AuditSettings = {
   ewmaAlpha: 0.3,
 };
 
-export function trackFor(fuelType: VehicleFuelType): AuditTrack {
+export function trackFor(fuelType: AuditedFuelType): AuditTrack {
   return fuelType === 'petrol_cng' ? 'bifuel_cost' : fuelType;
 }
 
@@ -48,5 +56,6 @@ export function metricFor(track: AuditTrack): Metric {
 
 /** Fuels a vehicle may be filled with. */
 export function allowedFuels(fuelType: VehicleFuelType): readonly FuelKind[] {
+  if (fuelType === 'ev') return [];
   return fuelType === 'petrol_cng' ? ['petrol', 'cng'] : [fuelType];
 }

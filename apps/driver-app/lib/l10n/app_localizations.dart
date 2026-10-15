@@ -764,6 +764,18 @@ abstract class AppLocalizations {
   /// **'CNG'**
   String get fuelCng;
 
+  /// No description provided for @fuelEv.
+  ///
+  /// In en, this message translates to:
+  /// **'EV'**
+  String get fuelEv;
+
+  /// No description provided for @evNoFuel.
+  ///
+  /// In en, this message translates to:
+  /// **'Electric vehicles have no fuel fills or fuel audit.'**
+  String get evNoFuel;
+
   /// No description provided for @fuelPetrolCng.
   ///
   /// In en, this message translates to:

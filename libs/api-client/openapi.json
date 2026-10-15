@@ -3954,7 +3954,7 @@
                       },
                       "fuelType": {
                         "type": "string",
-                        "enum": ["petrol", "diesel", "cng", "petrol_cng"]
+                        "enum": ["petrol", "diesel", "cng", "petrol_cng", "ev"]
                       },
                       "vehicleModelId": {
                         "anyOf": [
@@ -4129,7 +4129,7 @@
                   },
                   "fuelType": {
                     "type": "string",
-                    "enum": ["petrol", "diesel", "cng", "petrol_cng"]
+                    "enum": ["petrol", "diesel", "cng", "petrol_cng", "ev"]
                   },
                   "vehicleModelId": {
                     "type": "string",
@@ -4193,7 +4193,7 @@
                     },
                     "fuelType": {
                       "type": "string",
-                      "enum": ["petrol", "diesel", "cng", "petrol_cng"]
+                      "enum": ["petrol", "diesel", "cng", "petrol_cng", "ev"]
                     },
                     "vehicleModelId": {
                       "anyOf": [
@@ -4390,7 +4390,7 @@
                     },
                     "fuelType": {
                       "type": "string",
-                      "enum": ["petrol", "diesel", "cng", "petrol_cng"]
+                      "enum": ["petrol", "diesel", "cng", "petrol_cng", "ev"]
                     },
                     "vehicleModelId": {
                       "anyOf": [
@@ -4576,7 +4576,7 @@
                   },
                   "fuelType": {
                     "type": "string",
-                    "enum": ["petrol", "diesel", "cng", "petrol_cng"]
+                    "enum": ["petrol", "diesel", "cng", "petrol_cng", "ev"]
                   },
                   "vehicleModelId": {
                     "type": "string",
@@ -4634,7 +4634,7 @@
                     },
                     "fuelType": {
                       "type": "string",
-                      "enum": ["petrol", "diesel", "cng", "petrol_cng"]
+                      "enum": ["petrol", "diesel", "cng", "petrol_cng", "ev"]
                     },
                     "vehicleModelId": {
                       "anyOf": [
@@ -4854,7 +4854,7 @@
                     },
                     "fuelType": {
                       "type": "string",
-                      "enum": ["petrol", "diesel", "cng", "petrol_cng"]
+                      "enum": ["petrol", "diesel", "cng", "petrol_cng", "ev"]
                     },
                     "vehicleModelId": {
                       "anyOf": [
@@ -5026,7 +5026,7 @@
                       },
                       "fuelType": {
                         "type": "string",
-                        "enum": ["petrol", "diesel", "cng", "petrol_cng"]
+                        "enum": ["petrol", "diesel", "cng", "petrol_cng", "ev"]
                       }
                     },
                     "required": ["id", "make", "model", "fuelType"]
@@ -29653,7 +29653,7 @@
                                           },
                                           "fuelType": {
                                             "type": "string",
-                                            "enum": ["petrol", "diesel", "cng", "petrol_cng"]
+                                            "enum": ["petrol", "diesel", "cng", "petrol_cng", "ev"]
                                           }
                                         },
                                         "required": ["registrationNo", "model", "fuelType"]
@@ -29737,7 +29737,7 @@
                                           },
                                           "fuelType": {
                                             "type": "string",
-                                            "enum": ["petrol", "diesel", "cng", "petrol_cng"]
+                                            "enum": ["petrol", "diesel", "cng", "petrol_cng", "ev"]
                                           }
                                         },
                                         "required": ["registrationNo", "model", "fuelType"]
@@ -30434,7 +30434,7 @@
                                         },
                                         "fuelType": {
                                           "type": "string",
-                                          "enum": ["petrol", "diesel", "cng", "petrol_cng"]
+                                          "enum": ["petrol", "diesel", "cng", "petrol_cng", "ev"]
                                         }
                                       },
                                       "required": ["registrationNo", "model", "fuelType"]
@@ -30518,7 +30518,7 @@
                                         },
                                         "fuelType": {
                                           "type": "string",
-                                          "enum": ["petrol", "diesel", "cng", "petrol_cng"]
+                                          "enum": ["petrol", "diesel", "cng", "petrol_cng", "ev"]
                                         }
                                       },
                                       "required": ["registrationNo", "model", "fuelType"]
@@ -31488,7 +31488,7 @@
                           },
                           "fuelType": {
                             "type": "string",
-                            "enum": ["petrol", "diesel", "cng", "petrol_cng"]
+                            "enum": ["petrol", "diesel", "cng", "petrol_cng", "ev"]
                           }
                         },
                         "required": ["id", "registrationNo", "model", "fuelType"]

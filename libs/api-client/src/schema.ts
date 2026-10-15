@@ -3698,7 +3698,7 @@ export interface operations {
             model: string;
             year: number | null;
             /** @enum {string} */
-            fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng';
+            fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng' | 'ev';
             vehicleModelId: string | null;
             lastOdometerKm: number | null;
             /** @enum {string} */
@@ -3785,7 +3785,7 @@ export interface operations {
           model: string;
           year?: number;
           /** @enum {string} */
-          fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng';
+          fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng' | 'ev';
           /** Format: uuid */
           vehicleModelId?: string;
           lastOdometerKm?: number;
@@ -3808,7 +3808,7 @@ export interface operations {
             model: string;
             year: number | null;
             /** @enum {string} */
-            fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng';
+            fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng' | 'ev';
             vehicleModelId: string | null;
             lastOdometerKm: number | null;
             /** @enum {string} */
@@ -3905,7 +3905,7 @@ export interface operations {
             model: string;
             year: number | null;
             /** @enum {string} */
-            fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng';
+            fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng' | 'ev';
             vehicleModelId: string | null;
             lastOdometerKm: number | null;
             /** @enum {string} */
@@ -3994,7 +3994,7 @@ export interface operations {
           model?: string;
           year?: number;
           /** @enum {string} */
-          fuelType?: 'petrol' | 'diesel' | 'cng' | 'petrol_cng';
+          fuelType?: 'petrol' | 'diesel' | 'cng' | 'petrol_cng' | 'ev';
           /** Format: uuid */
           vehicleModelId?: string;
           lastOdometerKm?: number;
@@ -4018,7 +4018,7 @@ export interface operations {
             model: string;
             year: number | null;
             /** @enum {string} */
-            fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng';
+            fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng' | 'ev';
             vehicleModelId: string | null;
             lastOdometerKm: number | null;
             /** @enum {string} */
@@ -4121,7 +4121,7 @@ export interface operations {
             model: string;
             year: number | null;
             /** @enum {string} */
-            fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng';
+            fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng' | 'ev';
             vehicleModelId: string | null;
             lastOdometerKm: number | null;
             /** @enum {string} */
@@ -4214,7 +4214,7 @@ export interface operations {
             make: string;
             model: string;
             /** @enum {string} */
-            fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng';
+            fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng' | 'ev';
           }[];
         };
       };
@@ -13008,7 +13008,7 @@ export interface operations {
                           registrationNo: string;
                           model: string;
                           /** @enum {string} */
-                          fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng';
+                          fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng' | 'ev';
                         };
                         from: string;
                         to: string;
@@ -13032,7 +13032,7 @@ export interface operations {
                           registrationNo: string;
                           model: string;
                           /** @enum {string} */
-                          fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng';
+                          fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng' | 'ev';
                         };
                         from: string;
                         to: string;
@@ -13356,7 +13356,7 @@ export interface operations {
                           registrationNo: string;
                           model: string;
                           /** @enum {string} */
-                          fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng';
+                          fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng' | 'ev';
                         };
                         from: string;
                         to: string;
@@ -13380,7 +13380,7 @@ export interface operations {
                           registrationNo: string;
                           model: string;
                           /** @enum {string} */
-                          fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng';
+                          fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng' | 'ev';
                         };
                         from: string;
                         to: string;
@@ -13818,7 +13818,7 @@ export interface operations {
               registrationNo: string;
               model: string;
               /** @enum {string} */
-              fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng';
+              fuelType: 'petrol' | 'diesel' | 'cng' | 'petrol_cng' | 'ev';
             }[];
             rows: {
               /** Format: date */

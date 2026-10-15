@@ -111,6 +111,8 @@
   "fuelPetrol": "पेट्रोल",
   "fuelDiesel": "डीज़ल",
   "fuelCng": "CNG",
+  "fuelEv": "EV (इलेक्ट्रिक)",
+  "evNoFuel": "इलेक्ट्रिक गाड़ियों में ईंधन भरवाना और फ्यूल ऑडिट नहीं होता।",
   "fuelPetrolCng": "पेट्रोल + CNG",
   "paidByChoiceMe": "मैंने (नकद)",
   "paidByOwner": "मालिक",

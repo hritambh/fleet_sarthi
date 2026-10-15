@@ -30,7 +30,13 @@ class FuelAuditList extends ConsumerWidget {
           Text(l.fuelIntro, style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 8),
           AsyncView(
-            value: vehicles,
+            // Electric vehicles have no fuel to audit.
+            value: vehicles.whenData(
+              (all) => [
+                for (final v in all)
+                  if (!v.isElectric) v,
+              ],
+            ),
             onRetry: () => ref.invalidate(fleetVehiclesProvider),
             builder: (list) => list.isEmpty
                 ? EmptyState(l.noVehiclesYet)
@@ -102,7 +108,10 @@ class _FuelCard extends ConsumerWidget {
               Row(
                 children: [
                   Flexible(
-                    child: NumberPlate(formatRegistration(v.registrationNo)),
+                    child: NumberPlate(
+                      formatRegistration(v.registrationNo),
+                      electric: v.isElectric,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   const Spacer(),

@@ -20,7 +20,7 @@ import 'vehicle_catalog.dart';
 import 'trips/owner_trips_screen.dart';
 import 'trip_schedule.dart';
 
-const fuelTypes = ['petrol', 'diesel', 'cng', 'petrol_cng'];
+const fuelTypes = ['petrol', 'diesel', 'cng', 'petrol_cng', 'ev'];
 
 /// The fleet's vehicles; tap one for its documents, fuel audit and trips.
 class VehiclesScreen extends ConsumerWidget {
@@ -139,7 +139,10 @@ class _VehicleCard extends StatelessWidget {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  NumberPlate(formatRegistration(v.registrationNo)),
+                  NumberPlate(
+                    formatRegistration(v.registrationNo),
+                    electric: v.isElectric,
+                  ),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -789,7 +792,9 @@ class VehicleDetailScreen extends ConsumerWidget {
                 child: TabBarView(
                   children: [
                     _VehicleDocuments(vehicleId),
-                    VehicleFuelPanel(vehicleId: vehicleId),
+                    v.isElectric
+                        ? Center(child: EmptyState(l.evNoFuel))
+                        : VehicleFuelPanel(vehicleId: vehicleId),
                     TripSchedule(vehicleId: vehicleId),
                     _VehicleTrips(vehicleId),
                   ],

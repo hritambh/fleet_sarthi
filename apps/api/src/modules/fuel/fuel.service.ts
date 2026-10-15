@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { FuelFill } from '@taxcy/contracts';
 import type { Prisma, TenantTx } from '@taxcy/db';
-import { allowedFuels, metricFor, trackFor, type FuelKind } from '@taxcy/domain';
+import { allowedFuels, hasFuelAudit, metricFor, trackFor, type FuelKind } from '@taxcy/domain';
 import type { TenantAuth } from '../../platform/auth/auth-context.js';
 import { AppError, notFound } from '../../platform/errors.js';
 import { publish } from '../../platform/outbox.js';
@@ -93,7 +93,9 @@ export class FuelService {
       if (!allowedFuels(vehicle.fuelType).includes(input.fuel)) {
         throw new AppError(
           'FUEL_TYPE_MISMATCH',
-          `${vehicle.registrationNo} runs on ${vehicle.fuelType.replace('_', ' + ')}, not ${input.fuel}`,
+          vehicle.fuelType === 'ev'
+            ? `${vehicle.registrationNo} is electric and takes no fuel fills`
+            : `${vehicle.registrationNo} runs on ${vehicle.fuelType.replace('_', ' + ')}, not ${input.fuel}`,
         );
       }
       const driverId = await this.resolveDriver(tx, auth, input.driverId);
@@ -212,6 +214,9 @@ export class FuelService {
         select: { fuelType: true },
       });
       if (!vehicle) throw notFound('Vehicle');
+      if (!hasFuelAudit(vehicle.fuelType)) {
+        throw new AppError('FUEL_TYPE_MISMATCH', 'Electric vehicles have no fuel audit');
+      }
       const track = trackFor(vehicle.fuelType);
       const [cycles, baseline] = await Promise.all([
         tx.fuelCycle.findMany({

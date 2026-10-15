@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { CalendarDate, DateTime, Id, Paise, PhoneE164 } from '../common.js';
 import { access, defineRoute } from '../http.js';
 
-export const FuelType = z.enum(['petrol', 'diesel', 'cng', 'petrol_cng']);
+export const FuelType = z.enum(['petrol', 'diesel', 'cng', 'petrol_cng', 'ev']);
 export type FuelType = z.infer<typeof FuelType>;
 
 /** Indian registration numbers, stored without spaces or dashes: "MH 12 AB 1234" → "MH12AB1234". */

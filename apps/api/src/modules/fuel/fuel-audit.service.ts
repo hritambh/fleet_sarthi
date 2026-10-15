@@ -4,6 +4,7 @@ import {
   auditVehicle,
   explainFuelCycle,
   explainInvalidCycle,
+  hasFuelAudit,
   trackFor,
   type AuditTrack,
   type Fill,
@@ -43,6 +44,8 @@ export class FuelAuditService {
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${vehicleId}))`;
     const vehicle = await tx.vehicle.findFirst({ where: { id: vehicleId, orgId: tx.orgId } });
     if (!vehicle) return;
+    // Electric vehicles are charged, not filled: nothing to audit.
+    if (!hasFuelAudit(vehicle.fuelType)) return;
     const track = trackFor(vehicle.fuelType);
 
     const rows = await tx.fuelFill.findMany({

@@ -16,6 +16,7 @@ const FUEL_NAMES: Record<VehicleFuelType, string> = {
   diesel: 'diesel',
   cng: 'CNG',
   petrol_cng: 'petrol + CNG',
+  ev: 'electric',
 };
 const UNIT: Record<FuelKind, string> = { petrol: 'L', diesel: 'L', cng: 'kg' };
 

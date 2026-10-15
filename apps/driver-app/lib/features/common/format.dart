@@ -147,6 +147,7 @@ String fuelName(AppLocalizations l, String fuel) => switch (fuel) {
   'diesel' => l.fuelDiesel,
   'cng' => l.fuelCng,
   'petrol_cng' => l.fuelPetrolCng,
+  'ev' => l.fuelEv,
   _ => fuel,
 };
 

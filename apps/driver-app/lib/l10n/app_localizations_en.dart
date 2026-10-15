@@ -378,6 +378,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fuelCng => 'CNG';
 
   @override
+  String get fuelEv => 'EV';
+
+  @override
+  String get evNoFuel => 'Electric vehicles have no fuel fills or fuel audit.';
+
+  @override
   String get fuelPetrolCng => 'Petrol + CNG';
 
   @override

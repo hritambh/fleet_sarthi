@@ -26,7 +26,7 @@ import type { FuelType } from '@taxcy/contracts';
 export interface CabModel {
   readonly make: string;
   readonly model: string;
-  readonly fuelType: FuelType;
+  readonly fuelType: Exclude<FuelType, 'ev'>;
   /** km per litre/kg, or paise per km for petrol_cng. */
   readonly mean: number;
   readonly std: number;

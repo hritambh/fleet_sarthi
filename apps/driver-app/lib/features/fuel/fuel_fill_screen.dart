@@ -122,6 +122,8 @@ class _FuelFillScreenState extends ConsumerState<FuelFillScreen> {
     if (vehicle == null) {
       return _Message(l.vehicleNotDownloaded);
     }
+    // An electric vehicle is charged, not filled.
+    if (vehicle.isElectric) return _Message(l.evNoFuel);
     final fuel = vehicle.allowedFuels.contains(_fuel)
         ? _fuel!
         : vehicle.allowedFuels.first;

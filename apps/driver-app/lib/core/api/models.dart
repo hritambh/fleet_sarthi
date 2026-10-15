@@ -638,13 +638,18 @@ class Vehicle {
 
   bool isLinkedTo(String driverId) => drivers.any((d) => d.id == driverId);
 
-  /// petrol, diesel, cng or petrol_cng.
+  /// petrol, diesel, cng, petrol_cng or ev.
   final String fuelType;
+
+  bool get isElectric => fuelType == 'ev';
   final int? lastOdometerKm;
 
   /// Fuels this vehicle can take (mirrors allowedFuels in libs/domain).
-  List<String> get allowedFuels =>
-      fuelType == 'petrol_cng' ? const ['cng', 'petrol'] : [fuelType];
+  List<String> get allowedFuels => isElectric
+      ? const []
+      : fuelType == 'petrol_cng'
+      ? const ['cng', 'petrol']
+      : [fuelType];
 
   JsonMap toJson() => {
     'id': id,

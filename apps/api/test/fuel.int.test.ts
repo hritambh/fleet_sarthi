@@ -112,6 +112,30 @@ describe('recording fills', () => {
     expect(res.body).toMatchObject({ error: { code: 'FUEL_TYPE_MISMATCH' } });
   });
 
+  it('takes no fuel fills for an electric vehicle, which has no audit either', async () => {
+    const v = await createVehicle(h, owner, 'MH12FU0003', 'ev');
+    const res = await request(h.http)
+      .post('/v1/fuel-fills')
+      .set(...bearer(driver.session))
+      .send({
+        id: randomUUID(),
+        vehicleId: v.id,
+        fuel: 'petrol',
+        quantityMilli: 1000,
+        costPaise: 9000,
+        odometer: await odometer(h, driver.session, 100),
+        isFullTank: true,
+        paidBy: 'owner',
+        filledAt: day(1),
+      })
+      .expect(422);
+    expect(res.body).toMatchObject({ error: { code: 'FUEL_TYPE_MISMATCH' } });
+    await request(h.http)
+      .get(`/v1/vehicles/${v.id}/fuel-cycles`)
+      .set(...bearer(owner))
+      .expect(422);
+  });
+
   it('is idempotent on the client id and records drivers as themselves', async () => {
     const v = await createVehicle(h, owner, 'MH12FU0002');
     const id = randomUUID();
