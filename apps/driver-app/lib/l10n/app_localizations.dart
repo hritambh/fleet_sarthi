@@ -6302,6 +6302,12 @@ abstract class AppLocalizations {
   /// **'Set up your fleet in a few minutes with just your mobile number.'**
   String get welcomeFinalBody;
 
+  /// No description provided for @loginAboutCompany.
+  ///
+  /// In en, this message translates to:
+  /// **'Fleet audit and cab operations for owner-drivers and small fleets across India.'**
+  String get loginAboutCompany;
+
   /// No description provided for @welcomeFooter.
   ///
   /// In en, this message translates to:

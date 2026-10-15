@@ -3601,6 +3601,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Set up your fleet in a few minutes with just your mobile number.';
 
   @override
+  String get loginAboutCompany =>
+      'Fleet audit and cab operations for owner-drivers and small fleets across India.';
+
+  @override
   String get welcomeFooter => 'Made in India, for India\'s cab fleets.';
 
   @override
