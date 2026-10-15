@@ -27,4 +27,6 @@ flutter --version
 
 cd apps/driver-app
 flutter pub get
-flutter build web --release --dart-define=API_URL="$API_URL"
+APP_VERSION="$(../../apps/driver-app/scripts/app-version.sh)"
+echo "APP_VERSION=$APP_VERSION"
+flutter build web --release --dart-define=API_URL="$API_URL" --dart-define=APP_VERSION="$APP_VERSION"

@@ -29,6 +29,9 @@ const apiUrl = String.fromEnvironment(
   defaultValue: kIsWeb ? 'http://localhost:3000' : 'http://10.0.2.2:3000',
 );
 
+/// YY.M.N, set at build time by `scripts/app-version.sh`; `dev` for local runs.
+const appVersion = String.fromEnvironment('APP_VERSION', defaultValue: 'dev');
+
 /// Sent at login so the server knows which kind of device holds the session.
 String get devicePlatform => kIsWeb
     ? 'web'

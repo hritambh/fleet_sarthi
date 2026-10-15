@@ -67,8 +67,7 @@ fi
 if [[ -z "$BUILD_NUMBER" ]]; then
   BUILD_NUMBER="$(git -C "$REPO_ROOT" rev-list --count HEAD 2>/dev/null || echo 1)"
 fi
-VERSION="$(awk '/^version:/ { print $2; exit }' "$APP_DIR/pubspec.yaml")"
-VERSION="${VERSION%%+*}"
+VERSION="$("$APP_DIR/scripts/app-version.sh")"
 
 KEY_PROPERTIES="$APP_DIR/android/key.properties"
 if [[ -f "$KEY_PROPERTIES" ]]; then
@@ -90,7 +89,7 @@ echo "build-apk: Fleet Sarthi $VERSION (build $BUILD_NUMBER), API $API_URL, sign
 # ── build ───────────────────────────────────────────────────────────────────
 cd "$APP_DIR"
 flutter pub get
-common=(--release "--dart-define=API_URL=$API_URL" "--build-name=$VERSION" "--build-number=$BUILD_NUMBER")
+common=(--release "--dart-define=API_URL=$API_URL" "--dart-define=APP_VERSION=$VERSION" "--build-name=$VERSION" "--build-number=$BUILD_NUMBER")
 
 flutter build apk "${common[@]}"
 if [[ "$SPLIT_PER_ABI" == 1 ]]; then

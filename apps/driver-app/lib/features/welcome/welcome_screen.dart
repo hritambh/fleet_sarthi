@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/format.dart';
@@ -1481,7 +1482,7 @@ class _Footer extends StatelessWidget {
       children: [
         const _Logo(light: false),
         Text(
-          '${context.l10n.welcomeFooter}  ·  © ${DateTime.now().year}',
+          '${context.l10n.welcomeFooter}  ·  © ${DateTime.now().year}  ·  v$appVersion',
           style: const TextStyle(color: TaxcyColors.muted, fontSize: 13.5),
         ),
       ],

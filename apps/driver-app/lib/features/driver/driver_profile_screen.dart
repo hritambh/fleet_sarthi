@@ -255,6 +255,14 @@ class DriverProfileScreen extends ConsumerWidget {
                         ),
                         onTap: () => ref.read(authProvider.notifier).signOut(),
                       ),
+                      const SizedBox(height: 8),
+                      Center(
+                        child: Text(
+                          'v$appVersion',
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(color: TaxcyColors.muted),
+                        ),
+                      ),
                     ],
                   ),
                 ),

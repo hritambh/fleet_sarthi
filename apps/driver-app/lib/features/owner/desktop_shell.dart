@@ -474,6 +474,13 @@ class _AccountFooter extends ConsumerWidget {
                   overflow: TextOverflow.fade,
                   style: const TextStyle(color: iconColor, fontSize: 11),
                 ),
+                Text(
+                  'v$appVersion',
+                  style: TextStyle(
+                    color: iconColor.withValues(alpha: 0.7),
+                    fontSize: 10,
+                  ),
+                ),
               ],
             ),
           ),
