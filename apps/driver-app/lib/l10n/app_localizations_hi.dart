@@ -3881,4 +3881,43 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get expiryBeforeStart => 'मान्य-से तारीख के बाद होनी चाहिए';
+
+  @override
+  String get errorDriverInactive =>
+      'फ़्लीट मालिक ने निष्क्रिय किया है: नई ट्रिप न बनाई जा सकती है, न दी जा सकती है।';
+
+  @override
+  String get errorDriverHasTrips =>
+      'ड्राइवर के पास अभी असाइन की गई ट्रिप हैं। पहले उन्हें हटाएँ।';
+
+  @override
+  String driverHasTripsTitle({required int count, required String name}) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$name की $count आने वाली ट्रिप हैं',
+      one: '$name की 1 आने वाली ट्रिप है',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get driverHasTripsBody =>
+      'निष्क्रिय करने के लिए पहले ये ट्रिप हटाएँ। ये बिना ड्राइवर वाली सूची में चली जाएँगी, ताकि आप इन्हें दूसरे ड्राइवर को दे सकें।';
+
+  @override
+  String get unassignAndDeactivate => 'ट्रिप हटाएँ और निष्क्रिय करें';
+
+  @override
+  String driverOnTripTitle({required String name}) {
+    return '$name अभी ट्रिप पर हैं';
+  }
+
+  @override
+  String get driverOnTripBody =>
+      'ट्रिप खत्म होने के बाद उन्हें निष्क्रिय करें।';
+
+  @override
+  String get driverInactiveBanner =>
+      'आपके फ़्लीट मालिक ने आपको निष्क्रिय कर दिया है। आप पुरानी ट्रिप देख सकते हैं, पर नई ट्रिप नहीं बना सकते।';
 }

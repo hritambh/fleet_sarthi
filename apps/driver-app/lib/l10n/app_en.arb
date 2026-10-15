@@ -3186,5 +3186,21 @@
   "aadhaarChecksum": "This isn't a valid Aadhaar number. Check the digits.",
   "@aadhaarChecksum": {},
   "expiryBeforeStart": "Must be after the valid-from date",
-  "@expiryBeforeStart": {}
+  "@expiryBeforeStart": {},
+  "errorDriverInactive": "Marked inactive by the fleet owner: no new trips can be created or assigned.",
+  "@errorDriverInactive": {},
+  "errorDriverHasTrips": "The driver still has assigned trips. Unassign them first.",
+  "@errorDriverHasTrips": {},
+  "driverHasTripsTitle": "{count, plural, =1{{name} has 1 upcoming trip} other{{name} has {count} upcoming trips}}",
+  "@driverHasTripsTitle": {"placeholders": {"count": {"type": "int"}, "name": {"type": "String"}}},
+  "driverHasTripsBody": "To mark them inactive, unassign these trips first. They go back to the unassigned list, so you can give them to another driver.",
+  "@driverHasTripsBody": {},
+  "unassignAndDeactivate": "Unassign trips & mark inactive",
+  "@unassignAndDeactivate": {},
+  "driverOnTripTitle": "{name} is on a trip right now",
+  "@driverOnTripTitle": {"placeholders": {"name": {"type": "String"}}},
+  "driverOnTripBody": "Mark them inactive after the trip ends.",
+  "@driverOnTripBody": {},
+  "driverInactiveBanner": "Your fleet owner has marked you inactive. You can see your past trips, but you can't create new ones.",
+  "@driverInactiveBanner": {}
 }

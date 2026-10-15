@@ -302,12 +302,23 @@ class TripTable extends StatelessWidget {
                   ],
                 ),
                 Text(fmt.dayTime(t.scheduledStartAt)),
-                Text(
-                  t.vehicle == null
-                      ? l.unassigned
-                      : formatRegistration(t.vehicle!.registrationNo),
-                  style: t.vehicle == null ? muted : null,
-                ),
+                if (t.vehicle == null)
+                  Text(l.unassigned, style: muted)
+                else
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(formatRegistration(t.vehicle!.registrationNo)),
+                      if (t.vehicle!.model.trim().isNotEmpty)
+                        Text(
+                          t.vehicle!.model,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: muted.copyWith(fontSize: 12),
+                        ),
+                    ],
+                  ),
                 Text(t.driverName ?? '–', style: muted),
                 Text(
                   t.customerName ?? '–',
@@ -359,10 +370,7 @@ class OwnerTripTile extends StatelessWidget {
     final t = trip;
     final who = t.vehicle == null
         ? l.unassigned
-        : [
-            formatRegistration(t.vehicle!.registrationNo),
-            ?t.driverName,
-          ].join(' · ');
+        : [vehicleLabel(t.vehicle!), ?t.driverName].join(' · ');
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
       child: ListTile(

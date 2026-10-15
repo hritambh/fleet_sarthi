@@ -6817,6 +6817,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Must be after the valid-from date'**
   String get expiryBeforeStart;
+
+  /// No description provided for @errorDriverInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked inactive by the fleet owner: no new trips can be created or assigned.'**
+  String get errorDriverInactive;
+
+  /// No description provided for @errorDriverHasTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'The driver still has assigned trips. Unassign them first.'**
+  String get errorDriverHasTrips;
+
+  /// No description provided for @driverHasTripsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{name} has 1 upcoming trip} other{{name} has {count} upcoming trips}}'**
+  String driverHasTripsTitle({required int count, required String name});
+
+  /// No description provided for @driverHasTripsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'To mark them inactive, unassign these trips first. They go back to the unassigned list, so you can give them to another driver.'**
+  String get driverHasTripsBody;
+
+  /// No description provided for @unassignAndDeactivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Unassign trips & mark inactive'**
+  String get unassignAndDeactivate;
+
+  /// No description provided for @driverOnTripTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is on a trip right now'**
+  String driverOnTripTitle({required String name});
+
+  /// No description provided for @driverOnTripBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark them inactive after the trip ends.'**
+  String get driverOnTripBody;
+
+  /// No description provided for @driverInactiveBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Your fleet owner has marked you inactive. You can see your past trips, but you can\'t create new ones.'**
+  String get driverInactiveBanner;
 }
 
 class _AppLocalizationsDelegate

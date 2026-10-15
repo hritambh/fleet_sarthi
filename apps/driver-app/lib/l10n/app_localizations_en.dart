@@ -3890,4 +3890,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expiryBeforeStart => 'Must be after the valid-from date';
+
+  @override
+  String get errorDriverInactive =>
+      'Marked inactive by the fleet owner: no new trips can be created or assigned.';
+
+  @override
+  String get errorDriverHasTrips =>
+      'The driver still has assigned trips. Unassign them first.';
+
+  @override
+  String driverHasTripsTitle({required int count, required String name}) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$name has $count upcoming trips',
+      one: '$name has 1 upcoming trip',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get driverHasTripsBody =>
+      'To mark them inactive, unassign these trips first. They go back to the unassigned list, so you can give them to another driver.';
+
+  @override
+  String get unassignAndDeactivate => 'Unassign trips & mark inactive';
+
+  @override
+  String driverOnTripTitle({required String name}) {
+    return '$name is on a trip right now';
+  }
+
+  @override
+  String get driverOnTripBody => 'Mark them inactive after the trip ends.';
+
+  @override
+  String get driverInactiveBanner =>
+      'Your fleet owner has marked you inactive. You can see your past trips, but you can\'t create new ones.';
 }

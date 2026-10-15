@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/providers.dart';
 import '../../app/theme.dart';
+import '../../core/api/api.dart';
 import '../../core/api/models.dart';
 import '../../core/api/owner_models.dart';
 import '../common/format.dart';
@@ -58,14 +59,27 @@ class DriversScreen extends ConsumerWidget {
                     children: [
                       for (final d in list)
                         Card(
+                          key: ValueKey('driver-card-${d.id}'),
                           margin: const EdgeInsets.symmetric(vertical: 4),
+                          color: d.isActive ? null : Colors.red.shade50,
+                          shape: d.isActive
+                              ? null
+                              : RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: BorderSide(color: Colors.red.shade300),
+                                ),
                           child: ListTile(
                             key: ValueKey('driver-${d.id}'),
                             leading: InitialsAvatar(
                               d.name,
                               photoMediaId: d.photoMediaId,
                             ),
-                            title: Text(d.name),
+                            title: Text(
+                              d.name,
+                              style: d.isActive
+                                  ? null
+                                  : TextStyle(color: Colors.red.shade800),
+                            ),
                             subtitle: Text(
                               [
                                 formatPhone(d.phone),
@@ -84,9 +98,7 @@ class DriversScreen extends ConsumerWidget {
                               children: [
                                 ToneChip(
                                   d.isActive ? l.active : l.inactive,
-                                  tone: d.isActive
-                                      ? Tone.success
-                                      : Tone.neutral,
+                                  tone: d.isActive ? Tone.success : Tone.danger,
                                 ),
                                 if (d.membershipStatus == 'invited')
                                   ToneChip(l.notSignedInYet, tone: Tone.brand),
@@ -125,9 +137,18 @@ class _DriverCard extends StatelessWidget {
         : defaultRule == null
         ? null
         : l.payDefault(rule: payRuleText(fmt, defaultRule!));
+    final inactive = !d.isActive;
     return Card(
+      key: ValueKey('driver-card-${d.id}'),
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
+      color: inactive ? Colors.red.shade50 : null,
+      shape: inactive
+          ? RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: Colors.red.shade300),
+            )
+          : null,
       child: InkWell(
         key: ValueKey('driver-${d.id}'),
         onTap: () => openScreen<void>(context, DriverScreen(driver: d)),
@@ -152,7 +173,10 @@ class _DriverCard extends StatelessWidget {
                           d.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.titleMedium,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                color: inactive ? Colors.red.shade800 : null,
+                              ),
                         ),
                         Text(
                           formatPhone(d.phone),
@@ -163,7 +187,7 @@ class _DriverCard extends StatelessWidget {
                   ),
                   ToneChip(
                     d.isActive ? l.active : l.inactive,
-                    tone: d.isActive ? Tone.success : Tone.neutral,
+                    tone: d.isActive ? Tone.success : Tone.danger,
                   ),
                 ],
               ),
@@ -407,9 +431,13 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
     });
     final d = widget.driver;
     final navigator = Navigator.of(context);
+    if (!await _saveDriver(d)) {
+      if (mounted) setState(() => _busy = false);
+      return;
+    }
+    if (!mounted) return;
     final ok = await runAction(context, () async {
       final api = ref.read(ownerApiProvider);
-      await api.updateDriver(d.id, name: _name.text.trim(), status: _status);
       // Managers can't change pay (403 FORBIDDEN_ROLE), so only owners send it.
       if (isOwner && rule != d.payRule) {
         await api.setDriverPayRule(d.id, rule);
@@ -421,6 +449,117 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
     } else if (mounted) {
       setState(() => _busy = false);
     }
+  }
+
+  /// Saves the name and status. Marking a driver inactive with booked trips
+  /// offers to unassign them first; while they're on a trip it's refused.
+  Future<bool> _saveDriver(Driver d) async {
+    final api = ref.read(ownerApiProvider);
+    var unassign = false;
+    while (true) {
+      try {
+        await api.updateDriver(
+          d.id,
+          name: _name.text.trim(),
+          status: _status,
+          unassignTrips: unassign,
+        );
+        if (unassign) refreshAfter(ref, {OwnerArea.trips, OwnerArea.alerts});
+        return true;
+      } on Object catch (error) {
+        if (!mounted) return false;
+        final code = error is ApiException ? error.code : null;
+        if (code == 'DRIVER_HAS_TRIPS' && !unassign) {
+          final details = (error as ApiException).details;
+          final trips = details is Map && details['trips'] is List
+              ? (details['trips'] as List).whereType<Map<String, dynamic>>()
+              : const <Map<String, dynamic>>[];
+          if (!await _confirmUnassign(d, trips.toList())) return false;
+          unassign = true;
+          continue;
+        }
+        if (code == 'DRIVER_ON_TRIP') {
+          await _showOnTrip(d);
+          return false;
+        }
+        return runAction(context, () => Future<void>.error(error));
+      }
+    }
+  }
+
+  Future<bool> _confirmUnassign(
+    Driver d,
+    List<Map<String, dynamic>> trips,
+  ) async {
+    final l = context.l10n;
+    final fmt = context.fmt;
+    String line(Map<String, dynamic> t) {
+      final start = DateTime.tryParse('${t['scheduledStartAt']}');
+      final to = t['to'];
+      final reg = t['registrationNo'];
+      return [
+        if (start != null) fmt.dayTime(start.toLocal()),
+        to is String ? '${t['from']} → $to' : '${t['from']}',
+        if (reg is String) formatRegistration(reg),
+      ].join(' · ');
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialog) => AlertDialog(
+        key: const Key('driver-has-trips-dialog'),
+        title: Text(l.driverHasTripsTitle(count: trips.length, name: d.name)),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l.driverHasTripsBody),
+              const SizedBox(height: 12),
+              for (final t in trips)
+                ListTile(
+                  key: ValueKey('driver-has-trip-${t['id']}'),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.route, size: 20),
+                  title: Text(line(t)),
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            key: const Key('driver-has-trips-cancel'),
+            onPressed: () => Navigator.of(dialog).pop(false),
+            child: Text(l.cancel),
+          ),
+          FilledButton(
+            key: const Key('driver-unassign-and-deactivate'),
+            onPressed: () => Navigator.of(dialog).pop(true),
+            child: Text(l.unassignAndDeactivate),
+          ),
+        ],
+      ),
+    );
+    return confirmed ?? false;
+  }
+
+  Future<void> _showOnTrip(Driver d) {
+    final l = context.l10n;
+    return showDialog<void>(
+      context: context,
+      builder: (dialog) => AlertDialog(
+        key: const Key('driver-on-trip-dialog'),
+        title: Text(l.driverOnTripTitle(name: d.name)),
+        content: Text(l.driverOnTripBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialog).pop(),
+            child: Text(l.close),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _editVehicles(Driver driver, List<Vehicle> vehicles) async {

@@ -839,3 +839,77 @@ describe('visibility and charges', () => {
     expect((voided.body as Trip).charges[0]?.voidedAt).not.toBeNull();
   });
 });
+
+describe('marking a driver inactive', () => {
+  const setStatus = (driverId: string, body: Record<string, unknown>) =>
+    request(h.http)
+      .patch(`/v1/drivers/${driverId}`)
+      .set(...bearer(owner))
+      .send(body);
+
+  it('is refused while the driver is on a trip', async () => {
+    const d = await driverSession(h, owner, 'Ira Road');
+    const trip = await newTrip(true, { driverId: d.driverId });
+    await start(trip, d.session).expect(200);
+    const res = await setStatus(d.driverId, { status: 'inactive', unassignTrips: true }).expect(
+      409,
+    );
+    expect(res.body).toMatchObject({
+      error: { code: 'DRIVER_ON_TRIP', details: { tripIds: [trip.id] } },
+    });
+  });
+
+  it('lists assigned trips, unassigns them when asked, then blocks new trips', async () => {
+    const d = await driverSession(h, owner, 'Ishaan Idle');
+    const first = await newTrip(true, { driverId: d.driverId });
+    const second = await newTrip(true, { driverId: d.driverId });
+
+    const refused = await setStatus(d.driverId, { status: 'inactive' }).expect(409);
+    expect(refused.body).toMatchObject({ error: { code: 'DRIVER_HAS_TRIPS' } });
+    const listed = (refused.body as { error: { details: { trips: { id: string }[] } } }).error
+      .details.trips;
+    expect(listed.map((t) => t.id)).toEqual([first.id, second.id]);
+
+    const done = await setStatus(d.driverId, { status: 'inactive', unassignTrips: true }).expect(
+      200,
+    );
+    expect(done.body).toMatchObject({ status: 'inactive' });
+    for (const t of [first, second]) {
+      const trip = await request(h.http)
+        .get(`/v1/trips/${t.id}`)
+        .set(...bearer(owner))
+        .expect(200);
+      expect(trip.body).toMatchObject({ status: 'created', vehicle: null, driver: null });
+    }
+
+    // An inactive driver can't create trips, nor be given one.
+    const own = {
+      tripType: 'one_way',
+      from: { text: 'Hinjewadi' },
+      ...schedule(),
+      quotedFarePaise: 90_000,
+      vehicleId: first.vehicleId,
+    };
+    const blocked = await request(h.http)
+      .post('/v1/trips')
+      .set(...bearer(d.session))
+      .send(own)
+      .expect(403);
+    expect(blocked.body).toMatchObject({ error: { code: 'DRIVER_INACTIVE' } });
+    const assigned = await request(h.http)
+      .post(`/v1/trips/${first.id}/assign`)
+      .set(...bearer(owner))
+      .set(...key())
+      .send({ vehicleId: first.vehicleId, driverId: d.driverId })
+      .expect(403);
+    expect(assigned.body).toMatchObject({ error: { code: 'DRIVER_INACTIVE' } });
+
+    // Active again: back to work.
+    await setStatus(d.driverId, { status: 'active' }).expect(200);
+    await request(h.http)
+      .post('/v1/trips')
+      .set(...bearer(d.session))
+      .send({ ...own, ...schedule() })
+      .expect(201);
+  });
+});

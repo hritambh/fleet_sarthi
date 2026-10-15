@@ -4,6 +4,7 @@ import { hasRole, type TenantAuth } from '../../platform/auth/auth-context.js';
 import { Input, Route, Tenant } from '../../platform/http/route.js';
 import { notFound } from '../../platform/errors.js';
 import { Db } from '../../platform/prisma.service.js';
+import { TripsService } from '../trips/trips.service.js';
 import { DocumentsService } from './documents.service.js';
 import { FleetRepository } from './fleet.repository.js';
 import { FleetService } from './fleet.service.js';
@@ -19,6 +20,7 @@ export class FleetController {
     private readonly documents: DocumentsService,
     private readonly settings: SettingsService,
     private readonly catalog: VehicleCatalogService,
+    private readonly trips: TripsService,
   ) {}
 
   @Route(r.listVehicles)
@@ -121,7 +123,14 @@ export class FleetController {
     @Tenant() a: TenantAuth,
     @Input() { params, body }: RouteInput<typeof r.updateDriver>,
   ): Promise<RouteOutput<typeof r.updateDriver>> {
-    return this.db.tenant(a.orgId, (tx) => this.fleet.updateDriver(tx, params.id, body));
+    const { unassignTrips, ...patch } = body;
+    return this.db.tenant(a.orgId, async (tx) => {
+      if (patch.status === 'inactive') {
+        // Not while they're on the road; their booked trips are unassigned first.
+        await this.trips.releaseDriver(tx, a, params.id, unassignTrips ?? false);
+      }
+      return this.fleet.updateDriver(tx, params.id, patch);
+    });
   }
 
   @Route(r.setDriverVehicles)

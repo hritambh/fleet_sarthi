@@ -285,6 +285,7 @@ export class TripsService {
       if (byDriver && !driverId) {
         throw new AppError('FORBIDDEN_ROLE', 'Only drivers and staff can create trips');
       }
+      if (byDriver && driverId) await this.assertDriverActive(tx, driverId);
       if (byDriver && input.driverId && input.driverId !== driverId) {
         throw new AppError('FORBIDDEN_ROLE', 'Drivers can only create trips for themselves');
       }
@@ -921,6 +922,83 @@ export class TripsService {
     return auth.roles.includes('owner') || auth.roles.includes('manager');
   }
 
+  private async assertDriverActive(tx: TenantTx, driverId: string): Promise<void> {
+    const driver = await tx.driver.findFirst({
+      where: { id: driverId, orgId: tx.orgId },
+      select: { status: true },
+    });
+    if (driver?.status === 'inactive') {
+      throw new AppError(
+        'DRIVER_INACTIVE',
+        'Your fleet owner has marked you inactive, so you cannot create trips',
+      );
+    }
+  }
+
+  /**
+   * Before a driver is marked inactive: refuses while they're on a trip, and
+   * while they have assigned trips unless [unassign] is set, in which case those
+   * trips go back to unassigned (with their events and the "needs a driver" alert).
+   */
+  async releaseDriver(
+    tx: TenantTx,
+    auth: TenantAuth,
+    driverId: string,
+    unassign: boolean,
+  ): Promise<void> {
+    const open = await tx.trip.findMany({
+      where: { orgId: tx.orgId, driverId, status: { in: ['assigned', 'started'] } },
+      orderBy: { scheduledStartAt: 'asc' },
+      select: {
+        id: true,
+        status: true,
+        fromText: true,
+        toText: true,
+        scheduledStartAt: true,
+        vehicle: { select: { registrationNo: true } },
+      },
+    });
+    const running = open.filter((t) => t.status === 'started');
+    if (running.length) {
+      throw new AppError(
+        'DRIVER_ON_TRIP',
+        'The driver is on a trip; mark them inactive after it ends',
+        {
+          tripIds: running.map((t) => t.id),
+        },
+      );
+    }
+    if (!open.length) return;
+    if (!unassign) {
+      throw new AppError(
+        'DRIVER_HAS_TRIPS',
+        `The driver has ${open.length} assigned trip(s); unassign them first`,
+        {
+          trips: open.map((t) => ({
+            id: t.id,
+            from: t.fromText,
+            to: t.toText,
+            scheduledStartAt: t.scheduledStartAt.toISOString(),
+            registrationNo: t.vehicle?.registrationNo ?? null,
+          })),
+        },
+      );
+    }
+    for (const t of open) {
+      await this.applyInTx(tx, auth, t.id, 'unassign', newId(), new Date(), async (trip) => {
+        await tx.trip.update({
+          where: { id: trip.id },
+          data: { vehicleId: null, driverId: null, status: 'created' },
+        });
+        return {
+          previousDriverId: trip.driverId,
+          previousVehicleId: trip.vehicleId,
+          reason: 'driver_inactive',
+        };
+      });
+    }
+  }
+
   private async myDriverId(tx: TenantTx, auth: TenantAuth): Promise<string | null> {
     const driver = await tx.driver.findFirst({
       where: { orgId: tx.orgId, userId: auth.userId },
@@ -963,8 +1041,13 @@ export class TripsService {
     ]);
     if (!vehicle) throw notFound('Vehicle');
     if (!driver) throw notFound('Driver');
-    if (vehicle.status !== 'active' || driver.status !== 'active') {
-      throw new AppError('CONFLICT', 'Inactive vehicles and drivers cannot be assigned');
+    if (driver.status !== 'active') {
+      throw new AppError('DRIVER_INACTIVE', `${driver.name} is inactive and can't be assigned`, {
+        driverId,
+      });
+    }
+    if (vehicle.status !== 'active') {
+      throw new AppError('CONFLICT', 'Inactive vehicles cannot be assigned');
     }
     if (!linked) {
       throw new AppError(

@@ -399,9 +399,7 @@ class _DetailsCard extends StatelessWidget {
         ),
         StatTile(
           label: l.vehicle,
-          value: t.vehicle == null
-              ? l.unassigned
-              : formatRegistration(t.vehicle!.registrationNo),
+          value: t.vehicle == null ? l.unassigned : vehicleLabel(t.vehicle!),
           hint: t.vehicle?.model,
         ),
         StatTile(label: l.driver, value: t.driverName ?? l.unassigned),
