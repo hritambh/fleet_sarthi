@@ -886,6 +886,7 @@ describe('marking a driver inactive', () => {
     const own = {
       tripType: 'one_way',
       from: { text: 'Hinjewadi' },
+      to: { text: 'Pune Airport' },
       ...schedule(),
       quotedFarePaise: 90_000,
       vehicleId: first.vehicleId,
