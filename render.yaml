@@ -62,6 +62,13 @@ services:
         sync: false
       - key: SIGNUP_REQUIRES_VERIFIED_PHONE
         sync: false
+      # Trip pickup/drop suggestions (D27): a free Geoapify key from
+      # https://myprojects.geoapify.com. Set in the dashboard; empty switches
+      # suggestions off. The daily cap stays under the free plan's 3,000.
+      - key: GEOAPIFY_API_KEY
+        sync: false
+      - key: GEOAPIFY_DAILY_LIMIT
+        value: '2800'
       - key: OCR_PROVIDER
         value: stub
       # Load the demo fleet on start (skips once it exists). Set to true for a demo.
