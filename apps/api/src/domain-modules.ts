@@ -9,6 +9,7 @@ import { MediaModule } from './modules/media/media.module.js';
 import { PlacesModule } from './modules/places/places.module.js';
 import { TelemetryModule } from './modules/telemetry/telemetry.module.js';
 import { TripsModule } from './modules/trips/trips.module.js';
+import { DemoModule } from './seed/demo.module.js';
 
 /** Business modules, shared by the HTTP app and the workers process. */
 export const DOMAIN_MODULES = [
@@ -23,4 +24,5 @@ export const DOMAIN_MODULES = [
   FuelModule,
   TelemetryModule,
   MoneyModule,
+  DemoModule,
 ];

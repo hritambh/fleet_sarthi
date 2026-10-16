@@ -2,7 +2,45 @@
 
 `bun run db:seed` loads **Sharma Travels**, a small Pune fleet with six weeks of history and a handful of planted problems for Fleet Sarthi to catch. This page lists who's in it, what's planted, and walkthroughs that exercise each part of the product from the app's owner mode and driver mode.
 
-All dates are relative to the day you seed: "yesterday" below means the day before you ran the seed.
+All dates are relative to the day you seed: "yesterday" below means the day before you ran the seed. To bring the demo back to "today" (Suresh on the road, Imran's trip this evening, the Goa booking for tomorrow, documents about to expire, two open settlement days), rebuild it:
+
+```bash
+bun run db:seed:refresh   # deletes and re-seeds only Sharma Travels and Patil Cabs, as of now
+```
+
+On a demo deployment, `DEMO_REFRESH_DAILY=true` does this every day by itself (see [deployment.md](../deployment.md#step-6-optional-load-the-demo-fleet)). Anything you changed in the demo fleets is wiped by a refresh; other fleets and the demo people's accounts are kept.
+
+## Quick reference
+
+**Where:** <http://localhost:5174> locally (after `bun run dev` and `bun run dev:driver-web`), or the hosted web app <https://taxcy-web.onrender.com> if the demo data was loaded there ([below](#on-a-hosted-demo)). On a phone, install the arm64 APK from Slack #releases.
+
+**Every login** (password **`12345678`** for all of them):
+
+| Who            | Phone        | Opens as                                       | Also                                     | Seed                |
+| -------------- | ------------ | ---------------------------------------------- | ---------------------------------------- | ------------------- |
+| Anil Sharma    | `9000000001` | Owner of **Sharma Travels**                    | Drives for Patil Cabs                    | `db:seed`           |
+| Priya Nair     | `9000000002` | Manager of Sharma Travels (settings read-only) |                                          | `db:seed`           |
+| Ramesh Kumar   | `9000000011` | Driver, Sharma Travels (MH12AB1234)            |                                          | `db:seed`           |
+| Suresh Patil   | `9000000012` | Owner of **Patil Cabs**                        | Drives for Sharma Travels, on a trip now | `db:seed`           |
+| Imran Shaikh   | `9000000013` | Driver, Sharma Travels (MH12EF9012)            | Has a trip this evening                  | `db:seed`           |
+| Mahesh Jadhav  | `9100000011` | Driver in your own fleet (MH14PT0001)          |                                          | `db:seed:analytics` |
+| Sunita Pawar   | `9100000012` | Driver in your own fleet (MH14PT0002)          |                                          | `db:seed:analytics` |
+| Farhan Qureshi | `9100000013` | Driver in your own fleet (MH14PT0003)          |                                          | `db:seed:analytics` |
+
+**What to look at first:**
+
+| As                   | Look at                 | Expect                                                                                                                                 |
+| -------------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Anil (owner)         | Dashboard               | Today's trips, the **Available cabs** card with each cab's day (green free, red booked), open alerts                                   |
+| Anil                 | Alerts                  | Two critical alerts (Dzire fuel use; padded odometer on yesterday's Mahabaleshwar trip), document warnings, the unassigned Goa booking |
+| Anil                 | Review                  | An odometer photo 60 km away from the typed reading                                                                                    |
+| Anil                 | Settlements             | Settled days up to 3 days ago, open drafts for the last two                                                                            |
+| Anil                 | Settings                | Every page: fleet name, driver rules, fuel audit, reminders, pay, team ([walkthrough 11](#11-settings-and-driver-rules))               |
+| Priya (manager)      | Settings                | Read-only, with "Only the owner can change settings"                                                                                   |
+| Suresh (driver mode) | His running trip        | Aundh → Lavasa on the road; add a charge or fuel, then end it                                                                          |
+| Ramesh (driver)      | New trip                | Books a trip for himself in MH12AB1234                                                                                                 |
+| Anil or Suresh       | Switch mode or fleet    | Manage one fleet, drive for the other                                                                                                  |
+| Signed out           | <http://localhost:5174> | The welcome page (the app on a phone shows a short welcome)                                                                            |
 
 ## Start it
 
@@ -20,7 +58,7 @@ Chrome keeps one signed-in person per browser profile. To be the owner and a dri
 bun run db:reset      # drops every table in the local database, re-migrates, seeds
 ```
 
-`db:reset` destroys all data in the database named in `.env`. It is for your local Docker database only; never point it at a hosted one. `bun run db:seed` on its own does nothing if Sharma Travels already exists.
+To rebuild only the demo fleets and keep everything else, use `bun run db:seed:refresh` instead. `db:reset` destroys all data in the database named in `.env`. It is for your local Docker database only; never point it at a hosted one. `bun run db:seed` on its own does nothing if Sharma Travels already exists.
 
 The reset doesn't touch uploaded photos (RustFS) or the job queue (Redis). For a completely clean start, clear those first:
 
@@ -145,6 +183,25 @@ To set it up yourself:
 ### 10. Hindi
 
 Switch the language (the sign-in screen, **More → Language** in owner mode, or the menu in driver mode) to **हिन्दी**. Alerts, settlement lines, errors and dates follow the language; the server sends codes and the app words them.
+
+### 11. Settings and driver rules
+
+1. As **Anil**, open **Settings** (the sidebar on a computer, **More → Settings** on a phone). Each page says what a setting affects and when it takes effect.
+2. **Trips & drivers:** turn off **Drivers can create their own trips** and **Save changes**. Sign in as **Ramesh**: **New trip** is greyed out and the home screen says the owner turned it off. Turn it back on.
+3. **Fuel audit:** turn off **Fuel receipt photo required**. In Ramesh's **Log fuel**, the receipt photo now says **(optional)**.
+4. Change a value and press back (or pick another page on a computer): the app asks before discarding the change.
+5. **General:** rename the fleet; the new name shows in the fleet switcher and dashboard.
+6. As **Priya**, every Settings page is read-only.
+
+## Analytics demo data (your own fleet)
+
+The Sharma Travels seed has only six weeks of tidy history. For the **Analytics** page, fill a fleet you signed up with yourself:
+
+```bash
+bun run db:seed:analytics 9876543210   # the phone you own a fleet with
+```
+
+It adds 75 days of trips and fuel to that fleet: three drivers and cars (MH14PT0001 Innova, diesel; MH14PT0002 Dzire, CNG; MH14PT0003 Ertiga, petrol + CNG), trips the customer under-paid, and days a car ran twice. The drivers sign in with **`12345678`**, like everyone else; your own login doesn't change.
 
 ## On a hosted demo
 

@@ -105,6 +105,16 @@ const Env = z
      */
     DEMO_MODE: z.preprocess((v) => (v === '' ? undefined : v), z.stringbool().default(false)),
     /**
+     * Demo deployments only. Rebuilds the demo fleets (Sharma Travels, Patil Cabs) for
+     * the current IST day when they were seeded on an earlier one: daily at 03:30 IST
+     * (`demo.refresh`) and when the API starts (`infra/render/start-api.sh`). Deletes
+     * only those two fleets, matched by name and owner phone.
+     */
+    DEMO_REFRESH_DAILY: z.preprocess(
+      (v) => (v === '' ? undefined : v),
+      z.stringbool().default(false),
+    ),
+    /**
      * Testing only. A password that signs in as any existing user and is accepted as
      * the current password when changing anyone's password. Every use is logged.
      * Empty (the default) switches it off; production allows it only with DEMO_MODE.

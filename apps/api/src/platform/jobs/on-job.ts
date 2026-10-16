@@ -31,6 +31,11 @@ export const SCHEDULES: readonly { topic: string; pattern: string; description: 
     description: 'Alerts for trips with no vehicle or driver yet, every 15 minutes',
   },
   {
+    topic: 'demo.refresh',
+    pattern: '0 22 * * *',
+    description: 'Rebuild the demo fleets for the new day (DEMO_REFRESH_DAILY only), 03:30 IST',
+  },
+  {
     topic: 'fleet.vehicle_catalog_refresh',
     pattern: '0 20 * * 0',
     description: 'Rebuild the public vehicle catalogue, Monday 01:30 IST',

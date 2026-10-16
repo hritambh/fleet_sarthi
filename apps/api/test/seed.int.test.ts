@@ -2,7 +2,10 @@ import type { Session } from '@taxcy/contracts';
 import { randomUUID } from 'node:crypto';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { DEMO_PASSWORD, runSeed } from '../src/seed/seed.js';
+import { refreshDemo, refreshDemoIfStale } from '../src/seed/demo-refresh.js';
+import { DEMO_PASSWORD, demoOrgIds, runSeed } from '../src/seed/seed.js';
+import { Db } from '../src/platform/prisma.service.js';
+import { ownerSession } from './harness.js';
 import { startHarness, type Harness } from './harness.js';
 
 let h: Harness;
@@ -129,4 +132,69 @@ describe('demo seed', () => {
     ).toBe(2);
     expect(await h.owner.organization.count({ where: { name: 'Patil Cabs' } })).toBe(1);
   });
+});
+
+describe('demo refresh', () => {
+  /** Rows left in any org-scoped table for these orgs. */
+  const leftovers = async (orgIds: string[]) => {
+    const tables = await h.owner.$queryRaw<{ table_name: string }[]>`
+      SELECT table_name FROM information_schema.columns
+      WHERE table_schema = 'public' AND column_name = 'org_id'
+        AND table_name NOT LIKE 'gps_points_%'`;
+    const counts: Record<string, number> = {};
+    for (const { table_name } of tables) {
+      const [row] = await h.owner.$queryRawUnsafe<{ n: bigint }[]>(
+        `SELECT count(*) AS n FROM "${table_name}" WHERE org_id = ANY($1::uuid[])`,
+        orgIds,
+      );
+      if (row && row.n > 0n) counts[table_name] = Number(row.n);
+    }
+    return counts;
+  };
+
+  it('rebuilds the two demo fleets for today and leaves every other fleet alone', async () => {
+    const db = h.app.get(Db);
+    const before = await demoOrgIds(db);
+    expect(before).toHaveLength(2);
+    // A real fleet that shares the demo's name, and someone trying the demo.
+    const other = await ownerSession(h, 'fleet', 'Sharma Travels');
+    const otherOrg = other.activeOrgId ?? '';
+    const sharma = await demoOrg();
+    await h.owner.trip.updateMany({
+      where: { orgId: sharma.id, status: 'started' },
+      data: { status: 'ended', endedAt: new Date() },
+    });
+
+    await refreshDemo(h.app);
+
+    const after = await demoOrgIds(db);
+    expect(after).toHaveLength(2);
+    expect(after.some((id) => before.includes(id))).toBe(false);
+    expect(await leftovers(before)).toEqual({});
+    expect(await h.owner.organization.count({ where: { id: { in: before } } })).toBe(0);
+    // The other fleet named Sharma Travels is still there.
+    expect(await h.owner.organization.count({ where: { id: otherOrg } })).toBe(1);
+    // Back to the picture the demo promises: Suresh on the road again.
+    const fresh = await demoOrg();
+    expect(await h.owner.trip.count({ where: { orgId: fresh.id, status: 'started' } })).toBe(1);
+    // Same people, same password.
+    await request(h.http)
+      .post('/v1/auth/password/login')
+      .send({
+        phone: '+919000000001',
+        password: DEMO_PASSWORD,
+        deviceId: randomUUID(),
+        platform: 'web',
+      })
+      .expect(200);
+  }, 600_000);
+
+  it('only rebuilds when the demo was seeded on an earlier day', async () => {
+    const ids = await demoOrgIds(h.app.get(Db));
+    expect(await refreshDemoIfStale(h.app)).toBe(false);
+    expect(await demoOrgIds(h.app.get(Db))).toEqual(ids);
+    const tomorrow = new Date(Date.now() + 86_400_000);
+    expect(await refreshDemoIfStale(h.app, tomorrow)).toBe(true);
+    expect((await demoOrgIds(h.app.get(Db))).some((id) => ids.includes(id))).toBe(false);
+  }, 600_000);
 });

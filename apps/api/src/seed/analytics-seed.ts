@@ -19,11 +19,12 @@ import { FuelService } from '../modules/fuel/fuel.service.js';
 import { MediaService } from '../modules/media/media.service.js';
 import { TripsService } from '../modules/trips/trips.service.js';
 import { hashPassword } from '../modules/identity/passwords.js';
+// The same password as every other demo person (12345678).
+import { DEMO_PASSWORD } from './seed.js';
 import { textPng } from './png.js';
 
 /** Long enough to fill the current month and the two before it. */
 const HISTORY_DAYS = 75;
-const DEMO_PASSWORD = 'demo1234';
 
 /**
  * One of these is a bifuel car: it is filled with both petrol and CNG, which the fuel

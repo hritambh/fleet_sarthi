@@ -49,6 +49,14 @@
     "seed": {
       "dependsOn": ["build"],
       "cache": false
+    },
+    "seed:refresh": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
+    "seed:analytics": {
+      "dependsOn": ["build"],
+      "cache": false
     }
   },
   "analytics": false

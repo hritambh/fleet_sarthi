@@ -37,6 +37,39 @@ const SECOND_FLEET = {
 };
 /** Every demo person signs in with this password (demo data only). */
 export const DEMO_PASSWORD = '12345678';
+
+/** The demo fleets, each recognised by its name and its owner's phone. */
+export const DEMO_FLEETS = [
+  { name: 'Sharma Travels', ownerPhone: OWNER.phone },
+  { name: SECOND_FLEET.name, ownerPhone: SECOND_FLEET.ownerPhone },
+] as const;
+
+/** What the seed needs from Nest: an app context, or a job's ModuleRef. */
+export type SeedContext = Pick<INestApplicationContext, 'get'>;
+
+/**
+ * The demo fleets that exist: a fleet counts only if both its name and its
+ * owner match, so a real fleet that happens to share a name is never touched.
+ */
+export async function demoOrgIds(
+  db: Db,
+  only: readonly (typeof DEMO_FLEETS)[number][] = DEMO_FLEETS,
+): Promise<string[]> {
+  const orgs = await db.system((tx) =>
+    tx.organization.findMany({
+      where: {
+        OR: only.map((f) => ({
+          name: f.name,
+          memberships: {
+            some: { roles: { has: 'owner' as const }, user: { phoneE164: f.ownerPhone } },
+          },
+        })),
+      },
+      select: { id: true },
+    }),
+  );
+  return orgs.map((o) => o.id);
+}
 const HISTORY_DAYS = 42;
 const SETTLED_UNTIL_DAYS_AGO = 3;
 const GPS_DAYS = 4;
@@ -112,7 +145,7 @@ class Seeder {
   private readonly settlements: SettlementsService;
   private photos = 0;
 
-  constructor(private readonly ctx: INestApplicationContext) {
+  constructor(private readonly ctx: SeedContext) {
     this.db = ctx.get(Db);
     this.s3 = ctx.get(S3Service);
     this.media = ctx.get(MediaService);
@@ -128,10 +161,8 @@ class Seeder {
     // Reference data every fleet gets, and the one part of the seed that is
     // topped up on a re-run: new cab models reach a database seeded earlier.
     await this.referenceData();
-    const existing = await this.db.system((tx) =>
-      tx.user.findUnique({ where: { phoneE164: OWNER.phone }, include: { memberships: true } }),
-    );
-    if (existing?.memberships.length) {
+    const [sharma] = DEMO_FLEETS;
+    if ((await demoOrgIds(this.db, [sharma])).length) {
       log('Demo org already exists. Run `bun run db:reset` to start over.');
       // Added later: top up databases seeded before it existed.
       await this.secondFleet();
@@ -249,10 +280,8 @@ class Seeder {
 
   /** Patil Cabs (see SECOND_FLEET), with one trip for Anil tomorrow. Skips if it exists. */
   private async secondFleet(): Promise<void> {
-    const exists = await this.db.system((tx) =>
-      tx.organization.findFirst({ where: { name: SECOND_FLEET.name }, select: { id: true } }),
-    );
-    if (exists) return;
+    const [, patil] = DEMO_FLEETS;
+    if ((await demoOrgIds(this.db, [patil])).length) return;
     const owner = await this.db.system((tx) =>
       tx.user.findUnique({ where: { phoneE164: SECOND_FLEET.ownerPhone } }),
     );
@@ -329,9 +358,17 @@ class Seeder {
 
   private async org(): Promise<{ owner: TenantAuth; orgId: string }> {
     const orgId = newId();
-    const ownerId = newId();
+    let ownerId = newId();
     await this.db.tenant(orgId, async (tx) => {
-      await tx.user.create({ data: { id: ownerId, phoneE164: OWNER.phone, name: OWNER.name } });
+      // Kept across a demo refresh (refreshDemo deletes fleets, not people).
+      ownerId = (
+        await tx.user.upsert({
+          where: { phoneE164: OWNER.phone },
+          create: { id: ownerId, phoneE164: OWNER.phone, name: OWNER.name },
+          update: {},
+          select: { id: true },
+        })
+      ).id;
       await tx.organization.create({ data: { id: orgId, name: 'Sharma Travels', kind: 'fleet' } });
       await tx.orgSettings.create({
         data: {
@@ -664,7 +701,7 @@ function log(message: string): void {
 }
 
 /** Seeds the demo org into the database `ctx` is connected to. */
-export async function runSeed(ctx: INestApplicationContext): Promise<void> {
+export async function runSeed(ctx: SeedContext): Promise<void> {
   // Partitions for every month the seed writes GPS points into.
   await ctx.get(Db).system(async (tx) => {
     for (const offset of [-1, 0, 1, 2]) {

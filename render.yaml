@@ -74,6 +74,14 @@ services:
       # Load the demo fleet on start (skips once it exists). Set to true for a demo.
       - key: SEED_DEMO_DATA
         value: 'false'
+      # Demo deployments only: rebuild the demo fleets for each new day (on start and
+      # at 03:30 IST), deleting only those two fleets. See docs/usage/demo-data.md.
+      - key: DEMO_REFRESH_DAILY
+        value: 'true'
+      # One-off: rebuild the demo on the next start even if it's from today. Set to
+      # true, restart the service, then set it back to false.
+      - key: DEMO_REFRESH_FORCE
+        value: 'false'
       # Every client reaches the API through Render's proxy, so per-IP limits are
       # shared by everyone; per-phone limits still apply.
       - key: OTP_IP_LIMIT_PER_HOUR

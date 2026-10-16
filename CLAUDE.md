@@ -12,6 +12,7 @@ Bun workspaces + Nx; Node 24 runs the API. Run from the repo root unless noted.
 bun install
 bun run infra:up                          # Postgres+PostGIS :5433, Redis :6380, RustFS (S3) :9000 via docker compose
 bun run db:migrate && bun run db:seed     # schema + demo fleet (seed is idempotent; db:reset wipes and re-seeds)
+bun run db:seed:refresh                   # rebuild only the demo fleets for today (DEMO_REFRESH_DAILY does it daily on a demo deployment)
 bun run dev                               # API :3000 + workers
 bun run dev:driver-web                    # the Flutter app in Chrome on :5174 (debug; reload with r/R in the terminal, not the browser)
 
