@@ -21,6 +21,7 @@ import 'auth_fakes.dart';
 import 'fakes.dart';
 import 'me_fakes.dart';
 import 'owner_fakes.dart';
+import 'places_fakes.dart';
 
 /// Everything a widget test needs: in-memory database, fake API, a session and
 /// saved preferences (English unless a test asks for another language).
@@ -48,6 +49,9 @@ class Harness {
   final phoneVerifier = FakePhoneVerifier();
   final owner = FakeOwnerApi();
   final me = FakeMeApi();
+
+  /// Pickup and drop suggestions (no test asks the real API).
+  final places = FakePlacesApi();
 
   /// Photo and file bytes kept on the "device".
   final photoStore = MemoryPhotoStore();
@@ -94,6 +98,7 @@ class Harness {
       phoneVerifierProvider.overrideWithValue(phoneVerifier),
       ownerApiProvider.overrideWithValue(owner),
       meApiProvider.overrideWithValue(me),
+      placesApiProvider.overrideWithValue(places),
       mapTilesProvider.overrideWithValue(false),
       urlOpenerProvider.overrideWithValue((uri) async {
         openedUrls.add(uri);

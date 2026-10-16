@@ -2609,9 +2609,6 @@ class AppLocalizationsHi extends AppLocalizations {
   String get removePin => 'पिन हटाएँ';
 
   @override
-  String get noPlacesFound => 'कोई शहर नहीं मिला; पता खुद लिख सकते हैं';
-
-  @override
   String get pickupOnMap => 'मैप पर पिकअप';
 
   @override
@@ -4178,4 +4175,7 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get settingsDaysInvalid =>
       '0 से 365 तक की ज़्यादा से ज़्यादा 5 पूरी संख्याएँ, जैसे 30, 7, 1।';
+
+  @override
+  String get placesCredit => 'Geoapify द्वारा · © OpenStreetMap योगदानकर्ता';
 }

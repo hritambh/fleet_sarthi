@@ -2615,10 +2615,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get removePin => 'Remove pin';
 
   @override
-  String get noPlacesFound =>
-      'No matching city; you can type the address instead';
-
-  @override
   String get pickupOnMap => 'Pickup on the map';
 
   @override
@@ -4186,4 +4182,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsDaysInvalid =>
       'Up to 5 whole numbers from 0 to 365, e.g. 30, 7, 1.';
+
+  @override
+  String get placesCredit =>
+      'Powered by Geoapify · © OpenStreetMap contributors';
 }

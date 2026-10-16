@@ -11,6 +11,7 @@ import '../../core/repositories/trips_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/errors.dart';
 import '../common/format.dart';
+import '../common/place_field.dart';
 import '../owner/owner_widgets.dart' show busyText;
 import 'trip_detail_screen.dart';
 
@@ -268,8 +269,10 @@ class _NewTripScreenState extends ConsumerState<NewTripScreen> {
                       setState(() => _tripType = s.first),
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
-                  key: const Key('trip-from'),
+                // City suggestions; text only here (a driver's trip has no
+                // map pins).
+                PlaceField(
+                  fieldKey: const Key('trip-from'),
                   controller: _from,
                   decoration: InputDecoration(
                     labelText: l.pickup,
@@ -280,8 +283,8 @@ class _NewTripScreenState extends ConsumerState<NewTripScreen> {
                 ),
                 if (!local) ...[
                   const SizedBox(height: 12),
-                  TextFormField(
-                    key: const Key('trip-to'),
+                  PlaceField(
+                    fieldKey: const Key('trip-to'),
                     controller: _to,
                     decoration: InputDecoration(
                       labelText: l.drop,

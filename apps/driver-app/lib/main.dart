@@ -6,9 +6,11 @@ import 'app/app.dart';
 import 'app/preferences.dart';
 import 'app/providers.dart';
 import 'core/db/database.dart';
+import 'core/places/places_api.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  registerPlaceLicenses();
   final prefs = await SharedPreferences.getInstance();
   runApp(
     ProviderScope(

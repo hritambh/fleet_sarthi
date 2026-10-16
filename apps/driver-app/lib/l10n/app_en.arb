@@ -2212,8 +2212,6 @@
   "@changePin": {},
   "removePin": "Remove pin",
   "@removePin": {},
-  "noPlacesFound": "No matching city; you can type the address instead",
-  "@noPlacesFound": {},
   "pickupOnMap": "Pickup on the map",
   "@pickupOnMap": {},
   "dropOnMap": "Drop on the map",
@@ -3348,5 +3346,7 @@
   "settingsRange": "Enter a number from {min} to {max}.",
   "@settingsRange": {"placeholders": {"min": {"type": "String"}, "max": {"type": "String"}}},
   "settingsDaysInvalid": "Up to 5 whole numbers from 0 to 365, e.g. 30, 7, 1.",
-  "@settingsDaysInvalid": {}
+  "@settingsDaysInvalid": {},
+  "placesCredit": "Powered by Geoapify · © OpenStreetMap contributors",
+  "@placesCredit": {}
 }

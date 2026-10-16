@@ -41,7 +41,7 @@ The home screen lists your trips for today and upcoming days. Tap a trip to see 
 
 ## Create a trip
 
-For a customer you pick up yourself, tap **New trip**: choose one way, round trip or local, enter the pickup and drop, start time and expected duration, the vehicle, the fare and, if agreed, the **included km**. The customer's name and number are optional. The trip is assigned to you and works offline; your owner sees it once your phone is online. You can only pick the vehicles your owner has linked to you; if there are none, the screen says so: ask your owner to link you to a vehicle, then tap **Retry**. If your fleet owner has turned off trips created by drivers, **New trip** is greyed out and the home screen says so.
+For a customer you pick up yourself, tap **New trip**: choose one way, round trip or local, enter the pickup and drop (after three letters the app suggests matching places when you're online; pick one or keep typing), start time and expected duration, the vehicle, the fare and, if agreed, the **included km**. The customer's name and number are optional. The trip is assigned to you and works offline; your owner sees it once your phone is online. You can only pick the vehicles your owner has linked to you; if there are none, the screen says so: ask your owner to link you to a vehicle, then tap **Retry**. If your fleet owner has turned off trips created by drivers, **New trip** is greyed out and the home screen says so.
 
 ## Start a trip
 

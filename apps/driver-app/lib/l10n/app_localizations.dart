@@ -4550,12 +4550,6 @@ abstract class AppLocalizations {
   /// **'Remove pin'**
   String get removePin;
 
-  /// No description provided for @noPlacesFound.
-  ///
-  /// In en, this message translates to:
-  /// **'No matching city; you can type the address instead'**
-  String get noPlacesFound;
-
   /// No description provided for @pickupOnMap.
   ///
   /// In en, this message translates to:
@@ -7303,6 +7297,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Up to 5 whole numbers from 0 to 365, e.g. 30, 7, 1.'**
   String get settingsDaysInvalid;
+
+  /// No description provided for @placesCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Powered by Geoapify · © OpenStreetMap contributors'**
+  String get placesCredit;
 }
 
 class _AppLocalizationsDelegate

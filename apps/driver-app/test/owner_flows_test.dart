@@ -334,7 +334,7 @@ void main() {
     // The form opens on the trip as it is.
     expect(find.text('Edit trip'), findsOneWidget);
     expect(find.byKey(const Key('owner-create-trip')), findsNothing);
-    final from = tester.widget<TextField>(
+    final from = tester.widget<TextFormField>(
       find.byKey(const Key('owner-trip-from')),
     );
     expect(from.controller!.text, 'Pune Station');

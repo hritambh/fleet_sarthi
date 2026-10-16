@@ -8,8 +8,8 @@ import '../../../core/api/json.dart';
 import '../../../core/api/models.dart';
 import '../../../core/api/owner_models.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../common/address_field.dart';
 import '../../common/format.dart';
+import '../../common/place_field.dart';
 import '../links.dart';
 import '../owner_providers.dart';
 import '../owner_widgets.dart';
@@ -331,12 +331,15 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
                       setState(() => _tripType = s.first),
                 ),
                 const SizedBox(height: 12),
-                AddressField(
+                // Picking a suggested city also drops the pin there.
+                PlaceField(
                   fieldKey: const Key('owner-trip-from'),
                   controller: _from,
-                  label: l.pickup,
-                  icon: Icons.trip_origin,
-                  onChosen: (city) => setState(() => _fromPoint = city.point),
+                  decoration: InputDecoration(
+                    labelText: l.pickup,
+                    prefixIcon: const Icon(Icons.trip_origin),
+                  ),
+                  onPicked: (s) => setState(() => _fromPoint = s.point),
                 ),
                 PinField(
                   key: const Key('owner-trip-from-pin'),
@@ -347,12 +350,14 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
                 ),
                 if (!local) ...[
                   const SizedBox(height: 12),
-                  AddressField(
+                  PlaceField(
                     fieldKey: const Key('owner-trip-to'),
                     controller: _to,
-                    label: l.drop,
-                    icon: Icons.place,
-                    onChosen: (city) => setState(() => _toPoint = city.point),
+                    decoration: InputDecoration(
+                      labelText: l.drop,
+                      prefixIcon: const Icon(Icons.place),
+                    ),
+                    onPicked: (s) => setState(() => _toPoint = s.point),
                   ),
                   PinField(
                     key: const Key('owner-trip-to-pin'),

@@ -6,6 +6,7 @@ import { healthRoutes } from './health.js';
 import { identityRoutes, memberRoutes } from './identity.js';
 import { mediaRoutes } from './media.js';
 import { alertRoutes, moneyRoutes } from './money.js';
+import { placeRoutes } from './places.js';
 import { telemetryRoutes } from './telemetry.js';
 import { tripRoutes } from './trips.js';
 
@@ -16,6 +17,7 @@ export { healthRoutes } from './health.js';
 export * from './identity.js';
 export * from './media.js';
 export * from './money.js';
+export * from './places.js';
 export * from './telemetry.js';
 export * from './trips.js';
 
@@ -26,6 +28,7 @@ const groups: readonly Record<string, RouteDef>[] = [
   mediaRoutes,
   fleetRoutes,
   tripRoutes,
+  placeRoutes,
   fuelRoutes,
   telemetryRoutes,
   moneyRoutes,

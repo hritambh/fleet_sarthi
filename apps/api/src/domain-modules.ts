@@ -6,6 +6,7 @@ import { HealthModule } from './modules/health/health.module.js';
 import { IdentityModule } from './modules/identity/identity.module.js';
 import { MoneyModule } from './modules/money/money.module.js';
 import { MediaModule } from './modules/media/media.module.js';
+import { PlacesModule } from './modules/places/places.module.js';
 import { TelemetryModule } from './modules/telemetry/telemetry.module.js';
 import { TripsModule } from './modules/trips/trips.module.js';
 
@@ -18,6 +19,7 @@ export const DOMAIN_MODULES = [
   MediaModule,
   FleetModule,
   TripsModule,
+  PlacesModule,
   FuelModule,
   TelemetryModule,
   MoneyModule,

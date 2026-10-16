@@ -26,6 +26,8 @@ Fleet Sarthi gives a fleet owner a trustworthy picture of what their cars and dr
 | Settle each driver's day: fare, cash, online, expenses, net payable                                              |                                                                 |
 | Use the app in English or Hindi (हिन्दी), with amounts and dates in Indian format                                |                                                                 |
 
+Pickup and drop suggestions are [powered by Geoapify](https://www.geoapify.com/) (© OpenStreetMap contributors).
+
 Out of scope for now: the passenger app, return-leg matching and the OTA partner API. The schema leaves room for them (see [`docs/database.md`](docs/database.md#future-proofing)).
 
 ## Repository layout

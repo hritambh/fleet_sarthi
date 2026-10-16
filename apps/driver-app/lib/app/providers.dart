@@ -16,6 +16,7 @@ import '../core/media/camera_capture.dart';
 import '../core/media/file_pick.dart';
 import '../core/media/photo_store.dart';
 import '../core/media/photo_store_platform.dart';
+import '../core/places/places_api.dart';
 import '../core/repositories/fuel_repository.dart';
 import '../core/repositories/trips_repository.dart';
 import '../core/sync/sync_engine.dart';
@@ -78,6 +79,11 @@ final ownerApiProvider = Provider<OwnerApi>(
 /// replace it with a fake.
 final meApiProvider = Provider<MeApi>(
   (ref) => HttpMeApi(ref.watch(httpApiProvider)),
+);
+
+/// Pickup and drop suggestions (through our API); tests replace it with a fake.
+final placesApiProvider = Provider<PlacesApi>(
+  (ref) => HttpPlacesApi(ref.watch(httpApiProvider)),
 );
 
 final syncEngineProvider = Provider<SyncEngine>((ref) {

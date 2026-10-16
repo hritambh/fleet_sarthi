@@ -42,10 +42,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  assets:
-    # Indian cities and towns for a trip's pickup and drop; see
-    # tool/generate_cities.mjs for where the list comes from.
-    - assets/data/in_cities.json
   # Localizations are generated from lib/l10n/*.arb (see l10n.yaml) on pub get.
   generate: true
   fonts:
