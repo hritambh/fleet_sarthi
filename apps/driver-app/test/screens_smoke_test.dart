@@ -107,7 +107,7 @@ void main() {
     'settings': const SettingsScreen(),
   };
 
-  for (final language in ['en', 'hi']) {
+  for (final language in ['en', 'hi', 'kn', 'mr']) {
     for (final entry in screens.entries) {
       testWidgets('${entry.key} ($language)', (tester) async {
         tester.view
@@ -160,7 +160,7 @@ void main() {
     'add my document': const DocumentFormScreen(mine: true),
     'profile': const DriverProfileScreen(),
   };
-  for (final language in ['en', 'hi']) {
+  for (final language in ['en', 'hi', 'kn', 'mr']) {
     for (final entry in driverScreens.entries) {
       testWidgets('driver: ${entry.key} ($language)', (tester) async {
         tester.view

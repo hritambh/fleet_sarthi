@@ -46,7 +46,7 @@ Each milestone ends with lint, typecheck and tests passing, a summary of what ch
   - owner mode is online-only; nothing is cached for offline viewing
   - the fuel chart shows the usual figure but not the ± tolerance band
   - photos in owner mode load from signed S3 URLs; in the browser build the bucket must allow the page's origin (as for uploads)
-  - only English and Hindi so far; adding a language is a new ARB file (see development.md)
+  - English, Hindi, Kannada and Marathi (Kannada and Marathi added 2026-10-17, machine-translated: worth a native speaker's review); adding a language is a new ARB file (see development.md)
   - the first sync after a fresh sign-in can mislabel an older cancelled trip as reassigned (the server's "recent" window is 2 days)
 - **Web:** the app's browser build has no end-to-end tests, and there's no address search (map pins are manual)
 

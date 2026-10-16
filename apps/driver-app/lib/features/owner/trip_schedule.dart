@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../app/theme.dart';
 import '../../core/api/models.dart';
@@ -112,7 +111,7 @@ class _TripScheduleState extends ConsumerState<TripSchedule> {
               ),
               Expanded(
                 child: Text(
-                  DateFormat.yMMMM(fmt.locale).format(_month),
+                  fmt.dateFormat('yMMMM').format(_month),
                   key: const Key('schedule-month'),
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleMedium,
@@ -202,11 +201,11 @@ class _MonthGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final locale = context.fmt.locale;
+    final fmt = context.fmt;
     final days = DateUtils.getDaysInMonth(month.year, month.month);
     // Weeks start on Monday; DateTime.weekday is 1 (Mon) to 7 (Sun).
     final lead = month.weekday - 1;
-    final weekday = DateFormat.E(locale);
+    final weekday = fmt.dateFormat('E');
     final cells = <Widget>[
       for (var i = 0; i < 7; i++)
         Center(

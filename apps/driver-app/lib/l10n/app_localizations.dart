@@ -7,6 +7,8 @@ import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
 import 'app_localizations_hi.dart';
+import 'app_localizations_kn.dart';
+import 'app_localizations_mr.dart';
 
 // ignore_for_file: type=lint
 
@@ -96,6 +98,8 @@ abstract class AppLocalizations {
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
     Locale('hi'),
+    Locale('kn'),
+    Locale('mr'),
   ];
 
   /// No description provided for @appTitle.
@@ -5927,7 +5931,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeTrustLanguages.
   ///
   /// In en, this message translates to:
-  /// **'English & हिन्दी'**
+  /// **'English, हिन्दी, ಕನ್ನಡ, मराठी'**
   String get welcomeTrustLanguages;
 
   /// No description provided for @welcomeTrustNoCard.
@@ -6209,7 +6213,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeDrivers1.
   ///
   /// In en, this message translates to:
-  /// **'Simple screens in Hindi or English'**
+  /// **'Simple screens in English, Hindi, Kannada or Marathi'**
   String get welcomeDrivers1;
 
   /// No description provided for @welcomeDrivers2.
@@ -6287,13 +6291,13 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeFaqLanguageQ.
   ///
   /// In en, this message translates to:
-  /// **'Is it available in Hindi?'**
+  /// **'Is it available in my language?'**
   String get welcomeFaqLanguageQ;
 
   /// No description provided for @welcomeFaqLanguageA.
   ///
   /// In en, this message translates to:
-  /// **'Yes. Every screen is in Hindi and English; change the language any time from the top of the screen.'**
+  /// **'Yes. Every screen is in English, Hindi, Kannada and Marathi; change the language any time from the top of the screen.'**
   String get welcomeFaqLanguageA;
 
   /// No description provided for @welcomeFinalTitle.
@@ -7316,7 +7320,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en', 'hi'].contains(locale.languageCode);
+      <String>['en', 'hi', 'kn', 'mr'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -7329,6 +7333,10 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsEn();
     case 'hi':
       return AppLocalizationsHi();
+    case 'kn':
+      return AppLocalizationsKn();
+    case 'mr':
+      return AppLocalizationsMr();
   }
 
   throw FlutterError(

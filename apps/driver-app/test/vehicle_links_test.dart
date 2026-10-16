@@ -609,7 +609,7 @@ void main() {
 
   // The new pieces on a small phone (360 px) in both languages, like
   // screens_smoke_test: any overflow fails the test.
-  for (final language in ['en', 'hi']) {
+  for (final language in ['en', 'hi', 'kn', 'mr']) {
     testWidgets('360 px: edit-drivers sheet ($language)', (tester) async {
       final h = await setUpOwner(tester, language: language, width: 360);
       await tester.pumpWidget(

@@ -1,7 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../app/providers.dart';
 import '../../app/theme.dart';
@@ -408,7 +407,7 @@ class FuelChart extends StatelessWidget {
         if (c.baselineMean != null)
           FlSpot(i.toDouble(), c.baselineMean! * scale),
     ];
-    final day = DateFormat('d MMM', context.fmt.locale);
+    final day = context.fmt.dateFormat('d MMM');
     Color dot(String verdict) => switch (verdict) {
       'flagged' => Colors.red.shade700,
       'invalid' => Colors.amber.shade800,

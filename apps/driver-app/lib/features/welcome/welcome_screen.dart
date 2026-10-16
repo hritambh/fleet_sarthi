@@ -510,11 +510,14 @@ class _Trust extends StatelessWidget {
     children: [
       Icon(icon, size: 16, color: Colors.white.withValues(alpha: 0.6)),
       const SizedBox(width: 6),
-      Text(
-        label,
-        style: TextStyle(
-          color: Colors.white.withValues(alpha: 0.7),
-          fontSize: 13.5,
+      // Wraps on a narrow phone (the language list is long).
+      Flexible(
+        child: Text(
+          label,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.7),
+            fontSize: 13.5,
+          ),
         ),
       ),
     ],

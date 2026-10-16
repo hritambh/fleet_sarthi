@@ -154,7 +154,7 @@ void main() {
 
   // On a small phone in both languages, with the list and the credit showing:
   // any overflow fails the test.
-  for (final language in ['en', 'hi']) {
+  for (final language in ['en', 'hi', 'kn', 'mr']) {
     testWidgets('360 px: suggestions fit ($language)', (tester) async {
       final h = await setUp(tester, language: language, width: 360);
       await tester.pumpWidget(h.screen(const CreateTripScreen()));

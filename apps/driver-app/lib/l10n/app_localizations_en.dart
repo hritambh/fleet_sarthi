@@ -3394,7 +3394,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeTrustPlatforms => 'Android & web';
 
   @override
-  String get welcomeTrustLanguages => 'English & हिन्दी';
+  String get welcomeTrustLanguages => 'English, हिन्दी, ಕನ್ನಡ, मराठी';
 
   @override
   String get welcomeTrustNoCard => 'No card needed';
@@ -3546,7 +3546,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeDriversTitle => 'For drivers';
 
   @override
-  String get welcomeDrivers1 => 'Simple screens in Hindi or English';
+  String get welcomeDrivers1 =>
+      'Simple screens in English, Hindi, Kannada or Marathi';
 
   @override
   String get welcomeDrivers2 => 'Today\'s trips in order, one tap to start';
@@ -3589,11 +3590,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Any Android phone with a camera. Owners can also use Fleet Sarthi in a web browser.';
 
   @override
-  String get welcomeFaqLanguageQ => 'Is it available in Hindi?';
+  String get welcomeFaqLanguageQ => 'Is it available in my language?';
 
   @override
   String get welcomeFaqLanguageA =>
-      'Yes. Every screen is in Hindi and English; change the language any time from the top of the screen.';
+      'Yes. Every screen is in English, Hindi, Kannada and Marathi; change the language any time from the top of the screen.';
 
   @override
   String get welcomeFinalTitle => 'Stop guessing. Start knowing.';

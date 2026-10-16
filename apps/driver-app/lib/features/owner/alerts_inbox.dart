@@ -24,7 +24,7 @@ class AlertsInboxScreen extends ConsumerWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(label),
+          Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
           if (count > 0) ...[
             const SizedBox(width: 6),
             Badge(label: Text(count > 99 ? '99+' : '$count')),

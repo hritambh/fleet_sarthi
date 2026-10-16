@@ -3388,7 +3388,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get welcomeTrustPlatforms => 'Android और वेब';
 
   @override
-  String get welcomeTrustLanguages => 'हिन्दी और English';
+  String get welcomeTrustLanguages => 'हिन्दी, English, ಕನ್ನಡ, मराठी';
 
   @override
   String get welcomeTrustNoCard => 'कार्ड की ज़रूरत नहीं';
@@ -3541,7 +3541,8 @@ class AppLocalizationsHi extends AppLocalizations {
   String get welcomeDriversTitle => 'ड्राइवरों के लिए';
 
   @override
-  String get welcomeDrivers1 => 'हिन्दी या English में आसान स्क्रीन';
+  String get welcomeDrivers1 =>
+      'हिन्दी, English, कन्नड़ या मराठी में आसान स्क्रीन';
 
   @override
   String get welcomeDrivers2 => 'आज की ट्रिप क्रम से, एक टैप में शुरू';
@@ -3584,11 +3585,11 @@ class AppLocalizationsHi extends AppLocalizations {
       'कैमरा वाला कोई भी Android फ़ोन। मालिक फ़्लीट सारथी को वेब ब्राउज़र में भी चला सकते हैं।';
 
   @override
-  String get welcomeFaqLanguageQ => 'क्या यह हिन्दी में है?';
+  String get welcomeFaqLanguageQ => 'क्या यह मेरी भाषा में है?';
 
   @override
   String get welcomeFaqLanguageA =>
-      'हाँ। हर स्क्रीन हिन्दी और English में है; ऊपर से कभी भी भाषा बदलें।';
+      'हाँ। हर स्क्रीन हिन्दी, English, कन्नड़ और मराठी में है; ऊपर से कभी भी भाषा बदलें।';
 
   @override
   String get welcomeFinalTitle => 'अंदाज़ा छोड़िए, पक्का जानिए।';

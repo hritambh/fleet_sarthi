@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../app/providers.dart';
 import '../../app/theme.dart';
@@ -146,7 +145,7 @@ class _PastTripsState extends ConsumerState<_PastTrips> {
             ),
             Expanded(
               child: Text(
-                DateFormat.yMMMM(fmt.locale).format(_month),
+                fmt.dateFormat('yMMMM').format(_month),
                 key: const Key('past-month'),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium,

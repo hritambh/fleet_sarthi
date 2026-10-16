@@ -830,18 +830,20 @@ class VehicleDriversSection extends ConsumerWidget {
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
               ),
-              TextButton.icon(
-                key: const Key('edit-vehicle-drivers'),
-                icon: const Icon(Icons.people_alt_outlined, size: 18),
-                label: Text(l.editDrivers),
-                onPressed: drivers.isLoading
-                    ? null
-                    : () => editVehicleDrivers(
-                        context,
-                        ref,
-                        vehicle,
-                        drivers.value ?? const [],
-                      ),
+              Flexible(
+                child: TextButton.icon(
+                  key: const Key('edit-vehicle-drivers'),
+                  icon: const Icon(Icons.people_alt_outlined, size: 18),
+                  label: Text(l.editDrivers),
+                  onPressed: drivers.isLoading
+                      ? null
+                      : () => editVehicleDrivers(
+                          context,
+                          ref,
+                          vehicle,
+                          drivers.value ?? const [],
+                        ),
+                ),
               ),
             ],
           ),

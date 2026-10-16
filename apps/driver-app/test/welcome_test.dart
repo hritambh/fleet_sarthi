@@ -164,7 +164,7 @@ void main() {
     });
 
     // A small phone and Hindi: no overflow (it scrolls if it must).
-    for (final language in ['en', 'hi']) {
+    for (final language in ['en', 'hi', 'kn', 'mr']) {
       testWidgets('fits a 360 × 640 phone ($language)', (tester) async {
         await firstVisit(
           tester,
@@ -179,7 +179,7 @@ void main() {
 
   // Every section is built (the page is one column), so any overflow at these
   // sizes fails the test with the widget at fault.
-  for (final language in ['en', 'hi']) {
+  for (final language in ['en', 'hi', 'kn', 'mr']) {
     for (final (name, size) in [
       ('360 px phone', const Size(360, 1600)),
       ('tablet', const Size(800, 1200)),

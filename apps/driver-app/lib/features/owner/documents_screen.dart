@@ -195,13 +195,19 @@ class DocumentsList extends ConsumerWidget {
                               ),
                             ],
                           ),
-                          trailing: Wrap(
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            spacing: 4,
-                            children: [
-                              DocumentStatusChip(d),
-                              _menu(context, ref, d),
-                            ],
+                          // Capped, with the status shortened ("…") rather
+                          // than the menu pushed off, so a long Kannada or
+                          // Marathi status can't take the whole tile.
+                          trailing: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 170),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Flexible(child: DocumentStatusChip(d)),
+                                const SizedBox(width: 4),
+                                _menu(context, ref, d),
+                              ],
+                            ),
                           ),
                         ),
                       ),

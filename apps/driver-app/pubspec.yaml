@@ -60,10 +60,14 @@ flutter:
     - family: Caveat
       fonts:
         - asset: assets/fonts/Caveat-Variable.ttf
-    # Bundled so Hindi renders in the web build without fetching fonts at runtime
-    # (phones have Devanagari fonts already). OFL licence in assets/fonts/OFL.txt.
+    # Bundled so Hindi and Marathi (Devanagari) and Kannada render in the web build
+    # without fetching fonts at runtime (phones have these scripts already). OFL
+    # licences in assets/fonts/OFL.txt and OFL-NotoSansKannada.txt.
     - family: NotoSansDevanagari
       fonts:
         - asset: assets/fonts/NotoSansDevanagari-Regular.ttf
         - asset: assets/fonts/NotoSansDevanagari-SemiBold.ttf
           weight: 600
+    - family: NotoSansKannada
+      fonts:
+        - asset: assets/fonts/NotoSansKannada.ttf

@@ -151,7 +151,7 @@ void main() {
   });
 
   // On a small phone in both languages: any overflow fails the test.
-  for (final language in ['en', 'hi']) {
+  for (final language in ['en', 'hi', 'kn', 'mr']) {
     testWidgets('360 px: the dates pop-up fits ($language)', (tester) async {
       tester.view
         ..devicePixelRatio = 1

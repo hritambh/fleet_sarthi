@@ -1,7 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../app/theme.dart';
 import '../../core/api/owner_models.dart';
@@ -40,7 +39,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
     final l = context.l10n;
     final fmt = context.fmt;
     final data = ref.watch(dailyAnalyticsProvider(_key));
-    final monthName = DateFormat.MMMM(fmt.locale);
+    final monthName = fmt.dateFormat('MMMM');
     final years = [for (var y = _today.year; y > _today.year - 4; y--) y];
     Widget box(Widget child) => SizedBox(width: 180, child: child);
     return Scaffold(

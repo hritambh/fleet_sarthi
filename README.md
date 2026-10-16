@@ -6,25 +6,25 @@ Fleet audit and intercity cab operations for small fleet owners (2–15 cars) an
 
 Fleet Sarthi gives a fleet owner a trustworthy picture of what their cars and drivers actually did: trips with photo-verified odometer readings, fuel fills audited against each vehicle's own history, GPS-vs-odometer distance checks, and a daily cash settlement per driver.
 
-> **Status: M0.1–M1.8 and M1.10 done.** The API, workers and the Flutter app (one app for owners and drivers on Android and the web: owner mode plus offline-first driver mode, in English and Hindi) are built, and a demo fleet can be seeded. Next up is M1.9 (end-to-end tests). See [`docs/roadmap.md`](docs/roadmap.md) for progress and [`docs/decisions.md`](docs/decisions.md) for design decisions.
+> **Status: M0.1–M1.8 and M1.10 done.** The API, workers and the Flutter app (one app for owners and drivers on Android and the web: owner mode plus offline-first driver mode, in English, Hindi, Kannada and Marathi) are built, and a demo fleet can be seeded. Next up is M1.9 (end-to-end tests). See [`docs/roadmap.md`](docs/roadmap.md) for progress and [`docs/decisions.md`](docs/decisions.md) for design decisions.
 
 ---
 
 ## What it does
 
-| For the fleet owner (owner mode)                                                                                 | For the driver (driver mode)                                    |
-| ---------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| Sign in with mobile number + password; sign up, and reset a forgotten password with a code                       | Log in with mobile number + password; sign up, reset a password |
-| Manage vehicles, drivers and their documents (RC, insurance, permit, PUC, DL)                                    |                                                                 |
-| Get alerts 30 / 7 / 1 days before a document expires                                                             | See assigned trips                                              |
-| Create, assign and track trips; see photos and the GPS route                                                     | Start/end a trip with an odometer photo + typed reading         |
-| See fuel efficiency (or cost per km for petrol + CNG cars) per vehicle, cycle by cycle, against its own baseline | Log fuel fills with a receipt photo and a full-tank toggle      |
-| Get plain-language alerts for suspicious fuel use or inflated odometer readings                                  | Log cash / UPI / card collections                               |
-| Review OCR mismatches in a review queue                                                                          | Request cancellation of a running trip                          |
-| Approve or reject trip cancellations                                                                             | Add tolls, parking and other charges                            |
-| Configure driver pay rules                                                                                       | Keep working offline; sync when back online                     |
-| Settle each driver's day: fare, cash, online, expenses, net payable                                              |                                                                 |
-| Use the app in English or Hindi (हिन्दी), with amounts and dates in Indian format                                |                                                                 |
+| For the fleet owner (owner mode)                                                                                    | For the driver (driver mode)                                    |
+| ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Sign in with mobile number + password; sign up, and reset a forgotten password with a code                          | Log in with mobile number + password; sign up, reset a password |
+| Manage vehicles, drivers and their documents (RC, insurance, permit, PUC, DL)                                       |                                                                 |
+| Get alerts 30 / 7 / 1 days before a document expires                                                                | See assigned trips                                              |
+| Create, assign and track trips; see photos and the GPS route                                                        | Start/end a trip with an odometer photo + typed reading         |
+| See fuel efficiency (or cost per km for petrol + CNG cars) per vehicle, cycle by cycle, against its own baseline    | Log fuel fills with a receipt photo and a full-tank toggle      |
+| Get plain-language alerts for suspicious fuel use or inflated odometer readings                                     | Log cash / UPI / card collections                               |
+| Review OCR mismatches in a review queue                                                                             | Request cancellation of a running trip                          |
+| Approve or reject trip cancellations                                                                                | Add tolls, parking and other charges                            |
+| Configure driver pay rules                                                                                          | Keep working offline; sync when back online                     |
+| Settle each driver's day: fare, cash, online, expenses, net payable                                                 |                                                                 |
+| Use the app in English, Hindi (हिन्दी), Kannada (ಕನ್ನಡ) or Marathi (मराठी), with amounts and dates in Indian format |                                                                 |
 
 Pickup and drop suggestions are [powered by Geoapify](https://www.geoapify.com/) (© OpenStreetMap contributors).
 
@@ -36,7 +36,7 @@ Out of scope for now: the passenger app, return-leg matching and the OTA partner
 apps/
   api/          NestJS modular monolith (HTTP API)
   workers/      BullMQ workers: OCR, fuel cycles, GPS distance, document expiry, outbox relay
-  driver-app/   Flutter app "Fleet Sarthi" for Android and the web: owner mode and offline-first driver mode, English + Hindi
+  driver-app/   Flutter app "Fleet Sarthi" for Android and the web: owner mode and offline-first driver mode, English, Hindi, Kannada, Marathi
 libs/
   db/           Prisma schema, migrations, TypedSQL queries and client (shared by api + workers)
   contracts/    Zod schemas + inferred types shared by API and clients
@@ -48,16 +48,16 @@ docs/           Architecture, domain rules, database, usage guides
 
 ## Tech stack
 
-| Concern             | Choice                                                                                                             |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Monorepo            | Bun workspaces (package manager) + Nx (task runner); Node 24 runtime                                               |
-| API                 | NestJS, Prisma ORM, Zod                                                                                            |
-| Database            | PostgreSQL 16 + PostGIS + btree_gist                                                                               |
-| Jobs / cache        | Redis + BullMQ (separate `workers` app, same codebase; or inside the API on free hosting)                          |
-| Object storage      | S3-compatible, signed upload URLs (RustFS locally)                                                                 |
-| App (Android + web) | Flutter: camera, geolocator (foreground service), drift (SQLite), gen-l10n (English, Hindi), flutter_map, fl_chart |
-| Observability       | pino structured logs, request IDs, health checks, Sentry                                                           |
-| Testing             | Vitest, flutter_test, Testcontainers, Maestro                                                                      |
+| Concern             | Choice                                                                                                                               |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Monorepo            | Bun workspaces (package manager) + Nx (task runner); Node 24 runtime                                                                 |
+| API                 | NestJS, Prisma ORM, Zod                                                                                                              |
+| Database            | PostgreSQL 16 + PostGIS + btree_gist                                                                                                 |
+| Jobs / cache        | Redis + BullMQ (separate `workers` app, same codebase; or inside the API on free hosting)                                            |
+| Object storage      | S3-compatible, signed upload URLs (RustFS locally)                                                                                   |
+| App (Android + web) | Flutter: camera, geolocator (foreground service), drift (SQLite), gen-l10n (English, Hindi, Kannada, Marathi), flutter_map, fl_chart |
+| Observability       | pino structured logs, request IDs, health checks, Sentry                                                                             |
+| Testing             | Vitest, flutter_test, Testcontainers, Maestro                                                                                        |
 
 ## Running it locally
 

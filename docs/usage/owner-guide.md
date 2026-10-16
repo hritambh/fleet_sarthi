@@ -35,7 +35,7 @@ On the sign-in screen choose **Forgot password?**, enter your mobile number and 
 
 ### Language
 
-The app is available in **English** and **Hindi (हिन्दी)**. Pick one from the language button on the sign-in screen, or **More → Language** (also in **Settings**); the choice is remembered on that phone or browser.
+The app is available in **English**, **Hindi (हिन्दी)**, **Kannada (ಕನ್ನಡ)** and **Marathi (मराठी)**. Pick one from the language button on the sign-in screen, or **More → Language** (also in **Settings**); the choice is remembered on that phone or browser.
 
 Everything is shown in the chosen language, including alerts, settlement lines and error messages, with amounts in rupees with Indian grouping (₹1,23,456) and times in IST. Names, places, notes and reasons that people typed are shown exactly as entered. A few older alerts raised before this feature stay in English.
 

@@ -43,7 +43,7 @@ Future<void> tapKey(WidgetTester tester, String key) async {
 void main() {
   group('the hub', () {
     // Each category opens its page; a layout overflow anywhere fails the test.
-    for (final language in ['en', 'hi']) {
+    for (final language in ['en', 'hi', 'kn', 'mr']) {
       testWidgets('every page opens on a 360 px phone ($language)', (
         tester,
       ) async {

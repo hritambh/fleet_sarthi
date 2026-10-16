@@ -72,8 +72,9 @@ ThemeData buildTheme() {
   return ThemeData(
     useMaterial3: true,
     fontFamily: 'Inter',
-    // Bundled for the web build; phones use their own Devanagari fonts first.
-    fontFamilyFallback: const ['NotoSansDevanagari'],
+    // Bundled for the web build (Hindi and Marathi, then Kannada); phones use
+    // their own fonts for these scripts first.
+    fontFamilyFallback: const ['NotoSansDevanagari', 'NotoSansKannada'],
     colorScheme: scheme,
     scaffoldBackgroundColor: TaxcyColors.background,
     appBarTheme: const AppBarTheme(

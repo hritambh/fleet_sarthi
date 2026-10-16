@@ -53,6 +53,8 @@ Map<String, String> get languageNames => {
     locale.languageCode: switch (locale.languageCode) {
       'en' => 'English',
       'hi' => 'हिन्दी',
+      'kn' => 'ಕನ್ನಡ',
+      'mr' => 'मराठी',
       final other => other,
     },
 };

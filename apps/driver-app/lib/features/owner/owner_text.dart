@@ -292,7 +292,7 @@ String _alertVehicle(AppLocalizations l, AlertVehicle v) => l.alertVehicle(
 /// "9 Oct" for an IST calendar date (YYYY-MM-DD).
 String _shortDay(Fmt f, String isoDate) {
   final d = DateTime.tryParse(isoDate);
-  return d == null ? isoDate : DateFormat('d MMM', f.locale).format(d);
+  return d == null ? isoDate : f.dateFormat('d MMM').format(d);
 }
 
 /// The alert's title in the user's language; the English title when the alert

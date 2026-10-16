@@ -10,20 +10,40 @@ extension L10nContext on BuildContext {
 }
 
 /// Locale-aware formatting: Indian digit grouping and dates in the app's language
-/// (en_IN or hi_IN). Times are shown in the device's local time.
+/// (en_IN, hi_IN, kn_IN, mr_IN). Numbers always use 0–9 with Indian grouping
+/// (1,23,456) and times "6:05 pm": CLDR would give Marathi Devanagari digits,
+/// and Kannada western grouping and a one-letter am/pm. Month names follow the
+/// language. Times are shown in the device's local time.
 class Fmt {
-  Fmt(this.l) : locale = '${l.localeName}_IN';
+  Fmt(this.l)
+    : locale = '${l.localeName}_IN',
+      numberLocale = _ownNumbers.contains(l.localeName)
+          ? '${l.localeName}_IN'
+          : 'en_IN';
+
+  /// Languages whose own intl number and time formats the app uses as they are.
+  static const _ownNumbers = {'en', 'hi'};
 
   final AppLocalizations l;
 
-  /// The intl locale, e.g. en_IN or hi_IN.
+  /// The intl locale, e.g. en_IN or hi_IN (month names).
   final String locale;
+
+  /// The intl locale for numbers, amounts and times.
+  final String numberLocale;
+
+  /// A date pattern or skeleton ('d MMM', 'yMMMM', 'E') in the app's
+  /// language, with 0–9 digits. Use this rather than DateFormat(…, locale).
+  DateFormat dateFormat(String pattern) =>
+      DateFormat(pattern, locale)..useNativeDigits = false;
+
+  DateFormat _date(String pattern) => dateFormat(pattern);
 
   /// ₹ with Indian grouping: 12345678 paise → "₹1,23,456.78"; whole rupees drop ".00".
   String inr(int paise) {
     final whole = paise % 100 == 0;
     return NumberFormat.currency(
-      locale: locale,
+      locale: numberLocale,
       symbol: '₹',
       decimalDigits: whole ? 0 : 2,
     ).format(paise / 100);
@@ -31,7 +51,7 @@ class Fmt {
 
   /// Whole number with Indian grouping: 123456 → "1,23,456".
   String number(num value, {int decimals = 0}) {
-    final format = NumberFormat.decimalPattern(locale)
+    final format = NumberFormat.decimalPattern(numberLocale)
       ..minimumFractionDigits = decimals
       ..maximumFractionDigits = decimals;
     return format.format(value);
@@ -41,24 +61,21 @@ class Fmt {
 
   /// "2:30 pm" (CLDR's narrow no-break space before am/pm becomes a plain one).
   String time(DateTime at) => DateFormat.jm(
-    locale,
+    numberLocale,
   ).format(at.toLocal()).replaceAll(' ', ' ').toLowerCase();
 
   /// "9 Oct" (or "9 Oct 2025" when not this year).
   String date(DateTime at, {DateTime? now}) {
     final local = at.toLocal();
     final year = (now ?? DateTime.now()).toLocal().year;
-    return DateFormat(
-      local.year == year ? 'd MMM' : 'd MMM y',
-      locale,
-    ).format(local);
+    return _date(local.year == year ? 'd MMM' : 'd MMM y').format(local);
   }
 
   /// A calendar date sent as YYYY-MM-DD (IST business dates), shown as written.
   String calendarDate(String isoDate) {
     final d = DateTime.tryParse(isoDate);
     if (d == null) return isoDate;
-    return DateFormat('d MMM y', locale).format(d);
+    return _date('d MMM y').format(d);
   }
 
   /// Today / Tomorrow / Yesterday, else "9 Oct".

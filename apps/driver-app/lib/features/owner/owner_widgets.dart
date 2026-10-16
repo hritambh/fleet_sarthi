@@ -215,7 +215,9 @@ class SectionCard extends StatelessWidget {
                     )
                   else
                     const Spacer(),
-                  ...actions,
+                  // Actions may shrink (their labels wrap) so a long label in
+                  // Kannada or Marathi doesn't push past a phone's edge.
+                  for (final action in actions) Flexible(child: action),
                 ],
               ),
             ),
@@ -571,6 +573,8 @@ class ToneChip extends StatelessWidget {
       ),
       child: Text(
         text,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(color: fg, fontSize: 12, fontWeight: FontWeight.w600),
       ),
     );

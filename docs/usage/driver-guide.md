@@ -1,6 +1,6 @@
 # Driver guide (mobile app)
 
-> Describes the driver screens of the Fleet Sarthi app (built in M1.8; English and Hindi since M1.10). Owners and managers use the same app; see the [owner guide](owner-guide.md#owner-mode-in-the-app). Drivers use the Android or iOS app; the browser version (`bun run dev:driver-web`) is for demos and testing, and records the route only while its tab is open.
+> Describes the driver screens of the Fleet Sarthi app (built in M1.8; English and Hindi since M1.10, Kannada and Marathi since 2026-10-17). Owners and managers use the same app; see the [owner guide](owner-guide.md#owner-mode-in-the-app). Drivers use the Android or iOS app; the browser version (`bun run dev:driver-web`) is for demos and testing, and records the route only while its tab is open.
 
 ## Sign in
 
