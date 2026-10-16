@@ -1,10 +1,12 @@
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 import type { Session } from '@taxcy/contracts';
 import { randomUUID } from 'node:crypto';
 import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { refreshDemo, refreshDemoIfStale } from '../src/seed/demo-refresh.js';
-import { DEMO_PASSWORD, demoOrgIds, runSeed } from '../src/seed/seed.js';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { refreshDemo, refreshDemoIfStale, wipeOrgs } from '../src/seed/demo-refresh.js';
+import { DEMO_FLEETS, DEMO_PASSWORD, demoOrgIds, runSeed } from '../src/seed/seed.js';
 import { Db } from '../src/platform/prisma.service.js';
+import { S3Service } from '../src/platform/s3.service.js';
 import { ownerSession } from './harness.js';
 import { startHarness, type Harness } from './harness.js';
 
@@ -196,5 +198,39 @@ describe('demo refresh', () => {
     const tomorrow = new Date(Date.now() + 86_400_000);
     expect(await refreshDemoIfStale(h.app, tomorrow)).toBe(true);
     expect((await demoOrgIds(h.app.get(Db))).some((id) => ids.includes(id))).toBe(false);
+  }, 600_000);
+
+  it('rebuilds a demo whose seed stopped partway, even on the same day', async () => {
+    const db = h.app.get(Db);
+    // A seed that failed before its last step (Patil Cabs) leaves Sharma only.
+    await wipeOrgs(h.app, await demoOrgIds(db, [DEMO_FLEETS[1]]));
+    expect(await demoOrgIds(db)).toHaveLength(1);
+    expect(await refreshDemoIfStale(h.app)).toBe(true);
+    expect(await demoOrgIds(db)).toHaveLength(2);
+  }, 600_000);
+
+  it('S3 refusing photo uploads mid-refresh (as B2 did) fails it; the next start rebuilds a whole demo', async () => {
+    const db = h.app.get(Db);
+    const s3 = h.app.get(S3Service);
+    // B2 answered the seed's first photo upload with 403 AccessDenied.
+    const send = s3.client.send.bind(s3.client);
+    const spy = vi.spyOn(s3.client, 'send').mockImplementation(((command: unknown) => {
+      if (command instanceof PutObjectCommand) {
+        return Promise.reject(Object.assign(new Error('Access Denied'), { name: 'AccessDenied' }));
+      }
+      return send(command as never);
+    }) as never);
+    try {
+      await expect(refreshDemo(h.app)).rejects.toThrow('Access Denied');
+    } finally {
+      spy.mockRestore();
+    }
+    // Stopped partway: Sharma Travels exists without its last step (Patil Cabs).
+    expect(await demoOrgIds(db)).toHaveLength(1);
+    // With uploads working again, the next start's refresh rebuilds it all.
+    expect(await refreshDemoIfStale(h.app)).toBe(true);
+    expect(await demoOrgIds(db)).toHaveLength(2);
+    const sharma = await demoOrg();
+    expect(await h.owner.trip.count({ where: { orgId: sharma.id, status: 'started' } })).toBe(1);
   }, 600_000);
 });

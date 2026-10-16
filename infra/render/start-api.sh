@@ -21,15 +21,8 @@ cd "$(dirname "$0")/../.."
 
 (cd apps/api && node --enable-source-maps dist/seed/reference-cli.js)
 
-if [[ "${SEED_DEMO_DATA:-false}" == "true" ]]; then
-  (cd apps/api && node --enable-source-maps dist/seed/seed-cli.js)
-fi
-
-if [[ "${DEMO_REFRESH_FORCE:-false}" == "true" ]]; then
-  (cd apps/api && node --enable-source-maps dist/seed/demo-refresh-cli.js)
-elif [[ "${DEMO_REFRESH_DAILY:-false}" == "true" ]]; then
-  (cd apps/api && node --enable-source-maps dist/seed/demo-refresh-cli.js --if-stale)
-fi
+# Demo data (SEED_DEMO_DATA, DEMO_REFRESH_DAILY, DEMO_REFRESH_FORCE): never fatal.
+infra/render/demo-data.sh
 
 cd apps/api
 exec node --enable-source-maps dist/main.js

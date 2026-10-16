@@ -52,30 +52,37 @@ const WIPE_ORDER = [
  * Used by the daily `demo.refresh` job and `bun run db:seed:refresh`.
  */
 export async function refreshDemo(ctx: SeedContext): Promise<void> {
-  const db = ctx.get(Db);
-  const orgIds = await demoOrgIds(db);
-  if (orgIds.length) {
-    const photos = await db.system((tx) =>
-      tx.mediaObject.findMany({
-        where: { orgId: { in: orgIds } },
-        select: { storageKey: true },
-      }),
-    );
-    await db.system(async (tx) => {
-      for (const table of WIPE_ORDER) {
-        await tx.$executeRaw`DELETE FROM ${Prisma.raw(`"${table}"`)} WHERE org_id = ANY(${orgIds}::uuid[])`;
-      }
-      await tx.$executeRaw`DELETE FROM organizations WHERE id = ANY(${orgIds}::uuid[])`;
-    });
-    await deletePhotos(
-      ctx.get(S3Service),
-      photos.map((p) => p.storageKey),
-    );
-    process.stdout.write(
-      `Deleted the demo fleets (${String(orgIds.length)}) and ${String(photos.length)} photos.\n`,
-    );
-  }
+  const orgIds = await demoOrgIds(ctx.get(Db));
+  if (orgIds.length) await wipeOrgs(ctx, orgIds);
   await runSeed(ctx);
+}
+
+/**
+ * Deletes [orgIds] with every row in them (one transaction, children first)
+ * and then their photos. Only for the demo fleets: callers pass ids from
+ * demoOrgIds.
+ */
+export async function wipeOrgs(ctx: SeedContext, orgIds: string[]): Promise<void> {
+  const db = ctx.get(Db);
+  const photos = await db.system((tx) =>
+    tx.mediaObject.findMany({
+      where: { orgId: { in: orgIds } },
+      select: { storageKey: true },
+    }),
+  );
+  await db.system(async (tx) => {
+    for (const table of WIPE_ORDER) {
+      await tx.$executeRaw`DELETE FROM ${Prisma.raw(`"${table}"`)} WHERE org_id = ANY(${orgIds}::uuid[])`;
+    }
+    await tx.$executeRaw`DELETE FROM organizations WHERE id = ANY(${orgIds}::uuid[])`;
+  });
+  await deletePhotos(
+    ctx.get(S3Service),
+    photos.map((p) => p.storageKey),
+  );
+  process.stdout.write(
+    `Deleted the demo fleets (${String(orgIds.length)}) and ${String(photos.length)} photos.\n`,
+  );
 }
 
 /**
@@ -100,15 +107,17 @@ async function deletePhotos(s3: S3Service, keys: readonly string[]): Promise<voi
 }
 
 /**
- * Rebuilds the demo unless it was already seeded today (IST), so "today",
- * "this evening" and "tomorrow" in the demo always mean today. Seeds it when
- * missing. Returns whether it rebuilt.
+ * Rebuilds the demo unless it was already seeded, completely, today (IST), so
+ * "today", "this evening" and "tomorrow" in the demo always mean today. Seeds
+ * it when missing. Returns whether it rebuilt.
  */
 export async function refreshDemoIfStale(ctx: SeedContext, now = new Date()): Promise<boolean> {
   const db = ctx.get(Db);
-  // Sharma Travels is seeded first; its age is the demo's.
+  // Sharma Travels is seeded first (its age is the demo's) and Patil Cabs last:
+  // without Patil Cabs an earlier seed stopped partway, so rebuild.
   const [sharma] = await demoOrgIds(db, [DEMO_FLEETS[0]]);
-  if (sharma) {
+  const [patil] = await demoOrgIds(db, [DEMO_FLEETS[1]]);
+  if (sharma && patil) {
     const org = await db.system((tx) =>
       tx.organization.findUniqueOrThrow({ where: { id: sharma }, select: { createdAt: true } }),
     );
