@@ -3391,7 +3391,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeTrustOffline => 'Works offline';
 
   @override
-  String get welcomeTrustPlatforms => 'Android & web';
+  String get welcomeTrustPlatforms => 'Android, iPhone & web';
 
   @override
   String get welcomeTrustLanguages => 'English, हिन्दी, ಕನ್ನಡ, मराठी';
@@ -3587,7 +3587,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get welcomeFaqPhoneA =>
-      'Any Android phone with a camera. Owners can also use Fleet Sarthi in a web browser.';
+      'Any Android phone or iPhone (iOS 14 or later) with a camera. Owners can also use Fleet Sarthi in a web browser.';
 
   @override
   String get welcomeFaqLanguageQ => 'Is it available in my language?';

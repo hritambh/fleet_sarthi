@@ -3400,7 +3400,7 @@ class AppLocalizationsKn extends AppLocalizations {
   String get welcomeTrustOffline => 'ಆಫ್‌ಲೈನ್‌ನಲ್ಲೂ ಕೆಲಸ ಮಾಡುತ್ತದೆ';
 
   @override
-  String get welcomeTrustPlatforms => 'Android ಮತ್ತು ವೆಬ್';
+  String get welcomeTrustPlatforms => 'Android, iPhone ಮತ್ತು ವೆಬ್';
 
   @override
   String get welcomeTrustLanguages => 'ಕನ್ನಡ, English, हिन्दी, मराठी';
@@ -3601,7 +3601,7 @@ class AppLocalizationsKn extends AppLocalizations {
 
   @override
   String get welcomeFaqPhoneA =>
-      'ಕ್ಯಾಮೆರಾ ಇರುವ ಯಾವುದೇ Android ಫೋನ್. ಮಾಲೀಕರು ಫ್ಲೀಟ್ ಸಾರಥಿಯನ್ನು ವೆಬ್ ಬ್ರೌಸರ್‌ನಲ್ಲೂ ಬಳಸಬಹುದು.';
+      'ಕ್ಯಾಮೆರಾ ಇರುವ ಯಾವುದೇ Android ಫೋನ್ ಅಥವಾ iPhone (iOS 14 ಅಥವಾ ಹೊಸದು). ಮಾಲೀಕರು ಫ್ಲೀಟ್ ಸಾರಥಿಯನ್ನು ವೆಬ್ ಬ್ರೌಸರ್‌ನಲ್ಲೂ ಬಳಸಬಹುದು.';
 
   @override
   String get welcomeFaqLanguageQ => 'ಇದು ನನ್ನ ಭಾಷೆಯಲ್ಲಿ ಇದೆಯೇ?';

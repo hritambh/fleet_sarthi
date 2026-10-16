@@ -5925,7 +5925,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeTrustPlatforms.
   ///
   /// In en, this message translates to:
-  /// **'Android & web'**
+  /// **'Android, iPhone & web'**
   String get welcomeTrustPlatforms;
 
   /// No description provided for @welcomeTrustLanguages.
@@ -6285,7 +6285,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeFaqPhoneA.
   ///
   /// In en, this message translates to:
-  /// **'Any Android phone with a camera. Owners can also use Fleet Sarthi in a web browser.'**
+  /// **'Any Android phone or iPhone (iOS 14 or later) with a camera. Owners can also use Fleet Sarthi in a web browser.'**
   String get welcomeFaqPhoneA;
 
   /// No description provided for @welcomeFaqLanguageQ.

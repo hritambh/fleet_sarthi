@@ -3389,7 +3389,7 @@ class AppLocalizationsMr extends AppLocalizations {
   String get welcomeTrustOffline => 'ऑफलाइन चालते';
 
   @override
-  String get welcomeTrustPlatforms => 'Android आणि वेब';
+  String get welcomeTrustPlatforms => 'Android, iPhone आणि वेब';
 
   @override
   String get welcomeTrustLanguages => 'मराठी, English, हिन्दी, ಕನ್ನಡ';
@@ -3587,7 +3587,7 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get welcomeFaqPhoneA =>
-      'कॅमेरा असलेला कोणताही Android फोन. मालक फ्लीट सारथी वेब ब्राउझरमध्येही वापरू शकतात.';
+      'कॅमेरा असलेला कोणताही Android फोन किंवा iPhone (iOS 14 किंवा नवीन). मालक फ्लीट सारथी वेब ब्राउझरमध्येही वापरू शकतात.';
 
   @override
   String get welcomeFaqLanguageQ => 'हे माझ्या भाषेत आहे का?';

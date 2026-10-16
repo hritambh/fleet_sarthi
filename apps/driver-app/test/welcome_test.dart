@@ -96,6 +96,26 @@ void main() {
     );
   });
 
+  testWidgets('the landing page says it runs on Android, iPhone and the web', (
+    tester,
+  ) async {
+    await firstVisit(tester);
+    expect(find.text('Android, iPhone & web'), findsOneWidget);
+    const question = 'What phone does a driver need?';
+    await tester.scrollUntilVisible(
+      find.text(question),
+      300,
+      scrollable: find.descendant(
+        of: find.byKey(_scroll),
+        matching: find.byType(Scrollable),
+      ),
+    );
+    await tester.tap(find.text(question));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.textContaining('Android phone or iPhone'), findsOneWidget);
+  });
+
   testWidgets('the hero carousel moves on by itself and by tab', (
     tester,
   ) async {

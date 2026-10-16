@@ -3385,7 +3385,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get welcomeTrustOffline => 'बिना इंटरनेट भी चले';
 
   @override
-  String get welcomeTrustPlatforms => 'Android और वेब';
+  String get welcomeTrustPlatforms => 'Android, iPhone और वेब';
 
   @override
   String get welcomeTrustLanguages => 'हिन्दी, English, ಕನ್ನಡ, मराठी';
@@ -3582,7 +3582,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get welcomeFaqPhoneA =>
-      'कैमरा वाला कोई भी Android फ़ोन। मालिक फ़्लीट सारथी को वेब ब्राउज़र में भी चला सकते हैं।';
+      'कैमरा वाला कोई भी Android फ़ोन या iPhone (iOS 14 या नया)। मालिक फ़्लीट सारथी को वेब ब्राउज़र में भी चला सकते हैं।';
 
   @override
   String get welcomeFaqLanguageQ => 'क्या यह मेरी भाषा में है?';
