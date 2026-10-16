@@ -1,5 +1,4 @@
-import 'dart:typed_data';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:taxcy_driver/core/api/json.dart';
@@ -131,6 +130,40 @@ void main() {
   });
 
   group('document files', () {
+    testWidgets('on an iPhone, upload asks: photo library or files', (
+      tester,
+    ) async {
+      final h = await owner(tester);
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      addTearDown(() => debugDefaultTargetPlatformOverride = null);
+      await tester.pumpWidget(
+        h.screen(const DocumentFormScreen(vehicleId: vehicleId)),
+      );
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('document-upload-file')));
+      await tester.pumpAndSettle();
+      expect(find.text('Photo library'), findsOneWidget);
+      expect(find.text('Files (PDF or image)'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('pick-photos')));
+      await settle(tester);
+      expect(h.pickSources, [PickSource.photos]);
+      debugDefaultTargetPlatformOverride = null;
+    });
+
+    testWidgets('on Android, upload goes straight to the file chooser', (
+      tester,
+    ) async {
+      final h = await owner(tester);
+      await tester.pumpWidget(
+        h.screen(const DocumentFormScreen(vehicleId: vehicleId)),
+      );
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('document-upload-file')));
+      await settle(tester);
+      expect(find.byKey(const Key('pick-photos')), findsNothing);
+      expect(h.pickSources, [PickSource.files]);
+    });
+
     testWidgets('a photo and several files on one document, in order', (
       tester,
     ) async {

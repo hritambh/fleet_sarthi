@@ -30,6 +30,8 @@
 	<string>Fleet Sarthi uses the camera to photograph the odometer and fuel receipts as trip evidence.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Fleet Sarthi keeps recording the route while a trip is running, even in the background. It stops when the trip ends.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Fleet Sarthi lets you upload a photo of a vehicle or driver document (RC, insurance, licence) from your photo library.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Fleet Sarthi records your route while a trip is running, and tags odometer and receipt photos with where they were taken.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

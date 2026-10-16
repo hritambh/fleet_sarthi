@@ -76,6 +76,9 @@ class Harness {
   /// page (false).
   bool compactWelcome = true;
 
+  /// Where each pick came from (files or the photo library), in order.
+  final pickSources = <PickSource>[];
+
   /// URLs the app asked to open outside itself (WhatsApp links), in order.
   final openedUrls = <Uri>[];
   final InMemorySessionStore sessions;
@@ -113,7 +116,11 @@ class Harness {
       photoCaptureProvider.overrideWithValue(
         (context, kind) async => fakePhoto('captured-$kind', kind: kind),
       ),
-      filePickProvider.overrideWithValue((kind) async {
+      filePickProvider.overrideWithValue((
+        kind, {
+        source = PickSource.files,
+      }) async {
+        pickSources.add(source);
         final next = pickFile;
         if (next == null) throw const FileTooLargeException('big-scan.pdf');
         return next(kind);

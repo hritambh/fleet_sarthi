@@ -1188,5 +1188,8 @@
   "roleDriverCan": "ड्रायव्हर ॲपमध्ये स्वतःच्या ट्रिप, इंधन फिल, खर्च आणि कागदपत्रे.",
   "settingsRange": "{min} ते {max} मधील नंबर टाका.",
   "settingsDaysInvalid": "0 ते 365 मधील जास्तीत जास्त 5 पूर्ण संख्या, उदा. 30, 7, 1.",
-  "placesCredit": "Powered by Geoapify · © OpenStreetMap contributors"
+  "placesCredit": "Powered by Geoapify · © OpenStreetMap contributors",
+  "pickSourceTitle": "कुठून अपलोड करायचे",
+  "pickFromPhotos": "फोटो गॅलरी",
+  "pickFromFiles": "फाइल्स (PDF किंवा फोटो)"
 }

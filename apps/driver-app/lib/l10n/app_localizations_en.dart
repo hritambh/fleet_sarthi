@@ -4187,4 +4187,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get placesCredit =>
       'Powered by Geoapify · © OpenStreetMap contributors';
+
+  @override
+  String get pickSourceTitle => 'Upload from';
+
+  @override
+  String get pickFromPhotos => 'Photo library';
+
+  @override
+  String get pickFromFiles => 'Files (PDF or image)';
 }

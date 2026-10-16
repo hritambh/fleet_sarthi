@@ -3348,5 +3348,11 @@
   "settingsDaysInvalid": "Up to 5 whole numbers from 0 to 365, e.g. 30, 7, 1.",
   "@settingsDaysInvalid": {},
   "placesCredit": "Powered by Geoapify · © OpenStreetMap contributors",
-  "@placesCredit": {}
+  "@placesCredit": {},
+  "pickSourceTitle": "Upload from",
+  "@pickSourceTitle": {},
+  "pickFromPhotos": "Photo library",
+  "@pickFromPhotos": {},
+  "pickFromFiles": "Files (PDF or image)",
+  "@pickFromFiles": {}
 }

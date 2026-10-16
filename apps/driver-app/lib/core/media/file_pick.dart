@@ -31,18 +31,29 @@ class FileTooLargeException implements Exception {
   final String name;
 }
 
-/// Picks PDFs and images for [kind]; empty when cancelled. Replaced in tests.
-typedef FilePick = Future<List<PickedFile>> Function(String kind);
+/// Where a picked file comes from. The phone's file chooser covers both on
+/// Android and the web; an iPhone's Files app doesn't show the Photos library,
+/// so there the person picks one (see choosePickSource).
+enum PickSource { files, photos }
 
-/// Production picking: the system file chooser, PDFs and images only, several
-/// at once.
+/// Picks PDFs and images for [kind]; empty when cancelled. Replaced in tests.
+typedef FilePick =
+    Future<List<PickedFile>> Function(String kind, {PickSource source});
+
+/// Production picking: the system file chooser (PDFs and images only), or the
+/// photo library, several at once.
 Future<List<PickedFile>> pickDocumentFiles(
   PhotoStore store,
-  String kind,
-) async {
+  String kind, {
+  PickSource source = PickSource.files,
+}) async {
+  final photos = source == PickSource.photos;
   final picked = await FilePicker.pickFiles(
-    type: FileType.custom,
-    allowedExtensions: _contentTypes.keys.toList(),
+    type: photos ? FileType.image : FileType.custom,
+    allowedExtensions: photos ? null : _contentTypes.keys.toList(),
+    // Photos come back as JPEG: iPhone photos are often HEIC, which uploads
+    // don't accept.
+    compressionQuality: photos ? 85 : 0,
   );
   final files = <PickedFile>[];
   for (final p in picked) {

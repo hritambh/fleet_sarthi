@@ -4179,4 +4179,13 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get placesCredit => 'Geoapify द्वारा · © OpenStreetMap योगदानकर्ता';
+
+  @override
+  String get pickSourceTitle => 'कहाँ से अपलोड करें';
+
+  @override
+  String get pickFromPhotos => 'फ़ोटो गैलरी';
+
+  @override
+  String get pickFromFiles => 'फ़ाइलें (PDF या फ़ोटो)';
 }

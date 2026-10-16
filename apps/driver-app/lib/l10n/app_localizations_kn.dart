@@ -4214,4 +4214,13 @@ class AppLocalizationsKn extends AppLocalizations {
   @override
   String get placesCredit =>
       'Powered by Geoapify · © OpenStreetMap contributors';
+
+  @override
+  String get pickSourceTitle => 'ಎಲ್ಲಿಂದ ಅಪ್‌ಲೋಡ್ ಮಾಡಬೇಕು';
+
+  @override
+  String get pickFromPhotos => 'ಫೋಟೋ ಗ್ಯಾಲರಿ';
+
+  @override
+  String get pickFromFiles => 'ಫೈಲ್‌ಗಳು (PDF ಅಥವಾ ಚಿತ್ರ)';
 }

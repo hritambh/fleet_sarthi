@@ -19,6 +19,7 @@ import 'owner_providers.dart';
 import 'owner_text.dart';
 import 'owner_widgets.dart';
 import 'trips/trip_share.dart';
+import '../common/pick_source.dart';
 
 /// A document's expiry date, or "No expiry".
 String documentExpiryText(BuildContext context, FleetDocument d) {
@@ -834,7 +835,12 @@ class _DocumentFormScreenState extends ConsumerState<DocumentFormScreen> {
 
   Future<void> _pickFiles() async {
     try {
-      final picked = await ref.read(filePickProvider)('document');
+      final source = await choosePickSource(context);
+      if (source == null || !mounted) return;
+      final picked = await ref.read(filePickProvider)(
+        'document',
+        source: source,
+      );
       if (picked.isEmpty || !mounted) return;
       _add(picked);
     } on FileTooLargeException catch (e) {

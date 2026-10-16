@@ -7307,6 +7307,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Powered by Geoapify · © OpenStreetMap contributors'**
   String get placesCredit;
+
+  /// No description provided for @pickSourceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload from'**
+  String get pickSourceTitle;
+
+  /// No description provided for @pickFromPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo library'**
+  String get pickFromPhotos;
+
+  /// No description provided for @pickFromFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Files (PDF or image)'**
+  String get pickFromFiles;
 }
 
 class _AppLocalizationsDelegate

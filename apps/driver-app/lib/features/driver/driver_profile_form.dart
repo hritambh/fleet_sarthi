@@ -14,6 +14,7 @@ import '../common/format.dart';
 import '../login/auth_widgets.dart';
 import '../owner/owner_text.dart';
 import '../owner/owner_widgets.dart';
+import '../common/pick_source.dart';
 
 /// Edits a driver's profile: photo, name, date of birth, email, address and an
 /// emergency contact. The driver uses it for themselves and the owner for any
@@ -97,7 +98,11 @@ class _DriverProfileFormScreenState
   Future<void> _choosePhoto() async {
     final l = context.l10n;
     try {
-      final picked = await ref.read(filePickProvider)('other');
+      // A profile photo is always an image: on an iPhone, the photo library.
+      final picked = await ref.read(filePickProvider)(
+        'other',
+        source: pickNeedsSource ? PickSource.photos : PickSource.files,
+      );
       if (picked.isEmpty || !mounted) return;
       final image = picked.where((f) => !f.isPdf).firstOrNull;
       if (image == null) {

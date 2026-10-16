@@ -2,7 +2,7 @@
 
 This page covers two things:
 
-1. **Building the Android app** (`fleet-sarthi-<version>.apk`) pointed at any API, and installing it on a phone.
+1. **Building the Android app** (`fleet-sarthi-<version>.apk`) pointed at any API, and installing it on a phone. For an **iPhone**, see [ios.md](ios.md).
 2. **Hosting the backend and the web app for free** on [Render](https://render.com), with Neon (Postgres + PostGIS), Render Key Value (Redis) and Backblaze B2 (photos).
 
 The free stack is meant for demos, pilots and testing, not for real fleets: it sleeps when idle, has small quotas, and logs password-reset codes instead of sending SMS. [Moving beyond free](#moving-beyond-the-free-tier) lists what to change for real users.

@@ -4189,4 +4189,13 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get placesCredit =>
       'Powered by Geoapify · © OpenStreetMap contributors';
+
+  @override
+  String get pickSourceTitle => 'कुठून अपलोड करायचे';
+
+  @override
+  String get pickFromPhotos => 'फोटो गॅलरी';
+
+  @override
+  String get pickFromFiles => 'फाइल्स (PDF किंवा फोटो)';
 }
