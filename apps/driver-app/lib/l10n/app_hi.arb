@@ -1196,6 +1196,7 @@
   "settingsRange": "{min} से {max} तक की संख्या लिखें।",
   "settingsDaysInvalid": "0 से 365 तक की ज़्यादा से ज़्यादा 5 पूरी संख्याएँ, जैसे 30, 7, 1।",
   "placesCredit": "Geoapify द्वारा · © OpenStreetMap योगदानकर्ता",
+  "placesCreditOla": "Ola Maps द्वारा",
   "pickSourceTitle": "कहाँ से अपलोड करें",
   "pickFromPhotos": "फ़ोटो गैलरी",
   "pickFromFiles": "फ़ाइलें (PDF या फ़ोटो)",

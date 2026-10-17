@@ -21,7 +21,7 @@ HttpPlacesApi placesApi(MockClientHandler handler) => HttpPlacesApi(
 void main() {
   const body = '''
 [{"label": "Hinjawadi Phase 1, Pune", "detail": "Maharashtra",
-  "lat": 18.5912, "lng": 73.7389},
+  "lat": 18.5912, "lng": 73.7389, "source": "ola"},
  {"label": "Goa", "detail": null, "lat": 15.3, "lng": 74}]''';
 
   test('asks our API once per query and keeps the answer', () async {
@@ -36,6 +36,9 @@ void main() {
     expect(found.first.point.lat, 18.5912);
     expect(found.last.detail, isNull);
     expect(found.last.point.lng, 74);
+    expect(found.first.source, PlaceSource.ola);
+    // No source (a server from before Ola Maps): Geoapify's.
+    expect(found.last.source, PlaceSource.geoapify);
 
     expect(await api.search(' hinjewadi ph'), hasLength(2));
     expect(asked, hasLength(1));

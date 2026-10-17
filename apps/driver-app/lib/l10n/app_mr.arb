@@ -1196,6 +1196,7 @@
   "settingsRange": "{min} ते {max} मधील नंबर टाका.",
   "settingsDaysInvalid": "0 ते 365 मधील जास्तीत जास्त 5 पूर्ण संख्या, उदा. 30, 7, 1.",
   "placesCredit": "Powered by Geoapify · © OpenStreetMap contributors",
+  "placesCreditOla": "Powered by Ola Maps",
   "pickSourceTitle": "कुठून अपलोड करायचे",
   "pickFromPhotos": "फोटो गॅलरी",
   "pickFromFiles": "फाइल्स (PDF किंवा फोटो)",

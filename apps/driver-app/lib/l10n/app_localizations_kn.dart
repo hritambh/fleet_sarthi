@@ -4238,6 +4238,9 @@ class AppLocalizationsKn extends AppLocalizations {
       'Powered by Geoapify · © OpenStreetMap contributors';
 
   @override
+  String get placesCreditOla => 'Powered by Ola Maps';
+
+  @override
   String get pickSourceTitle => 'ಎಲ್ಲಿಂದ ಅಪ್‌ಲೋಡ್ ಮಾಡಬೇಕು';
 
   @override

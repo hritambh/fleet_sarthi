@@ -1196,6 +1196,7 @@
   "settingsRange": "{min} ರಿಂದ {max} ವರೆಗಿನ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ.",
   "settingsDaysInvalid": "0 ರಿಂದ 365 ರವರೆಗಿನ 5 ಪೂರ್ಣ ಸಂಖ್ಯೆಗಳವರೆಗೆ, ಉದಾ. 30, 7, 1.",
   "placesCredit": "Powered by Geoapify · © OpenStreetMap contributors",
+  "placesCreditOla": "Powered by Ola Maps",
   "pickSourceTitle": "ಎಲ್ಲಿಂದ ಅಪ್‌ಲೋಡ್ ಮಾಡಬೇಕು",
   "pickFromPhotos": "ಫೋಟೋ ಗ್ಯಾಲರಿ",
   "pickFromFiles": "ಫೈಲ್‌ಗಳು (PDF ಅಥವಾ ಚಿತ್ರ)",
