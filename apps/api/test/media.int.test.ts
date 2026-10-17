@@ -1,8 +1,14 @@
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  HeadObjectCommand,
+  PutObjectCommand,
+  S3Client,
+  S3ServiceException,
+} from '@aws-sdk/client-s3';
 import type { Session } from '@taxcy/contracts';
 import { createHash, randomUUID } from 'node:crypto';
 import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { S3Service } from '../src/platform/s3.service.js';
 import {
   bearer,
   ownerSession,
@@ -149,6 +155,38 @@ describe('signed uploads', () => {
       .set(...bearer(owner))
       .expect(422);
     expect(res.body).toMatchObject({ error: { code: 'UPLOAD_NOT_FOUND' } });
+  });
+
+  it('says storage refused access (503), not a bare 500, when the bucket denies the key', async () => {
+    // As on Render when the B2 key couldn't read or write the bucket.
+    const ticket = await register(photo('denied'));
+    const s3 = h.app.get(S3Service);
+    const send = s3.client.send.bind(s3.client);
+    const spy = vi.spyOn(s3.client, 'send').mockImplementation(((command: unknown) => {
+      if (command instanceof HeadObjectCommand) {
+        return Promise.reject(
+          new S3ServiceException({
+            name: 'AccessDenied',
+            $fault: 'client',
+            $metadata: { httpStatusCode: 403 },
+            message: 'Access Denied',
+          }),
+        );
+      }
+      return send(command as never);
+    }) as never);
+    try {
+      const res = await request(h.http)
+        .post(`/v1/media/${ticket.id}/complete`)
+        .set(...bearer(owner))
+        .expect(503);
+      expect(res.body).toMatchObject({ error: { code: 'STORAGE_UNAVAILABLE' } });
+    } finally {
+      spy.mockRestore();
+    }
+    // Nothing was recorded against the photo: it can still be uploaded later.
+    const media = await h.owner.mediaObject.findUniqueOrThrow({ where: { id: ticket.id } });
+    expect(media.status).toBe('pending');
   });
 
   it('rejects an upload whose bytes do not match the declared checksum', async () => {

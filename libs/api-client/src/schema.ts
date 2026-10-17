@@ -1461,6 +1461,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -1550,6 +1551,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -1635,6 +1637,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -1721,6 +1724,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -1833,6 +1837,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -1945,6 +1950,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -2032,6 +2038,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -2146,6 +2153,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -2258,6 +2266,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -2371,6 +2380,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -2454,6 +2464,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -2560,6 +2571,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -2642,6 +2654,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -2750,6 +2763,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -2846,6 +2860,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -2935,6 +2950,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -3022,6 +3038,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -3109,6 +3126,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -3218,6 +3236,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -3308,6 +3327,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -3405,6 +3425,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -3497,6 +3518,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -3581,6 +3603,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -3671,6 +3694,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -3788,6 +3812,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -3879,6 +3904,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -3964,6 +3990,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -4064,6 +4091,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -4177,6 +4205,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -4277,6 +4306,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -4393,6 +4423,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -4499,6 +4530,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -4584,6 +4616,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -4665,6 +4698,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -4747,6 +4781,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -4886,6 +4921,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -5031,6 +5067,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -5170,6 +5207,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -5324,6 +5362,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -5469,6 +5508,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -5648,6 +5688,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -5769,6 +5810,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -5914,6 +5956,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -6045,6 +6088,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -6163,6 +6207,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -6287,6 +6332,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -6424,6 +6470,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -6573,6 +6620,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -6689,6 +6737,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -6821,6 +6870,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -6952,6 +7002,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -7037,6 +7088,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -7133,6 +7185,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -7215,6 +7268,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -7305,6 +7359,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -7414,6 +7469,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -7558,6 +7614,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -7803,6 +7860,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -8077,6 +8135,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -8180,6 +8239,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -8419,6 +8479,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -8689,6 +8750,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -8787,6 +8849,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -9037,6 +9100,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -9278,6 +9342,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -9535,6 +9600,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -9821,6 +9887,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -10068,6 +10135,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -10328,6 +10396,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -10577,6 +10646,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -10824,6 +10894,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -11065,6 +11136,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -11325,6 +11397,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -11565,6 +11638,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -11804,6 +11878,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -12044,6 +12119,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -12129,6 +12205,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -12248,6 +12325,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -12393,6 +12471,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -12513,6 +12592,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -12633,6 +12713,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -12734,6 +12815,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -12827,6 +12909,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -12920,6 +13003,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -13172,6 +13256,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -13271,6 +13356,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -13469,6 +13555,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -13669,6 +13756,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -13946,6 +14034,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -14031,6 +14120,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -14300,6 +14390,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -14411,6 +14502,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -14530,6 +14622,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -14638,6 +14731,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;
@@ -14739,6 +14833,7 @@ export interface operations {
                 | 'RATE_LIMITED'
                 | 'UPLOAD_NOT_FOUND'
                 | 'UPLOAD_MISMATCH'
+                | 'STORAGE_UNAVAILABLE'
                 | 'CATALOG_UNAVAILABLE'
                 | 'INTERNAL';
               message: string;

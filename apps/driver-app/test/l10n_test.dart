@@ -131,7 +131,7 @@ void main() {
         'OTP_EXPIRED', 'RATE_LIMITED', 'UPLOAD_NOT_FOUND', 'UPLOAD_MISMATCH',
         'INTERNAL', 'INVALID_CREDENTIALS', 'ACCOUNT_EXISTS', //
         'DRIVER_ON_TRIP', 'VEHICLE_ON_TRIP', 'DRIVER_NOT_LINKED', //
-        'LINK_IN_USE',
+        'LINK_IN_USE', 'STORAGE_UNAVAILABLE',
       ];
       for (final code in codes) {
         expect(errorCodeText(en, code), isNotNull, reason: code);

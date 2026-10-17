@@ -492,6 +492,12 @@ abstract class AppLocalizations {
   /// **'The uploaded photo didn\'t match. Take it again.'**
   String get errorUploadMismatch;
 
+  /// No description provided for @errorStorageUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo storage isn\'t accepting uploads right now. Your photo is kept; try again later.'**
+  String get errorStorageUnavailable;
+
   /// No description provided for @errorUploadFailed.
   ///
   /// In en, this message translates to:

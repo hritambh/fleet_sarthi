@@ -229,6 +229,10 @@ class AppLocalizationsKn extends AppLocalizations {
       'ಅಪ್‌ಲೋಡ್ ಮಾಡಿದ ಫೋಟೋ ಹೊಂದುತ್ತಿಲ್ಲ. ಮತ್ತೆ ತೆಗೆಯಿರಿ.';
 
   @override
+  String get errorStorageUnavailable =>
+      'ಫೋಟೋ ಸಂಗ್ರಹಣೆ ಈಗ ಅಪ್‌ಲೋಡ್ ಸ್ವೀಕರಿಸುತ್ತಿಲ್ಲ. ನಿಮ್ಮ ಫೋಟೋ ಸುರಕ್ಷಿತವಾಗಿದೆ; ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.';
+
+  @override
   String get errorUploadFailed =>
       'ಫೋಟೋ ಅಪ್‌ಲೋಡ್ ವಿಫಲವಾಗಿದೆ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಲಾಗುವುದು.';
 

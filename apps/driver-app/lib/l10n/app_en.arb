@@ -151,6 +151,7 @@
   "errorUploadNotFound": "The photo hasn't reached the server yet. Try again shortly.",
   "@errorUploadNotFound": {},
   "errorUploadMismatch": "The uploaded photo didn't match. Take it again.",
+  "errorStorageUnavailable": "Photo storage isn't accepting uploads right now. Your photo is kept; try again later.",
   "@errorUploadMismatch": {},
   "errorUploadFailed": "The photo upload failed. It will be retried.",
   "@errorUploadFailed": {},

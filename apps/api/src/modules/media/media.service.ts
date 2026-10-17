@@ -5,7 +5,7 @@ import {
   PutObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { GeoPoint, MediaKind } from '@taxcy/contracts';
 import type { TenantTx } from '@taxcy/db';
 import { createHash } from 'node:crypto';
@@ -47,8 +47,16 @@ export interface UploadTicket extends Pick<
   uploadUrlExpiresAt: Date | null;
 }
 
+/** S3 said no to the server's own key (403): a storage setup problem, not the client's. */
+const isAccessDenied = (error: unknown): boolean => {
+  const e = error as { name?: string; $metadata?: { httpStatusCode?: number } };
+  return e.name === 'AccessDenied' || e.$metadata?.httpStatusCode === 403;
+};
+
 @Injectable()
 export class MediaService {
+  private readonly logger = new Logger('MediaService');
+
   constructor(
     @Inject(APP_CONFIG) private readonly config: AppConfig,
     private readonly db: Db,
@@ -117,6 +125,17 @@ export class MediaService {
     } catch (error) {
       if (error instanceof NotFound || (error as { name?: string }).name === 'NoSuchKey') {
         throw new AppError('UPLOAD_NOT_FOUND', 'Nothing has been uploaded for this media id yet');
+      }
+      if (isAccessDenied(error)) {
+        // The same refusal stops phones uploading to the signed URLs, so say what to fix.
+        this.logger.error(
+          `Storage denied access to bucket ${this.s3.bucket} (${String(error)}). The S3 key needs ` +
+            'read and write access to this bucket; see docs/deployment.md, "Create the Backblaze B2 bucket".',
+        );
+        throw new AppError(
+          'STORAGE_UNAVAILABLE',
+          'Photo storage refused access, so photos can’t be uploaded right now. Try again later.',
+        );
       }
       throw error;
     }

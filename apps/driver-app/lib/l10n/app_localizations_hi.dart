@@ -226,6 +226,10 @@ class AppLocalizationsHi extends AppLocalizations {
       'अपलोड की गई फ़ोटो मेल नहीं खाई। फ़ोटो दोबारा लें।';
 
   @override
+  String get errorStorageUnavailable =>
+      'फ़ोटो स्टोरेज अभी अपलोड नहीं ले रहा। आपकी फ़ोटो सुरक्षित है; बाद में फिर कोशिश करें।';
+
+  @override
   String get errorUploadFailed =>
       'फ़ोटो अपलोड नहीं हुई। दोबारा कोशिश की जाएगी।';
 

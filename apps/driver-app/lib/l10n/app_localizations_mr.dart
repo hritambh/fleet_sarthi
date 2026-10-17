@@ -228,6 +228,10 @@ class AppLocalizationsMr extends AppLocalizations {
       'अपलोड केलेला फोटो जुळला नाही. पुन्हा काढा.';
 
   @override
+  String get errorStorageUnavailable =>
+      'फोटो स्टोरेज सध्या अपलोड स्वीकारत नाही. तुमचा फोटो सुरक्षित आहे; नंतर पुन्हा प्रयत्न करा.';
+
+  @override
   String get errorUploadFailed =>
       'फोटो अपलोड झाला नाही. पुन्हा प्रयत्न केला जाईल.';
 

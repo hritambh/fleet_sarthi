@@ -48,6 +48,7 @@ String? errorCodeText(AppLocalizations l, String code) => switch (code) {
   'RATE_LIMITED' => l.errorRateLimited,
   'UPLOAD_NOT_FOUND' => l.errorUploadNotFound,
   'UPLOAD_MISMATCH' => l.errorUploadMismatch,
+  'STORAGE_UNAVAILABLE' => l.errorStorageUnavailable,
   'UPLOAD_FAILED' => l.errorUploadFailed,
   'INTERNAL' => l.errorInternal,
   _ => null,

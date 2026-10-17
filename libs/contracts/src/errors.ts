@@ -55,6 +55,8 @@ export const ErrorCode = z.enum([
   'RATE_LIMITED',
   'UPLOAD_NOT_FOUND',
   'UPLOAD_MISMATCH',
+  /** Photo storage refused the server's own access (e.g. the storage key can't read or write the bucket). */
+  'STORAGE_UNAVAILABLE',
   /** The public vehicle catalogue couldn't be reached; type the make and model instead. */
   'CATALOG_UNAVAILABLE',
   'INTERNAL',

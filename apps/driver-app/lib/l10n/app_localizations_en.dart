@@ -230,6 +230,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'The uploaded photo didn\'t match. Take it again.';
 
   @override
+  String get errorStorageUnavailable =>
+      'Photo storage isn\'t accepting uploads right now. Your photo is kept; try again later.';
+
+  @override
   String get errorUploadFailed =>
       'The photo upload failed. It will be retried.';
 
