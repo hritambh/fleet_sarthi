@@ -28,8 +28,16 @@ Future<void> tick(WidgetTester tester, String id, List<String> values) async {
     await tester.tap(find.byKey(Key('$id-$v')).first);
     await tester.pumpAndSettle();
   }
-  // Close the menu.
-  await tester.tapAt(const Offset(400, 2300));
+  // Close the menu: a tap on the sheet's empty top-right corner, which the
+  // menu (as wide as the field, inside the sheet's padding) doesn't cover.
+  final sheet = tester.getRect(find.byKey(const Key('trip-filters-sheet')));
+  await tester.tapAt(Offset(sheet.right - 4, sheet.top + 4));
+  await settle(tester);
+}
+
+/// Opens the filters sheet from the app bar.
+Future<void> openFilters(WidgetTester tester) async {
+  await tester.tap(find.byKey(const Key('trip-filters')));
   await settle(tester);
 }
 
@@ -41,6 +49,7 @@ void main() {
     await tester.pumpWidget(h.screen(const OwnerTripsScreen()));
     await settle(tester);
     expect(h.owner.last('trips').args['status'], isNull);
+    await openFilters(tester);
     expect(find.text('All statuses'), findsOne);
 
     await tick(tester, 'trip-status-filter', ['started', 'assigned']);
@@ -74,6 +83,7 @@ void main() {
     final h = await owner(tester);
     await tester.pumpWidget(h.screen(const OwnerTripsScreen()));
     await settle(tester);
+    await openFilters(tester);
     Future<void> open() async {
       await tester.tap(find.byKey(const Key('trip-date-filter')));
       await tester.pumpAndSettle();
@@ -164,6 +174,7 @@ void main() {
       addTearDown(h.dispose);
       await tester.pumpWidget(h.screen(const OwnerTripsScreen()));
       await settle(tester);
+      await openFilters(tester);
       await tester.tap(find.byKey(const Key('trip-date-filter')));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('date-range-popup')), findsOne);
@@ -179,8 +190,73 @@ void main() {
     );
     await settle(tester);
     expect(h.owner.last('trips').args['status'], 'created');
+    await openFilters(tester);
     await tester.tap(find.byKey(const Key('trip-status-filter-clear')));
     await settle(tester);
     expect(h.owner.last('trips').args['status'], isNull);
+  });
+
+  testWidgets('on a phone the filters are in a sheet, not on the page', (
+    tester,
+  ) async {
+    final h = await owner(tester);
+    await tester.pumpWidget(h.screen(const OwnerTripsScreen()));
+    await settle(tester);
+    const fields = [
+      'trip-status-filter',
+      'trip-date-filter',
+      'trip-driver-filter',
+      'trip-vehicle-filter',
+    ];
+    for (final key in fields) {
+      expect(find.byKey(Key(key)), findsNothing);
+    }
+    Badge badge() => tester.widget<Badge>(
+      find.descendant(
+        of: find.byKey(const Key('trip-filters')),
+        matching: find.byType(Badge),
+      ),
+    );
+    expect(badge().isLabelVisible, isFalse);
+
+    // The app bar's filter button opens all four in a column.
+    await openFilters(tester);
+    final sheet = find.byKey(const Key('trip-filters-sheet'));
+    expect(sheet, findsOne);
+    var above = 0.0;
+    for (final key in fields) {
+      final field = find.descendant(of: sheet, matching: find.byKey(Key(key)));
+      expect(field, findsOne);
+      final top = tester.getTopLeft(field).dy;
+      expect(top, greaterThan(above), reason: '$key is below the one before');
+      above = top;
+    }
+
+    // A change applies at once; Apply closes the sheet and the dot shows the
+    // list is filtered.
+    await tick(tester, 'trip-status-filter', ['assigned']);
+    expect(h.owner.last('trips').args['status'], 'assigned');
+    await tester.tap(find.byKey(const Key('trip-filters-apply')));
+    await tester.pumpAndSettle();
+    expect(sheet, findsNothing);
+    expect(badge().isLabelVisible, isTrue);
+  });
+
+  testWidgets('on the desktop the filters stay in a row above the table', (
+    tester,
+  ) async {
+    tester.view
+      ..devicePixelRatio = 1
+      ..physicalSize = const Size(1400, 900);
+    addTearDown(tester.view.reset);
+    final h = await Harness.create(
+      session: Session.fromJson(sessionJson(roles: ['owner'])),
+    );
+    addTearDown(h.dispose);
+    await tester.pumpWidget(h.screen(const OwnerTripsScreen()));
+    await settle(tester);
+    expect(find.byKey(const Key('trip-filters')), findsNothing);
+    expect(find.byKey(const Key('trip-status-filter')), findsOne);
+    expect(find.byKey(const Key('trip-vehicle-filter')), findsOne);
   });
 }

@@ -69,13 +69,27 @@ class _OwnerTripsScreenState extends ConsumerState<OwnerTripsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l.navTrips),
-        actions: [const AlertsBell(), ...action.headerActions(context)],
+        actions: [
+          if (!desktop)
+            IconButton(
+              key: const Key('trip-filters'),
+              tooltip: l.filters,
+              // A dot while any filter is on: the list isn't showing everything.
+              icon: Badge(
+                isLabelVisible: _filtered,
+                child: const Icon(Icons.tune),
+              ),
+              onPressed: _showFilters,
+            ),
+          const AlertsBell(),
+          ...action.headerActions(context),
+        ],
       ),
       floatingActionButton: action.fab(context),
       body: RefreshPage(
         onRefresh: () => ref.refresh(ownerTripsProvider(_filter).future),
         children: [
-          _filters(context),
+          if (desktop) _filterRow(context),
           AsyncView(
             value: trips,
             onRetry: () => ref.invalidate(ownerTripsProvider(_filter)),
@@ -105,14 +119,16 @@ class _OwnerTripsScreenState extends ConsumerState<OwnerTripsScreen> {
     );
   }
 
-  Widget _filters(BuildContext context) {
+  void _clearFilters() {
+    _statuses = {};
+    _driverIds = {};
+    _vehicleIds = {};
+    _days = null;
+  }
+
+  /// The desktop's filters: one row above the table.
+  Widget _filterRow(BuildContext context) {
     final l = context.l10n;
-    final fmt = context.fmt;
-    final drivers = ref.watch(driversProvider).value ?? const <Driver>[];
-    final vehicles =
-        ref.watch(fleetVehiclesProvider).value ?? const <Vehicle>[];
-    final days = _days;
-    Widget box(Widget child) => SizedBox(width: 200, child: child);
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Wrap(
@@ -120,90 +136,176 @@ class _OwnerTripsScreenState extends ConsumerState<OwnerTripsScreen> {
         runSpacing: 8,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          box(
-            MultiSelectField(
-              id: 'trip-status-filter',
-              label: l.status,
-              allLabel: l.allStatuses,
-              options: [for (final s in tripStatuses) (s, statusLabel(l, s))],
-              selected: _statuses,
-              onChanged: (v) => setState(() => _statuses = v),
-            ),
-          ),
-          box(
-            InputDecorator(
-              key: const Key('trip-date-filter'),
-              decoration: InputDecoration(
-                labelText: l.dateRangeLabel,
-                isDense: true,
-                suffixIcon: days == null
-                    ? const Icon(Icons.calendar_today, size: 18)
-                    : IconButton(
-                        tooltip: l.anyDate,
-                        icon: const Icon(Icons.clear, size: 18),
-                        onPressed: () => setState(() => _days = null),
-                      ),
-              ),
-              child: InkWell(
-                onTap: () async {
-                  final picked = await pickIsoRange(
-                    context,
-                    value: days,
-                    last: DateTime.now().add(const Duration(days: 365)),
-                  );
-                  if (picked != null) setState(() => _days = picked);
-                },
-                child: Text(
-                  days == null
-                      ? l.anyDate
-                      : days.$1 == days.$2
-                      ? fmt.calendarDate(days.$1)
-                      : '${fmt.calendarDate(days.$1)} – '
-                            '${fmt.calendarDate(days.$2)}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ),
-          ),
-          box(
-            MultiSelectField(
-              id: 'trip-driver-filter',
-              label: l.driver,
-              allLabel: l.allDrivers,
-              options: [
-                for (final d in drivers)
-                  if (d.isActive || _driverIds.contains(d.id)) (d.id, d.name),
-              ],
-              selected: _driverIds,
-              onChanged: (v) => setState(() => _driverIds = v),
-            ),
-          ),
-          box(
-            MultiSelectField(
-              id: 'trip-vehicle-filter',
-              label: l.vehicle,
-              allLabel: l.allVehicles,
-              options: [
-                for (final v in vehicles)
-                  (v.id, formatRegistration(v.registrationNo)),
-              ],
-              selected: _vehicleIds,
-              onChanged: (v) => setState(() => _vehicleIds = v),
-            ),
-          ),
+          for (final field in _filterFields(context, ref, setState))
+            SizedBox(width: 200, child: field),
           if (_filtered)
             TextButton(
               key: const Key('trip-filters-clear'),
-              onPressed: () => setState(() {
-                _statuses = {};
-                _driverIds = {};
-                _vehicleIds = {};
-                _days = null;
-              }),
+              onPressed: () => setState(_clearFilters),
               child: Text(l.clearAll),
             ),
         ],
+      ),
+    );
+  }
+
+  /// Phones and tablets: the filters in a bottom sheet. Each change applies
+  /// at once (the list behind updates); Apply closes the sheet.
+  Future<void> _showFilters() => showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    showDragHandle: true,
+    builder: (_) => Consumer(
+      builder: (context, ref, _) => StatefulBuilder(
+        builder: (context, setSheetState) {
+          // Change the screen's filters and redraw the sheet with them.
+          void update(VoidCallback change) {
+            setState(change);
+            setSheetState(() {});
+          }
+
+          return TripFiltersSheet(
+            fields: _filterFields(context, ref, update),
+            filtered: _filtered,
+            onClear: () => update(_clearFilters),
+          );
+        },
+      ),
+    ),
+  );
+
+  /// The four filters (status, dates, driver, vehicle); [update] applies a
+  /// change and redraws whoever shows them.
+  List<Widget> _filterFields(
+    BuildContext context,
+    WidgetRef ref,
+    void Function(VoidCallback) update,
+  ) {
+    final l = context.l10n;
+    final fmt = context.fmt;
+    final drivers = ref.watch(driversProvider).value ?? const <Driver>[];
+    final vehicles =
+        ref.watch(fleetVehiclesProvider).value ?? const <Vehicle>[];
+    final days = _days;
+    return [
+      MultiSelectField(
+        id: 'trip-status-filter',
+        label: l.status,
+        allLabel: l.allStatuses,
+        options: [for (final s in tripStatuses) (s, statusLabel(l, s))],
+        selected: _statuses,
+        onChanged: (v) => update(() => _statuses = v),
+      ),
+      InputDecorator(
+        key: const Key('trip-date-filter'),
+        decoration: InputDecoration(
+          labelText: l.dateRangeLabel,
+          isDense: true,
+          suffixIcon: days == null
+              ? const Icon(Icons.calendar_today, size: 18)
+              : IconButton(
+                  tooltip: l.anyDate,
+                  icon: const Icon(Icons.clear, size: 18),
+                  onPressed: () => update(() => _days = null),
+                ),
+        ),
+        child: InkWell(
+          onTap: () async {
+            final picked = await pickIsoRange(
+              context,
+              value: days,
+              last: DateTime.now().add(const Duration(days: 365)),
+            );
+            if (picked != null) update(() => _days = picked);
+          },
+          child: Text(
+            days == null
+                ? l.anyDate
+                : days.$1 == days.$2
+                ? fmt.calendarDate(days.$1)
+                : '${fmt.calendarDate(days.$1)} – '
+                      '${fmt.calendarDate(days.$2)}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ),
+      MultiSelectField(
+        id: 'trip-driver-filter',
+        label: l.driver,
+        allLabel: l.allDrivers,
+        options: [
+          for (final d in drivers)
+            if (d.isActive || _driverIds.contains(d.id)) (d.id, d.name),
+        ],
+        selected: _driverIds,
+        onChanged: (v) => update(() => _driverIds = v),
+      ),
+      MultiSelectField(
+        id: 'trip-vehicle-filter',
+        label: l.vehicle,
+        allLabel: l.allVehicles,
+        options: [
+          for (final v in vehicles)
+            (v.id, formatRegistration(v.registrationNo)),
+        ],
+        selected: _vehicleIds,
+        onChanged: (v) => update(() => _vehicleIds = v),
+      ),
+    ];
+  }
+}
+
+/// The trip filters as a bottom sheet: [fields] in a column, Clear all while
+/// [filtered], and Apply to close.
+class TripFiltersSheet extends StatelessWidget {
+  const TripFiltersSheet({
+    required this.fields,
+    required this.filtered,
+    required this.onClear,
+    super.key,
+  });
+
+  final List<Widget> fields;
+  final bool filtered;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return SafeArea(
+      child: SingleChildScrollView(
+        key: const Key('trip-filters-sheet'),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    l.filters,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                if (filtered)
+                  TextButton(
+                    key: const Key('trip-filters-clear'),
+                    onPressed: onClear,
+                    child: Text(l.clearAll),
+                  ),
+              ],
+            ),
+            for (final field in fields) ...[const SizedBox(height: 16), field],
+            const SizedBox(height: 24),
+            ElevatedButton(
+              key: const Key('trip-filters-apply'),
+              onPressed: () => Navigator.pop(context),
+              child: Text(l.apply),
+            ),
+          ],
+        ),
       ),
     );
   }
