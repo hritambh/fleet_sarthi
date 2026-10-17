@@ -26885,7 +26885,7 @@
     "/places/search": {
       "get": {
         "operationId": "getPlacesSearch",
-        "summary": "Places in India matching what was typed, for the trip pickup and drop fields. Empty when place search is switched off (no GEOAPIFY_API_KEY) or unreachable.",
+        "summary": "Places in India matching what was typed, for the trip pickup and drop fields. Asks Ola Maps first and Geoapify when Ola fails. Empty when neither is configured (OLA_MAPS_API_KEY, GEOAPIFY_API_KEY) or reachable.",
         "tags": ["trips"],
         "parameters": [
           {
@@ -26921,9 +26921,13 @@
                       },
                       "lng": {
                         "type": "number"
+                      },
+                      "source": {
+                        "type": "string",
+                        "enum": ["ola", "geoapify"]
                       }
                     },
-                    "required": ["label", "detail", "lat", "lng"]
+                    "required": ["label", "detail", "lat", "lng", "source"]
                   }
                 }
               }

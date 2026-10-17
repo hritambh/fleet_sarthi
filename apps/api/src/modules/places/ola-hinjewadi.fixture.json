@@ -1,0 +1,143 @@
+{
+  "error_message": "",
+  "info_messages": [],
+  "predictions": [
+    {
+      "reference": "5000205196195",
+      "types": ["metro_station"],
+      "matched_substrings": [{ "offset": 0, "length": 9 }],
+      "terms": [
+        { "offset": 0, "value": "Hinjewadi Metro Station" },
+        { "offset": 25, "value": "Hinjawadi - Wakad Road" },
+        { "offset": 49, "value": "Sakhare Vasti" },
+        { "offset": 25, "value": "Hinjawadi" },
+        { "offset": 75, "value": "Mulshi" },
+        { "offset": 83, "value": "Pune" },
+        { "offset": 89, "value": "Maharashtra" },
+        { "offset": 102, "value": "411057" },
+        { "offset": 110, "value": "India" }
+      ],
+      "structured_formatting": {
+        "main_text_matched_substrings": [{ "offset": 0, "length": 9 }],
+        "secondary_text_matched_substrings": [],
+        "secondary_text": "Hinjawadi - Wakad Road, Sakhare Vasti, Hinjawadi, Mulshi, Pune, Maharashtra, 411057, India",
+        "main_text": "Hinjewadi Metro Station"
+      },
+      "description": "Hinjewadi Metro Station, Hinjawadi - Wakad Road, Sakhare Vasti, Hinjawadi, Mulshi, Pune, Maharashtra, 411057, India",
+      "geometry": { "location": { "lng": 73.74628, "lat": 18.59101 } },
+      "place_id": "ola-platform:5000205196195",
+      "layer": ["venue"]
+    },
+    {
+      "reference": "6000084256407",
+      "types": ["street_address"],
+      "matched_substrings": [{ "offset": 0, "length": 9 }],
+      "terms": [
+        { "offset": 0, "value": "Hinjewadi Phase III" },
+        { "offset": 21, "value": "Phase 3" },
+        { "offset": 30, "value": "Hinjawadi Rajiv Gandhi InfoTech Park" },
+        { "offset": 30, "value": "Hinjawadi" },
+        { "offset": 79, "value": "Pimpri-Chinchwad" },
+        { "offset": 97, "value": "Maharashtra" },
+        { "offset": 110, "value": "411057" },
+        { "offset": 118, "value": "India" }
+      ],
+      "structured_formatting": {
+        "main_text_matched_substrings": [{ "offset": 0, "length": 9 }],
+        "secondary_text_matched_substrings": [],
+        "secondary_text": "Phase 3, Hinjawadi Rajiv Gandhi InfoTech Park, Hinjawadi, Pimpri-Chinchwad, Maharashtra, 411057, India",
+        "main_text": "Hinjewadi Phase III"
+      },
+      "description": "Hinjewadi Phase III, Phase 3, Hinjawadi Rajiv Gandhi InfoTech Park, Hinjawadi, Pimpri-Chinchwad, Maharashtra, 411057, India",
+      "geometry": { "location": { "lng": 73.6838, "lat": 18.5799 } },
+      "place_id": "ola-platform:6000084256407",
+      "layer": ["venue"]
+    },
+    {
+      "reference": "6000085924724",
+      "types": ["street_address"],
+      "matched_substrings": [
+        { "offset": 0, "length": 9 },
+        { "offset": 24, "length": 9 }
+      ],
+      "terms": [
+        { "offset": 0, "value": "Hinjewadi Phase 1 Road" },
+        { "offset": 24, "value": "Hinjewadi Phase 1 Rd" },
+        { "offset": 10, "value": "Phase 1" },
+        { "offset": 55, "value": "Hinjawadi Rajiv Gandhi InfoTech Park" },
+        { "offset": 55, "value": "Hinjawadi" },
+        { "offset": 104, "value": "Pune" },
+        { "offset": 110, "value": "Maharashtra" },
+        { "offset": 123, "value": "411057" },
+        { "offset": 131, "value": "India" }
+      ],
+      "structured_formatting": {
+        "main_text_matched_substrings": [{ "offset": 0, "length": 9 }],
+        "secondary_text_matched_substrings": [{ "offset": 0, "length": 9 }],
+        "secondary_text": "Hinjewadi Phase 1 Rd, Phase 1, Hinjawadi Rajiv Gandhi InfoTech Park, Hinjawadi, Pune, Maharashtra, 411057, India",
+        "main_text": "Hinjewadi Phase 1 Road"
+      },
+      "description": "Hinjewadi Phase 1 Road, Hinjewadi Phase 1 Rd, Phase 1, Hinjawadi Rajiv Gandhi InfoTech Park, Hinjawadi, Pune, Maharashtra, 411057, India",
+      "geometry": { "location": { "lng": 73.7372, "lat": 18.5879 } },
+      "place_id": "ola-platform:6000085924724",
+      "layer": ["venue"]
+    },
+    {
+      "reference": "5000048126683",
+      "types": ["real_estate_agency"],
+      "matched_substrings": [{ "offset": 0, "length": 9 }],
+      "terms": [
+        { "offset": 0, "value": "Hinjewadi (Godrej Elements)" },
+        { "offset": 29, "value": "Hinjawadi Phase 1 Rd" },
+        { "offset": 51, "value": "Next To Streets Of Europe" },
+        { "offset": 39, "value": "Phase 1" },
+        { "offset": 87, "value": "Hinjawadi Rajiv Gandhi InfoTech Park" },
+        { "offset": 29, "value": "Hinjawadi" },
+        { "offset": 136, "value": "Pune" },
+        { "offset": 142, "value": "Pimpri-Chinchwad" },
+        { "offset": 160, "value": "Maharashtra" },
+        { "offset": 173, "value": "411057" },
+        { "offset": 181, "value": "India" }
+      ],
+      "structured_formatting": {
+        "main_text_matched_substrings": [{ "offset": 0, "length": 9 }],
+        "secondary_text_matched_substrings": [],
+        "secondary_text": "Hinjawadi Phase 1 Rd, Next To Streets Of Europe, Phase 1, Hinjawadi Rajiv Gandhi InfoTech Park, Hinjawadi, Pune, Pimpri-Chinchwad, Maharashtra, 411057, India",
+        "main_text": "Hinjewadi (Godrej Elements)"
+      },
+      "description": "Hinjewadi (Godrej Elements), Hinjawadi Phase 1 Rd, Next To Streets Of Europe, Phase 1, Hinjawadi Rajiv Gandhi InfoTech Park, Hinjawadi, Pune, Pimpri-Chinchwad, Maharashtra, 411057, India",
+      "geometry": { "location": { "lng": 73.7287, "lat": 18.5848 } },
+      "place_id": "ola-platform:5000048126683",
+      "layer": ["venue"]
+    },
+    {
+      "reference": "5000177930724",
+      "types": ["point_of_interest"],
+      "matched_substrings": [{ "offset": 0, "length": 9 }],
+      "terms": [
+        { "offset": 0, "value": "Hinjewadi Phase 3 (Hinjawadi Phase 3)" },
+        { "offset": 19, "value": "Hinjawadi Phase 3" },
+        { "offset": 58, "value": "Nxtra Data" },
+        { "offset": 10, "value": "Phase 3" },
+        { "offset": 79, "value": "Hinjawadi Rajiv Gandhi InfoTech Park" },
+        { "offset": 19, "value": "Hinjawadi" },
+        { "offset": 128, "value": "Pune" },
+        { "offset": 134, "value": "Pimpri-Chinchwad" },
+        { "offset": 152, "value": "Maharashtra" },
+        { "offset": 165, "value": "411057" },
+        { "offset": 173, "value": "India" }
+      ],
+      "structured_formatting": {
+        "main_text_matched_substrings": [{ "offset": 0, "length": 9 }],
+        "secondary_text_matched_substrings": [],
+        "secondary_text": "Hinjawadi Phase 3, Nxtra Data, Phase 3, Hinjawadi Rajiv Gandhi InfoTech Park, Hinjawadi, Pune, Pimpri-Chinchwad, Maharashtra, 411057, India",
+        "main_text": "Hinjewadi Phase 3 (Hinjawadi Phase 3)"
+      },
+      "description": "Hinjewadi Phase 3 (Hinjawadi Phase 3), Hinjawadi Phase 3, Nxtra Data, Phase 3, Hinjawadi Rajiv Gandhi InfoTech Park, Hinjawadi, Pune, Pimpri-Chinchwad, Maharashtra, 411057, India",
+      "geometry": { "location": { "lng": 73.6908, "lat": 18.5935 } },
+      "place_id": "ola-platform:5000177930724",
+      "layer": ["venue"]
+    }
+  ],
+  "status": "ok"
+}

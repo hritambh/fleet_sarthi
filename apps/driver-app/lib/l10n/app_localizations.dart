@@ -7350,6 +7350,12 @@ abstract class AppLocalizations {
   /// **'Powered by Geoapify · © OpenStreetMap contributors'**
   String get placesCredit;
 
+  /// No description provided for @placesCreditOla.
+  ///
+  /// In en, this message translates to:
+  /// **'Powered by Ola Maps'**
+  String get placesCreditOla;
+
   /// No description provided for @pickSourceTitle.
   ///
   /// In en, this message translates to:

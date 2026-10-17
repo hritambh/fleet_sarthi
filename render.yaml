@@ -62,9 +62,14 @@ services:
         sync: false
       - key: SIGNUP_REQUIRES_VERIFIED_PHONE
         sync: false
-      # Trip pickup/drop suggestions (D27): a free Geoapify key from
-      # https://myprojects.geoapify.com. Set in the dashboard; empty switches
-      # suggestions off. The daily cap stays under the free plan's 3,000.
+      # Trip pickup/drop suggestions (D27, D28): Ola Maps first (free key from
+      # https://maps.olakrutrim.com), Geoapify when Ola fails (free key from
+      # https://myprojects.geoapify.com). Set in the dashboard; with neither,
+      # suggestions are off. The daily caps stay within each free plan.
+      - key: OLA_MAPS_API_KEY
+        sync: false
+      - key: OLA_MAPS_DAILY_LIMIT
+        value: '15000'
       - key: GEOAPIFY_API_KEY
         sync: false
       - key: GEOAPIFY_DAILY_LIMIT

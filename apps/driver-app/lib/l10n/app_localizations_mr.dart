@@ -4213,6 +4213,9 @@ class AppLocalizationsMr extends AppLocalizations {
       'Powered by Geoapify · © OpenStreetMap contributors';
 
   @override
+  String get placesCreditOla => 'Powered by Ola Maps';
+
+  @override
   String get pickSourceTitle => 'कुठून अपलोड करायचे';
 
   @override

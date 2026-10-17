@@ -78,17 +78,34 @@ const Env = z
     VEHICLE_CATALOG_CATEGORY: z.string().min(1).default('Cars of India'),
 
     /**
-     * Geoapify key behind the trip pickup/drop suggestions (free plan: 3,000
-     * requests a day, https://myprojects.geoapify.com). Empty switches place
-     * search off: the route answers with no suggestions and typing still works.
+     * Ola Maps key, the first choice for trip pickup/drop suggestions (free:
+     * 500,000 autocomplete calls a month, https://maps.olakrutrim.com). Empty
+     * leaves Geoapify alone; with neither key the route answers with no
+     * suggestions and typing still works.
+     */
+    OLA_MAPS_API_KEY: optional(z.string().min(1)),
+    /** Ola Maps' autocomplete endpoint, overridable for tests. */
+    OLA_MAPS_URL: z.url().default('https://api.olamaps.io/places/v1/autocomplete'),
+    /**
+     * Ola Maps requests allowed per day (UTC), counting only cache misses:
+     * about 500,000 / 31, so the free month is never overrun. Past it,
+     * Geoapify answers instead.
+     */
+    OLA_MAPS_DAILY_LIMIT: z.coerce.number().int().positive().default(15_000),
+
+    /**
+     * Geoapify key, the fallback for pickup/drop suggestions when Ola Maps
+     * has no key, is down or is over budget (free plan: 3,000 requests a day,
+     * https://myprojects.geoapify.com).
      */
     GEOAPIFY_API_KEY: optional(z.string().min(1)),
     /** Geoapify's autocomplete endpoint, overridable for tests. */
     GEOAPIFY_URL: z.url().default('https://api.geoapify.com/v1/geocode/autocomplete'),
     /**
      * Geoapify requests allowed per day (UTC), counting only cache misses. Kept
-     * under the free plan's 3,000 so the quota is never overrun; past it,
-     * suggestions come from the cache only until midnight UTC.
+     * under the free plan's 3,000 so the quota is never overrun; with both
+     * providers past their budget, suggestions come from the cache only until
+     * midnight UTC.
      */
     GEOAPIFY_DAILY_LIMIT: z.coerce.number().int().positive().default(2_800),
 

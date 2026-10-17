@@ -1079,7 +1079,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Places in India matching what was typed, for the trip pickup and drop fields. Empty when place search is switched off (no GEOAPIFY_API_KEY) or unreachable. */
+    /** Places in India matching what was typed, for the trip pickup and drop fields. Asks Ola Maps first and Geoapify when Ola fails. Empty when neither is configured (OLA_MAPS_API_KEY, GEOAPIFY_API_KEY) or reachable. */
     get: operations['getPlacesSearch'];
     put?: never;
     post?: never;
@@ -12192,6 +12192,8 @@ export interface operations {
             detail: string | null;
             lat: number;
             lng: number;
+            /** @enum {string} */
+            source: 'ola' | 'geoapify';
           }[];
         };
       };

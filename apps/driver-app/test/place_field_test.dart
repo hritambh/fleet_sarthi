@@ -51,6 +51,12 @@ const hinjawadi = PlaceSuggestion(
   detail: 'Maharashtra',
   point: GeoPoint(18.5912, 73.7389),
 );
+const olaPune = PlaceSuggestion(
+  label: 'Pune Railway Station',
+  detail: 'Maharashtra',
+  point: GeoPoint(18.528, 73.874),
+  source: PlaceSource.ola,
+);
 
 String fieldText(WidgetTester tester, String key) =>
     tester.widget<TextFormField>(find.byKey(Key(key))).controller!.text;
@@ -81,6 +87,31 @@ void main() {
         expect(h.places.queries, ['hinj']);
       },
     );
+
+    testWidgets('each provider in the list is credited once', (tester) async {
+      final h = await setUp(tester);
+      Finder credit(String source) =>
+          find.byKey(ValueKey('place-credit-$source'));
+      await tester.pumpWidget(h.screen(const CreateTripScreen()));
+      await settle(tester);
+
+      // Geoapify only (the fixtures carry no source).
+      await type(tester, 'owner-trip-from', 'hinj');
+      expect(credit('geoapify'), findsOneWidget);
+      expect(credit('ola'), findsNothing);
+
+      // Ola only.
+      h.places.results = const [olaPune];
+      await type(tester, 'owner-trip-from', 'pune');
+      expect(find.text('Powered by Ola Maps'), findsOneWidget);
+      expect(credit('geoapify'), findsNothing);
+
+      // Both.
+      h.places.results = const [olaPune, hinjawadi, pune];
+      await type(tester, 'owner-trip-from', 'pune s');
+      expect(credit('ola'), findsOneWidget);
+      expect(credit('geoapify'), findsOneWidget);
+    });
 
     testWidgets('two letters ask nothing', (tester) async {
       final h = await setUp(tester);
@@ -157,6 +188,7 @@ void main() {
   for (final language in ['en', 'hi', 'kn', 'mr']) {
     testWidgets('360 px: suggestions fit ($language)', (tester) async {
       final h = await setUp(tester, language: language, width: 360);
+      h.places.results = const [olaPune, pune, hinjawadi]; // both credits
       await tester.pumpWidget(h.screen(const CreateTripScreen()));
       await settle(tester);
       await type(tester, 'owner-trip-from', 'hinjawadi ph');

@@ -3357,6 +3357,8 @@
   "@settingsDaysInvalid": {},
   "placesCredit": "Powered by Geoapify · © OpenStreetMap contributors",
   "@placesCredit": {},
+  "placesCreditOla": "Powered by Ola Maps",
+  "@placesCreditOla": {},
   "pickSourceTitle": "Upload from",
   "@pickSourceTitle": {},
   "pickFromPhotos": "Photo library",

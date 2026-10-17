@@ -191,14 +191,25 @@ class _Options extends StatelessWidget {
                       ),
                 onTap: () => onSelected(s),
               ),
-            // Geoapify's free plan and OpenStreetMap's licence both ask for
-            // this wherever their results show.
+            // Ola Maps, Geoapify's free plan and OpenStreetMap's licence all
+            // ask for this wherever their results show: one line for each
+            // provider in the list.
             Padding(
               key: const Key('place-credit'),
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 10),
-              child: Text(
-                context.l10n.placesCredit,
-                style: Theme.of(context).textTheme.bodySmall,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (final source in {for (final s in options) s.source})
+                    Text(
+                      switch (source) {
+                        PlaceSource.ola => context.l10n.placesCreditOla,
+                        PlaceSource.geoapify => context.l10n.placesCredit,
+                      },
+                      key: ValueKey('place-credit-${source.name}'),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                ],
               ),
             ),
           ],

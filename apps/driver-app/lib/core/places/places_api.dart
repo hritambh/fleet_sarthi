@@ -4,12 +4,16 @@ import '../api/http_api.dart';
 import '../api/json.dart';
 import '../api/models.dart';
 
+/// Who found a suggestion, for the credit line under the list.
+enum PlaceSource { ola, geoapify }
+
 /// A place to suggest for a pickup or drop (`GET /places/search`).
 class PlaceSuggestion {
   const PlaceSuggestion({
     required this.label,
     required this.point,
     this.detail,
+    this.source = PlaceSource.geoapify,
   });
 
   factory PlaceSuggestion.fromJson(JsonMap json) => PlaceSuggestion(
@@ -19,6 +23,8 @@ class PlaceSuggestion {
       (json['lat'] as num).toDouble(),
       (json['lng'] as num).toDouble(),
     ),
+    // A server from before Ola Maps sends none: those were all Geoapify's.
+    source: json['source'] == 'ola' ? PlaceSource.ola : PlaceSource.geoapify,
   );
 
   /// What goes in the field when it's picked: a town ("Lonavala"), or a
@@ -28,10 +34,12 @@ class PlaceSuggestion {
   /// The line under it: the state.
   final String? detail;
   final GeoPoint point;
+  final PlaceSource source;
 }
 
-/// Place suggestions for the pickup and drop fields. The server asks
-/// Geoapify (OpenStreetMap data) and caches the answers for everyone.
+/// Place suggestions for the pickup and drop fields. The server asks Ola
+/// Maps, or Geoapify (OpenStreetMap data) when Ola fails, and caches the
+/// answers for everyone.
 abstract class PlacesApi {
   /// Fewer letters than this, and nothing is asked.
   static const minLetters = 3;
@@ -72,6 +80,11 @@ class HttpPlacesApi implements PlacesApi {
 void registerPlaceLicenses() {
   LicenseRegistry.addLicense(
     () => Stream.fromIterable(const [
+      LicenseEntryWithLineBreaks(
+        ['Ola Maps'],
+        'Pickup and drop suggestions are powered by Ola Maps '
+        '(https://maps.olakrutrim.com).',
+      ),
       LicenseEntryWithLineBreaks(
         ['Geoapify', 'OpenStreetMap'],
         'Pickup and drop suggestions are powered by Geoapify '
