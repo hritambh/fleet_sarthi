@@ -29,7 +29,6 @@ class VehiclesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final fmt = context.fmt;
     final vehicles = ref.watch(fleetVehiclesProvider);
     final action = PageAction(
       key: const Key('add-vehicle'),
@@ -53,47 +52,7 @@ class VehiclesScreen extends ConsumerWidget {
                 ? EmptyState(l.noVehiclesYet)
                 : isDesktop(context)
                 ? _VehicleGrid(list)
-                : Column(
-                    children: [
-                      for (final v in list)
-                        Card(
-                          margin: const EdgeInsets.symmetric(vertical: 4),
-                          child: ListTile(
-                            key: ValueKey('vehicle-${v.id}'),
-                            leading: const Icon(Icons.directions_car),
-                            title: Text(
-                              formatRegistration(v.registrationNo),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  [
-                                    '${v.make} ${v.model}'.trim(),
-                                    if (v.year != null) '${v.year}',
-                                    fuelName(l, v.fuelType),
-                                    if (v.lastOdometerKm != null)
-                                      fmt.km(v.lastOdometerKm!),
-                                  ].join(' · '),
-                                ),
-                                DocumentsDueChip(vehicleId: v.id),
-                              ],
-                            ),
-                            trailing: ToneChip(
-                              v.isActive ? l.active : l.inactive,
-                              tone: v.isActive ? Tone.success : Tone.neutral,
-                            ),
-                            onTap: () => openScreen<void>(
-                              context,
-                              VehicleDetailScreen(vehicleId: v.id),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
+                : _VehicleGrid(list),
           ),
         ],
       ),
@@ -101,7 +60,7 @@ class VehiclesScreen extends ConsumerWidget {
   }
 }
 
-/// Vehicles as cards on the desktop.
+/// Vehicles as cards: a grid on the desktop, one column on a phone.
 class _VehicleGrid extends StatelessWidget {
   const _VehicleGrid(this.vehicles);
   final List<Vehicle> vehicles;
@@ -143,11 +102,12 @@ class _VehicleCard extends StatelessWidget {
                     formatRegistration(v.registrationNo),
                     electric: v.isElectric,
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       DocumentsDueChip(vehicleId: v.id),
-                      const SizedBox(width: 6),
                       ToneChip(
                         v.isActive ? l.active : l.inactive,
                         tone: v.isActive ? Tone.success : Tone.neutral,

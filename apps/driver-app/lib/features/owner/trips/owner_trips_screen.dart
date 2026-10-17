@@ -473,45 +473,80 @@ class OwnerTripTile extends StatelessWidget {
     final who = t.vehicle == null
         ? l.unassigned
         : [vehicleLabel(t.vehicle!), ?t.driverName].join(' · ');
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      child: ListTile(
-        key: ValueKey('owner-trip-${t.id}'),
-        leading: CircleAvatar(
-          backgroundColor: context.tc.blue50,
-          foregroundColor: context.tc.blue700,
-          child: Icon(
-            t.status == 'started' ? Icons.local_taxi : Icons.route,
-            size: 20,
+    final tc = context.tc;
+    Widget line(IconData icon, String text) => Row(
+      children: [
+        Icon(icon, size: 16, color: tc.muted),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(color: tc.muted, fontSize: 13.5),
           ),
         ),
-        title: Text(
-          t.toText == null ? l.localTrip(from: t.fromText) : t.routeLabel,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text(
-          [
-            fmt.dayTime(t.scheduledStartAt),
-            who,
-            if (t.customerName != null) t.customerName!,
-          ].join(' · '),
-        ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(fmt.inr(t.quotedFarePaise)),
-            if (t.cancellationPending)
-              const Icon(Icons.hourglass_top, size: 16, color: Colors.amber)
-            else
-              Text(
-                statusLabel(l, t.status),
-                style: TextStyle(fontSize: 12, color: context.tc.muted),
-              ),
-          ],
-        ),
+      ],
+    );
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        key: ValueKey('owner-trip-${t.id}'),
         onTap: () =>
             openScreen<void>(context, OwnerTripDetailScreen(tripId: t.id)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  ToneChip(
+                    statusLabel(l, t.status),
+                    tone: tripStatusTone(t.status),
+                  ),
+                  if (t.cancellationPending)
+                    const Padding(
+                      padding: EdgeInsets.only(left: 6),
+                      child: Icon(
+                        Icons.hourglass_top,
+                        size: 16,
+                        color: Colors.amber,
+                      ),
+                    ),
+                  const Spacer(),
+                  Text(
+                    fmt.inr(t.quotedFarePaise),
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                t.toText == null ? l.localTrip(from: t.fromText) : t.routeLabel,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 16.5,
+                  fontWeight: FontWeight.w700,
+                  height: 1.25,
+                ),
+              ),
+              const SizedBox(height: 10),
+              line(Icons.schedule, fmt.dayTime(t.scheduledStartAt)),
+              const SizedBox(height: 4),
+              line(Icons.directions_car_outlined, who),
+              if (t.customerName != null) ...[
+                const SizedBox(height: 4),
+                line(Icons.person_outline, t.customerName!),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }

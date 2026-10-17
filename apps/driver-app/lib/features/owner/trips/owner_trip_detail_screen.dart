@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../app/providers.dart';
@@ -7,7 +8,6 @@ import '../../../app/theme.dart';
 import '../../../core/api/models.dart';
 import '../../../core/api/owner_models.dart';
 import '../../common/format.dart';
-import '../../common/widgets.dart';
 import '../links.dart';
 import '../owner_providers.dart';
 import '../owner_text.dart';
@@ -27,7 +27,7 @@ class OwnerTripDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final trip = ref.watch(ownerTripProvider(tripId));
-    final title = trip.value?.routeLabel ?? context.l10n.tripDetails;
+    final title = context.l10n.tripDetails;
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
@@ -75,28 +75,17 @@ class _Header extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final fmt = context.fmt;
     final can = trip.allowedCommands.toSet();
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          _TripHero(trip),
+          const SizedBox(height: 14),
           Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 8,
-            children: [
-              StatusChip(trip.status),
-              Text(
-                '${tripTypeLabel(l, trip.tripType)} · '
-                '${fmt.dayTime(trip.scheduledStartAt)} – ${fmt.dayTime(trip.scheduledEndAt)}',
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: 10,
+            runSpacing: 10,
             children: [
               if (can.contains('assign') || can.contains('reassign'))
                 FilledButton.icon(
@@ -111,8 +100,341 @@ class _Header extends ConsumerWidget {
               TripWhatsAppButton(trip),
             ],
           ),
+          const SizedBox(height: 14),
+          _PeopleCards(trip),
         ],
       ),
+    );
+  }
+}
+
+/// The trip at a glance on a blue card: its status and type, the fare, and
+/// the route as pickup and drop with their times.
+class _TripHero extends StatelessWidget {
+  const _TripHero(this.trip);
+  final Trip trip;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final fmt = context.fmt;
+    final t = trip;
+    const onBlue = Colors.white;
+    final soft = Colors.white.withValues(alpha: 0.72);
+    Widget stop(Color dot, String label, String place, String when) => Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Container(
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(
+              color: dot,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.35),
+                width: 3,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: TextStyle(color: soft, fontSize: 12)),
+              Text(
+                place,
+                style: const TextStyle(
+                  color: onBlue,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  height: 1.25,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(when, style: TextStyle(color: soft, fontSize: 13)),
+            ],
+          ),
+        ),
+      ],
+    );
+    return Container(
+      key: const Key('trip-hero'),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [TaxcyColors.blue600, TaxcyColors.blue900],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: TaxcyColors.blue900.withValues(alpha: 0.28),
+            blurRadius: 28,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 10,
+                  runSpacing: 6,
+                  children: [
+                    Container(
+                      key: const Key('trip-status'),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.18),
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Text(
+                        statusLabel(l, t.status),
+                        style: const TextStyle(
+                          color: onBlue,
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      tripTypeLabel(l, t.tripType),
+                      style: TextStyle(color: soft, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    l.quotedFare.toUpperCase(),
+                    style: TextStyle(
+                      color: soft,
+                      fontSize: 10.5,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                  Text(
+                    fmt.inr(t.quotedFarePaise),
+                    key: const Key('trip-fare'),
+                    style: const TextStyle(
+                      color: onBlue,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(width: 0),
+                Expanded(
+                  child: Stack(
+                    children: [
+                      if (t.toText != null)
+                        Positioned(
+                          left: 5,
+                          top: 22,
+                          bottom: 22,
+                          child: Container(
+                            width: 2,
+                            color: Colors.white.withValues(alpha: 0.28),
+                          ),
+                        ),
+                      Column(
+                        children: [
+                          stop(
+                            const Color(0xFF34D399),
+                            l.pickup,
+                            t.fromText,
+                            fmt.dayTime(t.scheduledStartAt),
+                          ),
+                          if (t.toText != null) ...[
+                            const SizedBox(height: 18),
+                            stop(
+                              const Color(0xFFFBBF24),
+                              l.drop,
+                              t.toText!,
+                              fmt.dayTime(t.scheduledEndAt),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Who the trip is for and who drives it: avatars with name and phone, and the
+/// vehicle with its plate.
+class _PeopleCards extends StatelessWidget {
+  const _PeopleCards(this.trip);
+  final Trip trip;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = trip;
+    final tc = context.tc;
+    Widget label(String text) => Text(
+      text.toUpperCase(),
+      style: TextStyle(color: tc.muted, fontSize: 11, letterSpacing: 0.8),
+    );
+    Widget avatar(String name) => CircleAvatar(
+      radius: 22,
+      backgroundColor: tc.blue100,
+      foregroundColor: tc.blue800,
+      child: Text(
+        initials(name),
+        style: const TextStyle(fontWeight: FontWeight.w700),
+      ),
+    );
+    final phone = t.customerPhone;
+    return Column(
+      children: [
+        Card(
+          key: const Key('trip-customer'),
+          margin: EdgeInsets.zero,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                avatar(t.customerName ?? '?'),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      label(l.customer),
+                      Text(
+                        t.customerName ?? l.noValue,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      if (phone != null)
+                        Text(
+                          formatPhone(phone),
+                          style: TextStyle(color: tc.muted, fontSize: 13),
+                        ),
+                    ],
+                  ),
+                ),
+                if (phone != null)
+                  IconButton.filledTonal(
+                    key: const Key('trip-call-customer'),
+                    tooltip: phone,
+                    icon: const Icon(Icons.call_outlined),
+                    onPressed: () => launchUrl(Uri(scheme: 'tel', path: phone)),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          key: const Key('trip-driver'),
+          margin: EdgeInsets.zero,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    avatar(t.driverName ?? '?'),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          label(l.driver),
+                          Text(
+                            t.driverName ?? l.unassigned,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: t.driverName == null ? tc.muted : null,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Divider(height: 1),
+                ),
+                Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: tc.blue50,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(Icons.directions_car, color: tc.blue700),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          label(l.vehicle),
+                          Text(
+                            t.vehicle?.model ?? l.unassigned,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: t.vehicle == null ? tc.muted : null,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (t.vehicle != null)
+                      NumberPlate(
+                        formatRegistration(t.vehicle!.registrationNo),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -453,18 +775,6 @@ class _DetailsCard extends StatelessWidget {
     return SectionCard(
       title: l.tripDetails,
       child: StatGrid([
-        StatTile(
-          label: l.customer,
-          value: t.customerName ?? l.noValue,
-          hint: t.customerPhone == null ? null : formatPhone(t.customerPhone!),
-        ),
-        StatTile(
-          label: l.vehicle,
-          value: t.vehicle == null ? l.unassigned : vehicleLabel(t.vehicle!),
-          hint: t.vehicle?.model,
-        ),
-        StatTile(label: l.driver, value: t.driverName ?? l.unassigned),
-        StatTile(label: l.quotedFare, value: fmt.inr(t.quotedFarePaise)),
         StatTile(
           key: const Key('included-km'),
           label: l.includedKm,
