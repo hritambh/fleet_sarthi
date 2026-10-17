@@ -220,10 +220,7 @@ Future<void> showTripSummary(BuildContext context, Trip t) =>
             children: [
               SizedBox(
                 width: 120,
-                child: Text(
-                  label,
-                  style: const TextStyle(color: TaxcyColors.muted),
-                ),
+                child: Text(label, style: TextStyle(color: context.tc.muted)),
               ),
               Expanded(child: Text(value)),
             ],

@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:taxcy_driver/app/preferences.dart';
 import 'package:taxcy_driver/app/providers.dart';
+import 'package:taxcy_driver/app/theme.dart';
 import 'package:taxcy_driver/core/api/models.dart';
 import 'package:taxcy_driver/core/auth/session_store.dart';
 import 'package:taxcy_driver/core/media/captured_photo.dart';
@@ -129,9 +130,11 @@ class Harness {
     child: child,
   );
 
-  /// One screen inside a localized MaterialApp.
-  Widget screen(Widget home) => wrap(
+  /// One screen inside a localized MaterialApp; with [brightness], in the
+  /// app's own light or dark theme (otherwise Flutter's default theme).
+  Widget screen(Widget home, {Brightness? brightness}) => wrap(
     MaterialApp(
+      theme: brightness == null ? null : buildTheme(brightness),
       locale: locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,

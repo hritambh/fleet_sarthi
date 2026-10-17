@@ -61,12 +61,22 @@ class DriversScreen extends ConsumerWidget {
                         Card(
                           key: ValueKey('driver-card-${d.id}'),
                           margin: const EdgeInsets.symmetric(vertical: 4),
-                          color: d.isActive ? null : Colors.red.shade50,
+                          color: d.isActive
+                              ? null
+                              : context.adaptive(
+                                  Colors.red.shade50,
+                                  TaxcyDark.badBg,
+                                ),
                           shape: d.isActive
                               ? null
                               : RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  side: BorderSide(color: Colors.red.shade300),
+                                  side: BorderSide(
+                                    color: context.adaptive(
+                                      Colors.red.shade300,
+                                      TaxcyDark.badBorder,
+                                    ),
+                                  ),
                                 ),
                           child: ListTile(
                             key: ValueKey('driver-${d.id}'),
@@ -78,7 +88,12 @@ class DriversScreen extends ConsumerWidget {
                               d.name,
                               style: d.isActive
                                   ? null
-                                  : TextStyle(color: Colors.red.shade800),
+                                  : TextStyle(
+                                      color: context.adaptive(
+                                        Colors.red.shade800,
+                                        TaxcyDark.bad,
+                                      ),
+                                    ),
                             ),
                             subtitle: Text(
                               [
@@ -142,11 +157,18 @@ class _DriverCard extends StatelessWidget {
       key: ValueKey('driver-card-${d.id}'),
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
-      color: inactive ? Colors.red.shade50 : null,
+      color: inactive
+          ? context.adaptive(Colors.red.shade50, TaxcyDark.badBg)
+          : null,
       shape: inactive
           ? RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
-              side: BorderSide(color: Colors.red.shade300),
+              side: BorderSide(
+                color: context.adaptive(
+                  Colors.red.shade300,
+                  TaxcyDark.badBorder,
+                ),
+              ),
             )
           : null,
       child: InkWell(
@@ -175,12 +197,17 @@ class _DriverCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(
-                                color: inactive ? Colors.red.shade800 : null,
+                                color: inactive
+                                    ? context.adaptive(
+                                        Colors.red.shade800,
+                                        TaxcyDark.bad,
+                                      )
+                                    : null,
                               ),
                         ),
                         Text(
                           formatPhone(d.phone),
-                          style: const TextStyle(color: TaxcyColors.muted),
+                          style: TextStyle(color: context.tc.muted),
                         ),
                       ],
                     ),
@@ -203,10 +230,10 @@ class _DriverCard extends StatelessWidget {
               if (pay != null)
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.payments_outlined,
                       size: 18,
-                      color: TaxcyColors.muted,
+                      color: context.tc.muted,
                     ),
                     const SizedBox(width: 8),
                     Expanded(
@@ -653,9 +680,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
                               alignment: Alignment.centerLeft,
                               child: Text(
                                 formatPhone(d.phone),
-                                style: const TextStyle(
-                                  color: TaxcyColors.muted,
-                                ),
+                                style: TextStyle(color: context.tc.muted),
                               ),
                             ),
                           ],
@@ -695,9 +720,7 @@ class _DriverScreenState extends ConsumerState<DriverScreen> {
                               Text(
                                 l.onlyOwnerPay,
                                 key: const Key('only-owner-pay'),
-                                style: const TextStyle(
-                                  color: TaxcyColors.muted,
-                                ),
+                                style: TextStyle(color: context.tc.muted),
                               ),
                             CheckboxListTile(
                               key: const Key('pay-override'),

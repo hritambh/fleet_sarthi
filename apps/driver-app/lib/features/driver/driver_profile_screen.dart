@@ -6,7 +6,9 @@ import '../../app/theme.dart';
 import '../../core/api/owner_models.dart';
 import '../account/account_security_screen.dart';
 import '../common/format.dart';
+import '../../app/preferences.dart';
 import '../common/language_picker.dart';
+import '../common/theme_picker.dart';
 import '../owner/owner_text.dart';
 import '../owner/owner_widgets.dart';
 import '../workspaces/workspace_switcher.dart';
@@ -57,7 +59,7 @@ class DriverProfileScreen extends ConsumerWidget {
     final driver = me.value;
     final name = driver?.name ?? session?.name ?? '';
     final phone = session?.phone ?? driver?.phone ?? '';
-    const muted = TextStyle(color: TaxcyColors.muted);
+    final muted = TextStyle(color: context.tc.muted);
     String orDash(String? v) => v == null || v.isEmpty ? '–' : v;
     Widget detail(IconData icon, String label, String value, String key) =>
         ListTile(
@@ -231,6 +233,16 @@ class DriverProfileScreen extends ConsumerWidget {
                         onTap: () => showLanguagePicker(context, ref),
                       ),
                       ListTile(
+                        key: const Key('profile-appearance'),
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.dark_mode_outlined),
+                        title: Text(l.appearance),
+                        subtitle: Text(
+                          themeModeLabel(context, ref.watch(themeModeProvider)),
+                        ),
+                        onTap: () => showThemePicker(context, ref),
+                      ),
+                      ListTile(
                         key: const Key('profile-security'),
                         contentPadding: EdgeInsets.zero,
                         leading: const Icon(Icons.lock_outline),
@@ -260,7 +272,7 @@ class DriverProfileScreen extends ConsumerWidget {
                         child: Text(
                           'v$appVersion',
                           style: Theme.of(context).textTheme.labelSmall
-                              ?.copyWith(color: TaxcyColors.muted),
+                              ?.copyWith(color: context.tc.muted),
                         ),
                       ),
                     ],

@@ -6,6 +6,7 @@ import '../../app/theme.dart';
 import '../account/account_security_screen.dart';
 import '../common/format.dart';
 import '../common/language_picker.dart';
+import '../common/theme_picker.dart';
 import 'alerts_inbox.dart';
 import 'owner_widgets.dart';
 import 'settings/settings_pages.dart';
@@ -51,6 +52,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final l = context.l10n;
     final isOwner = ref.watch(isOwnerProvider);
     final locale = ref.watch(localeProvider);
+    final themeMode = ref.watch(themeModeProvider);
     final desktop = isDesktop(context);
     // On the desktop a category shows its page beside the column; on a phone
     // it opens the page.
@@ -126,6 +128,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         // A picker, not a page, on every layout.
         open: () => showLanguagePicker(context, ref),
       ),
+      (
+        key: const Key('settings-appearance'),
+        icon: Icons.dark_mode_outlined,
+        title: l.appearance,
+        description: themeModeLabel(context, themeMode),
+        open: () => showThemePicker(context, ref),
+      ),
       category(
         'settings-account-security',
         Icons.lock_outline,
@@ -136,7 +145,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     if (desktop) {
       return Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: context.tc.surface,
         appBar: AppBar(title: Text(l.settings), actions: const [AlertsBell()]),
         body: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -186,18 +195,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
         children: [
           for (final child in [
-            Text(
-              l.settingsIntro,
-              style: const TextStyle(color: TaxcyColors.muted),
-            ),
+            Text(l.settingsIntro, style: TextStyle(color: context.tc.muted)),
             if (!isOwner)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
                   l.settingsOwnerOnly,
                   key: const Key('settings-owner-only'),
-                  style: const TextStyle(
-                    color: TaxcyColors.blue800,
+                  style: TextStyle(
+                    color: context.tc.blue800,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -225,8 +231,8 @@ class _GroupLabel extends StatelessWidget {
     padding: padding,
     child: Text(
       text.toUpperCase(),
-      style: const TextStyle(
-        color: TaxcyColors.muted,
+      style: TextStyle(
+        color: context.tc.muted,
         fontSize: 11.5,
         fontWeight: FontWeight.w700,
         letterSpacing: 0.8,
@@ -250,7 +256,7 @@ class _SettingsNav extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     key: const Key('settings-nav'),
     width: 248,
-    color: TaxcyColors.background,
+    color: context.tc.background,
     child: ListView(
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
       children: [
@@ -268,7 +274,7 @@ class _SettingsNav extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(10, 16, 10, 0),
             child: Text(
               note,
-              style: const TextStyle(color: TaxcyColors.muted, fontSize: 12.5),
+              style: TextStyle(color: context.tc.muted, fontSize: 12.5),
             ),
           ),
       ],
@@ -285,7 +291,7 @@ class _NavItem extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(bottom: 2),
     child: Material(
-      color: selected ? TaxcyColors.blue100 : Colors.transparent,
+      color: selected ? context.tc.blue100 : Colors.transparent,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         key: c.key,
@@ -298,7 +304,7 @@ class _NavItem extends StatelessWidget {
               Icon(
                 c.icon,
                 size: 18,
-                color: selected ? TaxcyColors.blue800 : TaxcyColors.muted,
+                color: selected ? context.tc.blue800 : context.tc.muted,
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -307,7 +313,7 @@ class _NavItem extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: selected ? TaxcyColors.blue950 : TaxcyColors.ink,
+                    color: selected ? context.tc.blue950 : context.tc.ink,
                     fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
                   ),
                 ),
@@ -353,10 +359,10 @@ class _CategoryIcon extends StatelessWidget {
     width: 40,
     height: 40,
     decoration: BoxDecoration(
-      color: TaxcyColors.blue50,
+      color: context.tc.blue50,
       borderRadius: BorderRadius.circular(10),
     ),
-    child: Icon(icon, color: TaxcyColors.blue700, size: 22),
+    child: Icon(icon, color: context.tc.blue700, size: 22),
   );
 }
 

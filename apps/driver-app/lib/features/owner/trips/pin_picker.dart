@@ -59,7 +59,7 @@ class PinField extends StatelessWidget {
     }
     return Row(
       children: [
-        const Icon(Icons.location_on, size: 18, color: TaxcyColors.blue700),
+        Icon(Icons.location_on, size: 18, color: context.tc.blue700),
         const SizedBox(width: 6),
         Expanded(
           child: Text(
@@ -121,6 +121,10 @@ class _PinPickerScreenState extends ConsumerState<PinPickerScreen> {
                   ? _pune
                   : LatLng(start.lat, start.lng),
               initialZoom: start == null ? 11 : 14,
+              backgroundColor: context.adaptive(
+                const Color(0xFFE0E0E0),
+                context.tc.blue50,
+              ),
               // Without double-tap zoom the map reports a tap at once instead
               // of waiting to see if a second tap follows; pinch and the
               // scroll wheel still zoom.
@@ -156,11 +160,11 @@ class _PinPickerScreenState extends ConsumerState<PinPickerScreen> {
                   ],
                 ),
               // OSM's tile policy asks for visible attribution.
-              const Align(
+              Align(
                 alignment: Alignment.bottomRight,
                 child: ColoredBox(
-                  color: Colors.white70,
-                  child: Padding(
+                  color: context.adaptive(Colors.white70, Colors.black54),
+                  child: const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                     child: Text(
                       '© OpenStreetMap contributors',

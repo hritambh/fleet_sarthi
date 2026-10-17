@@ -23,6 +23,8 @@ class TaxcyDriverApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) => MaterialApp(
     onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
     theme: buildTheme(),
+    darkTheme: buildTheme(Brightness.dark),
+    themeMode: ref.watch(themeModeProvider),
     // Null follows the phone's language (English when it isn't supported).
     locale: ref.watch(localeProvider),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -85,9 +87,14 @@ class _SignedOutState extends State<_SignedOut> {
 
   @override
   Widget build(BuildContext context) => _welcome
-      ? WelcomeScreen(
-          onGetStarted: () => _login(LoginFlow.signUp),
-          onSignIn: () => _login(LoginFlow.password),
+      // The landing page is designed in light colours (it's what prospects
+      // see); it stays light in the dark theme too.
+      ? Theme(
+          data: buildTheme(),
+          child: WelcomeScreen(
+            onGetStarted: () => _login(LoginFlow.signUp),
+            onSignIn: () => _login(LoginFlow.password),
+          ),
         )
       : LoginScreen(
           key: ValueKey(_flow),

@@ -121,7 +121,7 @@ class _MonthCharts extends StatelessWidget {
       MetricCard(
         key: const Key('avg-km'),
         icon: Icons.route,
-        accent: TaxcyColors.blue600,
+        accent: context.tc.blue600,
         label: l.avgKmPerTrip,
         value: a.kmAvg == null ? dash : fmt.km(a.kmAvg!),
         hint: l.tripsInMonth(count: a.trips),
@@ -129,14 +129,14 @@ class _MonthCharts extends StatelessWidget {
       MetricCard(
         key: const Key('avg-revenue'),
         icon: Icons.currency_rupee,
-        accent: Colors.green.shade700,
+        accent: context.adaptive(Colors.green.shade700, TaxcyDark.good),
         label: l.avgRevenuePerTrip,
         value: a.revenueAvgPaise == null ? dash : fmt.inr(a.revenueAvgPaise!),
       ),
       MetricCard(
         key: const Key('avg-fuel'),
         icon: Icons.local_gas_station_outlined,
-        accent: Colors.amber.shade800,
+        accent: context.adaptive(Colors.amber.shade800, TaxcyDark.warn),
         label: l.avgFuelCostPerTrip,
         value: a.fuelCostAvgPaise == null ? dash : fmt.inr(a.fuelCostAvgPaise!),
       ),
@@ -175,7 +175,7 @@ class _MonthCharts extends StatelessWidget {
           analytics: a,
           year: year,
           month: month,
-          color: Colors.amber.shade700,
+          color: context.adaptive(Colors.amber.shade700, TaxcyDark.warn),
           metric: _fuelMetric,
         ),
         _DailyChartCard(
@@ -184,7 +184,7 @@ class _MonthCharts extends StatelessWidget {
           analytics: a,
           year: year,
           month: month,
-          color: Colors.green.shade600,
+          color: context.adaptive(Colors.green.shade600, TaxcyDark.good),
           metric: (vehicle) => _Metric(
             value: (r) => r.revenuePaise.toDouble(),
             format: (fmt, v) => fmt.inr(v.round()),
@@ -196,7 +196,7 @@ class _MonthCharts extends StatelessWidget {
           analytics: a,
           year: year,
           month: month,
-          color: TaxcyColors.blue600,
+          color: context.tc.blue600,
           metric: (vehicle) => _Metric(
             value: (r) => r.km.toDouble(),
             format: (fmt, v) => fmt.km(v.round()),

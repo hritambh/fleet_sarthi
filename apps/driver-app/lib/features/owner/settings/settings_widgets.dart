@@ -121,15 +121,15 @@ class SettingsScaffold extends StatelessWidget {
                     margin: const EdgeInsets.only(top: 12),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: TaxcyColors.blue50,
+                      color: context.tc.blue50,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.lock_outline,
                           size: 18,
-                          color: TaxcyColors.blue800,
+                          color: context.tc.blue800,
                         ),
                         const SizedBox(width: 10),
                         Expanded(child: Text(l.settingsOwnerOnly)),
@@ -144,7 +144,7 @@ class SettingsScaffold extends StatelessWidget {
       ],
     );
     final body = ColoredBox(
-      color: Colors.white,
+      color: context.tc.surface,
       child: onRefresh == null
           ? list
           : RefreshIndicator(onRefresh: onRefresh!, child: list),
@@ -162,7 +162,7 @@ class SettingsScaffold extends StatelessWidget {
     if (host != null) {
       // Inside the desktop layout: a header like "⚙ General settings".
       return Material(
-        color: Colors.white,
+        color: context.tc.surface,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -170,7 +170,7 @@ class SettingsScaffold extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(40, 20, 40, 16),
               child: Row(
                 children: [
-                  Icon(icon, size: 20, color: TaxcyColors.ink),
+                  Icon(icon, size: 20, color: context.tc.ink),
                   const SizedBox(width: 10),
                   Text(
                     title,
@@ -198,7 +198,7 @@ class SettingsScaffold extends StatelessWidget {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: context.tc.surface,
         appBar: AppBar(title: Text(title), actions: const [AlertsBell()]),
         body: body,
         bottomNavigationBar: bar == null ? null : SafeArea(child: bar),
@@ -226,9 +226,9 @@ class _SaveBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: TaxcyColors.border)),
+      decoration: BoxDecoration(
+        color: context.tc.surface,
+        border: Border(top: BorderSide(color: context.tc.border)),
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
@@ -242,7 +242,7 @@ class _SaveBar extends StatelessWidget {
               Text(
                 l.settingsUnsaved,
                 key: const Key('settings-unsaved'),
-                style: const TextStyle(color: TaxcyColors.muted),
+                style: TextStyle(color: context.tc.muted),
               ),
             if (onReset != null)
               TextButton(
@@ -298,7 +298,7 @@ class SettingsSection extends StatelessWidget {
           padding: const EdgeInsets.only(top: 2),
           child: Text(
             description,
-            style: const TextStyle(color: TaxcyColors.muted, fontSize: 13),
+            style: TextStyle(color: context.tc.muted, fontSize: 13),
           ),
         ),
       ...children,
@@ -336,16 +336,16 @@ class SettingTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final theme = Theme.of(context);
-    const small = TextStyle(color: TaxcyColors.muted, fontSize: 12.5);
+    final small = TextStyle(color: context.tc.muted, fontSize: 12.5);
     final heading = Text(
       title,
       style: theme.textTheme.titleSmall?.copyWith(
-        color: TaxcyColors.ink,
+        color: context.tc.ink,
         fontSize: 15,
       ),
     );
     final explanation = [
-      Text(help, style: const TextStyle(color: TaxcyColors.muted, height: 1.4)),
+      Text(help, style: TextStyle(color: context.tc.muted, height: 1.4)),
       const SizedBox(height: 6),
       _Note(Icons.ads_click, l.settingsAffects(area: affects), small),
       _Note(Icons.schedule, l.settingsApplies(when: when), small),
@@ -428,7 +428,7 @@ class _Note extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 2),
-          child: Icon(icon, size: 14, color: TaxcyColors.muted),
+          child: Icon(icon, size: 14, color: context.tc.muted),
         ),
         const SizedBox(width: 6),
         Expanded(child: Text(text, style: style)),

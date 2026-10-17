@@ -390,9 +390,9 @@ class AlertCard extends ConsumerWidget {
     final link = _subjectLink(context);
     final desktop = isDesktop(context);
     final accent = switch (a.severity) {
-      'critical' => Colors.red.shade600,
-      'warning' => Colors.amber.shade700,
-      _ => TaxcyColors.blue600,
+      'critical' => context.adaptive(Colors.red.shade600, TaxcyDark.bad),
+      'warning' => context.adaptive(Colors.amber.shade700, TaxcyDark.warn),
+      _ => context.tc.blue600,
     };
     // Full width, so short alerts don't shrink to their text.
     return SizedBox(
@@ -423,10 +423,7 @@ class AlertCard extends ConsumerWidget {
                   if (a.falsePositive) ToneChip(l.falseAlarm, tone: Tone.brand),
                   Text(
                     fmt.dayTime(a.createdAt),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: TaxcyColors.muted,
-                    ),
+                    style: TextStyle(fontSize: 12, color: context.tc.muted),
                   ),
                 ],
               ),

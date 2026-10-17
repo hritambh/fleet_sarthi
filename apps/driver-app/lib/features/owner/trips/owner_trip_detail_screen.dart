@@ -162,7 +162,7 @@ class _TripMenu extends ConsumerWidget {
         children: [
           // The theme has no menu icon colour, and the default is near
           // invisible: match the item's text.
-          Icon(icon, color: color ?? TaxcyColors.ink),
+          Icon(icon, color: color ?? context.tc.ink),
           const SizedBox(width: 12),
           Text(label, style: TextStyle(color: color)),
         ],
@@ -367,7 +367,7 @@ class _CancellationCard extends ConsumerWidget {
                 if (request.endOdometer != null)
                   l.odometerAtKm(km: fmt.km(request.endOdometer!.typedKm)),
               ].join(' · '),
-              style: const TextStyle(color: TaxcyColors.muted),
+              style: TextStyle(color: context.tc.muted),
             ),
           if (request.decisionNote != null)
             Text(l.decisionNote(note: request.decisionNote!)),
@@ -469,7 +469,9 @@ class _DetailsCard extends StatelessWidget {
           key: const Key('included-km'),
           label: l.includedKm,
           value: t.includedKm == null ? l.notSet : fmt.km(t.includedKm!),
-          valueColor: over == null ? null : Colors.amber.shade900,
+          valueColor: over == null
+              ? null
+              : context.adaptive(Colors.amber.shade900, TaxcyDark.warn),
           hint: driven == null || t.includedKm == null
               ? null
               : over != null
@@ -543,10 +545,7 @@ class _OdometerCell extends StatelessWidget {
         children: [
           Text(label, style: Theme.of(context).textTheme.titleSmall),
           if (r == null)
-            Text(
-              l.notRecordedYet,
-              style: const TextStyle(color: TaxcyColors.muted),
-            )
+            Text(l.notRecordedYet, style: TextStyle(color: context.tc.muted))
           else ...[
             const SizedBox(height: 4),
             MediaPhoto(r.mediaId, height: 140),
@@ -556,13 +555,15 @@ class _OdometerCell extends StatelessWidget {
               StatTile(
                 label: l.readFromPhoto,
                 value: r.ocrKm == null ? l.noValue : fmt.km(r.ocrKm!),
-                valueColor: _mismatch(r) ? Colors.amber.shade900 : null,
+                valueColor: _mismatch(r)
+                    ? context.adaptive(Colors.amber.shade900, TaxcyDark.warn)
+                    : null,
                 hint: _mismatch(r) ? l.differsSentToReview : null,
               ),
             ]),
             Text(
               l.capturedAt(when: fmt.dayTime(r.capturedAt)),
-              style: const TextStyle(fontSize: 12, color: TaxcyColors.muted),
+              style: TextStyle(fontSize: 12, color: context.tc.muted),
             ),
           ],
         ],
@@ -633,10 +634,7 @@ class _RouteCard extends ConsumerWidget {
                         impossible: '${r.droppedImpossibleSpeed}',
                       ),
                   ].join(' · '),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: TaxcyColors.muted,
-                  ),
+                  style: TextStyle(fontSize: 12, color: context.tc.muted),
                 ),
               ],
             ),
@@ -663,10 +661,7 @@ class _RouteCard extends ConsumerWidget {
 
                 Text(
                   l.checkedAt(when: fmt.dayTime(c.computedAt)),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: TaxcyColors.muted,
-                  ),
+                  style: TextStyle(fontSize: 12, color: context.tc.muted),
                 ),
               ],
             ),
@@ -707,7 +702,7 @@ class _RouteCard extends ConsumerWidget {
               padding: const EdgeInsets.only(top: 8),
               child: Text(
                 l.distanceCheckPending,
-                style: const TextStyle(color: TaxcyColors.muted),
+                style: TextStyle(color: context.tc.muted),
               ),
             ),
         ],
@@ -741,10 +736,7 @@ class _CollectionsCard extends ConsumerWidget {
           ),
       ],
       child: trip.collections.isEmpty
-          ? Text(
-              l.nothingRecorded,
-              style: const TextStyle(color: TaxcyColors.muted),
-            )
+          ? Text(l.nothingRecorded, style: TextStyle(color: context.tc.muted))
           : Column(
               children: [
                 for (final c in trip.collections)
@@ -880,7 +872,7 @@ class _ChargesCard extends ConsumerWidget {
           ),
       ],
       child: trip.charges.isEmpty
-          ? Text(l.noCharges, style: const TextStyle(color: TaxcyColors.muted))
+          ? Text(l.noCharges, style: TextStyle(color: context.tc.muted))
           : Column(
               children: [
                 for (final c in trip.charges)
@@ -1014,7 +1006,7 @@ class _OwnerChargeSheetState extends ConsumerState<OwnerChargeSheet> {
             key: const Key('owner-extra-fare-info'),
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: TaxcyColors.blue50,
+              color: context.tc.blue50,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(l.extraFareInfo),
@@ -1115,9 +1107,9 @@ class _EventRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 6, right: 10),
-            child: Icon(Icons.circle, size: 8, color: TaxcyColors.blue600),
+          Padding(
+            padding: const EdgeInsets.only(top: 6, right: 10),
+            child: Icon(Icons.circle, size: 8, color: context.tc.blue600),
           ),
           Expanded(
             child: Column(
@@ -1141,10 +1133,7 @@ class _EventRow extends StatelessWidget {
                         count: lag,
                       ),
                   ].join(' · '),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: TaxcyColors.muted,
-                  ),
+                  style: TextStyle(fontSize: 12, color: context.tc.muted),
                 ),
               ],
             ),

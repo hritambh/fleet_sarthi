@@ -357,7 +357,7 @@ class TripTable extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final fmt = context.fmt;
-    const muted = TextStyle(color: TaxcyColors.muted);
+    final muted = TextStyle(color: context.tc.muted);
     return DesktopTable(
       key: const Key('trip-table'),
       columns: [
@@ -388,7 +388,7 @@ class TripTable extends StatelessWidget {
                     Icon(
                       t.status == 'started' ? Icons.local_taxi : Icons.route,
                       size: 18,
-                      color: TaxcyColors.blue700,
+                      color: context.tc.blue700,
                     ),
                     const SizedBox(width: 10),
                     Flexible(
@@ -478,8 +478,8 @@ class OwnerTripTile extends StatelessWidget {
       child: ListTile(
         key: ValueKey('owner-trip-${t.id}'),
         leading: CircleAvatar(
-          backgroundColor: TaxcyColors.blue50,
-          foregroundColor: TaxcyColors.blue700,
+          backgroundColor: context.tc.blue50,
+          foregroundColor: context.tc.blue700,
           child: Icon(
             t.status == 'started' ? Icons.local_taxi : Icons.route,
             size: 20,
@@ -506,7 +506,7 @@ class OwnerTripTile extends StatelessWidget {
             else
               Text(
                 statusLabel(l, t.status),
-                style: const TextStyle(fontSize: 12, color: TaxcyColors.muted),
+                style: TextStyle(fontSize: 12, color: context.tc.muted),
               ),
           ],
         ),

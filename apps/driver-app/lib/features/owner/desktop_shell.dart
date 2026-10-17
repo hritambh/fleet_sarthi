@@ -138,25 +138,28 @@ class _DesktopOwnerShellState extends ConsumerState<DesktopOwnerShell> {
 
 /// Page headers on the desktop: white and left-aligned, like a web app, instead
 /// of the phone's blue bar.
-ThemeData desktopContentTheme(ThemeData base) => base.copyWith(
-  appBarTheme: base.appBarTheme.copyWith(
-    backgroundColor: Colors.white,
-    foregroundColor: TaxcyColors.ink,
-    centerTitle: false,
-    toolbarHeight: 72,
-    titleSpacing: 28,
-    scrolledUnderElevation: 0,
-    shape: const Border(bottom: BorderSide(color: TaxcyColors.border)),
-    titleTextStyle: const TextStyle(
-      color: TaxcyColors.blue950,
-      fontSize: 22,
-      fontWeight: FontWeight.w700,
-      letterSpacing: -0.2,
+ThemeData desktopContentTheme(ThemeData base) {
+  final tc = base.extension<TaxcyPalette>() ?? TaxcyPalette.light;
+  return base.copyWith(
+    appBarTheme: base.appBarTheme.copyWith(
+      backgroundColor: tc.surface,
+      foregroundColor: tc.ink,
+      centerTitle: false,
+      toolbarHeight: 72,
+      titleSpacing: 28,
+      scrolledUnderElevation: 0,
+      shape: Border(bottom: BorderSide(color: tc.border)),
+      titleTextStyle: TextStyle(
+        color: tc.blue950,
+        fontSize: 22,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.2,
+      ),
+      iconTheme: IconThemeData(color: tc.blue800),
+      actionsIconTheme: IconThemeData(color: tc.blue800),
     ),
-    iconTheme: const IconThemeData(color: TaxcyColors.blue800),
-    actionsIconTheme: const IconThemeData(color: TaxcyColors.blue800),
-  ),
-);
+  );
+}
 
 class _Sidebar extends ConsumerWidget {
   const _Sidebar({

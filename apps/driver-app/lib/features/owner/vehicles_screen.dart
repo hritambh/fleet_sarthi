@@ -163,12 +163,12 @@ class _VehicleCard extends StatelessWidget {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: TaxcyColors.blue50,
+                      color: context.tc.blue50,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.directions_car,
-                      color: TaxcyColors.blue700,
+                      color: context.tc.blue700,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -187,7 +187,7 @@ class _VehicleCard extends StatelessWidget {
                             fuelName(l, v.fuelType),
                             if (v.year != null) '${v.year}',
                           ].join(' · '),
-                          style: const TextStyle(color: TaxcyColors.muted),
+                          style: TextStyle(color: context.tc.muted),
                         ),
                       ],
                     ),
@@ -199,14 +199,14 @@ class _VehicleCard extends StatelessWidget {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  const Icon(Icons.speed, size: 18, color: TaxcyColors.muted),
+                  Icon(Icons.speed, size: 18, color: context.tc.muted),
                   const SizedBox(width: 6),
                   Text(
                     v.lastOdometerKm == null ? '–' : fmt.km(v.lastOdometerKm!),
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   const Spacer(),
-                  const Icon(Icons.chevron_right, color: TaxcyColors.muted),
+                  Icon(Icons.chevron_right, color: context.tc.muted),
                 ],
               ),
             ],

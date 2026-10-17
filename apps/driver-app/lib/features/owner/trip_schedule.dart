@@ -192,11 +192,15 @@ class _MonthGrid extends StatelessWidget {
   final Map<String, List<Trip>> byDay;
   final ValueChanged<String> onSelect;
 
-  static Color _dot(String status) => switch (status) {
-    'started' => Colors.orange.shade700,
-    'ended' || 'settled' => Colors.green.shade600,
-    'assigned' => TaxcyColors.blue600,
-    _ => TaxcyColors.muted,
+  static Color _dot(BuildContext context, String status) => switch (status) {
+    'started' => context.adaptive(
+      Colors.orange.shade700,
+      const Color(0xFFFB923C),
+    ),
+    'ended' ||
+    'settled' => context.adaptive(Colors.green.shade600, TaxcyDark.good),
+    'assigned' => context.tc.blue600,
+    _ => context.tc.muted,
   };
 
   @override
@@ -211,7 +215,7 @@ class _MonthGrid extends StatelessWidget {
         Center(
           child: Text(
             weekday.format(DateTime(2024, 1, 1 + i)),
-            style: const TextStyle(fontSize: 12, color: TaxcyColors.muted),
+            style: TextStyle(fontSize: 12, color: context.tc.muted),
           ),
         ),
       for (var i = 0; i < lead; i++) const SizedBox.shrink(),
@@ -226,7 +230,7 @@ class _MonthGrid extends StatelessWidget {
                 DateTime(month.year, month.month, d),
               )] ??
               const [],
-          dot: _dot,
+          dot: (status) => _dot(context, status),
           onSelect: onSelect,
         ),
     ];
@@ -271,14 +275,19 @@ class _DayCell extends StatelessWidget {
         color: isSelected
             ? TaxcyColors.blue600
             : busy
-            ? Colors.red.shade50
+            ? context.adaptive(Colors.red.shade50, TaxcyDark.badBg)
             : Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
           side: isToday && !isSelected
-              ? const BorderSide(color: TaxcyColors.blue600, width: 1.5)
+              ? BorderSide(color: context.tc.blue600, width: 1.5)
               : busy && !isSelected
-              ? BorderSide(color: Colors.red.shade200)
+              ? BorderSide(
+                  color: context.adaptive(
+                    Colors.red.shade200,
+                    TaxcyDark.badBorder,
+                  ),
+                )
               : BorderSide.none,
         ),
         child: InkWell(
@@ -295,8 +304,8 @@ class _DayCell extends StatelessWidget {
                   color: isSelected
                       ? Colors.white
                       : busy
-                      ? Colors.red.shade700
-                      : TaxcyColors.ink,
+                      ? context.adaptive(Colors.red.shade700, TaxcyDark.bad)
+                      : context.tc.ink,
                 ),
               ),
               const SizedBox(height: 2),

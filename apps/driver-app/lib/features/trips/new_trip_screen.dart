@@ -202,10 +202,10 @@ class _NewTripScreenState extends ConsumerState<NewTripScreen> {
                   key: const Key('no-linked-vehicles'),
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.no_crash_outlined,
                       size: 48,
-                      color: TaxcyColors.muted,
+                      color: context.tc.muted,
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -217,7 +217,7 @@ class _NewTripScreenState extends ConsumerState<NewTripScreen> {
                     Text(
                       l.noVehiclesLinkedHint,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: TaxcyColors.muted),
+                      style: TextStyle(color: context.tc.muted),
                     ),
                     const SizedBox(height: 16),
                     OutlinedButton.icon(
@@ -347,7 +347,7 @@ class _NewTripScreenState extends ConsumerState<NewTripScreen> {
                           overflow: TextOverflow.ellipsis,
                           style: free(v)
                               ? null
-                              : const TextStyle(color: TaxcyColors.muted),
+                              : TextStyle(color: context.tc.muted),
                         ),
                       ),
                   ],

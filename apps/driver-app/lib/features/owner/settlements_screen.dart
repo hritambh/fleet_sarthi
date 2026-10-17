@@ -126,16 +126,16 @@ class _SettlementTable extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   color: s.netPayablePaise < 0
-                      ? Colors.amber.shade900
-                      : TaxcyColors.ink,
+                      ? context.adaptive(Colors.amber.shade900, TaxcyDark.warn)
+                      : context.tc.ink,
                 ),
               ),
               Text(
                 s.shortfallPaise == 0 ? '–' : fmt.inr(s.shortfallPaise),
                 style: TextStyle(
                   color: s.shortfallPaise == 0
-                      ? TaxcyColors.muted
-                      : Colors.red.shade700,
+                      ? context.tc.muted
+                      : context.adaptive(Colors.red.shade700, TaxcyDark.bad),
                   fontWeight: s.shortfallPaise == 0
                       ? FontWeight.w400
                       : FontWeight.w600,
@@ -180,14 +180,16 @@ class _SettlementTile extends StatelessWidget {
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: s.netPayablePaise < 0
-                    ? Colors.amber.shade900
-                    : TaxcyColors.ink,
+                    ? context.adaptive(Colors.amber.shade900, TaxcyDark.warn)
+                    : context.tc.ink,
               ),
             ),
             if (s.shortfallPaise != 0)
               Text(
                 l.shortfall(amount: fmt.inr(s.shortfallPaise)),
-                style: TextStyle(color: Colors.red.shade700),
+                style: TextStyle(
+                  color: context.adaptive(Colors.red.shade700, TaxcyDark.bad),
+                ),
               ),
           ],
         ),
@@ -320,7 +322,7 @@ class _SettlementDetailScreenState
                           width: 72,
                           child: Text(
                             settlementLineLabel(l, line.refType),
-                            style: const TextStyle(color: TaxcyColors.muted),
+                            style: TextStyle(color: context.tc.muted),
                           ),
                         ),
                         title: Text(settlementLineText(fmt, line)),
@@ -330,7 +332,12 @@ class _SettlementDetailScreenState
                                 l.lateFrom(
                                   date: fmt.calendarDate(line.originalDate!),
                                 ),
-                                style: TextStyle(color: Colors.amber.shade900),
+                                style: TextStyle(
+                                  color: context.adaptive(
+                                    Colors.amber.shade900,
+                                    TaxcyDark.warn,
+                                  ),
+                                ),
                               ),
                         trailing: Text(fmt.inr(line.amountPaise)),
                       ),

@@ -55,16 +55,16 @@ class _LoginScreenState extends State<LoginScreen> {
     final l = context.l10n;
     return Scaffold(
       key: const Key('login-split'),
-      backgroundColor: TaxcyColors.background,
+      backgroundColor: context.tc.background,
       body: Row(
         children: [
           Container(
             width: 520,
             margin: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.tc.surface,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: TaxcyColors.blue100),
+              border: Border.all(color: context.tc.blue100),
               boxShadow: [
                 BoxShadow(
                   color: TaxcyColors.blue900.withValues(alpha: 0.08),
@@ -98,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           l.appTitle,
                           style: Theme.of(context).textTheme.headlineSmall
                               ?.copyWith(
-                                color: TaxcyColors.blue950,
+                                color: context.tc.blue950,
                                 fontWeight: FontWeight.w600,
                               ),
                         ),
@@ -126,10 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Text(
                         'v$appVersion',
                         key: const Key('login-version'),
-                        style: const TextStyle(
-                          color: TaxcyColors.muted,
-                          fontSize: 11,
-                        ),
+                        style: TextStyle(color: context.tc.muted, fontSize: 11),
                       ),
                     ),
                   ],
@@ -141,10 +138,10 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Stack(
               children: [
                 const LoginIllustrationPanel(),
-                const Positioned(
+                Positioned(
                   top: 20,
                   right: 24,
-                  child: LanguageButton(color: TaxcyColors.blue800),
+                  child: LanguageButton(color: context.tc.blue800),
                 ),
                 Positioned(
                   right: 28,
@@ -155,8 +152,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     '${l.loginAboutCompany}',
                     key: const Key('login-company'),
                     textAlign: TextAlign.end,
-                    style: const TextStyle(
-                      color: TaxcyColors.muted,
+                    style: TextStyle(
+                      color: context.tc.muted,
                       fontSize: 12.5,
                       height: 1.4,
                     ),
@@ -195,12 +192,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         width: 44,
                         height: 44,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.tc.surface,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.local_taxi,
-                          color: TaxcyColors.blue700,
+                          color: context.tc.blue700,
                         ),
                       ),
                       const SizedBox(width: 12),

@@ -21,6 +21,18 @@ class AppLocalizationsMr extends AppLocalizations {
   String get languageDevice => 'फोनची भाषा';
 
   @override
+  String get appearance => 'दिसणे';
+
+  @override
+  String get themeSystem => 'फोनचे सेटिंग';
+
+  @override
+  String get themeLight => 'लाइट';
+
+  @override
+  String get themeDark => 'डार्क';
+
+  @override
   String get retry => 'पुन्हा प्रयत्न करा';
 
   @override

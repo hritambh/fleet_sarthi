@@ -127,15 +127,16 @@ class CabDayBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) => CustomPaint(
     size: const Size(double.infinity, 10),
-    painter: _CabDayPainter(day, nowAt),
+    painter: _CabDayPainter(day, nowAt, context.tc),
   );
 }
 
 class _CabDayPainter extends CustomPainter {
-  _CabDayPainter(this.day, this.nowAt);
+  _CabDayPainter(this.day, this.nowAt, this.palette);
 
   final CabDay day;
   final double? nowAt;
+  final TaxcyPalette palette;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -150,7 +151,7 @@ class _CabDayPainter extends CustomPainter {
       ..clipRRect(bar)
       ..drawRect(
         bar.outerRect,
-        Paint()..color = day.active ? cabFreeColor : TaxcyColors.border,
+        Paint()..color = day.active ? cabFreeColor : palette.border,
       );
     if (day.active) {
       final busy = Paint()..color = cabBusyColor;
@@ -164,7 +165,7 @@ class _CabDayPainter extends CustomPainter {
       }
     }
     // Faint gaps at 06:00, 12:00 and 18:00, for a sense of the hours.
-    final tick = Paint()..color = Colors.white.withValues(alpha: 0.85);
+    final tick = Paint()..color = palette.surface.withValues(alpha: 0.85);
     for (final q in const [0.25, 0.5, 0.75]) {
       canvas.drawRect(
         Rect.fromLTWH(q * size.width - 0.5, top, 1, barHeight),
@@ -178,7 +179,7 @@ class _CabDayPainter extends CustomPainter {
         Offset(x, 0),
         Offset(x, size.height),
         Paint()
-          ..color = TaxcyColors.ink
+          ..color = palette.ink
           ..strokeWidth = 1.5,
       );
     }
@@ -186,7 +187,7 @@ class _CabDayPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_CabDayPainter old) =>
-      old.day != day || old.nowAt != nowAt;
+      old.day != day || old.nowAt != nowAt || old.palette != palette;
 }
 
 /// A small ring: green for the free share, red for the rest.

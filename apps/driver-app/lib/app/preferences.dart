@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,6 +9,7 @@ import '../l10n/app_localizations.dart';
 
 const _localeKey = 'locale_v1';
 const _modeKey = 'app_mode_v1';
+const _themeKey = 'theme_mode_v1';
 
 /// Preferences read once at startup (main() overrides this); null in tests,
 /// which then start from the defaults.
@@ -42,6 +44,31 @@ class LocaleController extends Notifier<Locale?> {
         (prefs) => locale == null
             ? prefs.remove(_localeKey)
             : prefs.setString(_localeKey, locale.languageCode),
+      ),
+    );
+  }
+}
+
+/// Light, dark, or (the default) whatever the phone or browser is set to.
+final themeModeProvider = NotifierProvider<ThemeModeController, ThemeMode>(
+  ThemeModeController.new,
+);
+
+class ThemeModeController extends Notifier<ThemeMode> {
+  @override
+  ThemeMode build() {
+    final name = ref.watch(startupPreferencesProvider)?.getString(_themeKey);
+    return ThemeMode.values.where((m) => m.name == name).firstOrNull ??
+        ThemeMode.system;
+  }
+
+  void set(ThemeMode mode) {
+    state = mode;
+    unawaited(
+      _write(
+        (prefs) => mode == ThemeMode.system
+            ? prefs.remove(_themeKey)
+            : prefs.setString(_themeKey, mode.name),
       ),
     );
   }

@@ -17,7 +17,13 @@ class LoginIllustration extends StatelessWidget {
   @override
   Widget build(BuildContext context) => AspectRatio(
     aspectRatio: _width / _height,
-    child: const CustomPaint(painter: _ScenePainter()),
+    // On the dark page: brighter lines and dim clouds.
+    child: CustomPaint(
+      painter: _ScenePainter(
+        line: context.adaptive(_line, const Color(0xFF5B95F8)),
+        cloud: context.adaptive(_pale, const Color(0xFF1B2A4D)),
+      ),
+    ),
   );
 }
 
@@ -27,7 +33,10 @@ const _pale = Color(0xFFDCEBFF);
 const _plate = Color(0xFFFFD43B);
 
 class _ScenePainter extends CustomPainter {
-  const _ScenePainter();
+  const _ScenePainter({required this.line, required this.cloud});
+
+  final Color line;
+  final Color cloud;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -38,7 +47,7 @@ class _ScenePainter extends CustomPainter {
       )
       ..save();
     final stroke = Paint()
-      ..color = _line
+      ..color = line
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.2
       ..strokeCap = StrokeCap.round
@@ -50,7 +59,7 @@ class _ScenePainter extends CustomPainter {
       canvas
         ..drawOval(
           Rect.fromCenter(center: Offset(x, y), width: w, height: w * 0.32),
-          fill(_pale),
+          fill(cloud),
         )
         ..drawOval(
           Rect.fromCenter(
@@ -58,7 +67,7 @@ class _ScenePainter extends CustomPainter {
             width: w * 0.5,
             height: w * 0.3,
           ),
-          fill(_pale),
+          fill(cloud),
         );
     }
 
@@ -83,7 +92,7 @@ class _ScenePainter extends CustomPainter {
     canvas
       ..drawCircle(const Offset(84, 168), 10, fill(Colors.white))
       ..drawCircle(const Offset(84, 168), 10, stroke)
-      ..drawCircle(const Offset(84, 168), 3.5, fill(_line));
+      ..drawCircle(const Offset(84, 168), 3.5, fill(line));
 
     _pin(canvas, stroke);
     _cab(canvas, stroke);
@@ -112,7 +121,7 @@ class _ScenePainter extends CustomPainter {
       ..lineTo(444, 186)
       ..close();
     canvas
-      ..drawPath(pin, Paint()..color = _line)
+      ..drawPath(pin, Paint()..color = line)
       ..drawCircle(centre, 14, Paint()..color = Colors.white);
   }
 
@@ -256,7 +265,8 @@ class _ScenePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_ScenePainter oldDelegate) => false;
+  bool shouldRepaint(_ScenePainter oldDelegate) =>
+      oldDelegate.line != line || oldDelegate.cloud != cloud;
 }
 
 /// The wide login page's right-hand side: the illustration, centred, with a
@@ -281,7 +291,7 @@ class LoginIllustrationPanel extends StatelessWidget {
               textAlign: TextAlign.center,
               style: accentStyle(
                 context,
-                const TextStyle(fontSize: 22, color: TaxcyColors.blue700),
+                TextStyle(fontSize: 22, color: context.tc.blue700),
               ),
             ),
           ],

@@ -96,7 +96,9 @@ class _FuelCard extends ConsumerWidget {
           decoration: BoxDecoration(
             border: Border(
               top: BorderSide(
-                color: flagged ? Colors.red.shade600 : TaxcyColors.blue200,
+                color: flagged
+                    ? context.adaptive(Colors.red.shade600, TaxcyDark.bad)
+                    : context.tc.blue200,
                 width: 3,
               ),
             ),
@@ -122,36 +124,33 @@ class _FuelCard extends ConsumerWidget {
                 '${v.make} ${v.model} · ${fuelName(l, v.fuelType)}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: TaxcyColors.muted),
+                style: TextStyle(color: context.tc.muted),
               ),
               const SizedBox(height: 14),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  const Icon(
-                    Icons.local_gas_station,
-                    color: TaxcyColors.blue700,
-                  ),
+                  Icon(Icons.local_gas_station, color: context.tc.blue700),
                   const SizedBox(width: 8),
                   Flexible(
                     child: Text(
                       usual,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
-                        color: TaxcyColors.blue950,
+                        color: context.tc.blue950,
                       ),
                     ),
                   ),
                   const Spacer(),
-                  const Icon(Icons.chevron_right, color: TaxcyColors.muted),
+                  Icon(Icons.chevron_right, color: context.tc.muted),
                 ],
               ),
               Text(
                 l.usualEfficiency,
-                style: const TextStyle(color: TaxcyColors.muted, fontSize: 12),
+                style: TextStyle(color: context.tc.muted, fontSize: 12),
               ),
             ],
           ),
@@ -333,7 +332,7 @@ class _FillTile extends ConsumerWidget {
     final f = fill;
     final strike = TextStyle(
       decoration: f.voided ? TextDecoration.lineThrough : null,
-      color: f.voided ? TaxcyColors.muted : null,
+      color: f.voided ? context.tc.muted : null,
     );
     return ListTile(
       key: ValueKey('fill-${f.id}'),
@@ -409,9 +408,9 @@ class FuelChart extends StatelessWidget {
     ];
     final day = context.fmt.dateFormat('d MMM');
     Color dot(String verdict) => switch (verdict) {
-      'flagged' => Colors.red.shade700,
-      'invalid' => Colors.amber.shade800,
-      _ => TaxcyColors.blue700,
+      'flagged' => context.adaptive(Colors.red.shade700, TaxcyDark.bad),
+      'invalid' => context.adaptive(Colors.amber.shade800, TaxcyDark.warn),
+      _ => context.tc.blue700,
     };
     return SizedBox(
       height: 220,
@@ -450,7 +449,7 @@ class FuelChart extends StatelessWidget {
           lineBarsData: [
             LineChartBarData(
               spots: values,
-              color: TaxcyColors.blue300,
+              color: context.adaptive(TaxcyColors.blue300, context.tc.blue600),
               barWidth: 2,
               dotData: FlDotData(
                 getDotPainter: (spot, _, _, index) => FlDotCirclePainter(
@@ -463,7 +462,7 @@ class FuelChart extends StatelessWidget {
             if (usual.isNotEmpty)
               LineChartBarData(
                 spots: usual,
-                color: TaxcyColors.muted,
+                color: context.tc.muted,
                 barWidth: 1.5,
                 dashArray: [6, 4],
                 dotData: const FlDotData(show: false),

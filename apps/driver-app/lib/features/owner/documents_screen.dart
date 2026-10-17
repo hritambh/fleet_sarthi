@@ -128,9 +128,9 @@ class DocumentsList extends ConsumerWidget {
                               if (reviewLine(d) case final line?)
                                 Text(
                                   line,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
-                                    color: TaxcyColors.muted,
+                                    color: context.tc.muted,
                                   ),
                                 ),
                             ],
@@ -152,7 +152,7 @@ class DocumentsList extends ConsumerWidget {
                                   ),
                           Text(
                             d.number ?? '–',
-                            style: const TextStyle(color: TaxcyColors.muted),
+                            style: TextStyle(color: context.tc.muted),
                           ),
                           _FilesStrip(
                             d,
@@ -353,7 +353,10 @@ class DocumentsList extends ConsumerWidget {
                               contentPadding: EdgeInsets.zero,
                               leading: Icon(
                                 Icons.picture_as_pdf,
-                                color: Colors.red.shade700,
+                                color: context.adaptive(
+                                  Colors.red.shade700,
+                                  TaxcyDark.bad,
+                                ),
                               ),
                               title: Text(l.pdfDocument),
                               trailing: TextButton(
@@ -437,7 +440,7 @@ class _FilesStrip extends StatelessWidget {
     if (files.isEmpty) {
       return Text(
         context.l10n.noFiles,
-        style: const TextStyle(fontSize: 12, color: TaxcyColors.muted),
+        style: TextStyle(fontSize: 12, color: context.tc.muted),
       );
     }
     return InkWell(
@@ -453,7 +456,7 @@ class _FilesStrip extends StatelessWidget {
           if (files.length > 3)
             Text(
               '+${files.length - 3}',
-              style: const TextStyle(fontSize: 12, color: TaxcyColors.muted),
+              style: TextStyle(fontSize: 12, color: context.tc.muted),
             ),
         ],
       ),
@@ -471,22 +474,26 @@ class _FileThumb extends ConsumerWidget {
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: TaxcyColors.blue50,
+        color: context.tc.blue50,
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: TaxcyColors.border),
+        border: Border.all(color: context.tc.border),
       ),
       clipBehavior: Clip.antiAlias,
       child: child,
     );
     if (file.isPdf) {
       return box(
-        Icon(Icons.picture_as_pdf, color: Colors.red.shade700, size: 22),
+        Icon(
+          Icons.picture_as_pdf,
+          color: context.adaptive(Colors.red.shade700, TaxcyDark.bad),
+          size: 22,
+        ),
       );
     }
-    final placeholder = const Icon(
+    final placeholder = Icon(
       Icons.image_outlined,
       size: 20,
-      color: TaxcyColors.muted,
+      color: context.tc.muted,
     );
     return box(switch (ref.watch(mediaUrlProvider(file.mediaId))) {
       AsyncData(:final value) => Image.network(
@@ -1203,17 +1210,17 @@ class _SelectedFileTile extends ConsumerWidget {
     final (text, color, icon) = switch (state) {
       _FileState.selected => (
         l.fileReadyToUpload,
-        Colors.amber.shade900,
+        context.adaptive(Colors.amber.shade900, TaxcyDark.warn),
         Icons.schedule,
       ),
       _FileState.uploading => (
         l.fileUploading,
-        TaxcyColors.blue700,
+        context.tc.blue700,
         Icons.cloud_upload_outlined,
       ),
       _FileState.uploaded => (
         l.fileUploaded,
-        Colors.green.shade700,
+        context.adaptive(Colors.green.shade700, TaxcyDark.good),
         Icons.check_circle,
       ),
       _FileState.failed => (
@@ -1223,7 +1230,11 @@ class _SelectedFileTile extends ConsumerWidget {
       ),
     };
     final thumb = file.isPdf
-        ? Icon(Icons.picture_as_pdf, color: Colors.red.shade700, size: 32)
+        ? Icon(
+            Icons.picture_as_pdf,
+            color: context.adaptive(Colors.red.shade700, TaxcyDark.bad),
+            size: 32,
+          )
         : FutureBuilder(
             future: ref.read(photoStoreProvider).read(file.file.path),
             builder: (_, snap) => snap.data == null || snap.data!.isEmpty

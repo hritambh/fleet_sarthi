@@ -66,11 +66,11 @@ class _OwnerShellState extends ConsumerState<OwnerShell> {
                 selectedIndex: _tab,
                 onDestinationSelected: _open,
                 labelType: NavigationRailLabelType.all,
-                backgroundColor: Colors.white,
-                indicatorColor: TaxcyColors.blue100,
-                leading: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 12),
-                  child: Icon(Icons.local_taxi, color: TaxcyColors.blue700),
+                backgroundColor: context.tc.surface,
+                indicatorColor: context.tc.blue100,
+                leading: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Icon(Icons.local_taxi, color: context.tc.blue700),
                 ),
                 destinations: [
                   for (final (icon, label) in destinations)
@@ -95,8 +95,8 @@ class _OwnerShellState extends ConsumerState<OwnerShell> {
           key: const Key('owner-nav'),
           selectedIndex: _tab,
           onDestinationSelected: _open,
-          backgroundColor: Colors.white,
-          indicatorColor: TaxcyColors.blue100,
+          backgroundColor: context.tc.surface,
+          indicatorColor: context.tc.blue100,
           destinations: [
             for (final (icon, label) in destinations)
               NavigationDestination(icon: Icon(icon), label: label),
@@ -204,9 +204,9 @@ class MoreScreen extends ConsumerWidget {
                     child: Text(
                       'v$appVersion',
                       key: const Key('more-version'),
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: TaxcyColors.muted,
-                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.labelSmall?.copyWith(color: context.tc.muted),
                     ),
                   ),
                 ),

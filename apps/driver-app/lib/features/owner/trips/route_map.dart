@@ -41,6 +41,10 @@ class RouteMap extends ConsumerWidget {
                   ),
             initialCenter: all.first,
             initialZoom: 13,
+            backgroundColor: context.adaptive(
+              const Color(0xFFE0E0E0),
+              context.tc.blue50,
+            ),
           ),
           children: [
             if (ref.watch(mapTilesProvider))
@@ -71,7 +75,7 @@ class RouteMap extends ConsumerWidget {
             Align(
               alignment: Alignment.bottomRight,
               child: Container(
-                color: Colors.white70,
+                color: context.adaptive(Colors.white70, Colors.black54),
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                 child: const Text(
                   '© OpenStreetMap contributors',

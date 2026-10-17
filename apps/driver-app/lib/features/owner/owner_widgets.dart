@@ -176,7 +176,7 @@ class EmptyState extends StatelessWidget {
     child: Text(
       text,
       textAlign: TextAlign.center,
-      style: const TextStyle(color: TaxcyColors.muted),
+      style: TextStyle(color: context.tc.muted),
     ),
   );
 }
@@ -249,10 +249,7 @@ class StatTile extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(color: TaxcyColors.muted, fontSize: 12),
-        ),
+        Text(label, style: TextStyle(color: context.tc.muted, fontSize: 12)),
         Text(
           value,
           style: TextStyle(
@@ -262,10 +259,7 @@ class StatTile extends StatelessWidget {
           ),
         ),
         if (hint != null)
-          Text(
-            hint!,
-            style: const TextStyle(color: TaxcyColors.muted, fontSize: 12),
-          ),
+          Text(hint!, style: TextStyle(color: context.tc.muted, fontSize: 12)),
       ],
     ),
   );
@@ -320,10 +314,10 @@ class MetricCard extends StatelessWidget {
                 children: [
                   Text(
                     value,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.w700,
-                      color: TaxcyColors.blue950,
+                      color: context.tc.blue950,
                       height: 1.1,
                     ),
                   ),
@@ -332,8 +326,8 @@ class MetricCard extends StatelessWidget {
                     label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: TaxcyColors.ink,
+                    style: TextStyle(
+                      color: context.tc.ink,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -342,10 +336,7 @@ class MetricCard extends StatelessWidget {
                       hint!,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: TaxcyColors.muted,
-                        fontSize: 12,
-                      ),
+                      style: TextStyle(color: context.tc.muted, fontSize: 12),
                     ),
                 ],
               ),
@@ -408,7 +399,9 @@ class KpiCard extends StatelessWidget {
     return Card(
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
-      color: highlight ? const Color(0xFFFDE7D3) : null,
+      color: highlight
+          ? context.adaptive(const Color(0xFFFDE7D3), const Color(0xFF3A2410))
+          : null,
       child: InkWell(
         onTap: onTap,
         child: Padding(
@@ -423,7 +416,7 @@ class KpiCard extends StatelessWidget {
                     height: 36,
                     decoration: BoxDecoration(
                       color: highlight
-                          ? _orange
+                          ? context.adaptive(_orange, const Color(0xFFC2410C))
                           : accent.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -468,25 +461,25 @@ class KpiCard extends StatelessWidget {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: TaxcyColors.muted, fontSize: 13),
+                style: TextStyle(color: context.tc.muted, fontSize: 13),
               ),
               const SizedBox(height: 2),
               Text.rich(
                 TextSpan(
                   text: value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
-                    color: TaxcyColors.blue950,
+                    color: context.tc.blue950,
                   ),
                   children: [
                     if (suffix != null)
                       TextSpan(
                         text: ' $suffix',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: TaxcyColors.muted,
+                          color: context.tc.muted,
                         ),
                       ),
                   ],
@@ -505,7 +498,7 @@ class KpiCard extends StatelessWidget {
                     value: progress!.clamp(0, 1),
                     minHeight: 6,
                     color: tint,
-                    backgroundColor: TaxcyColors.border,
+                    backgroundColor: context.tc.border,
                   ),
                 ),
               ],
@@ -515,21 +508,18 @@ class KpiCard extends StatelessWidget {
                   footer!,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: TaxcyColors.muted,
-                  ),
+                  style: TextStyle(fontSize: 12, color: context.tc.muted),
                 ),
               ],
               if (link != null) ...[
                 const SizedBox(height: 8),
                 Text(
                   link!,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     decoration: TextDecoration.underline,
-                    color: TaxcyColors.ink,
+                    color: context.tc.ink,
                   ),
                 ),
               ],
@@ -559,11 +549,20 @@ class ToneChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (bg, fg) = switch (tone) {
-      Tone.success => (Colors.green.shade50, Colors.green.shade800),
-      Tone.warning => (Colors.amber.shade50, Colors.amber.shade900),
-      Tone.danger => (Colors.red.shade50, Colors.red.shade800),
-      Tone.brand => (TaxcyColors.blue100, TaxcyColors.blue900),
-      Tone.neutral => (TaxcyColors.blue50, TaxcyColors.muted),
+      Tone.success => (
+        context.adaptive(Colors.green.shade50, TaxcyDark.goodBg),
+        context.adaptive(Colors.green.shade800, TaxcyDark.good),
+      ),
+      Tone.warning => (
+        context.adaptive(Colors.amber.shade50, TaxcyDark.warnBg),
+        context.adaptive(Colors.amber.shade900, TaxcyDark.warn),
+      ),
+      Tone.danger => (
+        context.adaptive(Colors.red.shade50, TaxcyDark.badBg),
+        context.adaptive(Colors.red.shade800, TaxcyDark.bad),
+      ),
+      Tone.brand => (context.tc.blue100, context.tc.blue900),
+      Tone.neutral => (context.tc.blue50, context.tc.muted),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -632,9 +631,9 @@ TabBar ownerTabBar(BuildContext context, List<Widget> tabs) {
   return TabBar(
     isScrollable: true,
     tabAlignment: TabAlignment.start,
-    labelColor: desktop ? TaxcyColors.blue800 : Colors.white,
-    unselectedLabelColor: desktop ? TaxcyColors.ink : TaxcyColors.blue100,
-    indicatorColor: desktop ? TaxcyColors.blue700 : Colors.white,
+    labelColor: desktop ? context.tc.blue800 : Colors.white,
+    unselectedLabelColor: desktop ? context.tc.ink : TaxcyColors.blue100,
+    indicatorColor: desktop ? context.tc.blue700 : Colors.white,
     tabs: tabs,
   );
 }
@@ -811,7 +810,7 @@ class MediaPhoto extends ConsumerWidget {
       height: 56,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        border: Border.all(color: TaxcyColors.border),
+        border: Border.all(color: context.tc.border),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -821,7 +820,7 @@ class MediaPhoto extends ConsumerWidget {
           Expanded(
             child: Text(
               context.l10n.photoNotUploaded,
-              style: const TextStyle(fontSize: 12, color: TaxcyColors.muted),
+              style: TextStyle(fontSize: 12, color: context.tc.muted),
             ),
           ),
         ],
@@ -996,7 +995,7 @@ DropdownMenuItem<String?> _pickerItem(
   child: Text(
     busy == null ? text : '$text · ${busyText(context.fmt, busy)}',
     overflow: TextOverflow.ellipsis,
-    style: busy == null ? null : const TextStyle(color: TaxcyColors.muted),
+    style: busy == null ? null : TextStyle(color: context.tc.muted),
   ),
 );
 
@@ -1335,8 +1334,9 @@ class DesktopTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const headerStyle = TextStyle(
-      color: TaxcyColors.muted,
+    final tc = context.tc;
+    final headerStyle = TextStyle(
+      color: tc.muted,
       fontSize: 12,
       fontWeight: FontWeight.w600,
       letterSpacing: 0.3,
@@ -1347,7 +1347,7 @@ class DesktopTable extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            color: TaxcyColors.blue50,
+            color: tc.blue50,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             child: _cells([
               for (final c in columns)
@@ -1363,14 +1363,14 @@ class DesktopTable extends StatelessWidget {
                   horizontal: 20,
                   vertical: 8,
                 ),
-                decoration: const BoxDecoration(
-                  color: TaxcyColors.blue50,
-                  border: Border(top: BorderSide(color: TaxcyColors.border)),
+                decoration: BoxDecoration(
+                  color: tc.blue50,
+                  border: Border(top: BorderSide(color: tc.border)),
                 ),
                 child: Text(
                   row.heading!,
-                  style: const TextStyle(
-                    color: TaxcyColors.blue700,
+                  style: TextStyle(
+                    color: tc.blue700,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1379,15 +1379,15 @@ class DesktopTable extends StatelessWidget {
             else
               InkWell(
                 key: row.key,
-                hoverColor: TaxcyColors.blue50,
+                hoverColor: tc.blue50,
                 onTap: row.onTap,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
                     vertical: 14,
                   ),
-                  decoration: const BoxDecoration(
-                    border: Border(top: BorderSide(color: TaxcyColors.border)),
+                  decoration: BoxDecoration(
+                    border: Border(top: BorderSide(color: tc.border)),
                   ),
                   child: _cells(row.cells),
                 ),
@@ -1451,8 +1451,8 @@ class InitialsAvatar extends ConsumerWidget {
         : ref.watch(mediaUrlProvider(photo)).value?.url;
     return CircleAvatar(
       radius: radius,
-      backgroundColor: TaxcyColors.blue100,
-      foregroundColor: TaxcyColors.blue800,
+      backgroundColor: context.tc.blue100,
+      foregroundColor: context.tc.blue800,
       foregroundImage: url == null ? null : NetworkImage(url),
       onForegroundImageError: url == null ? null : (_, _) {},
       child: Text(
@@ -1476,7 +1476,9 @@ class NumberPlate extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
     decoration: BoxDecoration(
-      color: electric ? evGreen : const Color(0xFFFFD43B),
+      color: electric
+          ? evGreen
+          : context.adaptive(const Color(0xFFFFD43B), const Color(0xFFE6BE2E)),
       borderRadius: BorderRadius.circular(6),
       border: Border.all(
         color: electric ? const Color(0xFF004D2D) : const Color(0xFF1F2937),

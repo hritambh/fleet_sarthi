@@ -21,6 +21,18 @@ class AppLocalizationsKn extends AppLocalizations {
   String get languageDevice => 'ಫೋನ್‌ನ ಭಾಷೆ';
 
   @override
+  String get appearance => 'ತೋರಿಕೆ';
+
+  @override
+  String get themeSystem => 'ಫೋನ್‌ನ ಸೆಟ್ಟಿಂಗ್';
+
+  @override
+  String get themeLight => 'ಲೈಟ್';
+
+  @override
+  String get themeDark => 'ಡಾರ್ಕ್';
+
+  @override
   String get retry => 'ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ';
 
   @override

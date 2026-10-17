@@ -507,7 +507,7 @@ class DriverPersonalDetails extends StatelessWidget {
                         width: 140,
                         child: Text(
                           label,
-                          style: const TextStyle(color: TaxcyColors.muted),
+                          style: TextStyle(color: context.tc.muted),
                         ),
                       ),
                       Expanded(child: Text(value ?? '–')),

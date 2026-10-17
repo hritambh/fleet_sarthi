@@ -150,10 +150,7 @@ class _LinksSheetState extends State<LinksSheet> {
             Text(widget.title, style: Theme.of(context).textTheme.titleLarge),
             if (widget.intro != null) ...[
               const SizedBox(height: 4),
-              Text(
-                widget.intro!,
-                style: const TextStyle(color: TaxcyColors.muted),
-              ),
+              Text(widget.intro!, style: TextStyle(color: context.tc.muted)),
             ],
             const SizedBox(height: 8),
             Flexible(
@@ -163,7 +160,7 @@ class _LinksSheetState extends State<LinksSheet> {
                       child: Text(
                         widget.emptyText,
                         key: const Key('links-empty'),
-                        style: const TextStyle(color: TaxcyColors.muted),
+                        style: TextStyle(color: context.tc.muted),
                       ),
                     )
                   : ListView(
@@ -233,7 +230,7 @@ class LinkChips extends StatelessWidget {
       ? Text(
           emptyText,
           key: const Key('links-none'),
-          style: const TextStyle(color: TaxcyColors.muted),
+          style: TextStyle(color: context.tc.muted),
         )
       : Wrap(
           spacing: 6,

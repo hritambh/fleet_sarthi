@@ -215,7 +215,10 @@ class ActiveTripCard extends ConsumerWidget {
                     child: FilledButton.icon(
                       key: const Key('driver-open-active'),
                       style: FilledButton.styleFrom(
-                        backgroundColor: Colors.white,
+                        backgroundColor: context.adaptive(
+                          Colors.white,
+                          TaxcyColors.blue300,
+                        ),
                         foregroundColor: TaxcyColors.blue800,
                       ),
                       onPressed: () => _openTrip(context, view),
@@ -259,10 +262,16 @@ class NextTripCard extends ConsumerWidget {
     final t = view.trip;
     final until = t.scheduledStartAt.difference(_now(ref));
     final (countdown, tone) = until.inMinutes > 0
-        ? (l.startsIn(time: shortDuration(l, until)), TaxcyColors.blue700)
+        ? (l.startsIn(time: shortDuration(l, until)), context.tc.blue700)
         : until.inMinutes > -10
-        ? (l.startingNow, Colors.green.shade700)
-        : (l.runningLate(time: shortDuration(l, until)), Colors.red.shade700);
+        ? (
+            l.startingNow,
+            context.adaptive(Colors.green.shade700, TaxcyDark.good),
+          )
+        : (
+            l.runningLate(time: shortDuration(l, until)),
+            context.adaptive(Colors.red.shade700, TaxcyDark.bad),
+          );
     final opener = ref.read(urlOpenerProvider);
     return Card(
       key: const Key('driver-next-trip'),
@@ -271,9 +280,9 @@ class NextTripCard extends ConsumerWidget {
       child: InkWell(
         onTap: () => _openTrip(context, view),
         child: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             border: Border(
-              left: BorderSide(color: TaxcyColors.blue600, width: 4),
+              left: BorderSide(color: context.tc.blue600, width: 4),
             ),
           ),
           padding: const EdgeInsets.all(16),
@@ -327,16 +336,16 @@ class NextTripCard extends ConsumerWidget {
                   if (t.vehicle != null) vehicleLabel(t.vehicle!),
                   fmt.inr(t.quotedFarePaise),
                 ].join(' · '),
-                style: const TextStyle(color: TaxcyColors.muted),
+                style: TextStyle(color: context.tc.muted),
               ),
               if (t.customerName != null || t.customerPhone != null) ...[
                 const Divider(height: 24),
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.person_outline,
                       size: 20,
-                      color: TaxcyColors.muted,
+                      color: context.tc.muted,
                     ),
                     const SizedBox(width: 8),
                     Expanded(
@@ -397,33 +406,30 @@ class DriverStatsCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, size: 20, color: TaxcyColors.blue600),
+              Icon(icon, size: 20, color: context.tc.blue600),
               const SizedBox(height: 6),
               Text(
                 value,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: TaxcyColors.blue950,
+                  color: context.tc.blue950,
                 ),
               ),
               Text(
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 12, color: TaxcyColors.muted),
+                style: TextStyle(fontSize: 12, color: context.tc.muted),
               ),
               if (hint != null)
                 Text(
                   hint,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: TaxcyColors.muted,
-                  ),
+                  style: TextStyle(fontSize: 11, color: context.tc.muted),
                 ),
             ],
           ),
@@ -517,8 +523,8 @@ class _DriverQuickActionsState extends ConsumerState<DriverQuickActions> {
                     Icon(
                       icon,
                       color: onTap == null
-                          ? TaxcyColors.muted
-                          : TaxcyColors.blue700,
+                          ? context.tc.muted
+                          : context.tc.blue700,
                     ),
                     const SizedBox(height: 6),
                     Text(
@@ -576,18 +582,31 @@ class _DriverQuickActionsState extends ConsumerState<DriverQuickActions> {
               margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.red.shade50,
-                border: Border.all(color: Colors.red.shade300),
+                color: context.adaptive(Colors.red.shade50, TaxcyDark.badBg),
+                border: Border.all(
+                  color: context.adaptive(
+                    Colors.red.shade300,
+                    TaxcyDark.badBorder,
+                  ),
+                ),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.block, color: Colors.red.shade700),
+                  Icon(
+                    Icons.block,
+                    color: context.adaptive(Colors.red.shade700, TaxcyDark.bad),
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       l.driverInactiveBanner,
-                      style: TextStyle(color: Colors.red.shade900),
+                      style: TextStyle(
+                        color: context.adaptive(
+                          Colors.red.shade900,
+                          const Color(0xFFFCA5A5),
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -600,7 +619,7 @@ class _DriverQuickActionsState extends ConsumerState<DriverQuickActions> {
               padding: const EdgeInsets.only(top: 6),
               child: Text(
                 l.driverTripsTurnedOff,
-                style: const TextStyle(color: TaxcyColors.muted, fontSize: 12),
+                style: TextStyle(color: context.tc.muted, fontSize: 12),
               ),
             ),
         ],
@@ -623,15 +642,11 @@ class DriverEmptyState extends StatelessWidget {
           Container(
             width: 72,
             height: 72,
-            decoration: const BoxDecoration(
-              color: TaxcyColors.blue50,
+            decoration: BoxDecoration(
+              color: context.tc.blue50,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.route,
-              size: 36,
-              color: TaxcyColors.blue600,
-            ),
+            child: Icon(Icons.route, size: 36, color: context.tc.blue600),
           ),
           const SizedBox(height: 12),
           Text(
@@ -643,7 +658,7 @@ class DriverEmptyState extends StatelessWidget {
           Text(
             l.noTripsHint,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: TaxcyColors.muted),
+            style: TextStyle(color: context.tc.muted),
           ),
         ],
       ),
@@ -690,7 +705,7 @@ class DriverTripTile extends StatelessWidget {
                 width: 64,
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
-                  color: active ? TaxcyColors.blue700 : TaxcyColors.blue50,
+                  color: active ? TaxcyColors.blue700 : context.tc.blue50,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Column(
@@ -698,7 +713,7 @@ class DriverTripTile extends StatelessWidget {
                     Icon(
                       active ? Icons.local_taxi : Icons.schedule,
                       size: 18,
-                      color: active ? Colors.white : TaxcyColors.blue700,
+                      color: active ? Colors.white : context.tc.blue700,
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -706,7 +721,7 @@ class DriverTripTile extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: active ? Colors.white : TaxcyColors.blue900,
+                        color: active ? Colors.white : context.tc.blue900,
                       ),
                     ),
                   ],
@@ -730,10 +745,7 @@ class DriverTripTile extends StatelessWidget {
                         if (view.conflict != null)
                           '⚠ ${view.conflict == 'TRIP_CANCELLED' ? l.conflictCancelledShort : l.conflictReassignedShort}',
                       ].join(' · '),
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: TaxcyColors.muted,
-                      ),
+                      style: TextStyle(fontSize: 12, color: context.tc.muted),
                     ),
                   ],
                 ),

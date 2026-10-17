@@ -144,10 +144,7 @@ class _PasswordFormState extends ConsumerState<_PasswordForm> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (!widget.hasPassword) ...[
-            Text(
-              l.setPasswordIntro,
-              style: const TextStyle(color: TaxcyColors.muted),
-            ),
+            Text(l.setPasswordIntro, style: TextStyle(color: context.tc.muted)),
             gap,
           ],
           if (widget.hasPassword) ...[

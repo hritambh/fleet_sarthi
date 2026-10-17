@@ -131,7 +131,7 @@ class ReviewCard extends ConsumerWidget {
         if (!item.isOpen) ToneChip(reviewStatusLabel(l, item.status)),
         Text(
           fmt.dayTime(item.createdAt),
-          style: const TextStyle(fontSize: 12, color: TaxcyColors.muted),
+          style: TextStyle(fontSize: 12, color: context.tc.muted),
         ),
       ],
     );
@@ -280,24 +280,21 @@ class _Reading extends StatelessWidget {
     width: 200,
     padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
-      color: TaxcyColors.blue50,
+      color: context.tc.blue50,
       borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: TaxcyColors.blue100),
+      border: Border.all(color: context.tc.blue100),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(color: TaxcyColors.muted, fontSize: 12),
-        ),
+        Text(label, style: TextStyle(color: context.tc.muted, fontSize: 12)),
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w700,
-            color: TaxcyColors.blue950,
+            color: context.tc.blue950,
           ),
         ),
       ],

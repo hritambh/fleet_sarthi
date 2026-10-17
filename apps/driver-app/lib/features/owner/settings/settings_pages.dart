@@ -288,17 +288,13 @@ class _TripRulesFormState extends ConsumerState<_TripRulesForm> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(
-                      Icons.info_outline,
-                      size: 18,
-                      color: TaxcyColors.muted,
-                    ),
+                    Icon(Icons.info_outline, size: 18, color: context.tc.muted),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         l.ruleOfflineNote,
-                        style: const TextStyle(
-                          color: TaxcyColors.muted,
+                        style: TextStyle(
+                          color: context.tc.muted,
                           fontSize: 12.5,
                         ),
                       ),
@@ -651,10 +647,7 @@ class _RemindersFormState extends ConsumerState<_RemindersForm> {
                   const SizedBox(height: 10),
                   Text(
                     l.remindersSeverity,
-                    style: const TextStyle(
-                      color: TaxcyColors.muted,
-                      fontSize: 12.5,
-                    ),
+                    style: TextStyle(color: context.tc.muted, fontSize: 12.5),
                   ),
                 ],
               ),

@@ -33,10 +33,16 @@ class SyncStatusBar extends ConsumerWidget {
     if (status == null) return const SizedBox.shrink();
     final l = context.l10n;
     final (Color color, IconData icon) = !status.online
-        ? (Colors.red.shade700, Icons.cloud_off)
+        ? (
+            context.adaptive(Colors.red.shade700, TaxcyDark.bad),
+            Icons.cloud_off,
+          )
         : status.pending > 0
-        ? (Colors.amber.shade800, Icons.cloud_upload)
-        : (TaxcyColors.blue700, Icons.cloud_done);
+        ? (
+            context.adaptive(Colors.amber.shade800, TaxcyDark.warn),
+            Icons.cloud_upload,
+          )
+        : (context.tc.blue700, Icons.cloud_done);
     return Material(
       color: color.withValues(alpha: 0.12),
       child: InkWell(
@@ -57,7 +63,9 @@ class SyncStatusBar extends ConsumerWidget {
               if (status.attention > 0)
                 Text(
                   l.needAttention(count: status.attention),
-                  style: TextStyle(color: Colors.red.shade700),
+                  style: TextStyle(
+                    color: context.adaptive(Colors.red.shade700, TaxcyDark.bad),
+                  ),
                 ),
               if (status.syncing)
                 const Padding(
@@ -169,8 +177,11 @@ class StatusChip extends StatelessWidget {
     };
     return Chip(
       label: Text(statusLabel(context.l10n, status)),
-      labelStyle: TextStyle(color: color.shade800, fontSize: 12),
-      backgroundColor: color.shade50,
+      labelStyle: TextStyle(
+        color: context.adaptive(color.shade800, color.shade100),
+        fontSize: 12,
+      ),
+      backgroundColor: context.adaptive(color.shade50, color.shade900),
       side: BorderSide.none,
       visualDensity: VisualDensity.compact,
     );
@@ -254,7 +265,10 @@ class _ThumbnailState extends ConsumerState<_Thumbnail> {
     builder: (context, snapshot) {
       final data = snapshot.data;
       if (data == null || data.isEmpty) {
-        return const Icon(Icons.check_circle, color: Colors.green);
+        return Icon(
+          Icons.check_circle,
+          color: context.adaptive(Colors.green, TaxcyDark.good),
+        );
       }
       return ClipRRect(
         borderRadius: BorderRadius.circular(4),

@@ -29,7 +29,14 @@
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
-  <meta name="theme-color" content="#1D4ED8">
+  <meta name="theme-color" content="#1D4ED8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#172554" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light dark">
+  <!-- The page behind the app while it loads: the theme's page colour. -->
+  <style>
+    body { background: #FFFFFF; }
+    @media (prefers-color-scheme: dark) { body { background: #0B1220; } }
+  </style>
 
   <title>Fleet Sarthi</title>
   <link rel="manifest" href="manifest.json">

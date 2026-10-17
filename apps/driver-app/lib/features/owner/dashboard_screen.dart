@@ -257,9 +257,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       body: MagneticFieldBackground(
         child: Theme(
           data: Theme.of(context).copyWith(
-            cardTheme: Theme.of(
-              context,
-            ).cardTheme.copyWith(color: Colors.white.withValues(alpha: 0.58)),
+            cardTheme: Theme.of(context).cardTheme.copyWith(
+              color: context.tc.surface.withValues(alpha: 0.58),
+            ),
           ),
           child: RefreshPage(
             onRefresh: refresh,
@@ -271,10 +271,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   children: [
                     Text(
                       greeting(l, DateTime.now(), firstName),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.w700,
-                        color: TaxcyColors.blue950,
+                        color: context.tc.blue950,
                         letterSpacing: -0.4,
                       ),
                     ),
@@ -282,7 +282,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     Text(
                       '${fmt.calendarDate(istToday(widget.now))}'
                       ' · ${session?.activeMembership?.orgName ?? ''}',
-                      style: const TextStyle(color: TaxcyColors.muted),
+                      style: TextStyle(color: context.tc.muted),
                     ),
                     const SizedBox(height: 12),
                     daySwitch,
@@ -350,7 +350,7 @@ class _HeadlineCards extends StatelessWidget {
       KpiCard(
         key: const Key('kpi-cabs'),
         icon: Icons.local_taxi,
-        accent: TaxcyColors.blue600,
+        accent: context.tc.blue600,
         label: l.availableCabs,
         value: fmt.number(s.cabsAvailable),
         suffix: '/ ${fmt.number(s.cabsTotal)}',
@@ -368,7 +368,7 @@ class _HeadlineCards extends StatelessWidget {
       KpiCard(
         key: const Key('kpi-drivers'),
         icon: Icons.badge_outlined,
-        accent: Colors.teal.shade600,
+        accent: context.adaptive(Colors.teal.shade600, const Color(0xFF2DD4BF)),
         label: l.availableDrivers,
         value: fmt.number(s.driversAvailable),
         suffix: '/ ${fmt.number(s.driversTotal)}',
@@ -383,7 +383,7 @@ class _HeadlineCards extends StatelessWidget {
       KpiCard(
         key: const Key('kpi-unassigned'),
         icon: Icons.warning_amber_rounded,
-        accent: Colors.amber.shade800,
+        accent: context.adaptive(Colors.amber.shade800, TaxcyDark.warn),
         label: l.tripsUnassigned,
         value: fmt.number(s.unassigned),
         suffix: l.pending,
@@ -398,7 +398,7 @@ class _HeadlineCards extends StatelessWidget {
       KpiCard(
         key: const Key('kpi-completed'),
         icon: Icons.task_alt,
-        accent: Colors.green.shade700,
+        accent: context.adaptive(Colors.green.shade700, TaxcyDark.good),
         label: l.completedTrips,
         value: fmt.number(s.completedCount),
         suffix: l.runs,
@@ -455,10 +455,13 @@ class _FreeBadge extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 '$percent%',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF15803D),
+                  color: context.adaptive(
+                    const Color(0xFF15803D),
+                    TaxcyDark.good,
+                  ),
                 ),
               ),
             ],
@@ -485,11 +488,11 @@ class _CabTimelines extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final shown = days.length > _rows ? days.take(_rows - 1) : days;
-    const label = TextStyle(
+    final label = TextStyle(
       fontSize: 10,
       height: 1.1,
       fontWeight: FontWeight.w600,
-      color: TaxcyColors.muted,
+      color: context.tc.muted,
     );
     return SizedBox(
       key: const Key('cab-timelines'),
@@ -529,7 +532,7 @@ class _CabTimelines extends StatelessWidget {
               height: _rowHeight,
               child: Text(
                 l.moreCabs(count: days.length - (_rows - 1)),
-                style: label.copyWith(color: TaxcyColors.blue700),
+                style: label.copyWith(color: context.tc.blue700),
               ),
             ),
         ],
@@ -563,8 +566,8 @@ class _QuickOpsHub extends StatelessWidget {
       actions: [
         Text(
           l.fastDispatch,
-          style: const TextStyle(
-            color: TaxcyColors.muted,
+          style: TextStyle(
+            color: context.tc.muted,
             fontSize: 12,
             fontWeight: FontWeight.w600,
             letterSpacing: 1,
@@ -628,15 +631,13 @@ class _HubButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final foreground = primary ? Colors.white : TaxcyColors.ink;
-    final iconColor = primary ? Colors.white : TaxcyColors.blue700;
+    final foreground = primary ? Colors.white : context.tc.ink;
+    final iconColor = primary ? Colors.white : context.tc.blue700;
     return Material(
-      color: primary ? TaxcyColors.blue700 : TaxcyColors.blue50,
+      color: primary ? TaxcyColors.blue700 : context.tc.blue50,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: primary
-            ? BorderSide.none
-            : const BorderSide(color: TaxcyColors.blue100),
+        side: primary ? BorderSide.none : BorderSide(color: context.tc.blue100),
       ),
       child: InkWell(
         onTap: onTap,
@@ -690,12 +691,12 @@ class _RideTile extends ConsumerWidget {
     final canAssign =
         (v == null || t.driverId == null) &&
         t.allowedCommands.contains('assign');
-    const muted = TextStyle(color: TaxcyColors.muted);
+    final muted = TextStyle(color: context.tc.muted);
     Widget line(IconData icon, String text, {Key? key}) => Padding(
       padding: const EdgeInsets.only(top: 4),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: TaxcyColors.muted),
+          Icon(icon, size: 18, color: context.tc.muted),
           const SizedBox(width: 6),
           Expanded(child: Text(text, key: key)),
         ],
@@ -706,7 +707,7 @@ class _RideTile extends ConsumerWidget {
       margin: const EdgeInsets.symmetric(vertical: 4),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: TaxcyColors.border),
+        side: BorderSide(color: context.tc.border),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -922,7 +923,9 @@ class _SolidOnHoverState extends State<_SolidOnHover> {
               duration: _duration,
               data: _hovered
                   ? theme.copyWith(
-                      cardTheme: theme.cardTheme.copyWith(color: Colors.white),
+                      cardTheme: theme.cardTheme.copyWith(
+                        color: context.tc.surface,
+                      ),
                     )
                   : theme,
               child: widget.child,

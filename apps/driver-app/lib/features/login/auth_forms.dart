@@ -384,7 +384,13 @@ class _ResetPasswordFormState extends ConsumerState<ResetPasswordForm>
           if (verified) ...[
             Row(
               children: [
-                Icon(Icons.verified, color: Colors.green.shade700),
+                Icon(
+                  Icons.verified,
+                  color: context.adaptive(
+                    Colors.green.shade700,
+                    TaxcyDark.good,
+                  ),
+                ),
                 const SizedBox(width: 8),
                 Text(l.numberVerified, key: const Key('reset-verified')),
               ],
@@ -448,7 +454,7 @@ class _ResetPasswordFormState extends ConsumerState<ResetPasswordForm>
             key: const Key('reset-code-hint'),
             style: Theme.of(
               context,
-            ).textTheme.bodySmall?.copyWith(color: TaxcyColors.muted),
+            ).textTheme.bodySmall?.copyWith(color: context.tc.muted),
           ),
           if (error != null) FormError(error!),
           const SizedBox(height: 24),

@@ -21,6 +21,18 @@ class AppLocalizationsHi extends AppLocalizations {
   String get languageDevice => 'फ़ोन की भाषा';
 
   @override
+  String get appearance => 'रंग-रूप';
+
+  @override
+  String get themeSystem => 'फ़ोन की सेटिंग';
+
+  @override
+  String get themeLight => 'लाइट';
+
+  @override
+  String get themeDark => 'डार्क';
+
+  @override
   String get retry => 'फिर कोशिश करें';
 
   @override
