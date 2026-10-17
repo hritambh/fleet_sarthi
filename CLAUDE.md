@@ -34,7 +34,17 @@ Flutter app (`apps/driver-app`): `flutter analyze --fatal-infos`, `dart format l
 
 Database changes: edit `libs/db/prisma/schema.prisma`, run `bun run db:migration <name>` (writes SQL without applying), **read the SQL and delete any drops of objects Prisma doesn't model** (partitions, exclusion constraints, CHECKs, RLS policies, functions), then `bun run db:migrate && bun run db:drift`. After changing `libs/contracts`, run `bun run api:client` (CI fails if the generated client is stale) and update the hand-written Dart models in `apps/driver-app/lib/core/api/` to match.
 
-APK: `API_URL=https://taxcy-api.onrender.com bun run build:apk:arm64` → `dist/driver-app/fleet-sarthi-<version>-arm64-v8a.apk`, the one to send to phones (`build:apk` builds the universal APK instead; add `-- --split` for all three CPU variants too). Release builds require `https://`; for a laptop's LAN IP use `flutter build apk --debug --dart-define=API_URL=http://<ip>:3000` (see docs/deployment.md Part 1). iPhone: Xcode + CocoaPods, then `flutter run -d <iphone> --release --dart-define=API_URL=https://…` from `apps/driver-app` (setup and signing in docs/ios.md). Every push to `main` that changes `apps/driver-app` also builds the arm64 APK in CI and posts it to Slack #releases (`.github/workflows/android-release.yml`; setup in docs/deployment.md, "Automatic APK in Slack").
+APK: `API_URL=https://taxcy-api.onrender.com bun run build:apk:arm64` → `dist/driver-app/fleet-sarthi-<version>-arm64-v8a.apk`, the one to send to phones (`build:apk` builds the universal APK instead; add `-- --split` for all three CPU variants too). Release builds require `https://`; for a laptop's LAN IP use `flutter build apk --debug --dart-define=API_URL=http://<ip>:3000` (see docs/deployment.md Part 1). iPhone: Xcode + CocoaPods, then `flutter run -d <iphone> --release --dart-define=API_URL=https://…` from `apps/driver-app` (setup, installing on a new iPhone and updating one in docs/ios.md). Every push to `main` that changes `apps/driver-app` also builds the arm64 APK in CI and posts it to Slack #releases (`.github/workflows/android-release.yml`; setup in docs/deployment.md, "Automatic APK in Slack").
+
+## Android and iOS stay the same
+
+**Any change made for Android must be made for iOS in the same change, and the other way round.** Users on either phone get the same app: features, permissions, icons and app name, launch screen, deep links, background behaviour. Concretely:
+
+- A new permission or `AndroidManifest.xml` entry needs its `ios/Runner/Info.plist` counterpart (usage string, background mode), and vice versa.
+- A new plugin must build on both (`flutter build apk` and `flutter build ios`) and support the iOS minimum (14.0, `ios/Podfile`); check its iOS setup steps, not only Android's.
+- Icons and branding come from `tool/app_icons_test.dart`, which draws web, Android and iOS together; never hand-edit one platform's icons.
+- Where the platforms really differ (e.g. iPhone's Files app doesn't show Photos, so upload offers a source sheet), handle it in code (`defaultTargetPlatform`) and test both with `debugDefaultTargetPlatformOverride`.
+- If something can only be done on one platform, say so in the commit message and in docs/ios.md or docs/deployment.md.
 
 ## Before every commit
 

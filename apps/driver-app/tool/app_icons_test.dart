@@ -1,5 +1,5 @@
 // Draws the app icon (the sign-in screen's white taxi on Fleet Sarthi blue)
-// into every size the web and Android builds need. Not part of the test suite;
+// into every size the web, Android and iOS builds need. Not part of the test suite;
 // re-run after changing the design:
 //
 //   flutter test tool/app_icons_test.dart
@@ -112,6 +112,18 @@ void main() {
           _Tile.glyphOnly,
           0.42,
         );
+      }
+
+      // iOS rounds the corners itself, so a full-bleed tile, with the glyph
+      // the size Android's launcher shows it. Every size the asset catalog
+      // lists (Icon-App-<points>x<points>@<scale>x.png).
+      const ios = 'ios/Runner/Assets.xcassets/AppIcon.appiconset';
+      final name = RegExp(r'Icon-App-([\d.]+)x[\d.]+@(\d)x\.png$');
+      for (final file in Directory(ios).listSync().whereType<File>()) {
+        final match = name.firstMatch(file.path);
+        if (match == null) continue;
+        final px = (double.parse(match[1]!) * int.parse(match[2]!)).round();
+        await _draw(file.path, px, _Tile.fullBleed, 0.6);
       }
     });
   });

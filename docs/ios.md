@@ -28,11 +28,6 @@ Then check: `flutter doctor` should show a green tick for **Xcode** (the iOS sim
 
 In Xcode, add your Apple ID: **Xcode → Settings → Accounts → +**.
 
-## One-time iPhone setup
-
-1. Connect the iPhone to the Mac and tap **Trust** on the phone.
-2. Turn on **Developer Mode**: **Settings → Privacy & Security → Developer Mode** (it appears after the phone has been connected to Xcode once; the phone restarts).
-
 ## Signing (once per Mac)
 
 1. Open `apps/driver-app/ios/Runner.xcworkspace` in Xcode (the **workspace**, not `Runner.xcodeproj`).
@@ -40,20 +35,42 @@ In Xcode, add your Apple ID: **Xcode → Settings → Accounts → +**.
 3. Tick **Automatically manage signing** and pick your **Team** (your Apple ID, "Personal Team").
 4. If Xcode says the bundle identifier `in.taxcy.taxcyDriver` isn't available to your team, change it to something unique to you, e.g. `in.taxcy.taxcyDriver.yourname`. Don't commit that change.
 
-## Install and run
+## Install on a new iPhone
 
-From `apps/driver-app`, with the phone connected and unlocked:
+Do this for each iPhone the app goes on. The Mac needs the [one-time setup](#one-time-mac-setup) and [signing](#signing-once-per-mac) above.
 
-```bash
-flutter devices                                   # the iPhone should be listed
-flutter run -d <iphone-id> --release --dart-define=API_URL=https://taxcy-api.onrender.com
-```
+1. **Connect** the iPhone with its cable, unlock it, and tap **Trust** on the phone (enter the phone's passcode if asked).
+2. **Developer Mode:** on the phone, **Settings → Privacy & Security → Developer Mode** → on. The phone restarts; after it does, tap **Turn On** and enter the passcode. (If the option isn't there, open Xcode with the phone connected once; it appears after that.)
+3. **Find the phone's id:** from `apps/driver-app`, run `flutter devices`. The iPhone is listed with a long id, e.g. `00008120-000669821487A01E`.
+4. **Install:**
+   ```bash
+   flutter run -d <iphone-id> --release --dart-define=API_URL=https://taxcy-api.onrender.com
+   ```
+   The first build takes a few minutes. If the Mac asks for the **"login" keychain password**, it's your Mac login password; click **Always Allow**. Xcode registers the new phone with your Apple ID on its own (automatic signing).
+5. **Trust the developer** (once per phone): the first time, iOS says "Untrusted Developer". On the phone, go to **Settings → General → VPN & Device Management**, tap your Apple ID under **Developer App**, then **Trust**. The phone needs internet for this.
+6. Open **Fleet Sarthi** from the home screen. You can unplug the phone now: `--release` installs an app that runs on its own. Press `q` in the terminal to end `flutter run`.
 
-`--release` installs an app that keeps working after you unplug the phone; leave it out for a debug build with hot reload while plugged in. Like Android release builds, the API must be `https://`.
+`--release` with `API_URL` is what makes it a standalone app pointed at the hosted API (it must be `https://`, as on Android). Leave `--release` out for a debug build with hot reload while plugged in. For a local API on your laptop, use `--dart-define=API_URL=http://<laptop-ip>:3000` with a debug build.
 
-The first time, iOS blocks the app from an unknown developer: **Settings → General → VPN & Device Management → (your Apple ID) → Trust**, then open **Fleet Sarthi** again.
+**Free Apple ID limits:** an install works for **7 days**, then the app stops opening until you update it (below); and one phone can hold at most 3 apps from the same free Apple ID at a time. A paid Apple Developer account lifts both (installs last a year).
 
 **From Xcode instead:** run `flutter build ios --release --dart-define=API_URL=https://taxcy-api.onrender.com` once (it writes the API address into the Xcode build settings), then in Xcode pick the iPhone at the top and press **Run** (⌘R).
+
+## Update the app on an iPhone that has it
+
+To put a newer version of the app on a phone (after pulling new code), or to renew a free Apple ID's 7-day install:
+
+1. Get the code you want: `git pull` in the repo, then `bun install` if dependencies changed.
+2. Connect the iPhone and unlock it.
+3. From `apps/driver-app`, run the same command as for the install:
+   ```bash
+   flutter devices
+   flutter run -d <iphone-id> --release --dart-define=API_URL=https://taxcy-api.onrender.com
+   ```
+
+The new version replaces the old one in place: the sign-in, settings and a driver's saved trips stay on the phone, and you don't trust the developer again. That holds as long as it's signed by the **same Apple ID (Team)**, from any Mac, and keeps the same bundle id.
+
+**Signing with a different Apple ID** (another Team, or a changed bundle id) can't update the app: iOS shows it as a second app or refuses to install. Delete the old app from the phone first (long-press the icon → **Remove App**), then install as for a new phone. Deleting the app **deletes its data**, so a driver should open the app online first and let it finish syncing (nothing waiting to upload) before you delete it.
 
 ## What iOS asks the user
 
@@ -69,18 +86,18 @@ Uploading a document on an iPhone offers **Photo library** or **Files (PDF or im
 
 ## Troubleshooting
 
-| Problem                                                                                                                                                | Fix                                                                                                            |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| `xcodebuild requires Xcode, but active developer directory … is a command line tools instance`                                                         | Run the `xcode-select` command from the Mac setup above                                                        |
-| Flutter says to pick a Development Team, but the Xcode log shows `Building assets for package:objective_c failed` / `SDK "iphoneos" cannot be located` | `xcode-select` still points at the Command Line Tools: run the `xcode-select` command from the Mac setup above |
-| `CocoaPods not installed`                                                                                                                              | `brew install cocoapods`, then run again                                                                       |
-| "iOS 18.5 is not installed. To use with Xcode, first download and install the platform" (Flutter only says to pick a Development Team)                 | `xcodebuild -downloadPlatform iOS`, or **Xcode → Settings → Components → iOS**                                 |
-| `Value of type 'NWPath' has no member 'isUltraConstrained'`                                                                                            | A plugin needs Xcode 26: keep `connectivity_plus` at 7.0.0, or update Xcode                                    |
-| "requires a higher minimum iOS deployment version"                                                                                                     | The app targets iOS 14 (`ios/Podfile`, the Xcode project, `AppFrameworkInfo.plist`); raise all three together  |
-| "Untrusted Developer" when opening the app                                                                                                             | Trust your Apple ID under **Settings → General → VPN & Device Management**                                     |
-| The app stops opening after a week                                                                                                                     | Free Apple ID installs expire after 7 days: run `flutter run --release …` again                                |
-| "No profiles for 'in.taxcy.taxcyDriver' were found"                                                                                                    | Pick your Team under Signing & Capabilities; change the bundle id if it's taken                                |
-| The phone isn't listed by `flutter devices`                                                                                                            | Unlock it, tap Trust, and turn on Developer Mode                                                               |
+| Problem                                                                                                                                                | Fix                                                                                                                       |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| `xcodebuild requires Xcode, but active developer directory … is a command line tools instance`                                                         | Run the `xcode-select` command from the Mac setup above                                                                   |
+| Flutter says to pick a Development Team, but the Xcode log shows `Building assets for package:objective_c failed` / `SDK "iphoneos" cannot be located` | `xcode-select` still points at the Command Line Tools: run the `xcode-select` command from the Mac setup above            |
+| `CocoaPods not installed`                                                                                                                              | `brew install cocoapods`, then run again                                                                                  |
+| "iOS 18.5 is not installed. To use with Xcode, first download and install the platform" (Flutter only says to pick a Development Team)                 | `xcodebuild -downloadPlatform iOS`, or **Xcode → Settings → Components → iOS**                                            |
+| `Value of type 'NWPath' has no member 'isUltraConstrained'`                                                                                            | A plugin needs Xcode 26: keep `connectivity_plus` at 7.0.0, or update Xcode                                               |
+| "requires a higher minimum iOS deployment version"                                                                                                     | The app targets iOS 14 (`ios/Podfile`, the Xcode project, `AppFrameworkInfo.plist`); raise all three together             |
+| "Untrusted Developer" when opening the app                                                                                                             | Trust your Apple ID under **Settings → General → VPN & Device Management**                                                |
+| The app stops opening after a week                                                                                                                     | Free Apple ID installs expire after 7 days: [update the app](#update-the-app-on-an-iphone-that-has-it) (its data is kept) |
+| "No profiles for 'in.taxcy.taxcyDriver' were found"                                                                                                    | Pick your Team under Signing & Capabilities; change the bundle id if it's taken                                           |
+| The phone isn't listed by `flutter devices`                                                                                                            | Unlock it, tap Trust, and turn on Developer Mode                                                                          |
 
 ## Beyond your own phone
 
