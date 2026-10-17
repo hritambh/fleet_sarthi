@@ -8,6 +8,8 @@
   "themeSystem": "फ़ोन की सेटिंग",
   "themeLight": "लाइट",
   "themeDark": "डार्क",
+  "switchToDark": "डार्क मोड पर जाएँ",
+  "switchToLight": "लाइट मोड पर जाएँ",
   "retry": "फिर कोशिश करें",
   "cancel": "रद्द करें",
   "save": "सेव करें",

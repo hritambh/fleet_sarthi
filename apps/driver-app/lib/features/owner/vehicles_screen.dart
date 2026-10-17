@@ -19,6 +19,7 @@ import 'owner_widgets.dart';
 import 'vehicle_catalog.dart';
 import 'trips/owner_trips_screen.dart';
 import 'trip_schedule.dart';
+import '../common/theme_picker.dart';
 
 const fuelTypes = ['petrol', 'diesel', 'cng', 'petrol_cng', 'ev'];
 
@@ -39,7 +40,11 @@ class VehiclesScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l.vehicles),
-        actions: [const AlertsBell(), ...action.headerActions(context)],
+        actions: [
+          const ThemeToggleButton(),
+          const AlertsBell(),
+          ...action.headerActions(context),
+        ],
       ),
       floatingActionButton: action.fab(context),
       body: RefreshPage(

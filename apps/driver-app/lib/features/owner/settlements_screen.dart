@@ -10,6 +10,7 @@ import 'owner_providers.dart';
 import 'owner_text.dart';
 import 'alerts_inbox.dart';
 import 'owner_widgets.dart';
+import '../common/theme_picker.dart';
 
 /// Each driver's settlement for one IST day (yesterday by default).
 class SettlementsScreen extends ConsumerStatefulWidget {
@@ -29,7 +30,10 @@ class _SettlementsScreenState extends ConsumerState<SettlementsScreen> {
     final fmt = context.fmt;
     final list = ref.watch(settlementsProvider(_date));
     return Scaffold(
-      appBar: AppBar(title: Text(l.settlements), actions: const [AlertsBell()]),
+      appBar: AppBar(
+        title: Text(l.settlements),
+        actions: const [ThemeToggleButton(), AlertsBell()],
+      ),
       body: RefreshPage(
         onRefresh: () => ref.refresh(settlementsProvider(_date).future),
         children: [

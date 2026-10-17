@@ -146,7 +146,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (desktop) {
       return Scaffold(
         backgroundColor: context.tc.surface,
-        appBar: AppBar(title: Text(l.settings), actions: const [AlertsBell()]),
+        appBar: AppBar(
+          title: Text(l.settings),
+          actions: const [ThemeToggleButton(), AlertsBell()],
+        ),
         body: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -190,7 +193,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ],
     );
     return Scaffold(
-      appBar: AppBar(title: Text(l.settings), actions: const [AlertsBell()]),
+      appBar: AppBar(
+        title: Text(l.settings),
+        actions: const [ThemeToggleButton(), AlertsBell()],
+      ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
         children: [

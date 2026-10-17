@@ -10,6 +10,7 @@ import 'fuel_screens.dart';
 import 'owner_providers.dart';
 import 'owner_text.dart';
 import 'owner_widgets.dart';
+import '../common/theme_picker.dart';
 
 /// The month as YYYY-MM.
 String monthKey(int year, int month) =>
@@ -43,7 +44,10 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
     final years = [for (var y = _today.year; y > _today.year - 4; y--) y];
     Widget box(Widget child) => SizedBox(width: 180, child: child);
     return Scaffold(
-      appBar: AppBar(title: Text(l.analytics), actions: const [AlertsBell()]),
+      appBar: AppBar(
+        title: Text(l.analytics),
+        actions: const [ThemeToggleButton(), AlertsBell()],
+      ),
       body: RefreshPage(
         onRefresh: () async {
           ref

@@ -39,3 +39,24 @@ Future<void> showThemePicker(BuildContext context, WidgetRef ref) async {
   if (picked == null) return;
   ref.read(themeModeProvider.notifier).set(picked);
 }
+
+/// A sun or moon in the app bar, beside the alerts bell: one tap switches
+/// between light and dark (from whatever is showing now, the phone's setting
+/// included). Settings → Appearance goes back to the phone's setting.
+class ThemeToggleButton extends ConsumerWidget {
+  const ThemeToggleButton({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return IconButton(
+      key: const Key('theme-toggle'),
+      tooltip: dark ? l.switchToLight : l.switchToDark,
+      icon: Icon(dark ? Icons.light_mode_outlined : Icons.dark_mode_outlined),
+      onPressed: () => ref
+          .read(themeModeProvider.notifier)
+          .set(dark ? ThemeMode.light : ThemeMode.dark),
+    );
+  }
+}

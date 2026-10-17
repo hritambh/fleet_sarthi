@@ -17,6 +17,7 @@ import 'owner_widgets.dart';
 import 'pay_rule_editor.dart';
 import 'trip_schedule.dart';
 import 'vehicles_screen.dart';
+import '../common/theme_picker.dart';
 
 /// The fleet's drivers with their pay; invite by phone.
 class DriversScreen extends ConsumerWidget {
@@ -37,7 +38,11 @@ class DriversScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l.drivers),
-        actions: [const AlertsBell(), ...action.headerActions(context)],
+        actions: [
+          const ThemeToggleButton(),
+          const AlertsBell(),
+          ...action.headerActions(context),
+        ],
       ),
       floatingActionButton: action.fab(context),
       body: RefreshPage(

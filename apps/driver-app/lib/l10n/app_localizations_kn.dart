@@ -33,6 +33,12 @@ class AppLocalizationsKn extends AppLocalizations {
   String get themeDark => 'ಡಾರ್ಕ್';
 
   @override
+  String get switchToDark => 'ಡಾರ್ಕ್ ಮೋಡ್‌ಗೆ ಬದಲಿಸಿ';
+
+  @override
+  String get switchToLight => 'ಲೈಟ್ ಮೋಡ್‌ಗೆ ಬದಲಿಸಿ';
+
+  @override
   String get retry => 'ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ';
 
   @override

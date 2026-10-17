@@ -20,6 +20,7 @@ import 'settlements_screen.dart';
 import 'trips/owner_trips_screen.dart';
 import 'vehicles_screen.dart';
 import '../workspaces/workspace_switcher.dart';
+import '../common/theme_picker.dart';
 
 /// Owner mode: Dashboard / Trips / More, with alerts and review behind the
 /// bell in each page header. A bottom navigation bar on phones, a side rail on
@@ -124,7 +125,10 @@ class MoreScreen extends ConsumerWidget {
           onTap: () => openScreen<void>(context, screen),
         );
     return Scaffold(
-      appBar: AppBar(title: Text(l.navMore), actions: const [AlertsBell()]),
+      appBar: AppBar(
+        title: Text(l.navMore),
+        actions: const [ThemeToggleButton(), AlertsBell()],
+      ),
       body: ListView(
         children: [
           PageWidth(
