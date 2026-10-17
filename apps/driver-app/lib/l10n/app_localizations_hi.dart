@@ -33,6 +33,12 @@ class AppLocalizationsHi extends AppLocalizations {
   String get themeDark => 'डार्क';
 
   @override
+  String get switchToDark => 'डार्क मोड पर जाएँ';
+
+  @override
+  String get switchToLight => 'लाइट मोड पर जाएँ';
+
+  @override
   String get retry => 'फिर कोशिश करें';
 
   @override

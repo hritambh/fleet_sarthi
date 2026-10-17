@@ -21,6 +21,7 @@ import 'trips/create_trip_screen.dart';
 import 'trips/owner_trip_detail_screen.dart';
 import 'trips/owner_trips_screen.dart';
 import 'vehicles_screen.dart';
+import '../common/theme_picker.dart';
 
 const _severityOrder = {'critical': 0, 'warning': 1, 'info': 2};
 
@@ -219,7 +220,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     final appBar = AppBar(
       title: Text(l.navDashboard),
-      actions: const [AlertsBell()],
+      actions: const [ThemeToggleButton(), AlertsBell()],
     );
 
     if (!desktop) {

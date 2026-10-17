@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../../common/format.dart';
 import '../alerts_inbox.dart';
+import '../../common/theme_picker.dart';
 
 /// Present above a settings page shown inside the desktop settings layout
 /// (nav column + page) rather than pushed on its own. The page then draws its
@@ -199,7 +200,10 @@ class SettingsScaffold extends StatelessWidget {
       },
       child: Scaffold(
         backgroundColor: context.tc.surface,
-        appBar: AppBar(title: Text(title), actions: const [AlertsBell()]),
+        appBar: AppBar(
+          title: Text(title),
+          actions: const [ThemeToggleButton(), AlertsBell()],
+        ),
         body: body,
         bottomNavigationBar: bar == null ? null : SafeArea(child: bar),
       ),

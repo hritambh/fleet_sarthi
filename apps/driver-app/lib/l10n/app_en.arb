@@ -13,6 +13,8 @@
   "themeSystem": "Phone's setting",
   "themeLight": "Light",
   "themeDark": "Dark",
+  "switchToDark": "Switch to dark mode",
+  "switchToLight": "Switch to light mode",
   "retry": "Retry",
   "@retry": {},
   "cancel": "Cancel",

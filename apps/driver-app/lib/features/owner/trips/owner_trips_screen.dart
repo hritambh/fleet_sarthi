@@ -12,6 +12,7 @@ import '../alerts_inbox.dart';
 import '../owner_widgets.dart';
 import 'create_trip_screen.dart';
 import 'owner_trip_detail_screen.dart';
+import '../../common/theme_picker.dart';
 
 const tripStatuses = [
   'created',
@@ -81,6 +82,7 @@ class _OwnerTripsScreenState extends ConsumerState<OwnerTripsScreen> {
               ),
               onPressed: _showFilters,
             ),
+          const ThemeToggleButton(),
           const AlertsBell(),
           ...action.headerActions(context),
         ],
