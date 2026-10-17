@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:taxcy_driver/app/app.dart';
 import 'package:taxcy_driver/app/preferences.dart';
+import 'package:taxcy_driver/app/theme.dart';
 import 'package:taxcy_driver/core/api/api.dart';
 import 'package:taxcy_driver/core/api/json.dart';
 import 'package:taxcy_driver/core/api/models.dart';
@@ -428,6 +429,14 @@ void main() {
           ?.color,
       red,
     );
+
+    // The other icons are dark like their text, not the faint default.
+    for (final key in ['trip-edit', 'trip-unassign', 'trip-copy']) {
+      final icon = tester.widget<Icon>(
+        find.descendant(of: find.byKey(Key(key)), matching: find.byType(Icon)),
+      );
+      expect(icon.color, TaxcyColors.ink, reason: key);
+    }
 
     // Unassign from the menu calls the API, as the button did.
     await tester.tap(find.byKey(const Key('trip-unassign')));

@@ -160,7 +160,9 @@ class _TripMenu extends ConsumerWidget {
       value: value,
       child: Row(
         children: [
-          Icon(icon, color: color),
+          // The theme has no menu icon colour, and the default is near
+          // invisible: match the item's text.
+          Icon(icon, color: color ?? TaxcyColors.ink),
           const SizedBox(width: 12),
           Text(label, style: TextStyle(color: color)),
         ],
