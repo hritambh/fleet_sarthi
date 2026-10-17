@@ -20,12 +20,17 @@ class SyncStatus {
     required this.pending,
     required this.attention,
     required this.syncing,
+    this.photos = 0,
     this.lastSyncedAt,
     this.lastError,
   });
 
   final bool online;
   final int pending;
+
+  /// Photos registered with the API whose files haven't reached storage yet.
+  /// They upload on their own; trip and fuel records don't wait for them.
+  final int photos;
   final int attention;
   final bool syncing;
   final DateTime? lastSyncedAt;
@@ -36,6 +41,7 @@ class SyncStatus {
     int? pending,
     int? attention,
     bool? syncing,
+    int? photos,
     DateTime? lastSyncedAt,
     String? lastError,
   }) => SyncStatus(
@@ -43,6 +49,7 @@ class SyncStatus {
     pending: pending ?? this.pending,
     attention: attention ?? this.attention,
     syncing: syncing ?? this.syncing,
+    photos: photos ?? this.photos,
     lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
     lastError: lastError ?? this.lastError,
   );
@@ -68,8 +75,13 @@ Duration backoffFor(int attempts) {
 ///
 /// Ordering rule: the outbox is strictly FIFO. A retryable failure (offline,
 /// 5xx, 429) stops the drain so later writes never overtake earlier ones — a
-/// photo is always confirmed before the command that cites it. A permanent
-/// rejection moves the item to "needs attention" and the drain continues.
+/// photo is always registered with the API before the command that cites it.
+/// A permanent rejection moves the item to "needs attention" and the drain
+/// continues.
+///
+/// A photo's file goes to storage separately: if storage can't take it (down,
+/// misconfigured, blocked by the browser), the queue moves on and
+/// [uploadPendingPhotos] retries it on later syncs.
 class SyncEngine {
   SyncEngine({
     required this.db,
@@ -99,6 +111,10 @@ class SyncEngine {
   );
   Future<void>? _running;
 
+  /// Per photo: when to try its upload again, and how many tries failed.
+  final _photoRetryAt = <String, DateTime>{};
+  final _photoAttempts = <String, int>{};
+
   Stream<SyncStatus> get status => _status.stream;
   Stream<SyncNotice> get notices => _notices.stream;
   SyncStatus get current => _current;
@@ -124,6 +140,7 @@ class SyncEngine {
     try {
       final drained = await drainOutbox();
       if (drained) await uploadGps();
+      if (_current.online) await uploadPendingPhotos();
       if (_current.online) await pullTrips();
     } finally {
       await _refreshCounts(syncing: false);
@@ -132,10 +149,14 @@ class SyncEngine {
 
   Future<void> _refreshCounts({bool? syncing}) async {
     final rows = await db.select(db.outboxItems).get();
+    final waiting = await (db.select(
+      db.photos,
+    )..where((p) => p.uploaded.equals(false))).get();
     _emit(
       _current.copyWith(
         pending: rows.where((r) => r.state == OutboxState.pending).length,
         attention: rows.where((r) => r.state == OutboxState.attention).length,
+        photos: waiting.length,
         syncing: syncing,
       ),
     );
@@ -223,39 +244,86 @@ class SyncEngine {
     }
   }
 
+  /// Registers the photo with the API (what the next commands need), then
+  /// tries its upload once. A failed upload doesn't hold up the queue.
   Future<void> _sendPhoto(String photoId) async {
     final photo = await (db.select(
       db.photos,
     )..where((p) => p.id.equals(photoId))).getSingle();
     if (photo.uploaded) return;
-    final ticket = await api.registerMedia({
-      'id': photo.id,
-      'kind': photo.kind,
-      'contentType': photo.contentType,
-      'sha256': photo.sha256,
-      'byteSize': photo.byteSize,
-      'capturedAt': photo.capturedAt.toUtc().toIso8601String(),
-      if (photo.lat != null && photo.lng != null)
-        'location': {
-          'lat': photo.lat,
-          'lng': photo.lng,
-          if (photo.accuracyM != null) 'accuracyM': photo.accuracyM,
-        },
-      'isMockLocation': photo.isMock,
-      'deviceId': await deviceId(),
-    });
-    final url = ticket.uploadUrl;
-    if (ticket.status == 'pending' && url != null) {
-      await api.uploadBytes(
-        url,
-        ticket.uploadHeaders,
-        await readPhoto(photo.path),
-      );
+    await _tryUpload(photo, await _register(photo));
+  }
+
+  /// Uploads the files of photos that are registered but not yet in storage,
+  /// each on its own backoff. Stops early if the API itself is unreachable.
+  Future<void> uploadPendingPhotos() async {
+    final waiting = await (db.select(
+      db.photos,
+    )..where((p) => p.uploaded.equals(false))).get();
+    for (final photo in waiting) {
+      final due = _photoRetryAt[photo.id];
+      if (due != null && due.isAfter(_now())) continue;
+      final UploadTicket ticket;
+      try {
+        ticket = await _register(photo);
+      } on ApiException catch (error) {
+        if (error.isNetwork) {
+          _emit(_current.copyWith(online: false, lastError: error.message));
+          return;
+        }
+        _photoFailed(photo.id, error);
+        continue;
+      }
+      await _tryUpload(photo, ticket);
     }
-    if (ticket.status != 'uploaded') await api.completeMedia(photo.id);
+  }
+
+  Future<UploadTicket> _register(Photo photo) async => api.registerMedia({
+    'id': photo.id,
+    'kind': photo.kind,
+    'contentType': photo.contentType,
+    'sha256': photo.sha256,
+    'byteSize': photo.byteSize,
+    'capturedAt': photo.capturedAt.toUtc().toIso8601String(),
+    if (photo.lat != null && photo.lng != null)
+      'location': {
+        'lat': photo.lat,
+        'lng': photo.lng,
+        if (photo.accuracyM != null) 'accuracyM': photo.accuracyM,
+      },
+    'isMockLocation': photo.isMock,
+    'deviceId': await deviceId(),
+  });
+
+  /// Sends the file and confirms it. Any failure leaves the photo waiting, to
+  /// be retried with backoff; it never stops the outbox.
+  Future<void> _tryUpload(Photo photo, UploadTicket ticket) async {
+    try {
+      final url = ticket.uploadUrl;
+      if (ticket.status == 'pending' && url != null) {
+        await api.uploadBytes(
+          url,
+          ticket.uploadHeaders,
+          await readPhoto(photo.path),
+        );
+      }
+      if (ticket.status != 'uploaded') await api.completeMedia(photo.id);
+    } on ApiException catch (error) {
+      _photoFailed(photo.id, error);
+      return;
+    }
+    _photoRetryAt.remove(photo.id);
+    _photoAttempts.remove(photo.id);
     await (db.update(db.photos)..where((p) => p.id.equals(photo.id))).write(
       const PhotosCompanion(uploaded: Value(true)),
     );
+  }
+
+  void _photoFailed(String photoId, ApiException error) {
+    final attempts = (_photoAttempts[photoId] ?? 0) + 1;
+    _photoAttempts[photoId] = attempts;
+    _photoRetryAt[photoId] = _now().add(backoffFor(attempts));
+    _emit(_current.copyWith(lastError: error.message));
   }
 
   /// The server's view replaces the cached trip, unless more local writes for

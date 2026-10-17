@@ -4218,4 +4218,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pickFromFiles => 'Files (PDF or image)';
+
+  @override
+  String syncPhotosWaiting({required int count}) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count photos waiting to upload',
+      one: '1 photo waiting to upload',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tripPhotos => 'Photos';
 }

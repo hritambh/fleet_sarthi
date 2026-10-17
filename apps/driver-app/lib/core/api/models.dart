@@ -251,6 +251,8 @@ class TripFuelFill {
     required this.paidBy,
     required this.isFullTank,
     required this.filledAt,
+    this.odometerMediaId,
+    this.receiptMediaId,
   });
 
   factory TripFuelFill.fromJson(JsonMap json) => TripFuelFill(
@@ -261,6 +263,8 @@ class TripFuelFill {
     paidBy: json.str('paidBy'),
     isFullTank: json.boolean('isFullTank'),
     filledAt: json.date('filledAt'),
+    odometerMediaId: json.strOrNull('odometerMediaId'),
+    receiptMediaId: json.strOrNull('receiptMediaId'),
   );
 
   final String id;
@@ -275,6 +279,10 @@ class TripFuelFill {
   final bool isFullTank;
   final DateTime filledAt;
 
+  /// The odometer photo taken at the pump, and the receipt (if any).
+  final String? odometerMediaId;
+  final String? receiptMediaId;
+
   String get unit => fuel == 'cng' ? 'kg' : 'L';
 
   JsonMap toJson() => {
@@ -285,6 +293,8 @@ class TripFuelFill {
     'paidBy': paidBy,
     'isFullTank': isFullTank,
     'filledAt': filledAt.toUtc().toIso8601String(),
+    'odometerMediaId': odometerMediaId,
+    'receiptMediaId': receiptMediaId,
   };
 }
 

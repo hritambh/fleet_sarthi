@@ -7367,6 +7367,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Files (PDF or image)'**
   String get pickFromFiles;
+
+  /// No description provided for @syncPhotosWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo waiting to upload} other{{count} photos waiting to upload}}'**
+  String syncPhotosWaiting({required int count});
+
+  /// No description provided for @tripPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos'**
+  String get tripPhotos;
 }
 
 class _AppLocalizationsDelegate

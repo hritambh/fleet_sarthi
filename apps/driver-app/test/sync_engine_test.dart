@@ -316,6 +316,55 @@ void main() {
       },
     );
 
+    test(
+      'storage down: the trip still syncs, the photo waits and uploads later',
+      () async {
+        await trips.start(
+          await cached(),
+          photo: fakePhoto('photo-1'),
+          km: 48210,
+        );
+        // The browser can't reach storage (bad settings, blocked by CORS…).
+        api.failNext('uploadBytes', FakeApi.network());
+        await engine.syncNow();
+        expect(api.names.where((n) => n != 'myTrips'), [
+          'registerMedia',
+          'uploadBytes',
+          'trip.start',
+        ]);
+        expect(engine.current.online, isTrue);
+        expect(engine.current.pending, 0);
+        expect(engine.current.photos, 1);
+
+        // Not before its backoff…
+        api.calls.clear();
+        await engine.syncNow();
+        expect(api.names.where((n) => n != 'myTrips'), isEmpty);
+
+        // …then it goes up.
+        now = now.add(const Duration(minutes: 1));
+        await engine.syncNow();
+        expect(api.names.where((n) => n != 'myTrips'), [
+          'registerMedia',
+          'uploadBytes',
+          'completeMedia',
+        ]);
+        expect(engine.current.photos, 0);
+      },
+    );
+
+    test('storage rejecting the upload doesn’t block the queue', () async {
+      await trips.start(await cached(), photo: fakePhoto('p'), km: 48210);
+      api.failNext(
+        'uploadBytes',
+        ApiException(status: 403, code: 'UPLOAD_FAILED', message: 'no'),
+      );
+      await engine.syncNow();
+      expect(api.names, contains('trip.start'));
+      expect(engine.current.attention, 0);
+      expect(engine.current.photos, 1);
+    });
+
     test('drains everything once the phone is back online', () async {
       api.offline = true;
       final trip = await cached();

@@ -24,6 +24,7 @@ class SyncStatusBar extends ConsumerWidget {
           : l.syncOfflineSaved(count: s.pending);
     }
     if (s.pending > 0) return l.syncPending(count: s.pending);
+    if (s.photos > 0) return l.syncPhotosWaiting(count: s.photos);
     return l.synced;
   }
 
@@ -37,7 +38,7 @@ class SyncStatusBar extends ConsumerWidget {
             context.adaptive(Colors.red.shade700, TaxcyDark.bad),
             Icons.cloud_off,
           )
-        : status.pending > 0
+        : status.pending > 0 || status.photos > 0
         ? (
             context.adaptive(Colors.amber.shade800, TaxcyDark.warn),
             Icons.cloud_upload,

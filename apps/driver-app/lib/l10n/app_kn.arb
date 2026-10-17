@@ -1198,5 +1198,7 @@
   "placesCredit": "Powered by Geoapify · © OpenStreetMap contributors",
   "pickSourceTitle": "ಎಲ್ಲಿಂದ ಅಪ್‌ಲೋಡ್ ಮಾಡಬೇಕು",
   "pickFromPhotos": "ಫೋಟೋ ಗ್ಯಾಲರಿ",
-  "pickFromFiles": "ಫೈಲ್‌ಗಳು (PDF ಅಥವಾ ಚಿತ್ರ)"
+  "pickFromFiles": "ಫೈಲ್‌ಗಳು (PDF ಅಥವಾ ಚಿತ್ರ)",
+  "syncPhotosWaiting": "{count, plural, =1{1 ಫೋಟೋ ಅಪ್‌ಲೋಡ್ ಆಗಲು ಬಾಕಿ ಇದೆ} other{{count} ಫೋಟೋಗಳು ಅಪ್‌ಲೋಡ್ ಆಗಲು ಬಾಕಿ ಇವೆ}}",
+  "tripPhotos": "ಫೋಟೋಗಳು"
 }

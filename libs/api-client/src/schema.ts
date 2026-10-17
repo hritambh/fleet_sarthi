@@ -1499,6 +1499,11 @@ export interface operations {
               /** @enum {string} */
               s3: 'ok' | 'error';
             };
+            reasons?: {
+              postgres?: string;
+              redis?: string;
+              s3?: string;
+            };
           };
         };
       };
@@ -7789,6 +7794,8 @@ export interface operations {
               isFullTank: boolean;
               /** Format: date-time */
               filledAt: string;
+              odometerMediaId: string | null;
+              receiptMediaId: string | null;
             }[];
             allowedCommands: (
               | 'assign'
@@ -8064,6 +8071,8 @@ export interface operations {
               isFullTank: boolean;
               /** Format: date-time */
               filledAt: string;
+              odometerMediaId: string | null;
+              receiptMediaId: string | null;
             }[];
             allowedCommands: (
               | 'assign'
@@ -8408,6 +8417,8 @@ export interface operations {
               isFullTank: boolean;
               /** Format: date-time */
               filledAt: string;
+              odometerMediaId: string | null;
+              receiptMediaId: string | null;
             }[];
             allowedCommands: (
               | 'assign'
@@ -8679,6 +8690,8 @@ export interface operations {
               isFullTank: boolean;
               /** Format: date-time */
               filledAt: string;
+              odometerMediaId: string | null;
+              receiptMediaId: string | null;
             }[];
             allowedCommands: (
               | 'assign'
@@ -9029,6 +9042,8 @@ export interface operations {
               isFullTank: boolean;
               /** Format: date-time */
               filledAt: string;
+              odometerMediaId: string | null;
+              receiptMediaId: string | null;
             }[];
             allowedCommands: (
               | 'assign'
@@ -9271,6 +9286,8 @@ export interface operations {
               isFullTank: boolean;
               /** Format: date-time */
               filledAt: string;
+              odometerMediaId: string | null;
+              receiptMediaId: string | null;
             }[];
             allowedCommands: (
               | 'assign'
@@ -9529,6 +9546,8 @@ export interface operations {
               isFullTank: boolean;
               /** Format: date-time */
               filledAt: string;
+              odometerMediaId: string | null;
+              receiptMediaId: string | null;
             }[];
             allowedCommands: (
               | 'assign'
@@ -9816,6 +9835,8 @@ export interface operations {
               isFullTank: boolean;
               /** Format: date-time */
               filledAt: string;
+              odometerMediaId: string | null;
+              receiptMediaId: string | null;
             }[];
             allowedCommands: (
               | 'assign'
@@ -10064,6 +10085,8 @@ export interface operations {
               isFullTank: boolean;
               /** Format: date-time */
               filledAt: string;
+              odometerMediaId: string | null;
+              receiptMediaId: string | null;
             }[];
             allowedCommands: (
               | 'assign'
@@ -10325,6 +10348,8 @@ export interface operations {
               isFullTank: boolean;
               /** Format: date-time */
               filledAt: string;
+              odometerMediaId: string | null;
+              receiptMediaId: string | null;
             }[];
             allowedCommands: (
               | 'assign'
@@ -10575,6 +10600,8 @@ export interface operations {
               isFullTank: boolean;
               /** Format: date-time */
               filledAt: string;
+              odometerMediaId: string | null;
+              receiptMediaId: string | null;
             }[];
             allowedCommands: (
               | 'assign'
@@ -10823,6 +10850,8 @@ export interface operations {
               isFullTank: boolean;
               /** Format: date-time */
               filledAt: string;
+              odometerMediaId: string | null;
+              receiptMediaId: string | null;
             }[];
             allowedCommands: (
               | 'assign'
@@ -11065,6 +11094,8 @@ export interface operations {
               isFullTank: boolean;
               /** Format: date-time */
               filledAt: string;
+              odometerMediaId: string | null;
+              receiptMediaId: string | null;
             }[];
             allowedCommands: (
               | 'assign'
@@ -11326,6 +11357,8 @@ export interface operations {
               isFullTank: boolean;
               /** Format: date-time */
               filledAt: string;
+              odometerMediaId: string | null;
+              receiptMediaId: string | null;
             }[];
             allowedCommands: (
               | 'assign'
@@ -11567,6 +11600,8 @@ export interface operations {
               isFullTank: boolean;
               /** Format: date-time */
               filledAt: string;
+              odometerMediaId: string | null;
+              receiptMediaId: string | null;
             }[];
             allowedCommands: (
               | 'assign'
@@ -11807,6 +11842,8 @@ export interface operations {
               isFullTank: boolean;
               /** Format: date-time */
               filledAt: string;
+              odometerMediaId: string | null;
+              receiptMediaId: string | null;
             }[];
             allowedCommands: (
               | 'assign'
@@ -12048,6 +12085,8 @@ export interface operations {
               isFullTank: boolean;
               /** Format: date-time */
               filledAt: string;
+              odometerMediaId: string | null;
+              receiptMediaId: string | null;
             }[];
             allowedCommands: (
               | 'assign'
@@ -13185,6 +13224,8 @@ export interface operations {
               isFullTank: boolean;
               /** Format: date-time */
               filledAt: string;
+              odometerMediaId: string | null;
+              receiptMediaId: string | null;
             }[];
             allowedCommands: (
               | 'assign'

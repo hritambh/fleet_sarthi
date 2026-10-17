@@ -102,6 +102,8 @@ class FuelRepository {
             paidBy: input.paidBy,
             isFullTank: input.isFullTank,
             filledAt: filledAt,
+            odometerMediaId: input.odometerPhoto.id,
+            receiptMediaId: input.receipt?.id,
           ),
         );
       }

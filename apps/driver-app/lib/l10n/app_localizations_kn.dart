@@ -4245,4 +4245,18 @@ class AppLocalizationsKn extends AppLocalizations {
 
   @override
   String get pickFromFiles => 'ಫೈಲ್‌ಗಳು (PDF ಅಥವಾ ಚಿತ್ರ)';
+
+  @override
+  String syncPhotosWaiting({required int count}) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ಫೋಟೋಗಳು ಅಪ್‌ಲೋಡ್ ಆಗಲು ಬಾಕಿ ಇವೆ',
+      one: '1 ಫೋಟೋ ಅಪ್‌ಲೋಡ್ ಆಗಲು ಬಾಕಿ ಇದೆ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tripPhotos => 'ಫೋಟೋಗಳು';
 }

@@ -8,6 +8,7 @@ import '../../../app/theme.dart';
 import '../../../core/api/models.dart';
 import '../../../core/api/owner_models.dart';
 import '../../common/format.dart';
+import '../../trips/trip_photos.dart';
 import '../links.dart';
 import '../owner_providers.dart';
 import '../owner_text.dart';
@@ -50,6 +51,7 @@ class OwnerTripDetailScreen extends ConsumerWidget {
             if (t.cancellationRequest != null) _CancellationCard(t),
             _DetailsCard(t),
             _OdometerCard(t),
+            if (t.fuelFills.isNotEmpty) _FuelCard(t),
             _RouteCard(t),
             _CollectionsCard(t),
             _ChargesCard(t),
@@ -832,6 +834,49 @@ class _OdometerCard extends StatelessWidget {
         children: [
           _OdometerCell(label: l.startLabel, reading: trip.startOdometer),
           _OdometerCell(label: l.endLabel, reading: trip.endOdometer),
+        ],
+      ),
+    );
+  }
+}
+
+/// Fuel filled during the trip, each with its odometer and receipt photos.
+class _FuelCard extends StatelessWidget {
+  const _FuelCard(this.trip);
+  final Trip trip;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final fmt = context.fmt;
+    return SectionCard(
+      key: const Key('owner-trip-fuel'),
+      title: l.fuel,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final f in trip.fuelFills) ...[
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              title: Text(fuelFillLabel(fmt, f)),
+              subtitle: Text(
+                '${fmt.dayTime(f.filledAt)} · ${paidByLabel(l, f.paidBy)}',
+              ),
+              trailing: Text(fmt.inr(f.costPaise)),
+            ),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                if (f.odometerMediaId != null)
+                  TripPhoto(f.odometerMediaId!, label: l.odometerPhoto),
+                if (f.receiptMediaId != null)
+                  TripPhoto(f.receiptMediaId!, label: l.receiptPhoto),
+              ],
+            ),
+            const SizedBox(height: 8),
+          ],
         ],
       ),
     );

@@ -108,6 +108,10 @@ export const TripFuelFill = z.object({
   paidBy: PaidBy,
   isFullTank: z.boolean(),
   filledAt: DateTime,
+  /** The odometer photo taken at the pump. */
+  odometerMediaId: Id.nullable(),
+  /** The fuel receipt photo, when one was taken. */
+  receiptMediaId: Id.nullable(),
 });
 
 export const CancellationRequest = z.object({

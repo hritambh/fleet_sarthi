@@ -21,6 +21,14 @@ export const healthRoutes = {
     response: z.object({
       status: CheckStatus,
       checks: z.object({ postgres: CheckStatus, redis: CheckStatus, s3: CheckStatus }),
+      /**
+       * Why a failed check failed: the error's name or code and HTTP status
+       * (e.g. "InvalidAccessKeyId (403)", "ENOTFOUND"). Never contains secrets.
+       */
+      reasons: z
+        .object({ postgres: z.string(), redis: z.string(), s3: z.string() })
+        .partial()
+        .optional(),
     }),
   }),
 };

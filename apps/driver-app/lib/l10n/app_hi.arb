@@ -1198,5 +1198,7 @@
   "placesCredit": "Geoapify द्वारा · © OpenStreetMap योगदानकर्ता",
   "pickSourceTitle": "कहाँ से अपलोड करें",
   "pickFromPhotos": "फ़ोटो गैलरी",
-  "pickFromFiles": "फ़ाइलें (PDF या फ़ोटो)"
+  "pickFromFiles": "फ़ाइलें (PDF या फ़ोटो)",
+  "syncPhotosWaiting": "{count, plural, =1{1 फ़ोटो अपलोड होना बाकी} other{{count} फ़ोटो अपलोड होना बाकी}}",
+  "tripPhotos": "फ़ोटो"
 }

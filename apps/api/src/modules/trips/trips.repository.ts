@@ -99,6 +99,7 @@ export class TripsRepository {
       tx.fuelFill.findMany({
         where: { tripId: { in: ids }, voidedAt: null },
         orderBy: { filledAt: 'asc' },
+        include: { odometer: { select: { mediaId: true } } },
       }),
     ]);
     const customerById = new Map(customers.map((c) => [c.id, c]));
@@ -196,6 +197,8 @@ export class TripsRepository {
             paidBy: f.paidBy as Trip['fuelFills'][number]['paidBy'],
             isFullTank: f.isFullTank,
             filledAt: f.filledAt,
+            odometerMediaId: f.odometer.mediaId,
+            receiptMediaId: f.receiptMediaId,
           })),
         allowedCommands: allowedCommands({ status: row.status, cancellationPending: pending }),
         version: row.version,

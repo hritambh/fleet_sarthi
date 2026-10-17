@@ -767,7 +767,7 @@ describe('visibility and charges', () => {
             filledAt: new Date().toISOString(),
           })
           .expect(201)
-      ).body as { id: string };
+      ).body as { id: string; odometer: { mediaId: string }; receiptMediaId: string };
     const kept = await fill(48_300);
     const voided = await fill(48_350);
     await request(h.http)
@@ -791,6 +791,9 @@ describe('visibility and charges', () => {
         paidBy: 'driver_cash',
         isFullTank: false,
         filledAt: expect.any(String) as string,
+        // Its photos, so the driver and the owner can see them on the trip.
+        odometerMediaId: kept.odometer.mediaId,
+        receiptMediaId: kept.receiptMediaId,
       },
     ]);
   });

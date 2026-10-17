@@ -3362,5 +3362,9 @@
   "pickFromPhotos": "Photo library",
   "@pickFromPhotos": {},
   "pickFromFiles": "Files (PDF or image)",
-  "@pickFromFiles": {}
+  "@pickFromFiles": {},
+  "syncPhotosWaiting": "{count, plural, =1{1 photo waiting to upload} other{{count} photos waiting to upload}}",
+  "@syncPhotosWaiting": {"placeholders": {"count": {"type": "int"}}},
+  "tripPhotos": "Photos",
+  "@tripPhotos": {}
 }

@@ -12,6 +12,7 @@ import '../common/widgets.dart';
 import '../fuel/fuel_fill_screen.dart';
 import 'charge_sheet.dart';
 import 'trip_forms.dart';
+import 'trip_photos.dart';
 
 class TripDetailScreen extends ConsumerWidget {
   const TripDetailScreen({required this.tripId, super.key});
@@ -126,6 +127,7 @@ class TripDetailScreen extends ConsumerWidget {
                       trailing: Text(fmt.inr(f.costPaise)),
                     ),
                 ],
+                TripPhotosSection(t),
                 if (t.collections.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Text(

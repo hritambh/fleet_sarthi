@@ -5,12 +5,26 @@ import { RedisService } from '../../platform/redis.service.js';
 import { S3Service } from '../../platform/s3.service.js';
 import { Route } from '../../platform/http/route.js';
 
-async function check(probe: () => Promise<unknown>): Promise<'ok' | 'error'> {
+type Outcome = { status: 'ok' } | { status: 'error'; reason: string };
+
+/** A short, secret-free reason: the error's name or code, and the HTTP status if any. */
+export function failureReason(error: unknown): string {
+  if (!(error instanceof Error)) return 'unknown';
+  const { code, $metadata } = error as Error & {
+    code?: unknown;
+    $metadata?: { httpStatusCode?: number };
+  };
+  const name = typeof code === 'string' ? code : error.name;
+  const status = $metadata?.httpStatusCode;
+  return status ? `${name} (${status})` : name;
+}
+
+async function check(probe: () => Promise<unknown>): Promise<Outcome> {
   try {
     await probe();
-    return 'ok';
-  } catch {
-    return 'error';
+    return { status: 'ok' };
+  } catch (error) {
+    return { status: 'error', reason: failureReason(error) };
   }
 }
 
@@ -34,7 +48,14 @@ export class HealthController {
       check(() => this.redis.client.ping()),
       check(() => this.s3.ping()),
     ]);
-    const healthy = postgres === 'ok' && redis === 'ok' && s3 === 'ok';
-    return { status: healthy ? 'ok' : 'error', checks: { postgres, redis, s3 } };
+    const outcomes = { postgres, redis, s3 };
+    const failed = Object.entries(outcomes).flatMap(([name, o]) =>
+      o.status === 'error' ? [[name, o.reason] as const] : [],
+    );
+    return {
+      status: failed.length ? 'error' : 'ok',
+      checks: { postgres: postgres.status, redis: redis.status, s3: s3.status },
+      ...(failed.length ? { reasons: Object.fromEntries(failed) } : {}),
+    };
   }
 }
