@@ -29,7 +29,10 @@ class OwnerTripDetailScreen extends ConsumerWidget {
     final trip = ref.watch(ownerTripProvider(tripId));
     final title = trip.value?.routeLabel ?? context.l10n.tripDetails;
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: AppBar(
+        title: Text(title),
+        actions: [if (trip.value case final t?) _TripMenu(t)],
+      ),
       body: AsyncView(
         value: trip,
         onRetry: () => ref.invalidate(ownerTripProvider(tripId)),
@@ -74,7 +77,6 @@ class _Header extends ConsumerWidget {
     final l = context.l10n;
     final fmt = context.fmt;
     final can = trip.allowedCommands.toSet();
-    final api = ref.read(ownerApiProvider);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
@@ -96,14 +98,6 @@ class _Header extends ConsumerWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              if (trip.status == 'created' || trip.status == 'assigned')
-                OutlinedButton.icon(
-                  key: const Key('trip-edit'),
-                  icon: const Icon(Icons.edit_outlined),
-                  label: Text(l.edit),
-                  onPressed: () =>
-                      openScreen<void>(context, CreateTripScreen(trip: trip)),
-                ),
               if (can.contains('assign') || can.contains('reassign'))
                 FilledButton.icon(
                   key: const Key('trip-assign'),
@@ -114,44 +108,100 @@ class _Header extends ConsumerWidget {
                     builder: (_) => AssignDialog(trip: trip),
                   ),
                 ),
-              if (can.contains('unassign'))
-                OutlinedButton(
-                  key: const Key('trip-unassign'),
-                  onPressed: () => runAction(context, () async {
-                    await api.unassign(trip.id, idempotencyKey: _uuid.v4());
-                    _refreshTrip(ref);
-                  }),
-                  child: Text(l.unassign),
-                ),
-              if (can.contains('cancel'))
-                OutlinedButton(
-                  key: const Key('trip-cancel'),
-                  onPressed: () async {
-                    final reason = await askText(
-                      context,
-                      title: l.cancelTripTitle,
-                      label: l.reason,
-                      confirm: l.cancelTrip,
-                      destructive: true,
-                    );
-                    if (reason == null || !context.mounted) return;
-                    await runAction(context, () async {
-                      await api.cancelTrip(
-                        trip.id,
-                        reason: reason,
-                        idempotencyKey: _uuid.v4(),
-                      );
-                      _refreshTrip(ref);
-                    });
-                  },
-                  child: Text(l.cancelTrip),
-                ),
+              TripWhatsAppButton(trip),
             ],
           ),
-          const SizedBox(height: 8),
-          TripShareButtons(trip),
         ],
       ),
+    );
+  }
+}
+
+enum _TripAction { edit, unassign, cancel, copy }
+
+/// The trip's less frequent actions, in the app bar's ⋮ menu: Edit,
+/// Unassign, Cancel trip (in red) and Copy details.
+class _TripMenu extends ConsumerWidget {
+  const _TripMenu(this.trip);
+  final Trip trip;
+
+  Future<void> _cancel(BuildContext context, WidgetRef ref) async {
+    final l = context.l10n;
+    final reason = await askText(
+      context,
+      title: l.cancelTripTitle,
+      label: l.reason,
+      confirm: l.cancelTrip,
+      destructive: true,
+    );
+    if (reason == null || !context.mounted) return;
+    await runAction(context, () async {
+      await ref
+          .read(ownerApiProvider)
+          .cancelTrip(trip.id, reason: reason, idempotencyKey: _uuid.v4());
+      _refreshTrip(ref);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final can = trip.allowedCommands.toSet();
+    final shareText = tripShareTextFor(context, ref, trip);
+    final red = Theme.of(context).colorScheme.error;
+    PopupMenuItem<_TripAction> item(
+      _TripAction value,
+      String key,
+      IconData icon,
+      String label, {
+      Color? color,
+    }) => PopupMenuItem(
+      key: Key(key),
+      value: value,
+      child: Row(
+        children: [
+          Icon(icon, color: color),
+          const SizedBox(width: 12),
+          Text(label, style: TextStyle(color: color)),
+        ],
+      ),
+    );
+    return PopupMenuButton<_TripAction>(
+      key: const Key('trip-menu'),
+      onSelected: (action) => switch (action) {
+        _TripAction.edit => openScreen<void>(
+          context,
+          CreateTripScreen(trip: trip),
+        ),
+        _TripAction.unassign => runAction(context, () async {
+          await ref
+              .read(ownerApiProvider)
+              .unassign(trip.id, idempotencyKey: _uuid.v4());
+          _refreshTrip(ref);
+        }),
+        _TripAction.cancel => _cancel(context, ref),
+        _TripAction.copy => copyTripDetails(context, shareText),
+      },
+      itemBuilder: (_) => [
+        if (trip.status == 'created' || trip.status == 'assigned')
+          item(_TripAction.edit, 'trip-edit', Icons.edit_outlined, l.edit),
+        if (can.contains('unassign'))
+          item(
+            _TripAction.unassign,
+            'trip-unassign',
+            Icons.person_remove_outlined,
+            l.unassign,
+          ),
+        if (can.contains('cancel'))
+          item(
+            _TripAction.cancel,
+            'trip-cancel',
+            Icons.cancel_outlined,
+            l.cancelTrip,
+            color: red,
+          ),
+        item(_TripAction.copy, 'trip-copy', Icons.copy, l.copyDetails),
+      ],
     );
   }
 }

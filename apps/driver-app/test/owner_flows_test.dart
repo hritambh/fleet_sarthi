@@ -328,6 +328,8 @@ void main() {
       h.screen(OwnerTripDetailScreen(tripId: trip['id']! as String)),
     );
     await settle(tester);
+    await tester.tap(find.byKey(const Key('trip-menu')));
+    await settle(tester);
     await tester.tap(find.byKey(const Key('trip-edit')));
     await settle(tester);
 
@@ -352,7 +354,7 @@ void main() {
     expect(call.containsKey('vehicleId'), isFalse);
     expect(h.owner.names, isNot(contains('createTrip')));
     // Back on the trip.
-    expect(find.byKey(const Key('trip-edit')), findsOneWidget);
+    expect(find.byKey(const Key('trip-menu')), findsOneWidget);
   });
 
   testWidgets('a trip that has started has no Edit', (tester) async {
@@ -363,7 +365,95 @@ void main() {
       h.screen(OwnerTripDetailScreen(tripId: trip['id']! as String)),
     );
     await settle(tester);
+    await tester.tap(find.byKey(const Key('trip-menu')));
+    await settle(tester);
     expect(find.byKey(const Key('trip-edit')), findsNothing);
+    expect(find.byKey(const Key('trip-cancel')), findsOneWidget);
+  });
+
+  testWidgets('the trip screen keeps Reassign and WhatsApp; the rest is in ⋮', (
+    tester,
+  ) async {
+    final h = await owner(tester);
+    final trip = tripJson(
+      status: 'assigned',
+      allowed: ['reassign', 'unassign', 'cancel'],
+    );
+    final id = trip['id']! as String;
+    h.owner.tripsById[id] = trip;
+    await tester.pumpWidget(h.screen(OwnerTripDetailScreen(tripId: id)));
+    await settle(tester);
+
+    // On the page: only Reassign and Send on WhatsApp.
+    expect(find.byKey(const Key('trip-assign')), findsOneWidget);
+    expect(find.byKey(const Key('trip-whatsapp')), findsOneWidget);
+    for (final key in [
+      'trip-edit',
+      'trip-unassign',
+      'trip-cancel',
+      'trip-copy',
+    ]) {
+      expect(find.byKey(Key(key)), findsNothing);
+    }
+
+    // In the app bar's menu: Edit, Unassign, Cancel trip (red), Copy details.
+    await tester.tap(find.byKey(const Key('trip-menu')));
+    await settle(tester);
+    for (final key in [
+      'trip-edit',
+      'trip-unassign',
+      'trip-cancel',
+      'trip-copy',
+    ]) {
+      expect(find.byKey(Key(key)), findsOneWidget);
+    }
+    final red = Theme.of(
+      tester.element(find.byKey(const Key('trip-cancel'))),
+    ).colorScheme.error;
+    final cancel = find.byKey(const Key('trip-cancel'));
+    expect(
+      tester
+          .widget<Icon>(
+            find.descendant(of: cancel, matching: find.byType(Icon)),
+          )
+          .color,
+      red,
+    );
+    expect(
+      tester
+          .widget<Text>(
+            find.descendant(of: cancel, matching: find.byType(Text)),
+          )
+          .style
+          ?.color,
+      red,
+    );
+
+    // Unassign from the menu calls the API, as the button did.
+    await tester.tap(find.byKey(const Key('trip-unassign')));
+    await settle(tester);
+    expect(h.owner.last('unassign').args['tripId'], id);
+  });
+
+  testWidgets('Cancel trip from the menu asks for a reason, then cancels', (
+    tester,
+  ) async {
+    final h = await owner(tester);
+    final trip = tripJson(status: 'assigned', allowed: ['reassign', 'cancel']);
+    final id = trip['id']! as String;
+    h.owner.tripsById[id] = trip;
+    await tester.pumpWidget(h.screen(OwnerTripDetailScreen(tripId: id)));
+    await settle(tester);
+    await tester.tap(find.byKey(const Key('trip-menu')));
+    await settle(tester);
+    await tester.tap(find.byKey(const Key('trip-cancel')));
+    await settle(tester);
+    await tester.enterText(find.byType(TextField).last, 'Customer called off');
+    await tester.tap(find.widgetWithText(FilledButton, 'Cancel trip'));
+    await settle(tester);
+    final call = h.owner.last('cancelTrip').args;
+    expect(call['tripId'], id);
+    expect(call['reason'], 'Customer called off');
   });
 
   testWidgets('approve a driver’s cancellation request with a fare', (

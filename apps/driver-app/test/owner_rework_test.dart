@@ -391,6 +391,8 @@ void main() {
         h.screen(const OwnerTripDetailScreen(tripId: tripId)),
       );
       await settle(tester);
+      await tester.tap(find.byKey(const Key('trip-menu')));
+      await settle(tester);
       await tester.tap(find.byKey(const Key('trip-copy')));
       await settle(tester);
       expect(copied, contains('Pickup: Pune Station'));

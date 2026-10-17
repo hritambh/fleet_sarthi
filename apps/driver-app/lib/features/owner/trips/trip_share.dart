@@ -50,54 +50,49 @@ Uri whatsAppUri(String text, String? phoneE164) {
   return Uri.https('wa.me', digits.isEmpty ? '/' : '/$digits', {'text': text});
 }
 
-/// Copy and WhatsApp buttons for [trip].
-class TripShareButtons extends ConsumerWidget {
-  const TripShareButtons(this.trip, {super.key});
+/// [tripShareText] for [trip], with its driver's phone once drivers load.
+String tripShareTextFor(BuildContext context, WidgetRef ref, Trip trip) {
+  final drivers = ref.watch(driversProvider).value ?? const [];
+  final driverPhone = drivers
+      .where((d) => d.id == trip.driverId)
+      .firstOrNull
+      ?.phone;
+  return tripShareText(context.fmt, trip, driverPhone: driverPhone);
+}
+
+/// Copies [text] (the trip's details) and says so.
+Future<void> copyTripDetails(BuildContext context, String text) async {
+  final l = context.l10n;
+  await Clipboard.setData(ClipboardData(text: text));
+  if (!context.mounted) return;
+  ScaffoldMessenger.of(
+    context,
+  ).showSnackBar(SnackBar(content: Text(l.detailsCopied)));
+}
+
+/// The WhatsApp button for [trip]. Copying the details is in the trip's menu.
+class TripWhatsAppButton extends ConsumerWidget {
+  const TripWhatsAppButton(this.trip, {super.key});
   final Trip trip;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final drivers = ref.watch(driversProvider).value ?? const [];
-    final driverPhone = drivers
-        .where((d) => d.id == trip.driverId)
-        .firstOrNull
-        ?.phone;
-    final text = tripShareText(context.fmt, trip, driverPhone: driverPhone);
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        OutlinedButton.icon(
-          key: const Key('trip-copy'),
-          icon: const Icon(Icons.copy),
-          label: Text(l.copyDetails),
-          onPressed: () async {
-            await Clipboard.setData(ClipboardData(text: text));
-            if (!context.mounted) return;
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(l.detailsCopied)));
-          },
-        ),
-        FilledButton.icon(
-          key: const Key('trip-whatsapp'),
-          style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFF1FA855),
-          ),
-          icon: const Icon(Icons.chat),
-          label: Text(l.shareOnWhatsApp),
-          onPressed: () async {
-            final opened = await ref.read(urlOpenerProvider)(
-              whatsAppUri(text, trip.customerPhone),
-            );
-            if (opened || !context.mounted) return;
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(l.whatsAppUnavailable)));
-          },
-        ),
-      ],
+    final text = tripShareTextFor(context, ref, trip);
+    return FilledButton.icon(
+      key: const Key('trip-whatsapp'),
+      style: FilledButton.styleFrom(backgroundColor: const Color(0xFF1FA855)),
+      icon: const Icon(Icons.chat),
+      label: Text(l.shareOnWhatsApp),
+      onPressed: () async {
+        final opened = await ref.read(urlOpenerProvider)(
+          whatsAppUri(text, trip.customerPhone),
+        );
+        if (opened || !context.mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l.whatsAppUnavailable)));
+      },
     );
   }
 }
